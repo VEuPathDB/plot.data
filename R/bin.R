@@ -1,3 +1,5 @@
+# TODO consider using noStatsFacet to generate the lists per group
+
 binSize <- function(data, col, group = NULL, panel = NULL, binWidth) {
   aggStr <- getAggStr(col, group, panel)
   aggStr2 <- paste(c(aggStr, 'x'), collapse = " + ")

@@ -1,3 +1,6 @@
+# TODO profile and optimize
+# consider changing x and y to independent and dependent
+
 groupSummary <- function(data, col, group = NULL, panel = NULL) {
   aggStr <- getAggStr(col, group, panel)
 
