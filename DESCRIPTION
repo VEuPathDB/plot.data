@@ -1,0 +1,20 @@
+Package: plot.data
+Title: Create `data.table`s of Ready to Plot Data
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Danielle",
+           family = "Callan",
+           role = c("aut", "cre"),
+           email = "dcallan@upenn.edu")
+Imports:
+    data.table,
+    epitools,
+    mgcv,
+    purrr
+URL: https://github.com/VEuPathDB/plot.data
+BugReports: https://github.com/VEuPathDB/plot.data/issues
+Description: Build `data.table`s where each row represents data for one group per panel. Optionally compute various statistics (ex:, smoothed conditional mean, odds ratio, relative risk).
+License: What license it uses
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
