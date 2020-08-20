@@ -1,10 +1,8 @@
-#TODO consider if x and y need reversing.. 
-
 panelOddsRatio <- function(data, col, group, panel = NULL) {
-  names(data)[names(data) == col] <- 'x'
-  names(data)[names(data) == group] <- 'y'
-  col <- 'x'
-  group <- 'y'
+  names(data)[names(data) == col] <- 'y'
+  names(data)[names(data) == group] <- 'x'
+  col <- 'y'
+  group <- 'x'
 
   if (is.null(panel)) {
     dt <- oddsRatio(data)
@@ -19,10 +17,10 @@ panelOddsRatio <- function(data, col, group, panel = NULL) {
 }
 
 panelRelativeRisk <- function(data, col, group, panel = NULL) {
-  names(data)[names(data) == col] <- 'x'
-  names(data)[names(data) == group] <- 'y'
-  col <- 'x'
-  group <- 'y'
+  names(data)[names(data) == col] <- 'y'
+  names(data)[names(data) == group] <- 'x'
+  col <- 'y'
+  group <- 'x'
 
   if (is.null(panel)) {
     dt <- relativeRisk(data)
