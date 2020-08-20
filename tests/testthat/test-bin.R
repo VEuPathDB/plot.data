@@ -1,12 +1,12 @@
 context('bin')
 
 test_that("binProportion() returns consistent results", {
-  dt <- binProportion(data.xy,'y')
+  dt <- binProportion(data.xy,'y', binWidth=.1)
   expect_equal_to_reference(dt,"proportion.rds")
-  dt <- binProportion(data.xy, 'y','group')
+  dt <- binProportion(data.xy, 'y','group', binWidth=.1)
   expect_equal_to_reference(dt,"proportion.group.rds")
-  dt <- binProportion(data.xy, 'y', NULL, 'panel')
+  dt <- binProportion(data.xy, 'y', NULL, 'panel', binWidth=.1)
   expect_equal_to_reference(dt,"proportion.panel.rds")
-  dt <- binProportion(data.xy, 'y', 'group', 'panel')
+  dt <- binProportion(data.xy, 'y', 'group', 'panel', binWidth=.1)
   expect_equal_to_reference(dt,"proportion.group.panel.rds")  
 })
