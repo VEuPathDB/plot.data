@@ -20,12 +20,12 @@ test_that("groupSmoothedMean() returns consistent results", {
 })
 
 test_that("groupDensity() returns consistent results", {
-  dt <- groupDensity(data.binned,'y')
+  dt <- groupDensity(data.xy,'y')
   expect_equal_to_reference(dt,"density.rds")
-  dt <- groupDensity(data.binned, 'y','group')
+  dt <- groupDensity(data.xy, 'y','group')
   expect_equal_to_reference(dt,"density.group.rds")
-  dt <- groupDensity(data.binned, 'y', NULL, 'panel')
+  dt <- groupDensity(data.xy, 'y', NULL, 'panel')
   expect_equal_to_reference(dt,"density.panel.rds")
-  dt <- groupDensity(data.binned, 'y', 'group', 'panel')
+  dt <- groupDensity(data.xy, 'y', 'group', 'panel')
   expect_equal_to_reference(dt,"density.group.panel.rds")
 })
