@@ -4,12 +4,10 @@
 \alias{relativeRisk}
 \title{Relative Risk}
 \usage{
-relativeRisk(group, col)
+relativeRisk(data)
 }
 \arguments{
-\item{group}{Single factor or character vector that will be combined with ‘col’ into a table. This is the independent variable.}
-
-\item{col}{Single factor or character vector that will be combined with ‘group’ into a table. This is the dependent variable, and should have two unique values.}
+\item{data}{A data.table with two columns 'x' and 'y'. The two will be combined into a table. The first is the independent variable and can have any number of values. The second is the dependent variable, and should have two unique values.}
 }
 \value{
 data.table with one row per group

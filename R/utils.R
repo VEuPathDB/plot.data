@@ -1,5 +1,11 @@
+emptyStringToNull <- function(x) {
+  if (x == "") { x <- NULL }
+
+  return(x)
+}
+
 getAggStr <- function(col, group, panel) {
-  aggStr <- paste(c(col, paste(c(group,panel), collapse=" + ")), collapse=" ~ ")
+  aggStr <- paste(c(col, emptyStringToNull(paste(c(group,panel), collapse=" + "))), collapse=" ~ ")
 
   return(aggStr)
 }
@@ -30,7 +36,7 @@ fences <- function(x) {
 #' @return Numeric vector of outliers
 #' @export
 outliers <- function(x) {
-  fences <- stats::fences(x)
+  fences <- fences(x)
 
   return(x[x < fences[1] | x > fences[2]])
 }
@@ -46,7 +52,7 @@ outliers <- function(x) {
 densityCurve <- function(x) {
   curve <- stats::density(x)
 
-  return(data.table::data.table("x" = list(curve$x), "y" = list(curve$y)))
+  return(data.table::data.table("x" = c(curve$x), "y" = c(curve$y)))
 }
 
 # Fast data.frame constructor and indexing
@@ -186,12 +192,11 @@ epitabToDT <- function(m, method) {
 #' Odds Ratio
 #'
 #' This function calculates odds ratio, confidence intervals and p-values for epidemiologic data 
-#' @param group Single factor or character vector that will be combined with ‘col’ into a table. This is the independent variable.
-#' @param col Single factor or character vector that will be combined with ‘group’ into a table. This is the dependent variable, and should have two unique values.
+#' @param data A data.table with two columns 'x' and 'y'. The two will be combined into a table. The first is the independent variable and can have any number of values. The second is the dependent variable, and should have two unique values.
 #' @return data.table with one row per group
 #' @export
-oddsRatio <- function(group, col) {
-  m <- epitools::epitab(group, col, method = "oddsratio")$tab
+oddsRatio <- function(data) {
+  m <- epitools::epitab(data$x, data$y, method = "oddsratio")$tab
   dt <- epitabToDT(m, 'oddsratio')
 
   return(dt)
@@ -200,12 +205,11 @@ oddsRatio <- function(group, col) {
 #' Relative Risk
 #'
 #' This function calculates relative risk, confidence intervals and p-values for epidemiologic data 
-#' @param group Single factor or character vector that will be combined with ‘col’ into a table. This is the independent variable.
-#' @param col Single factor or character vector that will be combined with ‘group’ into a table. This is the dependent variable, and should have two unique values.
+#' @param data A data.table with two columns 'x' and 'y'. The two will be combined into a table. The first is the independent variable and can have any number of values. The second is the dependent variable, and should have two unique values.
 #' @return data.table with one row per group
 #' @export
-relativeRisk <- function(group, col) {
-  m <- epitools:epitab(group, col, method = "riskratio")$tab
+relativeRisk <- function(data) {
+  m <- epitools:epitab(data$x, data$y, method = "riskratio")$tab
   dt <- epitabToDT(m, 'relativerisk')
 
   return(dt)

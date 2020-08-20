@@ -33,7 +33,7 @@ groupMean <- function(data, col, group = NULL, panel = NULL) {
   aggStr <- getAggStr(col, group, panel)
 
   if (aggStr == col) {
-    dt <- data.table::as.data.table(t(round(mean(data[[col]],4))))
+    dt <- data.table::as.data.table(t(round(mean(data[[col]]),4)))
   } else {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, FUN = function(x){round(mean(x),4)}))
   }
@@ -47,7 +47,7 @@ groupSD <- function(data, col, group = NULL, panel = NULL) {
   aggStr <- getAggStr(col, group, panel)
 
   if (aggStr == col) {
-    dt <- data.table::as.data.table(t(round(sd(data[[col]],4))))
+    dt <- data.table::as.data.table(t(round(sd(data[[col]]),4)))
   } else {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, FUN = function(x){round(stats::sd(x),4)}))
   }
@@ -110,11 +110,19 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
   method <- 'loess'
   if (maxGroupSize > 1000) { method <- 'gam' }
 
-
-  if (aggStr == col) {
+  if (aggStr == y) {
     dt <- smoothedMean(data, method)
   } else {
-    dt.list <- split(data, list(data[[group]], data[[panel]]))
+    if (is.null(panel)) {
+      colsList <- list(data[[group]])
+    } else {
+      if (is.null(group)) {
+        colsList <- list(data[[panel]])
+      } else {
+        colsList <- list(data[[group]], data[[panel]])
+      }
+    }
+    dt.list <- split(data, colsList)
     dt.list <- lapply(dt.list, smoothedMean, method)
     dt <- purrr::reduce(dt.list, rbind)
     dt$name <- names(dt.list)

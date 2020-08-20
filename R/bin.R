@@ -2,7 +2,11 @@
 
 binSize <- function(data, col, group = NULL, panel = NULL, binWidth) {
   aggStr <- getAggStr(col, group, panel)
-  aggStr2 <- paste(c(aggStr, 'x'), collapse = " + ")
+  if (aggStr == col) {
+    aggStr2 <- paste(c(aggStr, 'x'), collapse = " ~ ")
+  } else {
+    aggStr2 <- paste(c(aggStr, 'x'), collapse = " + ")
+  }
   aggStr3 <- getAggStr('x', group, panel)
 
   data$x <- bin(data[[col]], binWidth)
@@ -24,7 +28,11 @@ binSize <- function(data, col, group = NULL, panel = NULL, binWidth) {
 
 binProportion <- function(data, col, group = NULL, panel = NULL, binWidth) {
   aggStr <- getAggStr(col, group, panel)
-  aggStr2 <- paste(c(aggStr, 'x'), collapse=" + ")
+  if (aggStr == col) {
+    aggStr2 <- paste(c(aggStr, 'x'), collapse = " ~ ")
+  } else {
+    aggStr2 <- paste(c(aggStr, 'x'), collapse = " + ")
+  }
   aggStr3 <- getAggStr('x', group, panel)
 
   data$x <- bin(data[[col]], binWidth)
