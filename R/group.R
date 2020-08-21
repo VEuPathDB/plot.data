@@ -99,6 +99,7 @@ groupDensity <- function(data, col, group = NULL, panel = NULL) {
   return(dt)
 }
 
+#' @importFrom purrr reduce
 groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
   names(data)[names(data) == y] <- 'y'
   names(data)[names(data) == x] <- 'x'

@@ -49,6 +49,7 @@ outliers <- function(x) {
 #' @param x Numeric vector to calculate smoothed density estimates for
 #' @return data.table with two columns: x) the coordinates of the points where the density is estimated and y) the estimated density values. These will be non-negative, but can be zero. 
 #' @export
+#' @import data.table
 densityCurve <- function(x) {
   curve <- stats::density(x)
 
@@ -136,6 +137,7 @@ predictdf.gam <- function(model, xseq, se = TRUE, level = .95) {
 #' @return data.table with the follwing columns x, y (predicted mean), ymin, ymax (lower and upper bound of confidence interval), se (standard error) 
 
 #' @export
+#' @importFrom mgcv gam
 smoothedMean <- function(dt, method) {
   xseq <- sort(unique(dt$x))
 
@@ -195,6 +197,7 @@ epitabToDT <- function(m, method) {
 #' @param data A data.table with two columns 'x' and 'y'. The two will be combined into a table. The first is the independent variable and can have any number of values. The second is the dependent variable, and should have two unique values.
 #' @return data.table with one row per group
 #' @export
+#' @importFrom epitools epitab
 oddsRatio <- function(data) {
   m <- epitools::epitab(data$x, data$y, method = "oddsratio")$tab
   dt <- epitabToDT(m, 'oddsratio')
