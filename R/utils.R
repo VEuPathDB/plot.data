@@ -30,7 +30,7 @@ contingencyDT <- function(data) {
   dt <- as.data.frame.matrix(table(data$x, data$y))
   dt$label <- rownames(dt)
 
-  return(as.data.table(dt))
+  return(data.table::as.data.table(dt))
 }
 
 #' Make Plot Panels
@@ -43,7 +43,7 @@ contingencyDT <- function(data) {
 #' @param facet2 name of a column in data to find interaction for
 #' @return list of length 2: list(data, panel)
 #' @export
-makePanels <- function(data, facet1Name = NULL, facet2Name = NULL) {
+makePanels <- function(data, facet1 = NULL, facet2 = NULL) {
   if (!is.null(facet1) && !is.null(facet2)) {
     data$panel <- interaction(data[[facet1]], data[[facet2]])
     data[[facet1]] <- NULL
@@ -236,7 +236,8 @@ smoothedMean <- function(dt, method) {
 bin <- function(x, binWidth) {
   summary <- stats::quantile(x)
   bounds <- c(summary[1], summary[5])
-  bounds <- sign(bounds) * ceiling(abs(bounds) * 100) / 100
+  bounds[1] <- floor(bounds[1] * 100) / 100
+  bounds[2] <- sign(bounds[2]) * ceiling(abs(bounds[2]) * 100) / 100
   breaks <- seq(bounds[1], bounds[2], binWidth)
   breaks <- c(breaks, (breaks[length(breaks)] + binWidth))
 
@@ -282,7 +283,7 @@ oddsRatio <- function(data) {
 #' @return data.table with one row per group
 #' @export
 relativeRisk <- function(data) {
-  m <- epitools:epitab(data$x, data$y, method = "riskratio")$tab
+  m <- epitools::epitab(data$x, data$y, method = "riskratio")$tab
   dt <- epitabToDT(m, 'relativerisk')
 
   return(dt)
