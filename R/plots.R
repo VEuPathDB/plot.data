@@ -1,6 +1,7 @@
 # TODO make sure column names in 'data' are right ('x', 'y', 'color' etc)
 # TODO make sure each plot type has all needed map entries
 ## ex line may need x and y just to relabel the columns ??
+# TODO consider whether to convert to JSON in R or Java
 
 #' Scatter Plot as data.table
 #'
@@ -43,6 +44,7 @@ scattergl <- function(data, map, smoothedMean = FALSE) {
   return(data)
 }
 
+# TODO consider if line and density should be one thing ?
 
 #' Line Plot as data.table
 #'
@@ -93,6 +95,8 @@ density <- function(data, map) {
 
   return(data)
 }
+
+# TODO possible we wont have groups and panels here.. probably best
 
 #' Heatmap as data.table
 #'
@@ -192,6 +196,7 @@ box <- function(data, map, outliers = FALSE, mean = FALSE, sd = FALSE) {
   return(data)
 }
 
+# TODO make sure this can serve pie as well
 
 #' Bar Plot as data.table
 #'
