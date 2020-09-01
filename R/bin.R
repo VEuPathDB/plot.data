@@ -1,57 +1,37 @@
-# TODO consider using noStatsFacet to generate the lists per group
-
 binSize <- function(data, col, group = NULL, panel = NULL, binWidth) {
-  aggStr <- getAggStr(col, group, panel)
-  if (aggStr == col) {
-    aggStr2 <- paste(c(aggStr, 'x'), collapse = " ~ ")
-  } else {
-    aggStr2 <- paste(c(aggStr, 'x'), collapse = " + ")
-  }
-  aggStr3 <- getAggStr('x', group, panel)
+  aggStr <- getAggStr(col, 'x', group, panel)
 
   data$x <- bin(data[[col]], binWidth)
 
-  if (aggStr == col) {
-    dt <- aggregate(as.formula(aggStr2), data, length)
+  if (is.null(group) && is.null(panel)) {
+    dt <- aggregate(as.formula(aggStr), data, length)
     dt <- data.table::data.table('x' = list(dt$x), 'y' = list(dt[[col]]))
   } else {
-    dt <- aggregate(as.formula(aggStr2), data, length)
-    dt2 <- aggregate(as.formula(aggStr), dt, list)
-    dt3 <- aggregate(as.formula(aggStr3), dt, list)
-    mergeByCols <- c(group, panel)
-    dt <- merge(dt2, dt3, by = mergeByCols)
-    names(dt) <- c(group, panel, 'y', 'x')
+    dt <- aggregate(as.formula(aggStr), data, length)
+    dt <- noStatsFacet(dt, col, 'x', group = group, panel = panel)
   }
 
   return(dt)
 }
 
 binProportion <- function(data, col, group = NULL, panel = NULL, binWidth) {
-  aggStr <- getAggStr(col, group, panel)
-  if (aggStr == col) {
-    aggStr2 <- paste(c(aggStr, 'x'), collapse = " ~ ")
-  } else {
-    aggStr2 <- paste(c(aggStr, 'x'), collapse = " + ")
-  }
-  aggStr3 <- getAggStr('x', group, panel)
+  aggStr <- getAggStr(col, 'x', group, panel)
+  aggStr2 <- getAggStr(col, group, panel)
 
   data$x <- bin(data[[col]], binWidth)
 
-  if (aggStr == col) {
-    dt <- aggregate(as.formula(aggStr2), data, length)
+  if (is.null(group) && is.null(panel)) {
+    dt <- aggregate(as.formula(aggStr), data, length)
     dt$denom <- length(data[[col]])
     dt <- data.table::data.table('x' = list(dt$x), 'y' = list(dt[[col]]/dt$denom))
   } else {
-    dt <- aggregate(as.formula(aggStr2), data, length)
-    dt2 <- aggregate(as.formula(aggStr), data, length)
+    dt <- aggregate(as.formula(aggStr), data, length)
+    dt2 <- aggregate(as.formula(aggStr2), data, length)
     names(dt2) <- c(group, panel, 'denom')
     mergeByCols <- c(group, panel)
-    dt2 <- merge(dt, dt2, by = mergeByCols)
-    dt2[[col]] <- dt2[[col]]/dt2$denom
-    dt2 <- aggregate(as.formula(aggStr), dt2, list)
-    dt3 <- aggregate(as.formula(aggStr3), dt, list)
-    dt <- merge(dt2, dt3, by = mergeByCols)
-    names(dt) <- c(group, panel, 'y', 'x')
+    dt <- merge(dt, dt2, by = mergeByCols)
+    dt[[col]] <- dt[[col]]/dt$denom
+    dt <- noStatsFacet(dt, 'x', col, group = group, panel = panel)
   }
 
   return(dt)

@@ -1,11 +1,82 @@
+getInteractionColsList <- function(data, group, panel) {
+  if (is.null(panel)) {
+    colsList <- list(data[[group]])
+  } else {
+    if (is.null(group)) {
+      colsList <- list(data[[panel]])
+    } else {
+      colsList <- list(data[[group]], data[[panel]])
+    }
+  }
+  
+  return(colsList)  
+}
+
+removeGroupPanel <- function(data, group, panel) {
+  data[[group]] <- NULL
+  data[[panel]] <- NULL
+  
+  return(data)
+}
+
+#' Contingency Table as data.table
+#'
+#' This function returns a data.table representation of the results
+#' from table() 
+#' @param data data.table to make contingency table for
+#' @return data.table of frequency distribution values
+#' @export
+contingencyDT <- function(data) {
+  dt <- as.data.frame.matrix(table(data$x, data$y))
+  dt$label <- rownames(dt)
+
+  return(as.data.table(dt))
+}
+
+#' Make Plot Panels
+#'
+#' This function returns a list where the first entry is a data.table
+#' with one column representing a list of plot panels and the second 
+#' entry is the name of the column specifying the plot panels.
+#' @param data data.table to make plot panels for
+#' @param facet1 name of a column in data to find interaction for
+#' @param facet2 name of a column in data to find interaction for
+#' @return list of length 2: list(data, panel)
+#' @export
+makePanels <- function(data, facet1Name = NULL, facet2Name = NULL) {
+  if (!is.null(facet1) && !is.null(facet2)) {
+    data$panel <- interaction(data[[facet1]], data[[facet2]])
+    data[[facet1]] <- NULL
+    data[[facet2]] <- NULL
+    panel <- 'panel'
+  } else if (!is.null(facet1)) {
+    panel <- facet1
+  } else if (!is.null(facet2)) {
+    panel <- facet2
+  } else {
+    panel <- NULL
+  }
+
+  return(list(data,panel))
+}
+
+emptyStringToPoint <- function(x) {
+  if (x == "") { x <- "." }
+
+  return(x)
+}
+
 emptyStringToNull <- function(x) {
   if (x == "") { x <- NULL }
 
   return(x)
 }
 
-getAggStr <- function(col, group, panel) {
-  aggStr <- paste(c(col, emptyStringToNull(paste(c(group,panel), collapse=" + "))), collapse=" ~ ")
+#TODO consider if empty grouping vars are NULL or go to '.'
+getAggStr <- function(numericVars, groupingVars) {
+  numericString <- emptyStringToPoint(paste(numericVars, collapse= " + "))
+  groupingString <- emptyStringToNull(paste(groupingVars, collapse=" + "))
+  aggStr <- paste(c(numericString, groupingString), collapse=" ~ ")
 
   return(aggStr)
 }
@@ -172,7 +243,6 @@ bin <- function(x, binWidth) {
   return(as.character(cut(x, breaks=breaks)))
 }
 
-# TODO may have x and y reversed
 epitabToDT <- function(m, method) {
   dt <- data.table::as.data.table(m)
   dt$group <- rownames(m)
