@@ -1,5 +1,5 @@
 binSize <- function(data, col, group = NULL, panel = NULL, binWidth) {
-  aggStr <- getAggStr(col, 'x', group, panel)
+  aggStr <- getAggStr(col, c('x', group, panel))
 
   data$x <- bin(data[[col]], binWidth)
 
@@ -8,15 +8,15 @@ binSize <- function(data, col, group = NULL, panel = NULL, binWidth) {
     dt <- data.table::data.table('x' = list(dt$x), 'y' = list(dt[[col]]))
   } else {
     dt <- aggregate(as.formula(aggStr), data, length)
-    dt <- noStatsFacet(dt, col, 'x', group = group, panel = panel)
+    dt <- noStatsFacet(dt, group, panel)
   }
 
   return(dt)
 }
 
 binProportion <- function(data, col, group = NULL, panel = NULL, binWidth) {
-  aggStr <- getAggStr(col, 'x', group, panel)
-  aggStr2 <- getAggStr(col, group, panel)
+  aggStr <- getAggStr(col, c('x', group, panel))
+  aggStr2 <- getAggStr(col, c(group, panel))
 
   data$x <- bin(data[[col]], binWidth)
 
@@ -31,7 +31,8 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth) {
     mergeByCols <- c(group, panel)
     dt <- merge(dt, dt2, by = mergeByCols)
     dt[[col]] <- dt[[col]]/dt$denom
-    dt <- noStatsFacet(dt, 'x', col, group = group, panel = panel)
+    dt$denom <- NULL
+    dt <- noStatsFacet(dt, group, panel)
   }
 
   return(dt)

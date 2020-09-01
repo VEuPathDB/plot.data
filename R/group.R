@@ -2,7 +2,7 @@
 # consider changing x and y to independent and dependent
 
 groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL) {
-  aggStr <- getAggStr(y, x, group, panel)
+  aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
     dt <- data.table::as.data.table(t(round(quantile(data[[y]]),4)))
@@ -17,7 +17,7 @@ groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL) {
 }
 
 groupFences <- function(data, x = NULL, y, group = NULL, panel = NULL) {
-  aggStr <- getAggStr(y, x, group, panel)
+  aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
     dt <- data.table::as.data.table(t(fences(data[[y]])))
@@ -32,7 +32,7 @@ groupFences <- function(data, x = NULL, y, group = NULL, panel = NULL) {
 }
 
 groupMean <- function(data, x = NULL, y, group = NULL, panel = NULL) {
-  aggStr <- getAggStr(y, x, group, panel)
+  aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
     dt <- data.table::as.data.table(t(round(mean(data[[y]]),4)))
@@ -47,7 +47,7 @@ groupMean <- function(data, x = NULL, y, group = NULL, panel = NULL) {
 }
 
 groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL) {
-  aggStr <- getAggStr(y, x, group, panel)
+  aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
     dt <- data.table::as.data.table(t(round(sd(data[[y]]),4)))
@@ -62,7 +62,7 @@ groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL) {
 }
 
 groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL) {
-  aggStr <- getAggStr(y, x, group, panel)
+  aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
     dt <- data.table::as.data.table(t(length(data[[y]])))
@@ -76,7 +76,7 @@ groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL) {
 }
 
 groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL) {
-  aggStr <- getAggStr(y, x, group, panel)
+  aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
     dt <- data.table::as.data.table(t(outliers(data[[col]])))
@@ -91,7 +91,7 @@ groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL) {
 }
 
 groupDensity <- function(data, col, group = NULL, panel = NULL) {
-  aggStr <- getAggStr(col, group, panel)
+  aggStr <- getAggStr(col, c(group, panel))
 
   if (aggStr == col) {
     dt <- densityCurve(data[[col]])
@@ -110,9 +110,9 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
   names(data)[names(data) == x] <- 'x'
   y <- 'y'
   x <- 'x'
-  aggStr <- getAggStr(y, group, panel)
+  aggStr <- getAggStr(y, c(group, panel))
 
-  maxGroupSize <- max(groupSize(data, y, group, panel)$size)
+  maxGroupSize <- max(groupSize(data, x = NULL, y, group, panel)$size)
   method <- 'loess'
   if (maxGroupSize > 1000) { method <- 'gam' }
 
@@ -124,10 +124,13 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
     dt.list <- lapply(dt.list, smoothedMean, method)
     dt <- purrr::reduce(dt.list, rbind)
     dt$name <- names(dt.list)
-    dt$group <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
-    if (all(is.na(dt$group))) { dt$group <- NULL }
-    dt$panel <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
-    if (all(is.na(dt$panel))) { dt$panel <- NULL }
+    if (is.null(group)) {
+      dt$panel <- dt$name
+    } else {
+      dt$group <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
+      dt$panel <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
+      if (all(is.na(dt$panel))) { dt$panel <- NULL }
+    }
     dt$name <- NULL
   }
 
@@ -135,6 +138,10 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
 }
 
 noStatsFacet <- function(data, group = NULL, panel = NULL) {
+  if (class(data) != "data.table") {
+    data <- as.data.table(data)
+  }
+
   if (is.null(group) && is.null(panel)) {
     dt <- data[, lapply(.SD, list)]
   } else {   
@@ -150,7 +157,7 @@ groupTable <- function(data, x, y, group = NULL, panel = NULL) {
   names(data)[names(data) == x] <- 'x'
   y <- 'y'
   x <- 'x'
-  aggStr <- getAggStr(y, group, panel)
+  aggStr <- getAggStr(y, c(group, panel))
 
   if (aggStr == y) {
     dt <- contingencyDF(data)
@@ -163,10 +170,13 @@ groupTable <- function(data, x, y, group = NULL, panel = NULL) {
     #dt <- purrr::reduce(dt.list, rbind)
     #dt$name <- names
     dt <- data.table::data.table('name' = names(dt.list), 'table' = dt.list)
-    dt$group <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
-    if (all(is.na(dt$group))) { dt$group <- NULL }
-    dt$panel <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
-    if (all(is.na(dt$panel))) { dt$panel <- NULL }
+    if (is.null(group)) {
+      dt$panel <- dt$name
+    } else {
+      dt$group <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
+      dt$panel <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
+      if (all(is.na(dt$panel))) { dt$panel <- NULL }
+    }
     dt$name <- NULL
   }
 
@@ -192,10 +202,13 @@ groupSplit <- function(data, x, y, z, group, panel, longToWide = FALSE) {
     names <- names(dt.list)
     dt.list <- lapply(dt.list, removeGroupPanel, group, panel)
     dt <- data.table::data.table('name' = names(dt.list), 'table' = dt.list)
-    dt$group <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
-    if (all(is.na(dt$group))) { dt$group <- NULL }
-    dt$panel <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
-    if (all(is.na(dt$panel))) { dt$panel <- NULL }
+    if (is.null(group)) {
+      dt$panel <- dt$name
+    } else {
+      dt$group <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
+      dt$panel <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
+      if (all(is.na(dt$panel))) { dt$panel <- NULL }
+    }
     dt$name <- NULL
   }
 
