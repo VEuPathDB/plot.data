@@ -61,13 +61,15 @@ makePanels <- function(data, facet1 = NULL, facet2 = NULL) {
 }
 
 emptyStringToPoint <- function(x) {
-  if (x == "") { x <- "." }
+  if (length(x) == 0) { return(".") }
+  if (x == "") { return(".") }
 
   return(x)
 }
 
 emptyStringToNull <- function(x) {
-  if (x == "") { x <- NULL }
+  if (length(x) == 0) { return(NULL) }
+  if (x == "") { return(NULL) }
 
   return(x)
 }

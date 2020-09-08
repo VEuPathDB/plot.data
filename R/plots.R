@@ -1,7 +1,8 @@
-# TODO make sure column names in 'data' are right ('x', 'y', 'color' etc)
+# TODO make sure column names in 'data' are right ('x', 'y', 'overlayVariable' etc)
 # TODO make sure each plot type has all needed map entries
 ## ex line may need x and y just to relabel the columns ??
 # TODO consider whether to convert to JSON in R or Java
+## if we do it in R, i need to have one row per panel rather than per group per panel. otherwise we can loop through unique panels in java 
 
 #' Scatter Plot as data.table
 #'
@@ -18,15 +19,20 @@
 #' @return data.table of plot-ready data
 #' @export
 scattergl <- function(data, map, smoothedMean = FALSE) {
-  group <- map$id[map$plotRef == 'color']
-  y <- map$id[map$plotRef == 'yaxis']
-  x <- map$id[map$plotRef == 'xaxis']
-  facet1 <- map$id[map$plotRef == 'facet1']
-  facet2 <- map$id[map$plotRef == 'facet2']
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]
   panel <- panelData[[2]]
+  myCols <- c(y, x, group, panel)
+  data.back <- data
+  data <- as.data.table(data)
+  data <- data[, myCols, with=FALSE]
+  mergeByCols <- c(group, panel)
 
   series <- noStatsFacet(data, group, panel)
   names(series) <- c(group, panel, 'series.y', 'series.x') 
@@ -35,16 +41,25 @@ scattergl <- function(data, map, smoothedMean = FALSE) {
     interval <- groupSmoothedMean(data, x, y, group, panel)
     interval <- interval[, !c('ymin', 'ymax')]
     names(interval) <- c('interval.x', 'interval.y', 'interval.se', group, panel) 
-    mergeCols <- c(group, panel)
-    data <- merge(series, interval, by = mergeCols)
+    if (!is.null(mergeByCols)) {
+      data <- merge(series, interval, by = mergeByCols)
+    } else {
+      data <- cbind(series, interval)
+    }
   } else {
     data <- series
   }
 
+  data.back <- noStatsFacet(data.back, group, panel)
+  data.back <- data.back[, -c(y, x), with = FALSE]
+  if (!is.null(mergeByCols)) {
+    data <- merge(data, data.back, by = mergeByCols)
+  } else {
+    data <- cbind(data, data.back)
+  }
+
   return(data)
 }
-
-# TODO consider if line and density should be one thing ?
 
 #' Line Plot as data.table
 #'
@@ -57,9 +72,9 @@ scattergl <- function(data, map, smoothedMean = FALSE) {
 #' @return data.table of plot-ready data
 #' @export
 line <- function(data, map) {
-  group <- map$id[map$plotRef == 'color']
-  facet1 <- map$id[map$plotRef == 'facet1']
-  facet2 <- map$id[map$plotRef == 'facet2']
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]
@@ -82,21 +97,34 @@ line <- function(data, map) {
 #' @return data.table of plot-ready data
 #' @export
 density <- function(data, map) {
-  group <- map$id[map$plotRef == 'color']
-  x <- map$id[map$plotRef == 'xaxis']
-  facet1 <- map$id[map$plotRef == 'facet1']
-  facet2 <- map$id[map$plotRef == 'facet2']
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]
   panel <- panelData[[2]]
+  myCols <- c(x, group, panel)
+  data.back <- data
+  data <- as.data.table(data)
+  data <- data[, myCols, with=FALSE]
+  mergeByCols <- c(group, panel)
 
   data <- groupDensity(data, x, group, panel)
+  data.back <- noStatsFacet(data.back, group, panel)
+  data.back <- data.back[, -c(x), with = FALSE]
+  if (!is.null(mergeByCols)) {
+    data <- merge(data, data.back, by = mergeByCols)
+  } else {
+    data <- cbind(data, data.back)
+  }
 
   return(data)
 }
 
 # TODO possible we wont have groups and panels here.. probably best
+# dev tests once we know what we're doing here
 
 #' Heatmap as data.table
 #'
@@ -108,7 +136,7 @@ density <- function(data, map) {
 #' There are three ways to calculate z-values for the heatmap.
 #' 1) 'collection' of numeric variables vs single categorical
 #' 2) single numeric vs single categorical on a 'series' of dates
-#' where yaxis = categorical, xaxis = date and zaxis = numeric
+#' where yAxisVariable = categorical, xAxisVariable = date and zaxis = numeric
 #' 3) 'interaction' of two categorical variables (cont. table)
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot 
@@ -116,18 +144,23 @@ density <- function(data, map) {
 #' @return data.table of plot-ready data
 #' @export
 heatmap <- function(data, map, value = 'collection') {
-  group <- map$id[map$plotRef == 'color']
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
   #NOTE: one or the other of these could be a list for 'collection'
-  y <- map$id[map$plotRef == 'yaxis']
-  x <- map$id[map$plotRef == 'xaxis']
+  y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
   #NOTE: this for the case of 'series'
-  z <- map$id[map$plotRef == 'zaxis']
-  facet1 <- map$id[map$plotRef == 'facet1']
-  facet2 <- map$id[map$plotRef == 'facet2']
+  z <- emptyStringToNull(map$id[map$plotRef == 'zaxis'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]
   panel <- panelData[[2]]
+  myCols <- c(y, x, z, group, panel)
+  data.back <- data
+  data <- as.data.table(data)
+  data <- data[, myCols, with=FALSE]
+  mergeByCols <- c(group, panel)
 
   if (value == 'collection') {
     data <- groupSplit(data, group, panel)
@@ -142,6 +175,14 @@ heatmap <- function(data, map, value = 'collection') {
     data <- groupTable(data, x, y, group, panel)
   } else {
     stop('Unrecognized argument to "value".')
+  }
+
+  data.back <- noStatsFacet(data.back, group, panel)
+  data.back <- data.back[, -c(y, x, z), with = FALSE]
+  if (!is.null(mergeByCols)) {
+    data <- merge(data, data.back, by = mergeByCols)
+  } else {
+    data <- cbind(data, data.back)
   }
 
   return(data)
@@ -164,33 +205,43 @@ heatmap <- function(data, map, value = 'collection') {
 #' @return data.table of plot-ready data
 #' @export
 box <- function(data, map, outliers = FALSE, mean = FALSE, sd = FALSE) {
-  group <- map$id[map$plotRef == 'color']
-  y <- map$id[map$plotRef == 'yaxis']
-  x <- map$id[map$plotRef == 'xaxis']
-  facet1 <- map$id[map$plotRef == 'facet1']
-  facet2 <- map$id[map$plotRef == 'facet2']
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]
   panel <- panelData[[2]]
+  myCols <- c(y, x, group, panel)
+  data.back <- data
+  data <- as.data.table(data)
+  data <- data[, myCols, with=FALSE]
+  mergeByCols <- c(group, panel)
 
   data <- groupSummary(data, x, y, group, panel)
   if (outliers) {
     outliers <- groupOutliers(data, x, y, group, panel)
-    mergeCols <- c(group, panel)
-    data <- merge(data, outliers, by = byCols)
+    data <- merge(data, outliers, by = mergeByCols)
   }
 
   if (mean) {
     mean <- groupMean(data, x, y, group, panel)
-    mergeCols <- c(group, panel)
-    data <- merge(data, mean, by = byCols)
+    data <- merge(data, mean, by = mergeByCols)
   }
 
   if (sd) {
     sd <- groupSD(data, x, y, group, panel)
-    mergeCols <- c(group, panel)
-    data <- merge(data, sd, by = byCols)
+    data <- merge(data, sd, by = mergeByCols)
+  }
+
+  data.back <- noStatsFacet(data.back, group, panel)
+  data.back <- data.back[, -c(y, x), with = FALSE]
+  if (!is.null(mergeByCols)) {
+    data <- merge(data, data.back, by = mergeByCols)
+  } else {
+    data <- cbind(data, data.back)
   }
 
   return(data)
@@ -213,15 +264,20 @@ box <- function(data, map, outliers = FALSE, mean = FALSE, sd = FALSE) {
 #' @return data.table of plot-ready data
 #' @export
 bar <- function(data, map, value = 'identity') {
-  group <- map$id[map$plotRef == 'color']
-  y <- map$id[map$plotRef == 'yaxis']
-  x <- map$id[map$plotRef == 'xaxis']
-  facet1 <- map$id[map$plotRef == 'facet1']
-  facet2 <- map$id[map$plotRef == 'facet2']
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]
   panel <- panelData[[2]]
+  myCols <- c(y, x, group, panel)
+  data.back <- data
+  data <- as.data.table(data)
+  data <- data[, myCols, with=FALSE]
+  mergeByCols <- c(group, panel)
 
   if (value == 'identity') {
     data <- noStatsFacet(data, group, panel)
@@ -230,6 +286,14 @@ bar <- function(data, map, value = 'identity') {
     names(data) <- c(x, group, panel, 'y')
   } else {
     stop('Unrecognized argument to "value".')
+  }
+
+  data.back <- noStatsFacet(data.back, group, panel)
+  data.back <- data.back[, -c(y, x), with = FALSE]
+  if (!is.null(mergeByCols)) {
+    data <- merge(data, data.back, by = mergeByCols)
+  } else {
+    data <- cbind(data, data.back)
   }
 
   return(data)
@@ -249,14 +313,19 @@ bar <- function(data, map, value = 'identity') {
 #' @return data.table of plot-ready data
 #' @export
 histogram <- function(data, map, binWidth = .1, value = 'count') {
-  group <- map$id[map$plotRef == 'color']
-  x <- map$id[map$plotRef == 'xaxis']
-  facet1 <- map$id[map$plotRef == 'facet1']
-  facet2 <- map$id[map$plotRef == 'facet2']
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]
   panel <- panelData[[2]]
+  myCols <- c(x, group, panel)
+  data.back <- data
+  data <- as.data.table(data)
+  data <- data[, myCols, with=FALSE]
+  mergeByCols <- c(group, panel)
 
   if (value == 'count') {
     data <- binSize(data, x, group, panel, binWidth)
@@ -264,6 +333,14 @@ histogram <- function(data, map, binWidth = .1, value = 'count') {
     data <- binProportion(data, x, group, panel, binWidth)
   } else {
     stop('Unrecognized argument to "value".')
+  }
+
+  data.back <- noStatsFacet(data.back, group, panel)
+  data.back <- data.back[, -c(x), with = FALSE]
+  if (!is.null(mergeByCols)) {
+    data <- merge(data, data.back, by = mergeByCols)
+  } else {
+    data <- cbind(data, data.back)
   }
 
   return(data)

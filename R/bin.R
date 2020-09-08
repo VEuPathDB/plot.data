@@ -9,6 +9,7 @@ binSize <- function(data, col, group = NULL, panel = NULL, binWidth) {
   } else {
     dt <- aggregate(as.formula(aggStr), data, length)
     dt <- noStatsFacet(dt, group, panel)
+    names(dt) <- c(group, panel, 'x', 'y')
   }
 
   return(dt)
@@ -33,6 +34,7 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth) {
     dt[[col]] <- dt[[col]]/dt$denom
     dt$denom <- NULL
     dt <- noStatsFacet(dt, group, panel)
+    names(dt) <- c(group, panel, 'x', 'y')
   }
 
   return(dt)

@@ -95,6 +95,7 @@ groupDensity <- function(data, col, group = NULL, panel = NULL) {
 
   if (aggStr == col) {
     dt <- densityCurve(data[[col]])
+    dt <- noStatsFacet(dt)
   } else {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, densityCurve))
   }
@@ -138,7 +139,7 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
 }
 
 noStatsFacet <- function(data, group = NULL, panel = NULL) {
-  if (class(data) != "data.table") {
+  if (class(data)[1] != "data.table") {
     data <- as.data.table(data)
   }
 
@@ -151,6 +152,7 @@ noStatsFacet <- function(data, group = NULL, panel = NULL) {
   return(dt)
 }
 
+# unsure if we'll need these two if we dont stratify heatmaps ..
 groupTable <- function(data, x, y, group = NULL, panel = NULL) {
 
   names(data)[names(data) == y] <- 'y'
