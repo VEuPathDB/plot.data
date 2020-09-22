@@ -137,7 +137,6 @@ density <- function(data, map) {
 #' 1) 'collection' of numeric variables vs single categorical
 #' 2) single numeric vs single categorical on a 'series' of dates
 #' where yAxisVariable = categorical, xAxisVariable = date and zaxis = numeric
-#' 3) 'interaction' of two categorical variables (cont. table)
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot 
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series', 'interaction')
@@ -163,16 +162,12 @@ heatmap <- function(data, map, value = 'collection') {
   mergeByCols <- c(group, panel)
 
   if (value == 'collection') {
-    data <- groupSplit(data, group, panel)
+    data <- groupSplit(data, x, y, NULL, group, panel)
   } else if (value == 'series' ) {
     data <- data[order(data[[x]]),]
     data[[x]] <- as.factor(data[[x]])
     data[[y]] <- as.factor(data[[y]])
     data <- groupSplit(data, x, y, z, group, panel, longToWide = TRUE)
-  } else if (value == 'interaction') {
-    data[[x]] <- as.factor(data[[x]])
-    data[[y]] <- as.factor(data[[y]])    
-    data <- groupTable(data, x, y, group, panel)
   } else {
     stop('Unrecognized argument to "value".')
   }
@@ -336,6 +331,44 @@ histogram <- function(data, map, binWidth = .1, value = 'count') {
   }
 
   data.back <- noStatsFacet(data.back, group, panel)
+  data.back <- data.back[, -c(x), with = FALSE]
+  if (!is.null(mergeByCols)) {
+    data <- merge(data, data.back, by = mergeByCols)
+  } else {
+    data <- cbind(data, data.back)
+  }
+
+  return(data)
+}
+
+
+
+contingecyTable <- function(data, map) {
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
+
+  panelData <- makePanels(data, facet1, facet2)
+  data <- panelData[[1]]
+  panel <- panelData[[2]]
+  myCols <- c(x, group, panel)
+  data.back <- data
+  data <- as.data.table(data)
+  data <- data[, myCols, with=FALSE]
+  mergeByCols <- c(group, panel)
+
+  dims <- as.data.frame.matrix(table(data[[x]], data[[group]]))
+  dims <- c(length(dims), nrow(dims))
+
+  if (any(dims > 2)) {
+    data <- panelChiSq(data, x, group, panel)
+  } else {
+    data <- panelBothRatios(data, x, group, panel)  
+  }
+
+   #TODO check this works, since we only have panels here really
+  data.back <- noStatsFacet(data.back, NULL, panel)
   data.back <- data.back[, -c(x), with = FALSE]
   if (!is.null(mergeByCols)) {
     data <- merge(data, data.back, by = mergeByCols)

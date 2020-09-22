@@ -26,9 +26,11 @@ removeGroupPanel <- function(data, group, panel) {
 #' @param data data.table to make contingency table for
 #' @return data.table of frequency distribution values
 #' @export
-contingencyDT <- function(data) {
+contingencyDT <- function(data, labels = TRUE) {
   dt <- as.data.frame.matrix(table(data$x, data$y))
-  dt$label <- rownames(dt)
+  if (labels) {
+    dt$label <- rownames(dt)
+  }
 
   return(data.table::as.data.table(dt))
 }
@@ -248,18 +250,14 @@ bin <- function(x, binWidth) {
 
 epitabToDT <- function(m, method) {
   dt <- data.table::as.data.table(m)
-  dt$group <- rownames(m)
-  dt$x <- list(names(dt)[c(1,3)])
+  dt$x.label <- rownames(m)
   dt <- transform(dt, "interval" = paste(lower, " - ", upper))
   dt$lower <- NULL
   dt$upper <- NULL
-  names(dt) <- c('cond1', 'proportion1', 'cond2', 'proportion2', method, 'pvalue', 'group', 'x', 'interval')
-  dt$y <- lapply(dt$group, FUN = function(x){c(dt$cond1[dt$group == x], dt$cond2[dt$group == x])})
-  dt$proportions <- lapply(dt$group, FUN = function(x){c(dt$proportion1[dt$group == x], dt$proportion2[dt$group == x])})
-  dt$cond1 <- NULL
-  dt$cond2 <- NULL
-  dt$proportion1 <- NULL
-  dt$proportion2 <- NULL
+  dt$y.label <- list(names(dt)[c(1,3)])
+  names(dt) <- c('cond1', 'proportion1', 'cond2', 'proportion2', method, 'p.value', 'x', 'interval', 'y.label')  
+  dt[, y := lapply(transpose(.(cond1, cond2)), as.vector)]
+  dt <- dt[, -c(1:4)]
 
   return(dt)
 }
@@ -292,3 +290,32 @@ relativeRisk <- function(data) {
 }
 
 
+bothRatios <- function(data) {
+  mergeByCols <- c('p.value', 'x.label', 'y')
+
+  or <- oddsRatio(data)
+  names(or) <- c('oddsratio', 'p.value', 'x', 'or.interval', 'y')
+  rr <- relativeRisk(data)
+  names(rr) <- c('relativerisk', 'p.value', 'x', 'rr.interval', 'y')
+  rr <- rr[, -(mergeByCols), with=FALSE]
+  dt <- merge(or, rr, by=mergeByCols)
+
+  return(dt)
+}
+
+chiSq <- function(data) {
+  tbl <- table(data$x, data$y)
+  dt <- as.data.frame.matrix(tbl)
+  dt$y.label <- list(names(dt))
+  dt$x.label <- rownames(dt)
+  names(dt) <- c('cond1', 'cond2', 'y.label', 'x.label')
+  dt <- data.table::as.data.table(dt)
+  dt[, y := lapply(transpose(.(cond1, cond2)), as.vector)]
+  dt <- dt[, -c(1:2)]
+  chisq <- chisq.test(tbl)
+  dt$chisq <- chisq$statistic
+  dt$p.value <- chisq$p.value
+  dt$degrees.freedom <- chisq$parameter
+
+  return(dt)
+}

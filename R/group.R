@@ -152,39 +152,6 @@ noStatsFacet <- function(data, group = NULL, panel = NULL) {
   return(dt)
 }
 
-# unsure if we'll need these two if we dont stratify heatmaps ..
-groupTable <- function(data, x, y, group = NULL, panel = NULL) {
-
-  names(data)[names(data) == y] <- 'y'
-  names(data)[names(data) == x] <- 'x'
-  y <- 'y'
-  x <- 'x'
-  aggStr <- getAggStr(y, c(group, panel))
-
-  if (aggStr == y) {
-    dt <- contingencyDF(data)
-  } else {
-    colsList <- getInteractionColsList(data, group, panel) 
-    dt.list <- split(data, colsList)
-    names <- names(dt.list)
-    dt.list <- lapply(dt.list, contingencyDT)
-    #dt.list <- lapply(dt.list, noStatsFacet)
-    #dt <- purrr::reduce(dt.list, rbind)
-    #dt$name <- names
-    dt <- data.table::data.table('name' = names(dt.list), 'table' = dt.list)
-    if (is.null(group)) {
-      dt$panel <- dt$name
-    } else {
-      dt$group <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
-      dt$panel <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
-      if (all(is.na(dt$panel))) { dt$panel <- NULL }
-    }
-    dt$name <- NULL
-  }
-
-  return(dt)  
-}
-
 groupSplit <- function(data, x, y, z, group, panel, longToWide = FALSE) {
   aggStr <- getAggStr(c(group, panel, y), x)
 
