@@ -1,3 +1,12 @@
+#' POSIXct Test
+#'
+#' This functions returns a logical value indicating if x is
+#' a POSIXct object.
+#' @param x an R object
+#' @return logical TRUE if x is a POSIXct object, FALSE otherwise
+#' @export
+is.POSIXct <- function(x) inherits(x, "POSIXct")
+
 getInteractionColsList <- function(data, group, panel) {
   if (is.null(panel)) {
     colsList <- list(data[[group]])
@@ -76,7 +85,6 @@ emptyStringToNull <- function(x) {
   return(x)
 }
 
-#TODO consider if empty grouping vars are NULL or go to '.'
 getAggStr <- function(numericVars, groupingVars) {
   numericString <- emptyStringToPoint(paste(numericVars, collapse= " + "))
   groupingString <- emptyStringToNull(paste(groupingVars, collapse=" + "))
@@ -233,17 +241,25 @@ smoothedMean <- function(dt, method) {
 #'
 #' This function divides the range of ‘x’ into intervals and codes 
 #' the values in ‘x’ according to which interval they fall
-#' @param x Numeric vector to bin
-#' @param binWidth number to increment bin bounds by
+#' @param x Numeric or Date vector to bin
+#' @param binWidth number to increment bin bounds by, or string for dates ex: 'month'
 #' @return Character vector of coded values 
 #' @export
+#' @importFrom parsedate format_iso_8601
 bin <- function(x, binWidth) {
-  summary <- stats::quantile(x)
-  bounds <- c(summary[1], summary[5])
-  bounds[1] <- floor(bounds[1] * 100) / 100
-  bounds[2] <- sign(bounds[2]) * ceiling(abs(bounds[2]) * 100) / 100
-  breaks <- seq(bounds[1], bounds[2], binWidth)
-  breaks <- c(breaks, (breaks[length(breaks)] + binWidth))
+  if (is.numeric(x)) {
+    summary <- stats::quantile(x)
+    bounds <- c(summary[1], summary[5])
+    bounds[1] <- floor(bounds[1] * 100) / 100
+    bounds[2] <- sign(bounds[2]) * ceiling(abs(bounds[2]) * 100) / 100
+    breaks <- seq(bounds[1], bounds[2], binWidth)
+    breaks <- c(breaks, (breaks[length(breaks)] + binWidth))
+    bins <- as.character(cut(x, breaks=breaks))
+  } else if (is.POSIXct(x)) {
+    bins <- parsedate::format_iso_8601(cut(x, breaks=binWidth))
+  } else {
+    stop("Can only bin numeric and date types")
+  }
 
   return(as.character(cut(x, breaks=breaks)))
 }
