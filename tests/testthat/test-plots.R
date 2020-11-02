@@ -65,12 +65,12 @@ test_that("histogram() returns an appropriately sized data.table", {
   dt <- histogram(df, map)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('group', 'panel', 'x', 'y'))
+  expect_equal(names(dt),c('group', 'panel', 'label', 'x', 'y'))
 
   dt <- histogram(df, map, value='proportion')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('group', 'panel', 'x', 'y'))
+  expect_equal(names(dt),c('group', 'panel', 'label', 'x', 'y'))
 
 
   map <- data.frame('id' = c('group', 'var'), 'plotRef' = c('overlayVariable', 'xAxisVariable'), stringsAsFactors = FALSE)
@@ -78,12 +78,12 @@ test_that("histogram() returns an appropriately sized data.table", {
   dt <- histogram(df, map)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'x', 'y', 'panel'))
+  expect_equal(names(dt),c('group', 'label', 'x', 'y', 'panel'))
 
   dt <- histogram(df, map, value='proportion')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'x', 'y', 'panel'))
+  expect_equal(names(dt),c('group', 'label', 'x', 'y', 'panel'))
 
 
   map <- data.frame('id' = c('var', 'panel'), 'plotRef' = c('xAxisVariable', 'facetVariable1'), stringsAsFactors = FALSE)
@@ -91,24 +91,24 @@ test_that("histogram() returns an appropriately sized data.table", {
   dt <- histogram(df, map)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('panel', 'x', 'y', 'group'))
+  expect_equal(names(dt),c('panel', 'label', 'x', 'y', 'group'))
 
   dt <- histogram(df, map, value='proportion')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('panel', 'x', 'y', 'group'))
+  expect_equal(names(dt),c('panel', 'label', 'x', 'y', 'group'))
 
   map <- data.frame('id' = c('var'), 'plotRef' = c('xAxisVariable'), stringsAsFactors = FALSE)
 
   dt <- histogram(df, map)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('x', 'y', 'group', 'panel'))
+  expect_equal(names(dt),c('label', 'x', 'y', 'group', 'panel'))
 
   dt <- histogram(df, map, value='proportion')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('x', 'y', 'group', 'panel'))
+  expect_equal(names(dt),c('label', 'x', 'y', 'group', 'panel'))
 
   #TODO test w two facets
 })

@@ -4,7 +4,7 @@
 \alias{contingencyDT}
 \title{Contingency Table as data.table}
 \usage{
-contingencyDT(data)
+contingencyDT(data, labels = TRUE)
 }
 \arguments{
 \item{data}{data.table to make contingency table for}

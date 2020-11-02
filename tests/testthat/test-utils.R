@@ -26,21 +26,21 @@ test_that("epitabToDT() returns appropriately sized data.table", {
 
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),10)
-  expect_equal(length(dt),7)
+  expect_equal(length(dt),6)
 })
 
 test_that("relativeRisk() returns the right columns", {
   data <- data.table('x' = as.factor(rnorm(10)), 'y' = as.factor(rep(c(1,2),5)))
   dt <- relativeRisk(data)
 
-  expect_equal(names(dt), c('relativerisk', 'pvalue', 'group', 'x', 'interval', 'y', 'proportions'))
+  expect_equal(names(dt), c('relativerisk', 'p.value', 'x', 'interval', 'y.label', 'y'))
 })
 
 test_that("oddsRatio() returns the right columns", {
   data <- data.table('x' = as.factor(rnorm(10)), 'y' = as.factor(rep(c(1,2),5)))
   dt <- oddsRatio(data)
 
-  expect_equal(names(dt), c('oddsratio', 'pvalue', 'group', 'x', 'interval', 'y', 'proportions'))
+  expect_equal(names(dt), c('oddsratio', 'p.value', 'x', 'interval', 'y.label', 'y'))
 })
 
 
@@ -54,12 +54,12 @@ test_that("getAggStr() is sane", {
   expect_equal(getAggStr(c('x','y'), c('group','panel')), "x + y ~ group + panel")
 })
 
-test_that("makePanels() returns 2 entry list: 1) data.table 2) character vector", {
+test_that("makePanels() returns 2 entry list: 1) data.frame 2) character vector", {
   panels <- makePanels(data, 'group', 'panel')
 
   expect_is(panels, 'list')
   expect_equal(length(panels),2)
-  expect_is(panels[[1]], 'data.table')
+  expect_is(panels[[1]], 'data.frame')
   expect_equal(nrow(data), nrow(panels[[1]]))
   expect_is(panels[[2]], 'character')
 })

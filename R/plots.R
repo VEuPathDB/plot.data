@@ -10,15 +10,16 @@
 #' specify the x, y and standard error respectively of the smoothed
 #' conditional mean for the group.
 #' @param data data.frame to make plot-ready data for
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
 #' @param smoothedMean boolean indicating whether to calculate smoothed mean
 #' @return data.table of plot-ready data
 #' @export
-scattergl <- function(data, smoothedMean = FALSE) {
-  group <- 'overlayVariable'
-  y <- 'yAxisVariable'
-  x <- 'xAxisVariable'
-  facet1 <- 'facetVariable1'
-  facet2 <- 'facetVariable2'
+scattergl <- function(data, map, smoothedMean = FALSE) {
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]
@@ -63,13 +64,14 @@ scattergl <- function(data, smoothedMean = FALSE) {
 #' contain the calculated kernel density estimates. Column 'group' 
 #' and 'panel' specify the group the series data belongs to. 
 #' @param data data.frame to make plot-ready data for
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
 #' @return data.table of plot-ready data
 #' @export
-density <- function(data) {
-  group <- 'overlayVariable'
-  x <- 'xAxisVariable'
-  facet1 <- 'facetVariable1'
-  facet2 <- 'facetVariable2'
+density <- function(data, map) {
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]
@@ -104,17 +106,18 @@ density <- function(data) {
 #' 2) single numeric vs single categorical on a 'series' of dates
 #' where yAxisVariable = categorical, xAxisVariable = date and zaxis = numeric
 #' @param data data.frame to make plot-ready data for
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
 #' @return data.table of plot-ready data
 #' @export
-heatmap <- function(data, value = 'series') {
+heatmap <- function(data, map, value = 'series') {
   #NOTE: one or the other of these could be a list for 'collection'
-  y <- 'yAxisVariable'
-  x <- 'xAxisVariable'
+  y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
   #NOTE: this for the case of 'series'
-  z <- 'zAxisVariable'
-  facet1 <- 'facetVariable1'
-  facet2 <- 'facetVariable2'
+  z <- emptyStringToNull(map$id[map$plotRef == 'zaxis'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]
@@ -155,17 +158,18 @@ heatmap <- function(data, value = 'series') {
 #' Column 'group' and 'panel' specify the group the data belong to. 
 #' Optionally, can return columns 'outliers', 'mean' and 'sd' as well.
 #' @param data data.frame to make plot-ready data for
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
 #' @param outliers boolean indicating whether to return a list of outliers per group (per panel)
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param sd boolean indicating whether to return the standard deviation per group (per panel)
 #' @return data.table of plot-ready data
 #' @export
-box <- function(data, outliers = FALSE, mean = FALSE, sd = FALSE) {
-  group <- 'overlayVariable'
-  y <- 'yAxisVariable'
-  x <- 'xAxisVariable'
-  facet1 <- 'facetVariable1'
-  facet2 <- 'facetVariable2'
+box <- function(data, map, outliers = FALSE, mean = FALSE, sd = FALSE) {
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]
@@ -217,15 +221,16 @@ box <- function(data, outliers = FALSE, mean = FALSE, sd = FALSE) {
 #' 1) raw 'identity' of values from data.table input
 #' 2) 'count' occurances of values from data.table input 
 #' @param data data.frame to make plot-ready data for
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
 #' @param value String indicating how to calculate y-values ('identity', 'count')
 #' @return data.table of plot-ready data
 #' @export
-bar <- function(data, value = 'identity') {
-  group <- 'overlayVariable'
-  y <- 'yAxisVariable'
-  x <- 'xAxisVariable'
-  facet1 <- 'facetVariable1'
-  facet2 <- 'facetVariable2'
+bar <- function(data, map, value = 'identity') {
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]
@@ -264,15 +269,16 @@ bar <- function(data, value = 'identity') {
 #' contain the bin label and count respectively. Column 'group' 
 #' and 'panel' specify the group the series data belongs to. 
 #' @param data data.frame to make plot-ready data for
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
 #' @param value String indicating how to calculate y-values ('count, 'proportion')
 #' @return data.table of plot-ready data
 #' @export
-histogram <- function(data, binWidth = .1, value = 'count') {
-  group <- 'overlayVariable'
-  x <- 'xAxisVariable'
-  facet1 <- 'facetVariable1'
-  facet2 <- 'facetVariable2'
+histogram <- function(data, map, binWidth = .1, value = 'count') {
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]
@@ -313,13 +319,14 @@ histogram <- function(data, binWidth = .1, value = 'count') {
 #' contain the raw data for plotting. Column 'panel' specifies
 #' the panel the data belongs to. 
 #' @param data data.frame to make plot-ready data for
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
 #' @return data.table of plot-ready data
 #' @export
-contingecyTable <- function(data) {
-  group <- 'overlayVariable'
-  x <- 'xAxisVariable'
-  facet1 <- 'facetVariable1'
-  facet2 <- 'facetVariable2'
+contingecyTable <- function(data, map) {
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
 
   panelData <- makePanels(data, facet1, facet2)
   data <- panelData[[1]]

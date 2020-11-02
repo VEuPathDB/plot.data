@@ -1,6 +1,6 @@
 #' POSIXct Test
 #'
-#' This functions returns a logical value indicating if x is
+#' This function returns a logical value indicating if x is
 #' a POSIXct object.
 #' @param x an R object
 #' @return logical TRUE if x is a POSIXct object, FALSE otherwise
@@ -55,7 +55,7 @@ contingencyDT <- function(data, labels = TRUE) {
 #' @return list of length 2: list(data, panel)
 #' @export
 makePanels <- function(data, facet1 = NULL, facet2 = NULL) {
-  if (!is.null(facet1) && !is.null(facet2)) {
+  if (!is.null(facet1) & !is.null(facet2)) {
     data$panel <- interaction(data[[facet1]], data[[facet2]])
     data[[facet1]] <- NULL
     data[[facet2]] <- NULL
@@ -245,7 +245,7 @@ smoothedMean <- function(dt, method) {
 #' @param binWidth number to increment bin bounds by, or string for dates ex: 'month'
 #' @return Character vector of coded values 
 #' @export
-#' @importFrom parsedate format_iso_8601
+#' @importFrom lubridate ceiling_date
 bin <- function(x, binWidth) {
   if (is.numeric(x)) {
     summary <- stats::quantile(x)
@@ -256,12 +256,23 @@ bin <- function(x, binWidth) {
     breaks <- c(breaks, (breaks[length(breaks)] + binWidth))
     bins <- as.character(cut(x, breaks=breaks))
   } else if (is.POSIXct(x)) {
-    bins <- parsedate::format_iso_8601(cut(x, breaks=binWidth))
+    bins <- as.Date(cut(x, breaks=binWidth))
+    bins <- paste0(bins, " - ", lubridate::ceiling_date(bins, binWidth) -1)
   } else {
     stop("Can only bin numeric and date types")
   }
 
-  return(as.character(cut(x, breaks=breaks)))
+  return(bins)
+}
+
+findBinStart <- function(x) {
+  if (all(grepl(" - ",x))) {
+    x <- unlist(lapply(strsplit(x, " - ", fixed=T), "[",1))
+  } else {
+    x <- gsub("(", "", unlist(lapply(strsplit(as.character(x), ",", fixed=T), "[",1)), fixed=T)
+  }
+
+  return(x)
 }
 
 epitabToDT <- function(m, method) {

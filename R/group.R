@@ -126,11 +126,11 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
     dt <- purrr::reduce(dt.list, rbind)
     dt$name <- names(dt.list)
     if (is.null(group)) {
-      dt$panel <- dt$name
+      dt[[panel]] <- dt$name
     } else {
-      dt$group <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
-      dt$panel <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
-      if (all(is.na(dt$panel))) { dt$panel <- NULL }
+      dt[[group]] <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
+      panelNames <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
+      if (!all(is.na(panel))) { dt[[panel]] <- panelNames }
     }
     dt$name <- NULL
   }
@@ -172,11 +172,11 @@ groupSplit <- function(data, x, y, z, group, panel, longToWide = FALSE) {
     dt.list <- lapply(dt.list, removeGroupPanel, group, panel)
     dt <- data.table::data.table('name' = names(dt.list), 'table' = dt.list)
     if (is.null(group)) {
-      dt$panel <- dt$name
+      dt[[panel]] <- dt$name
     } else {
-      dt$group <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
-      dt$panel <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
-      if (all(is.na(dt$panel))) { dt$panel <- NULL }
+      dt[[group]] <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
+      panelNames <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
+      if (!all(is.na(panel))) { dt[[panel]] <- panelNames }
     }
     dt$name <- NULL
   }

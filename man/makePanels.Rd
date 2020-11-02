@@ -4,7 +4,7 @@
 \alias{makePanels}
 \title{Make Plot Panels}
 \usage{
-makePanels(data, facet1Name = NULL, facet2Name = NULL)
+makePanels(data, facet1 = NULL, facet2 = NULL)
 }
 \arguments{
 \item{data}{data.table to make plot panels for}

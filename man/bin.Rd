@@ -7,9 +7,9 @@
 bin(x, binWidth)
 }
 \arguments{
-\item{x}{Numeric vector to bin}
+\item{x}{Numeric or Date vector to bin}
 
-\item{binWidth}{number to increment bin bounds by}
+\item{binWidth}{number to increment bin bounds by, or string for dates ex: 'month'}
 }
 \value{
 Character vector of coded values

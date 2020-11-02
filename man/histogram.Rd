@@ -11,7 +11,7 @@ histogram(data, map, binWidth = 0.1, value = "count")
 
 \item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot}
 
-\item{binWidth}{numeric value indicating width of bins}
+\item{binWidth}{numeric value indicating width of bins, character (ex: 'year') if xaxis is a date}
 
 \item{value}{String indicating how to calculate y-values ('count, 'proportion')}
 }
@@ -20,7 +20,7 @@ data.table of plot-ready data
 }
 \description{
 This function returns a data.table of plot-ready data with one
-row per group (per panel). Columns 'series.x' and 'series.y'
+row per group (per panel). Columns 'x' and 'y'
 contain the bin label and count respectively. Column 'group' 
 and 'panel' specify the group the series data belongs to.
 }

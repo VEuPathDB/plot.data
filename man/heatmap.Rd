@@ -4,14 +4,14 @@
 \alias{heatmap}
 \title{Heatmap as data.table}
 \usage{
-heatmap(data, map, value = "collection")
+heatmap(data, map, value = "series")
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
 
 \item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot}
 
-\item{value}{String indicating which of the three methods to use to calculate z-values ('collection', 'series', 'interaction')}
+\item{value}{String indicating which of the three methods to use to calculate z-values ('collection', 'series')}
 }
 \value{
 data.table of plot-ready data
@@ -22,9 +22,8 @@ row per group (per panel). Column 'table' contains a nested
 data.table of z-values for plotting. This table has a column for
 each x-axis entry and a row for each y-axis entry. Column 'group'
 and 'panel' specify the group the series data belongs to. 
-There are three ways to calculate z-values for the heatmap.
+There are two ways to calculate z-values for the heatmap.
 1) 'collection' of numeric variables vs single categorical
 2) single numeric vs single categorical on a 'series' of dates
-where yaxis = categorical, xaxis = date and zaxis = numeric
-3) 'interaction' of two categorical variables (cont. table)
+where yAxisVariable = categorical, xAxisVariable = date and zaxis = numeric
 }
