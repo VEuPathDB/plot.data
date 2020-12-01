@@ -1,3 +1,25 @@
+#' Write json to local tmp file
+#'
+#' This function returns the name of a json file which it has
+#' written a data.table object out to.
+#' @param data a data.table to convert to json and write to a tmp file
+#' @param pattern optional tmp file prefix
+#' @return character name of a tmp file w ext *.json
+#' @importFrom jsonlite toJSON
+#' @importFrom jsonlite prettify
+#' @export
+writeJSON <- function(data, pattern = NULL) {
+  outJson <- jsonlite::toJSON(data)
+  # just for now for debugging
+  outJson <- jsonlite::prettify(outJson)
+  if (is.null(pattern)) { pattern <- 'file' }
+  outFileName <- basename(tempfile(pattern = pattern, tmpdir = tempdir(), fileext = ".json"))
+  write(outJson, outFileName)
+
+  return(outFileName)
+}
+
+
 #' POSIXct Test
 #'
 #' This function returns a logical value indicating if x is

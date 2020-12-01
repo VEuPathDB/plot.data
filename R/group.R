@@ -69,9 +69,10 @@ groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL) {
   } else {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, length))
   }
-
   names(dt) <- c(x, group, panel, 'size')
-
+  indexCols <- c(panel, group)
+  setkeyv(dt, indexCols)
+  
   return(dt)
 }
 
@@ -99,9 +100,10 @@ groupDensity <- function(data, col, group = NULL, panel = NULL) {
   } else {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, densityCurve))
   }
-
   names(dt) <- c(group, panel, 'x', 'y')
-
+  indexCols <- c(panel, group)
+  setkeyv(dt, indexCols)
+  
   return(dt)
 }
 
@@ -113,7 +115,7 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
   x <- 'x'
   aggStr <- getAggStr(y, c(group, panel))
 
-  maxGroupSize <- max(groupSize(data, x = NULL, y, group, panel)$size)
+  maxGroupSize <- max(groupSize(data, NULL, y, group, panel)$size)
   method <- 'loess'
   if (maxGroupSize > 1000) { method <- 'gam' }
 
@@ -134,13 +136,15 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
     }
     dt$name <- NULL
   }
-
+  indexCols <- c(panel, group)
+  setkeyv(dt, indexCols)
+  
   return(dt)
 }
 
 noStatsFacet <- function(data, group = NULL, panel = NULL) {
   if (class(data)[1] != "data.table") {
-    data <- as.data.table(data)
+    data <- data.table::setDT(data)
   }
 
   if (is.null(group) && is.null(panel)) {
@@ -148,9 +152,15 @@ noStatsFacet <- function(data, group = NULL, panel = NULL) {
   } else {   
     dt <- data[, lapply(.SD, list), by=eval(colnames(data)[colnames(data) %in% c(group, panel)])]
   }
-
+  indexCols <- c(panel, group)
+  setkeyv(dt, indexCols)
+  
   return(dt)
 }
+
+#TODO consider removing group here, if this is only for heatmap
+#TODO think we want table col reformatted to be two cols, 'label' and 'value'. the second will be a list.
+# can we use noStatsFacet for the second task ??
 
 groupSplit <- function(data, x, y, z, group, panel, longToWide = FALSE) {
   aggStr <- getAggStr(c(group, panel, y), x)
@@ -180,6 +190,8 @@ groupSplit <- function(data, x, y, z, group, panel, longToWide = FALSE) {
     }
     dt$name <- NULL
   }
-
+  indexCols <- c(panel, group)
+  setkeyv(dt, indexCols)
+  
   return(dt)
 }
