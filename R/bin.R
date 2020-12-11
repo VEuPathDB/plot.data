@@ -1,4 +1,4 @@
-binSize <- function(data, col, group = NULL, panel = NULL, binWidth) {
+binSize <- function(data, col, group = NULL, panel = NULL, binWidth = NULL) {
   aggStr <- getAggStr(col, c('label', 'x', group, panel))
 
   data$label <- bin(data[[col]], binWidth)
@@ -11,7 +11,7 @@ binSize <- function(data, col, group = NULL, panel = NULL, binWidth) {
   return(dt)
 }
 
-binProportion <- function(data, col, group = NULL, panel = NULL, binWidth) {
+binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL) {
   aggStr <- getAggStr(col, c('label', 'x', group, panel))
   aggStr2 <- getAggStr(col, c(group, panel))
 

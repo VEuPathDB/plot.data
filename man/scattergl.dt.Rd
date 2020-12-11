@@ -4,14 +4,14 @@
 \alias{scattergl.dt}
 \title{Scatter Plot as data.table}
 \usage{
-scattergl.dt(data, map, smoothedMean)
+scattergl.dt(data, map, value)
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
 
 \item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot}
 
-\item{smoothedMean}{boolean indicating whether to calculate smoothed mean}
+\item{value}{character indicating whether to calculate 'smoothedMean' or 'density' estimates}
 }
 \value{
 data.table plot-ready data
@@ -23,5 +23,7 @@ plot-ready data with one row per group (per panel). Columns
 scatter plot. Column 'group' and 'panel' specify the group the 
 series data belongs to. Optionally, columns 'interval.x', 
 'interval.y' and 'interval.se' specify the x, y and standard error
- respectively of the smoothed conditional mean for the group.
+ respectively of the smoothed conditional mean for the group. 
+ Columns 'density.x' and 'density.y' contain the calculated kernel 
+ density estimates.
 }

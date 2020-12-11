@@ -4,7 +4,7 @@
 \alias{histogram}
 \title{Histogram data file}
 \usage{
-histogram(data, map, binWidth = 0.1, value = "count")
+histogram(data, map, binWidth = NULL, value = "count")
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}

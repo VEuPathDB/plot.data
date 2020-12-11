@@ -118,8 +118,8 @@ getAggStr <- function(numericVars, groupingVars) {
 #' Fences
 #'
 #' This function returns the lower and upper fences for a numeric
-#' vector. The lower fence is calculated as `q1 - 1.5*IQR` 
-#' and the upper as `q3 + 1.5*IQR`.
+#' vector. The lower fence is calculated as the smallest value above `q1 - 1.5*IQR` 
+#' and the upper as the largest value below `q3 + 1.5*IQR`.
 #' @param x Numeric vector to calculate fences for
 #' @return Numeric vector of length 2: c(lowerfence, upperfence)
 #' @export
@@ -127,7 +127,9 @@ fences <- function(x) {
   summary <- stats::quantile(x)
   iqr <- summary[4] - summary[2]
   lowerfence <- summary[2] - (1.5*iqr)
+  lowerfence <- min(x[x > lowerfence])
   upperfence <- summary[4] + (1.5*iqr)
+  upperfence <- max(x[x < upperfence])
 
   return(c(lowerfence, upperfence))
 }
@@ -259,7 +261,54 @@ smoothedMean <- function(dt, method) {
   return(data.table::data.table("x" = list(smoothed$x), "y" = list(smoothed$y), "ymin" = list(smoothed$ymin), "ymax" = list(smoothed$ymax), "se" = list(smoothed$se)))
 }
 
+findNumBins <- function(x) {
+  bins <- bin(x)
+  
+  return(data.table::uniqueN(bins))
+}
+
+#' Calculate Bin Width
+#' 
+#' This function determines the ideal bin width based on the range,
+#' sample size and distribution of values.
+#' @param x Numeric or Date vector
+#' @return Numeric or character bin width
+#' @export
+# @alias findBinWidth.numeric
+# @alias findBinWidth.POSIXct
+findBinWidth <- function(x) UseMethod("findBinWidth")
+
+findBinWidth.numeric <- function(x) {
+  numBins <- findNumBins(x)
+  range <- as.numeric(max(x) - min(x))
+  range <- range + (range*.01)
+  binWidth <- range / numBins
+      
+  return(binWidth)
+}
+
+#TODO make sure it works w units other than days
+findBinWidth.POSIXct <- function(x) {
+  dateMap <- data.table('date' = x, 'numeric' = as.numeric(x))
+  numBins <- findNumBins(dateMap$numeric)
+  range <- as.numeric(max(dateMap$date) - min(dateMap$date))
+  binWidth <- range / numBins
+  
+  if (binWidth > 365) {
+    binWidth <- "year"
+  } else if (binWidth > 31 ) {
+    binWidth <- "month"
+  } else if (binWidth > 7) {
+    binWidth <- "week"
+  } else {
+    binWidth <- "day"
+  }
+  
+  return(binWidth)
+}
+
 #' Binning
+#' 
 #'
 #' This function divides the range of ‘x’ into intervals and codes 
 #' the values in ‘x’ according to which interval they fall
@@ -268,21 +317,40 @@ smoothedMean <- function(dt, method) {
 #' @return Character vector of coded values 
 #' @export
 #' @importFrom lubridate ceiling_date
-bin <- function(x, binWidth) {
-  if (is.numeric(x)) {
-    summary <- stats::quantile(x)
-    bounds <- c(summary[1], summary[5])
-    bounds[1] <- floor(bounds[1] * 100) / 100
-    bounds[2] <- sign(bounds[2]) * ceiling(abs(bounds[2]) * 100) / 100
-    breaks <- seq(bounds[1], bounds[2], binWidth)
-    breaks <- c(breaks, (breaks[length(breaks)] + binWidth))
-    bins <- as.character(cut(x, breaks=breaks))
-  } else if (is.POSIXct(x)) {
-    bins <- as.Date(cut(x, breaks=binWidth))
-    bins <- paste0(bins, " - ", lubridate::ceiling_date(bins, binWidth) -1)
+#' @importFrom varrank discretization
+#' @importFrom moments skewness
+# @alias bin.numeric
+# @alias bin.POSIXct
+bin <- function(x, binWidth) UseMethod("bin")
+
+bin.numeric <- function(x, binWidth = NULL) {
+  bins <- NULL
+  if (is.null(binWidth)) {
+    if (length(x) < 200) {
+      bins <- varrank::discretization(x, discretization.method = 'sturges')
+    }
+    skewness <- moments::skewness(x)
+    if (abs(skewness) > .5) {
+      bins <- varrank::discretization(x, discretization.method = 'doane')
+    }
+    if (is.null(bins)) {
+      bins <- varrank::discretization(x, discretization.method = 'fd')
+    }
   } else {
-    stop("Can only bin numeric and date types")
+    numBins <- ceiling(as.numeric(max(x) - min(x)) / binWidth)
+    bins <- varrank::discretization(x, discretization.method = numBins)
   }
+
+  return(as.character(bins$data.df))
+}
+
+bin.POSIXct <- function(x, binWidth = NULL) {
+  if (is.null(binWidth)) {
+    binWidth = findBinWidth(x)
+  }
+
+  bins <- as.Date(cut(x, breaks=binWidth))
+  bins <- paste0(bins, " - ", lubridate::ceiling_date(bins, binWidth) -1)
 
   return(bins)
 }

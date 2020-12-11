@@ -1,5 +1,3 @@
-# TODO move density into scatter. switch smoothedMean to value
-
 #' Scatter Plot as data.table
 #'
 #' This function returns a data.table of  
@@ -8,13 +6,15 @@
 #' scatter plot. Column 'group' and 'panel' specify the group the 
 #' series data belongs to. Optionally, columns 'interval.x', 
 #' 'interval.y' and 'interval.se' specify the x, y and standard error
-#'  respectively of the smoothed conditional mean for the group.
+#'  respectively of the smoothed conditional mean for the group. 
+#'  Columns 'density.x' and 'density.y' contain the calculated kernel 
+#'  density estimates.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
-#' @param smoothedMean boolean indicating whether to calculate smoothed mean
+#' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates
 #' @return data.table plot-ready data
 #' @export
-scattergl.dt <- function(data, map, smoothedMean) {
+scattergl.dt <- function(data, map, value) {
   group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
   y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
   x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
@@ -31,7 +31,7 @@ scattergl.dt <- function(data, map, smoothedMean) {
   series <- noStatsFacet(data, group, panel)
   names(series) <- c(group, panel, 'series.y', 'series.x') 
 
-  if (smoothedMean) {
+  if (value == 'smoothedMean') {
     interval <- groupSmoothedMean(data, x, y, group, panel)
     interval <- interval[, !c('ymin', 'ymax')]
     names(interval) <- c('interval.x', 'interval.y', 'interval.se', group, panel) 
@@ -39,6 +39,14 @@ scattergl.dt <- function(data, map, smoothedMean) {
       data <- merge(series, interval)
     } else {
       data <- cbind(series, interval)
+    }
+  } else if (value == 'density') {
+    density <- groupDensity(data, x, group, panel)
+    names(density) <- c(group, panel, 'density.x', 'density.y')
+    if (!is.null(key(series))) {
+      data <- merge(series, density)
+    } else {
+      data <- cbind(series, density)
     }
   } else {
     data <- series
@@ -64,53 +72,19 @@ scattergl.dt <- function(data, map, smoothedMean) {
 #' series data belongs to. Optionally, columns 'interval.x', 
 #' 'interval.y' and 'interval.se' specify the x, y and standard error
 #'  respectively of the smoothed conditional mean for the group.
+#'  Columns 'density.x' and 'density.y' contain the calculated kernel 
+#'  density estimates.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
-#' @param smoothedMean boolean indicating whether to calculate smoothed mean
+#' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates
 #' @return character name of json file containing plot-ready data
 #' @export
-scattergl <- function(data, map, smoothedMean = FALSE) {
-  dt <- scattergl.dt(data, map, smoothedMean)
+scattergl <- function(data, map, value = c('smoothedMean', 'density', 'none')) {
+  value <- match.arg(value)
+  dt <- scattergl.dt(data, map, value)
   outFileName <- writeJSON(dt, 'scattergl')
 
   return(outFileName)
-}
-
-
-#' Density Plot as data.table
-#'
-#' This function returns the name of a json file containing 
-#' plot-ready data with one row per group (per panel). Columns 
-#' 'series.x' and 'series.y' contain the calculated kernel density 
-#' estimates. Column 'group' and 'panel' specify the group the 
-#' series data belongs to. 
-#' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
-#' @return data.table plot-ready data
-#' @export
-density <- function(data, map) {
-  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
-  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
-  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
-  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
-
-  panelData <- makePanels(data, facet1, facet2)
-  data <- data.table::setDT(panelData[[1]])
-  panel <- panelData[[2]]
-  data.back <- data
-  myCols <- c(y, x, group, panel)
-  data <- data[, myCols, with=FALSE]
-
-  data <- groupDensity(data, x, group, panel)
-  data.back <- noStatsFacet(data.back, group, panel)
-  data.back <- data.back[, -c(x), with = FALSE]
-  if (!is.null(key(data.back))) {
-    data <- merge(data, data.back)
-  } else {
-    data <- cbind(data, data.back)
-  }
-
-  return(data)
 }
 
 
@@ -186,7 +160,8 @@ heatmap.dt <- function(data, map, value) {
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
 #' @return character name of json file containing plot-ready data
 #' @export
-heatmap <- function(data, map, value = 'series') {
+heatmap <- function(data, map, value = c('series','collection')) {
+  value <- match.arg(value)
   dt <- heatmap.dt(data, map, value)
   outFileName <- writeJSON(dt, 'heatmap')
 
@@ -269,7 +244,8 @@ box.dt <- function(data, map, points, mean) {
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @return character name of json file containing plot-ready data
 #' @export
-box <- function(data, map, points = 'outliers', mean = FALSE) {
+box <- function(data, map, points = c('outliers', 'all', 'none'), mean = FALSE) {
+  points <- match.arg(points)
   dt <- box.dt(data, map, points, mean)
   outFileName <- writeJSON(data, 'boxplot')
 
@@ -339,7 +315,8 @@ bar.dt <- function(data, map, value) {
 #' @param value String indicating how to calculate y-values ('identity', 'count')
 #' @return character name of json file containing plot-ready data
 #' @export
-bar <- function(data, map, value = 'identity') {
+bar <- function(data, map, value = c('count', 'identity')) {
+  value <- match.arg(value)
   dt <- bar.dt(data, map, value)
   outFileName <- writeJSON(data, 'barplot')
 
@@ -373,8 +350,15 @@ histogram.dt <- function(data, map, binWidth, value) {
   myCols <- c(x, group, panel)
   data <- data[, myCols, with=FALSE]
 
-  if (is.character(binWidth)) {
-    data[[x]] <- as.POSIXct(data[[x]], format = "%Y-%m-%d")
+  #TODO is there a reason for valid NA here, should compare counts before and after maybe ?
+  xIsNum = all(!is.na(as.numeric(data[[x]])))
+  xIsDate = !xIsNum && all(!is.na(as.POSIXct(data[[x]], format='%Y-%m-%d')));
+  if (xIsNum) {
+    data[[x]] <- as.numeric(data[[x]])
+  } else if (xIsDate) {
+    data[[x]] <- as.POSIXct(data[[x]], format='%Y-%m-%d')    
+  } else {
+    stop("X axis must be numeric or date.")
   }
 
   if (value == 'count') {
@@ -409,7 +393,8 @@ histogram.dt <- function(data, map, binWidth, value) {
 #' @param value String indicating how to calculate y-values ('count, 'proportion')
 #' @return character name of json file containing plot-ready data
 #' @export
-histogram <- function(data, map, binWidth = .1, value = 'count') {
+histogram <- function(data, map, binWidth = NULL, value = c('count', 'proportion')) {
+  value <- match.arg(value)
   dt <- histogram.dt(data, map, binWidth, value)
   outFileName <- writeJSON(data, 'histogram')
 
