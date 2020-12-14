@@ -70,7 +70,7 @@ histogram.dt <- function(data, map, binWidth, value) {
 histogram <- function(data, map, binWidth = NULL, value = c('count', 'proportion')) {
   value <- match.arg(value)
   dt <- histogram.dt(data, map, binWidth, value)
-  outFileName <- writeJSON(data, 'histogram')
+  outFileName <- writeJSON(dt, 'histogram')
 
   return(outFileName)
 }

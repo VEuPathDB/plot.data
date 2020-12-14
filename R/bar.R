@@ -63,7 +63,7 @@ bar.dt <- function(data, map, value) {
 bar <- function(data, map, value = c('count', 'identity')) {
   value <- match.arg(value)
   dt <- bar.dt(data, map, value)
-  outFileName <- writeJSON(data, 'barplot')
+  outFileName <- writeJSON(dt, 'barplot')
 
   return(outFileName)
 }

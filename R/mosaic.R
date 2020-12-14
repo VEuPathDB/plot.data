@@ -54,7 +54,7 @@ mosaic.dt <- function(data, map) {
 #' @export
 mosaic <- function(data, map) {
   dt <- mosaic.dt(data, map)
-  outFileName <- writeJSON(data, 'mosaic')
+  outFileName <- writeJSON(dt, 'mosaic')
 
   return(outFileName)
 }

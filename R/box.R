@@ -76,7 +76,7 @@ box.dt <- function(data, map, points, mean) {
 box <- function(data, map, points = c('outliers', 'all', 'none'), mean = FALSE) {
   points <- match.arg(points)
   dt <- box.dt(data, map, points, mean)
-  outFileName <- writeJSON(data, 'boxplot')
+  outFileName <- writeJSON(dt, 'boxplot')
 
   return(outFileName)
 }
