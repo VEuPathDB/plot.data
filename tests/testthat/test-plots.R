@@ -65,12 +65,12 @@ test_that("histogram() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth = NULL, value='count')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('panel', 'group', 'label', 'x', 'y'))
+  expect_equal(names(dt),c('panel', 'group', 'binLabel', 'binStart', 'value'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('panel', 'group', 'label', 'x', 'y'))
+  expect_equal(names(dt),c('panel', 'group', 'binLabel', 'binStart', 'value'))
 
 
   map <- data.frame('id' = c('group', 'var'), 'plotRef' = c('overlayVariable', 'xAxisVariable'), stringsAsFactors = FALSE)
@@ -78,12 +78,12 @@ test_that("histogram() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth=NULL, value='count')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'label', 'x', 'y', 'panel'))
+  expect_equal(names(dt),c('group', 'binLabel', 'binStart', 'value', 'panel'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'label', 'x', 'y', 'panel'))
+  expect_equal(names(dt),c('group', 'binLabel', 'binStart', 'value', 'panel'))
 
 
   map <- data.frame('id' = c('var', 'panel'), 'plotRef' = c('xAxisVariable', 'facetVariable1'), stringsAsFactors = FALSE)
@@ -91,24 +91,24 @@ test_that("histogram() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth=NULL, value='count')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('panel', 'label', 'x', 'y', 'group'))
+  expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'value', 'group'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('panel', 'label', 'x', 'y', 'group'))
+  expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'value', 'group'))
 
   map <- data.frame('id' = c('var'), 'plotRef' = c('xAxisVariable'), stringsAsFactors = FALSE)
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='count')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('label', 'x', 'y', 'group', 'panel'))
+  expect_equal(names(dt),c('binLabel', 'binStart', 'value', 'group', 'panel'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('label', 'x', 'y', 'group', 'panel'))
+  expect_equal(names(dt),c('binLabel', 'binStart', 'value', 'group', 'panel'))
 
   #TODO test w two facets
 })
