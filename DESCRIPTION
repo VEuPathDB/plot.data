@@ -9,9 +9,13 @@ Authors@R:
 Imports:
     data.table,
     epitools,
+    jsonlite,
+    lubridate,
+    magrittr,
     mgcv,
+    moments,
     purrr,
-    magrittr
+    varrank
 URL: https://github.com/VEuPathDB/plot.data
 BugReports: https://github.com/VEuPathDB/plot.data/issues
 Description: Build `data.table`s where each row represents data for one group per panel. Optionally compute various statistics (ex:, smoothed conditional mean, odds ratio, relative risk).

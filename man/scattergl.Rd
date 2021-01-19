@@ -4,7 +4,7 @@
 \alias{scattergl}
 \title{Scatter Plot data file}
 \usage{
-scattergl(data, map, value = c("smoothedMean", "density", "none"))
+scattergl(data, map, value = c("smoothedMean", "density", "raw"))
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}

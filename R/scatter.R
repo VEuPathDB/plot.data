@@ -31,6 +31,7 @@ scattergl.dt <- function(data, map, value) {
   series <- noStatsFacet(data, group, panel)
   names(series) <- c(group, panel, 'series.y', 'series.x')
 
+  # TODO determine if we always want series, or if it depends on whats selected
   if (value == 'smoothedMean') {
     interval <- groupSmoothedMean(data, x, y, group, panel)
     interval <- interval[, !c('ymin', 'ymax')]
@@ -79,7 +80,7 @@ scattergl.dt <- function(data, map, value) {
 #' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates
 #' @return character name of json file containing plot-ready data
 #' @export
-scattergl <- function(data, map, value = c('smoothedMean', 'density', 'none')) {
+scattergl <- function(data, map, value = c('smoothedMean', 'density', 'raw')) {
   value <- match.arg(value)
   dt <- scattergl.dt(data, map, value)
   outFileName <- writeJSON(dt, 'scattergl')

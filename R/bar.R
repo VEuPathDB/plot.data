@@ -25,6 +25,7 @@ bar.dt <- function(data, map, value) {
   myCols <- c(x, group, panel)
   data <- data[, myCols, with=FALSE]
 
+  # may not need identity, valueSpec
   if (value == 'identity') {
     data <- noStatsFacet(data, group, panel)
   } else if (value == 'count' ) {
