@@ -100,6 +100,12 @@ emptyStringToPoint <- function(x) {
   return(x)
 }
 
+#' Replace Empty String with NULL
+#'
+#' This function replaces the empty string "" with NULL 
+#' @param x character vector
+#' @return non-empty character vector or NULL
+#' @export
 emptyStringToNull <- function(x) {
   if (length(x) == 0) { return(NULL) }
   if (x == "") { return(NULL) }
