@@ -31,7 +31,9 @@ bar.dt <- function(data, map, value) {
   } else if (value == 'count' ) {
     data$dummy <- 1
     data <- groupSize(data, x, 'dummy', group, panel)
-    names(data) <- c('label', 'group', 'panel', 'value')
+    if (!is.null(group)) { group <- 'group' }
+    if (!is.null(panel)) { panel <- 'panel' }
+    names(data) <- c('label', group, panel, 'value')
   } else {
     stop('Unrecognized argument to "value".')
   }
