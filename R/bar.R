@@ -31,18 +31,18 @@ bar.dt <- function(data, map, value) {
   } else if (value == 'count' ) {
     data$dummy <- 1
     data <- groupSize(data, x, 'dummy', group, panel)
-    names(data) <- c('label', group, panel, 'value')
+    names(data) <- c('label', 'group', 'panel', 'value')
   } else {
     stop('Unrecognized argument to "value".')
   }
 
-  data.back <- noStatsFacet(data.back, group, panel)
-  data.back <- data.back[, -x, with = FALSE]
-  if (!is.null(key(data.back))) {
-    data <- merge(data, data.back)
-  } else {
-    data <- cbind(data, data.back)
-  }
+  #data.back <- noStatsFacet(data.back, group, panel)
+  #data.back <- data.back[, -x, with = FALSE]
+  #if (!is.null(key(data.back))) {
+  #  data <- merge(data, data.back)
+  #} else {
+  #  data <- cbind(data, data.back)
+  #}
 
   return(data)
 }
