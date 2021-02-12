@@ -30,14 +30,13 @@ mosaic.dt <- function(data, map) {
     data <- panelBothRatios(data, x, group, panel)
   }
 
-   #TODO check this works, since we only have panels here really
-  data.back <- noStatsFacet(data.back, NULL, panel)
-  data.back <- data.back[, -c(x), with = FALSE]
-  if (!is.null(key(data.back))) {
-    data <- merge(data, data.back)
-  } else {
-    data <- cbind(data, data.back)
-  }
+  #data.back <- noStatsFacet(data.back, NULL, panel)
+  #data.back <- data.back[, -c(x), with = FALSE]
+  #if (!is.null(key(data.back))) {
+  #  data <- merge(data, data.back)
+  #} else {
+  #  data <- cbind(data, data.back)
+  #}
 
   return(data)
 }

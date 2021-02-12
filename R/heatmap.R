@@ -42,13 +42,13 @@ heatmap.dt <- function(data, map, value) {
     stop('Unrecognized argument to "value".')
   } 
   
-  data.back <- noStatsFacet(data.back, NULL, panel)
-  data.back <- data.back[, -c(y, x, z), with = FALSE]
-  if (!is.null(key(data.back))) {
-    data <- merge(data, data.back)
-  } else {
-    data <- cbind(data, data.back)
-  } 
+  #data.back <- noStatsFacet(data.back, NULL, panel)
+  #data.back <- data.back[, -c(y, x, z), with = FALSE]
+  #if (!is.null(key(data.back))) {
+  #  data <- merge(data, data.back)
+  #} else {
+  #  data <- cbind(data, data.back)
+  #} 
   
   return(data)
 }

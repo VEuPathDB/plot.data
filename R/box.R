@@ -48,13 +48,13 @@ box.dt <- function(data, map, points, mean) {
     data.base <- merge(data.base, mean)
   }
 
-  data.back <- noStatsFacet(data.back, group, panel)
-  data.back <- data.back[, -c(y, x), with = FALSE]
-  if (!is.null(key(data.back))) {
-    data <- merge(data.base, data.back)
-  } else {
-    data <- cbind(data.base, data.back)
-  }
+  #data.back <- noStatsFacet(data.back, group, panel)
+  #data.back <- data.back[, -c(y, x), with = FALSE]
+  #if (!is.null(key(data.back))) {
+  #  data <- merge(data.base, data.back)
+  #} else {
+  #  data <- cbind(data.base, data.back)
+  #}
 
   return(data)
 }

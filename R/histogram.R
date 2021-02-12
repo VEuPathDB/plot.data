@@ -26,7 +26,7 @@ histogram.dt <- function(data, map, binWidth, value) {
 
   #TODO is there a reason for valid NA here, should compare counts before and after maybe ?
   xIsNum = all(!is.na(as.numeric(data[[x]])))
-  xIsDate = !xIsNum && all(!is.na(as.POSIXct(data[[x]], format='%Y-%m-%d')));
+  xIsDate = !xIsNum && all(!is.na(as.POSIXct(data[[x]], format='%Y-%m-%d')))
   if (xIsNum) {
     data[[x]] <- as.numeric(data[[x]])
   } else if (xIsDate) {
@@ -43,13 +43,13 @@ histogram.dt <- function(data, map, binWidth, value) {
     stop('Unrecognized argument to "value".')
   }
 
-  data.back <- noStatsFacet(data.back, group, panel)
-  data.back <- data.back[, -c(x), with = FALSE]
-  if (!is.null(key(data.back))) {
-    data <- merge(data, data.back)
-  } else {
-    data <- cbind(data, data.back)
-  }
+  #data.back <- noStatsFacet(data.back, group, panel)
+  #data.back <- data.back[, -c(x), with = FALSE]
+  #if (!is.null(key(data.back))) {
+  #  data <- merge(data, data.back)
+  #} else {
+  #  data <- cbind(data, data.back)
+  #}
 
   return(data)
 }

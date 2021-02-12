@@ -53,13 +53,13 @@ scattergl.dt <- function(data, map, value) {
     data <- series
   }
 
-  data.back <- noStatsFacet(data.back, group, panel)
-  data.back <- data.back[, -c(y, x), with = FALSE]
-  if (!is.null(key(data.back))) {
-    data <- merge(data, data.back)
-  } else {
-    data <- cbind(data, data.back)
-  }
+  #data.back <- noStatsFacet(data.back, group, panel)
+  #data.back <- data.back[, -c(y, x), with = FALSE]
+  #if (!is.null(key(data.back))) {
+  #  data <- merge(data, data.back)
+  #} else {
+  #  data <- cbind(data, data.back)
+  #}
 
   return(data)
 }
