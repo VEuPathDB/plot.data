@@ -4,13 +4,14 @@
 #' written a data.table object out to.
 #' @param data a data.table to convert to json and write to a tmp file
 #' @param pattern optional tmp file prefix
+#' @param namedAttrList named list of individual attributes to append to the json string after `data`
 #' @return character name of a tmp file w ext *.json
 #' @importFrom jsonlite toJSON
 #' @importFrom jsonlite prettify
 #' @export
 writeJSON <- function(data, pattern = NULL, namedAttrList = NULL) {
   if (!is.null(namedAttrList)) {
-    outJson <- jsonlite::toJSON(data, namedAttrList)
+    outJson <- jsonlite::toJSON(list(data, namedAttrList))
   } else {
     outJson <- jsonlite::toJSON(data)
   }
