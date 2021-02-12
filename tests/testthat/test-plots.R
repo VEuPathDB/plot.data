@@ -9,7 +9,7 @@ test_that("scattergl() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'none')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('panel', 'group', 'series.y', 'series.x'))
+  expect_equal(names(dt),c('group', 'panel', 'series.y', 'series.x'))
 
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
@@ -22,12 +22,12 @@ test_that("scattergl() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'none')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'series.y', 'series.x', 'panel'))
+  expect_equal(names(dt),c('group', 'series.y', 'series.x'))
 
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'series.y', 'series.x', 'interval.x', 'interval.y', 'interval.se', 'panel'))
+  expect_equal(names(dt),c('group', 'series.y', 'series.x', 'interval.x', 'interval.y', 'interval.se'))
 
 
   map <- data.frame('id' = c('y', 'x', 'panel'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), stringsAsFactors = FALSE)
@@ -35,24 +35,24 @@ test_that("scattergl() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'none')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('panel', 'series.y', 'series.x', 'group'))
+  expect_equal(names(dt),c('panel', 'series.y', 'series.x'))
 
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('panel', 'series.y', 'series.x', 'interval.x', 'interval.y', 'interval.se', 'group'))
+  expect_equal(names(dt),c('panel', 'series.y', 'series.x', 'interval.x', 'interval.y', 'interval.se'))
 
   map <- data.frame('id' = c('y', 'x'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), stringsAsFactors = FALSE)
 
   dt <- scattergl.dt(df, map, 'none')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('series.y', 'series.x', 'group', 'panel'))
+  expect_equal(names(dt),c('series.y', 'series.x'))
 
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('series.y', 'series.x', 'interval.x', 'interval.y', 'interval.se', 'group', 'panel'))
+  expect_equal(names(dt),c('series.y', 'series.x', 'interval.x', 'interval.y', 'interval.se'))
 
   #TODO test w two facets
 })
@@ -65,12 +65,12 @@ test_that("histogram() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth = NULL, value='count')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('panel', 'group', 'binLabel', 'binStart', 'value'))
+  expect_equal(names(dt),c('group', 'panel', 'binLabel', 'binStart', 'value'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('panel', 'group', 'binLabel', 'binStart', 'value'))
+  expect_equal(names(dt),c('group', 'panel', 'binLabel', 'binStart', 'value'))
 
 
   map <- data.frame('id' = c('group', 'var'), 'plotRef' = c('overlayVariable', 'xAxisVariable'), stringsAsFactors = FALSE)
@@ -78,12 +78,12 @@ test_that("histogram() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth=NULL, value='count')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'binLabel', 'binStart', 'value', 'panel'))
+  expect_equal(names(dt),c('group', 'binLabel', 'binStart', 'value'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'binLabel', 'binStart', 'value', 'panel'))
+  expect_equal(names(dt),c('group', 'binLabel', 'binStart', 'value'))
 
 
   map <- data.frame('id' = c('var', 'panel'), 'plotRef' = c('xAxisVariable', 'facetVariable1'), stringsAsFactors = FALSE)
@@ -91,24 +91,24 @@ test_that("histogram() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth=NULL, value='count')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'value', 'group'))
+  expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'value'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'value', 'group'))
+  expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'value'))
 
   map <- data.frame('id' = c('var'), 'plotRef' = c('xAxisVariable'), stringsAsFactors = FALSE)
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='count')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('binLabel', 'binStart', 'value', 'group', 'panel'))
+  expect_equal(names(dt),c('binLabel', 'binStart', 'value'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('binLabel', 'binStart', 'value', 'group', 'panel'))
+  expect_equal(names(dt),c('binLabel', 'binStart', 'value'))
 
   #TODO test w two facets
 })

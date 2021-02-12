@@ -70,7 +70,15 @@ histogram.dt <- function(data, map, binWidth, value) {
 histogram <- function(data, map, binWidth = NULL, value = c('count', 'proportion')) {
   value <- match.arg(value)
   dt <- histogram.dt(data, map, binWidth, value)
-  outFileName <- writeJSON(dt, 'histogram')
+
+  if (is.null(binWidth)) {
+    binStart <- as.numeric(findBinStart(unlist(dt$binLabel)))
+    binEnd <- as.numeric(findBinEnd(unlist(dt$binLabel)))
+    binWidth <- getMode(binEnd - binStart) 
+  }
+  namedAttrList <- list('binWidth' = binWidth)
+
+  outFileName <- writeJSON(dt, 'histogram', namedAttrList)
 
   return(outFileName)
 }

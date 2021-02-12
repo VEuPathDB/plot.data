@@ -8,8 +8,12 @@
 #' @importFrom jsonlite toJSON
 #' @importFrom jsonlite prettify
 #' @export
-writeJSON <- function(data, pattern = NULL) {
-  outJson <- jsonlite::toJSON(data)
+writeJSON <- function(data, pattern = NULL, namedAttrList = NULL) {
+  if (!is.null(namedAttrList)) {
+    outJson <- jsonlite::toJSON(data, namedAttrList)
+  } else {
+    outJson <- jsonlite::toJSON(data)
+  }
   # just for now for debugging
   outJson <- jsonlite::prettify(outJson)
   if (is.null(pattern)) { pattern <- 'file' }
@@ -361,11 +365,26 @@ bin.POSIXct <- function(x, binWidth = NULL) {
   return(bins)
 }
 
+getMode <- function(x) {
+   uniq <- unique(x)
+   uniq[which.max(tabulate(match(x, uniq)))]
+}
+
 findBinStart <- function(x) {
   if (all(grepl(" - ",x))) {
-    x <- unlist(lapply(strsplit(x, " - ", fixed=T), "[",1))
+    x <- unlist(lapply(strsplit(x, " - ", fixed=T), "[", 1))
   } else {
-    x <- gsub("(", "", unlist(lapply(strsplit(as.character(x), ",", fixed=T), "[",1)), fixed=T)
+    x <- gsub("\\(|\\[", "", unlist(lapply(strsplit(as.character(x), ",", fixed=T), "[",1)))
+  }
+
+  return(x)
+}
+
+findBinEnd <- function(x) {
+  if (all(grepl(" - ",x))) {
+    x <- unlist(lapply(strsplit(x, " - ", fixed=T), "[", 2))
+  } else {
+    x <- gsub("\\)|\\]", "", unlist(lapply(strsplit(as.character(x), ",", fixed=T), "[", 2)))
   }
 
   return(x)
