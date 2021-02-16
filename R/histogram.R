@@ -65,18 +65,25 @@ histogram.dt <- function(data, map, binWidth, value) {
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
 #' @param value String indicating how to calculate y-values ('count, 'proportion')
+#' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @return character name of json file containing plot-ready data
 #' @export
-histogram <- function(data, map, binWidth = NULL, value = c('count', 'proportion')) {
+histogram <- function(data, map, binWidth = NULL, value = c('count', 'proportion'), binReportValue = c('binWidth', 'numBins')) {
   value <- match.arg(value)
+  binReportValue <- match.arg(binReportValue)
   dt <- histogram.dt(data, map, binWidth, value)
 
-  if (is.null(binWidth)) {
-    binStart <- as.numeric(findBinStart(unlist(dt$binLabel)))
-    binEnd <- as.numeric(findBinEnd(unlist(dt$binLabel)))
-    binWidth <- getMode(binEnd - binStart) 
+  if (binReportValue == 'binWidth') {
+    if (is.null(binWidth)) {
+      binStart <- as.numeric(findBinStart(unlist(dt$binLabel)))
+      binEnd <- as.numeric(findBinEnd(unlist(dt$binLabel)))
+      binWidth <- getMode(binEnd - binStart) 
+    }
+    namedAttrList <- list('binWidth' = binWidth)
+  } else {
+    numBins <- length(unlist(dt$binLabel))
+    namedAttrList <- list('numBins' = numBins)
   }
-  namedAttrList <- list('binWidth' = binWidth)
 
   outFileName <- writeJSON(dt, 'histogram', namedAttrList)
 
