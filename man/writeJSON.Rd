@@ -4,12 +4,14 @@
 \alias{writeJSON}
 \title{Write json to local tmp file}
 \usage{
-writeJSON(data, pattern = NULL)
+writeJSON(data, pattern = NULL, namedAttrList = NULL)
 }
 \arguments{
 \item{data}{a data.table to convert to json and write to a tmp file}
 
 \item{pattern}{optional tmp file prefix}
+
+\item{namedAttrList}{named list of individual attributes to append to the json string after `data`}
 }
 \value{
 character name of a tmp file w ext *.json

@@ -24,7 +24,9 @@ histogram.dt <- function(data, map, binWidth, value) {
   myCols <- c(x, group, panel)
   data <- data[, myCols, with=FALSE]
 
-  #TODO is there a reason for valid NA here, should compare counts before and after maybe ?
+  incompleteCaseCount <- nrow(data[!complete.cases(data),])
+  data <- data[complete.cases(data),]
+
   xIsNum = all(!is.na(as.numeric(data[[x]])))
   xIsDate = !xIsNum && all(!is.na(as.POSIXct(data[[x]], format='%Y-%m-%d')))
   if (xIsNum) {
@@ -51,7 +53,7 @@ histogram.dt <- function(data, map, binWidth, value) {
   #  data <- cbind(data, data.back)
   #}
 
-  return(data)
+  return(list(data, incompleteCaseCount))
 }
 
 #' Histogram data file
@@ -71,7 +73,9 @@ histogram.dt <- function(data, map, binWidth, value) {
 histogram <- function(data, map, binWidth = NULL, value = c('count', 'proportion'), binReportValue = c('binWidth', 'numBins')) {
   value <- match.arg(value)
   binReportValue <- match.arg(binReportValue)
-  dt <- histogram.dt(data, map, binWidth, value)
+  outList <- histogram.dt(data, map, binWidth, value)
+  dt <- outList[[1]]
+  namedAttrList <- list('incompleteCases' = outList[[2]])
 
   if (binReportValue == 'binWidth') {
     if (is.null(binWidth)) {
@@ -79,10 +83,10 @@ histogram <- function(data, map, binWidth = NULL, value = c('count', 'proportion
       binEnd <- as.numeric(findBinEnd(unlist(dt$binLabel)))
       binWidth <- getMode(binEnd - binStart) 
     }
-    namedAttrList <- list('binWidth' = binWidth)
+    namedAttrList$binWidth <- binWidth
   } else {
     numBins <- length(unlist(dt$binLabel))
-    namedAttrList <- list('numBins' = numBins)
+    namedAttrList$numBins <- numBins
   }
 
   outFileName <- writeJSON(dt, 'histogram', namedAttrList)

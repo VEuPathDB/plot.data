@@ -4,7 +4,13 @@
 \alias{histogram}
 \title{Histogram data file}
 \usage{
-histogram(data, map, binWidth = NULL, value = c("count", "proportion"))
+histogram(
+  data,
+  map,
+  binWidth = NULL,
+  value = c("count", "proportion"),
+  binReportValue = c("binWidth", "numBins")
+)
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
@@ -14,6 +20,8 @@ histogram(data, map, binWidth = NULL, value = c("count", "proportion"))
 \item{binWidth}{numeric value indicating width of bins, character (ex: 'year') if xaxis is a date}
 
 \item{value}{String indicating how to calculate y-values ('count, 'proportion')}
+
+\item{binReportValue}{String indicating if number of bins or bin width used should be returned}
 }
 \value{
 character name of json file containing plot-ready data

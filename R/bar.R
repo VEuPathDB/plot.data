@@ -25,6 +25,9 @@ bar.dt <- function(data, map, value) {
   myCols <- c(x, group, panel)
   data <- data[, myCols, with=FALSE]
 
+  incompleteCaseCount <- nrow(data[!complete.cases(data),])
+  data <- data[complete.cases(data),]
+
   # may not need identity, valueSpec
   if (value == 'identity') {
     data <- noStatsFacet(data, group, panel)
@@ -46,7 +49,7 @@ bar.dt <- function(data, map, value) {
   #  data <- cbind(data, data.back)
   #}
 
-  return(data)
+  return(list(data, incompleteCaseCount))
 }
 
 #' Bar Plot data file
@@ -65,8 +68,11 @@ bar.dt <- function(data, map, value) {
 #' @export
 bar <- function(data, map, value = c('count', 'identity')) {
   value <- match.arg(value)
-  dt <- bar.dt(data, map, value)
-  outFileName <- writeJSON(dt, 'barplot')
+  outList <- bar.dt(data, map, value)
+  dt <- outList[[1]]
+  namedAttrList <- list('completeCases' = outList[[2]])
+
+  outFileName <- writeJSON(dt, 'barplot', namedAttrList)
 
   return(outFileName)
 }
