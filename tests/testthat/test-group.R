@@ -23,8 +23,9 @@ test_that("groupSummary() returns an appropriately sized data.table", {
   expect_equal(names(dt), c('group', 'panel', 'min', 'q1', 'median', 'q3', 'max'))
 
   #TODO fix this so that the test doesnt also rely on bin
+  viewport <- list('min'=min(data.xy$x), 'max'=max(data.xy$x))
   testData <- data.xy
-  testData$x <- bin(data.xy$x, .1)
+  testData$x <- bin(data.xy$x, .1, viewport)
 
   dt <- groupSummary(testData, 'x', 'y')
   expect_is(dt, 'data.table')

@@ -4,7 +4,7 @@
 \alias{bin}
 \title{Binning}
 \usage{
-bin(x, binWidth)
+bin(x, binWidth, viewport)
 }
 \arguments{
 \item{x}{Numeric or Date vector to bin}

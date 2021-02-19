@@ -9,7 +9,8 @@ histogram(
   map,
   binWidth = NULL,
   value = c("count", "proportion"),
-  binReportValue = c("binWidth", "numBins")
+  binReportValue = c("binWidth", "numBins"),
+  viewport = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ histogram(
 \item{value}{String indicating how to calculate y-values ('count, 'proportion')}
 
 \item{binReportValue}{String indicating if number of bins or bin width used should be returned}
+
+\item{viewport}{List of min and max values to consider as the range of data}
 }
 \value{
 character name of json file containing plot-ready data

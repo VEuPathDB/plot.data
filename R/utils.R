@@ -272,8 +272,8 @@ smoothedMean <- function(dt, method) {
   return(data.table::data.table("x" = list(smoothed$x), "y" = list(smoothed$y), "ymin" = list(smoothed$ymin), "ymax" = list(smoothed$ymax), "se" = list(smoothed$se)))
 }
 
-findNumBins <- function(x) {
-  bins <- bin(x)
+findNumBins <- function(x, viewport) {
+  bins <- bin(x, viewport)
   
   return(data.table::uniqueN(bins))
 }
@@ -289,8 +289,8 @@ findNumBins <- function(x) {
 # @alias findBinWidth.POSIXct
 findBinWidth <- function(x) UseMethod("findBinWidth")
 
-findBinWidth.numeric <- function(x) {
-  numBins <- findNumBins(x)
+findBinWidth.numeric <- function(x, viewport) {
+  numBins <- findNumBins(x, viewport)
   range <- as.numeric(max(x) - min(x))
   range <- range + (range*.01)
   binWidth <- range / numBins
@@ -299,9 +299,9 @@ findBinWidth.numeric <- function(x) {
 }
 
 #TODO make sure it works w units other than days
-findBinWidth.POSIXct <- function(x) {
+findBinWidth.POSIXct <- function(x, viewport) {
   dateMap <- data.table('date' = x, 'numeric' = as.numeric(x))
-  numBins <- findNumBins(dateMap$numeric)
+  numBins <- findNumBins(dateMap$numeric, viewport)
   range <- as.numeric(max(dateMap$date) - min(dateMap$date))
   binWidth <- range / numBins
   
@@ -332,35 +332,87 @@ findBinWidth.POSIXct <- function(x) {
 #' @importFrom moments skewness
 # @alias bin.numeric
 # @alias bin.POSIXct
-bin <- function(x, binWidth) UseMethod("bin")
+bin <- function(x, binWidth, viewport) UseMethod("bin")
 
-bin.numeric <- function(x, binWidth = NULL) {
+bin.numeric <- function(x, binWidth = NULL, viewport) {
   bins <- NULL
+  myMethod <- NULL
+
+  # TODO consider if we are meant to choose method before or 
+  # after the viewport adjustment 
   if (is.null(binWidth)) {
     if (length(x) < 200) {
-      bins <- varrank::discretization(x, discretization.method = 'sturges')
+      myMethod <- 'sturges'
     }
     skewness <- moments::skewness(x)
     if (abs(skewness) > .5) {
-      bins <- varrank::discretization(x, discretization.method = 'doane')
+      myMethod <- 'doane'
     }
     if (is.null(bins)) {
-      bins <- varrank::discretization(x, discretization.method = 'fd')
+      myMethod <- 'fd'
     }
-  } else {
-    numBins <- ceiling(as.numeric(max(x) - min(x)) / binWidth)
-    bins <- varrank::discretization(x, discretization.method = numBins)
   }
 
-  return(as.character(bins$data.df))
+  addViewportMin <- FALSE
+  if (viewport$min < min(x)) {
+    x <- c(viewport$min, x)
+    addViewportMin <- TRUE
+  } else {
+    x <- x[x >= viewport$min]
+  }
+
+  addViewportMax <- FALSE
+  if (viewport$max > max(x)) {
+    x <- c(x, viewport$max)
+    addViewportMax <- TRUE
+  } else {
+    x <- x[x <= viewport$max]
+  }
+  
+  if (is.null(myMethod)) {
+    myMethod <- ceiling(as.numeric(max(x) - min(x)) / binWidth)
+  }
+
+  bins <- as.character(varrank::discretization(x, discretization.method = myMethod)$data.df)
+  if (addViewportMin) {
+    bins <- bins[x != viewport$min]
+    x <- x[x != viewport$min]
+  }
+  if (addViewportMax) {
+    bins <- bins[x != viewport$max]
+  }
+
+  return(bins)
 }
 
-bin.POSIXct <- function(x, binWidth = NULL) {
+bin.POSIXct <- function(x, binWidth = NULL, viewport) {
   if (is.null(binWidth)) {
-    binWidth = findBinWidth(x)
+    binWidth = findBinWidth(x, viewport)
+  }
+
+  addViewportMin <- FALSE
+  if (viewport$min < min(x)) {
+    x <- c(viewport$min, x)
+    addViewportMin <- TRUE
+  } else {
+    x <- x[x >= viewport$min]
+  }
+
+  addViewportMax <- FALSE
+  if (viewport$max > max(x)) {
+    x <- c(x, viewport$max)
+    addViewportMax <- TRUE
+  } else {
+    x <- x[x <= viewport$max]
   }
 
   bins <- as.Date(cut(x, breaks=binWidth))
+  if (addViewportMin) {
+    bins <- bins[x != viewport$min]
+  }
+  if (addViewportMax) {
+    bins <- bins[x != viewport$max]
+  }
   bins <- paste0(bins, " - ", lubridate::ceiling_date(bins, binWidth) -1)
 
   return(bins)

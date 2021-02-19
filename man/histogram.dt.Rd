@@ -4,7 +4,7 @@
 \alias{histogram.dt}
 \title{Histogram as data.table}
 \usage{
-histogram.dt(data, map, binWidth, value)
+histogram.dt(data, map, binWidth, value, binReportValue, viewport)
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
@@ -14,6 +14,10 @@ histogram.dt(data, map, binWidth, value)
 \item{binWidth}{numeric value indicating width of bins, character (ex: 'year') if xaxis is a date}
 
 \item{value}{String indicating how to calculate y-values ('count, 'proportion')}
+
+\item{binReportValue}{String indicating if number of bins or bin width used should be returned}
+
+\item{viewport}{List of min and max values to consider as the range of data}
 }
 \value{
 data.table plot-ready data

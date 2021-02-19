@@ -15,6 +15,7 @@ Imports:
     mgcv,
     moments,
     purrr,
+    stringr,
     varrank
 URL: https://github.com/VEuPathDB/plot.data
 BugReports: https://github.com/VEuPathDB/plot.data/issues

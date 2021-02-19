@@ -1,7 +1,7 @@
-binSize <- function(data, col, group = NULL, panel = NULL, binWidth = NULL) {
+binSize <- function(data, col, group = NULL, panel = NULL, binWidth = NULL, viewport) {
   aggStr <- getAggStr(col, c('binLabel', 'binStart', group, panel))
 
-  data$binLabel <- bin(data[[col]], binWidth)
+  data$binLabel <- bin(data[[col]], binWidth, viewport)
   data$binStart <- findBinStart(data$binLabel)
 
   dt <- aggregate(as.formula(aggStr), data, length)
@@ -11,11 +11,11 @@ binSize <- function(data, col, group = NULL, panel = NULL, binWidth = NULL) {
   return(dt)
 }
 
-binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL) {
+binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL, viewport) {
   aggStr <- getAggStr(col, c('binLabel', 'binStart', group, panel))
   aggStr2 <- getAggStr(col, c(group, panel))
 
-  data$binLabel <- bin(data[[col]], binWidth)
+  data$binLabel <- bin(data[[col]], binWidth, viewport)
   data$binStart <- findBinStart(data$binLabel)
 
   dt <- aggregate(as.formula(aggStr), data, length)
