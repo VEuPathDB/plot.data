@@ -105,7 +105,7 @@ histogram.dt <- function(data, map, binWidth, value, binReportValue, viewport) {
 histogram <- function(data, map, binWidth = NULL, value = c('count', 'proportion'), binReportValue = c('binWidth', 'numBins'), viewport = NULL) {
   value <- match.arg(value)
   binReportValue <- match.arg(binReportValue)
-  outList <- histogram.dt(data, map, binWidth, value, viewport)
+  outList <- histogram.dt(data, map, binWidth, value, binReportValue, viewport)
   dt <- outList[[1]]
   namedAttrList <- list('incompleteCases' = outList[[2]], 'binSlider' = outList[[3]])
 
