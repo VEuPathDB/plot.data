@@ -28,11 +28,13 @@ histogram.dt <- function(data, map, binWidth, value, binReportValue, viewport) {
   data <- data[, myCols, with=FALSE]
 
   incompleteCaseCount <- nrow(data[!complete.cases(data),])
+  data <- data[complete.cases(data),]
+
   if (binReportValue == 'numBins') {
     binSlider <- list('min'=2, 'max'=1000, 'step'=1)
   } else {
-    binSliderMax <- max(data[[x]]) - min(data[[x]]) / 2
-    binSliderMin <- max(data[[x]]) - min(data[[x]]) / 1000
+    binSliderMax <- (max(data[[x]]) - min(data[[x]])) / 2
+    binSliderMin <- (max(data[[x]]) - min(data[[x]])) / 1000
     avgDigits <- floor(mean(stringr::str_count(as.character(data[[x]]), "[[:digit:]]")))
     binSliderMax <- round(binSliderMax, avgDigits)
     binSliderMin <- round(binSliderMin, avgDigits)
@@ -40,8 +42,6 @@ histogram.dt <- function(data, map, binWidth, value, binReportValue, viewport) {
     binSliderStep <- round((binSliderMax / 1000), avgDigits) 
     binSlider <- list('min'=binSliderMin, 'max'=binSliderMax, 'step'=binSliderStep)
   }
-
-  data <- data[complete.cases(data),]
 
   xIsNum = all(!is.na(as.numeric(data[[x]])))
   xIsDate = !xIsNum && all(!is.na(as.POSIXct(data[[x]], format='%Y-%m-%d')))
