@@ -121,7 +121,7 @@ histogram <- function(data, map, binWidth = NULL, value = c('count', 'proportion
     namedAttrList$numBins <- numBins
   }
 
-  outFileName <- writeJSON(dt, 'histogram', namedAttrList)
+  outFileName <- writeJSON(dt, 'histogram', namedAttrList, map)
 
   return(outFileName)
 }

@@ -72,7 +72,7 @@ bar <- function(data, map, value = c('count', 'identity')) {
   dt <- outList[[1]]
   namedAttrList <- list('completeCases' = outList[[2]])
 
-  outFileName <- writeJSON(dt, 'barplot', namedAttrList)
+  outFileName <- writeJSON(dt, 'barplot', namedAttrList, map)
 
   return(outFileName)
 }

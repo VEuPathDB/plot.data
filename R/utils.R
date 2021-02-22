@@ -1,3 +1,36 @@
+makeVariableDetails <- function(value, variableId, entityId) {
+  if (!is.null(value)) {
+    variableDetails <- list('variableId'=variableId, 'entityId'=entityId, 'value'=value) 
+  } else {
+    variableDetails <- list('variableId'=variableId, 'entityId'=entityId)
+  }
+
+  return(variableDetails)
+}
+
+addStrataVariableDetails <- function(data, map) {
+  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
+  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
+  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
+ 
+  # TODO test w two facets. not sure this will work..
+  if ('panel' %in% names(data)) {
+    names(data)[names(data) == 'panel'] <- 'facetVariableDetails'
+    data$facetVariableDetails <- lapply(data$facetVariableDetails, makeVariableDetails, list(facet1,facet2), map$entityId[map$id %in% c(facet1, facet2)])
+  } else if (!is.null(group)) {
+    names(data)[names(data) == group] <- 'overlayVariableDetails'
+    data$overlayVariableDetails <- lapply(data$overlayVariableDetails, makeVariableDetails, group, map$entityId[map$id == group])
+  } else if (!is.null(facet1)) {
+    names(data)[names(data) == facet1] <- 'facetVariableDetails'
+    data$facetVariableDetails <- lapply(data$facetVariableDetails, makeVariableDetails, facet1, map$entityId[map$id == facet1])
+  } else if (!is.null(facet2)) {
+    names(data)[names(data) == facet2] <- 'facetVariableDetails'
+    data$facetVariableDetails <- lapply(data$facetVariableDetails, makeVariableDetails, facet2, map$entityId[map$id == facet2])
+  }
+
+  return(data)
+}
+
 #' Write json to local tmp file
 #'
 #' This function returns the name of a json file which it has
@@ -5,16 +38,39 @@
 #' @param data a data.table to convert to json and write to a tmp file
 #' @param pattern optional tmp file prefix
 #' @param namedAttrList named list of individual attributes to append to the json string after `data`
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
 #' @return character name of a tmp file w ext *.json
 #' @importFrom jsonlite toJSON
 #' @importFrom jsonlite prettify
 #' @export
-writeJSON <- function(data, pattern = NULL, namedAttrList = NULL) {
+writeJSON <- function(data, pattern = NULL, namedAttrList = NULL, map = NULL) {
+  # TODO this is becoming complicated
+  # think of better ways to manage this
+  # a custom plot.data class of object maybe?
+  if (!is.null(map)) {
+    data <- addStrataVariableDetails(data, map)
+  }
+
+  y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
+  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
+  xVariableDetails <- NULL
+  yVariableDetails <- NULL
+  # TODO need a test for z ??
+  if (!is.null(x)) {
+    xVariableDetails <- list('xVariableDetails' = makeVariableDetails(NULL, x, map$entityId[map$id == x]))
+  }
+  if (!is.null(y)) {
+    yVariableDetails <- list('yVariableDetails' = makeVariableDetails(NULL, y, map$entityId[map$id == y]))
+  }
+
+  namedAttrList <- c(namedAttrList, xVariableDetails, yVariableDetails)
+
   if (!is.null(namedAttrList)) {
     outJson <- jsonlite::toJSON(list(data, namedAttrList))
   } else {
     outJson <- jsonlite::toJSON(data)
   }
+
   # just for now for debugging
   outJson <- jsonlite::prettify(outJson)
   if (is.null(pattern)) { pattern <- 'file' }
