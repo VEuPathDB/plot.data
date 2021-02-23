@@ -343,7 +343,7 @@ findNumBins <- function(x, viewport) {
 #' @export
 # @alias findBinWidth.numeric
 # @alias findBinWidth.POSIXct
-findBinWidth <- function(x) UseMethod("findBinWidth")
+findBinWidth <- function(x, viewport) UseMethod("findBinWidth")
 
 findBinWidth.numeric <- function(x, viewport) {
   numBins <- findNumBins(x, viewport)
