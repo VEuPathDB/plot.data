@@ -68,6 +68,9 @@ histogram.dt <- function(data, map, binWidth, value, binReportValue, viewport) {
     }
   }
 
+  #TODO is this right? just remove whats outside the viewport ?
+  data <- subset(data, data[[x]] <= viewport$max & data[[x]] >= viewport$min)
+
   if (value == 'count') {
     data <- binSize(data, x, group, panel, binWidth, viewport)
   } else if (value == 'proportion' ) {
