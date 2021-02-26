@@ -13,6 +13,7 @@
 #' @param viewport List of min and max values to consider as the range of data
 #' @return data.table plot-ready data
 #' @importFrom stringr str_count
+#' @importFrom jsonlite unbox
 #' @export
 histogram.dt <- function(data, map, binWidth, value, binReportValue, viewport) {
   group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
@@ -31,7 +32,7 @@ histogram.dt <- function(data, map, binWidth, value, binReportValue, viewport) {
   data <- data[complete.cases(data),]
 
   if (binReportValue == 'numBins') {
-    binSlider <- list('min'=2, 'max'=1000, 'step'=1)
+    binSlider <- list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
   } else {
     binSliderMax <- (max(data[[x]]) - min(data[[x]])) / 2
     binSliderMin <- (max(data[[x]]) - min(data[[x]])) / 1000
@@ -40,7 +41,7 @@ histogram.dt <- function(data, map, binWidth, value, binReportValue, viewport) {
     binSliderMin <- round(binSliderMin, avgDigits)
     # TODO not sure this is the rule we meant ?
     binSliderStep <- round((binSliderMax / 1000), avgDigits) 
-    binSlider <- list('min'=binSliderMin, 'max'=binSliderMax, 'step'=binSliderStep)
+    binSlider <- list('min'=jsonlite::unbox(binSliderMin), 'max'=jsonlite::unbox(binSliderMax), 'step'=jsonlite::unbox(binSliderStep))
   }
 
   xIsNum = all(!is.na(as.numeric(data[[x]])))
@@ -104,13 +105,14 @@ histogram.dt <- function(data, map, binWidth, value, binReportValue, viewport) {
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param viewport List of min and max values to consider as the range of data
 #' @return character name of json file containing plot-ready data
+#' @importFrom jsonlite unbox
 #' @export
 histogram <- function(data, map, binWidth = NULL, value = c('count', 'proportion'), binReportValue = c('binWidth', 'numBins'), viewport = NULL) {
   value <- match.arg(value)
   binReportValue <- match.arg(binReportValue)
   outList <- histogram.dt(data, map, binWidth, value, binReportValue, viewport)
   dt <- outList[[1]]
-  namedAttrList <- list('incompleteCases' = outList[[2]], 'binSlider' = outList[[3]])
+  namedAttrList <- list('incompleteCases' = jsonlite::unbox(outList[[2]]), 'binSlider' = outList[[3]])
 
   if (binReportValue == 'binWidth') {
     if (is.null(binWidth)) {
@@ -118,10 +120,10 @@ histogram <- function(data, map, binWidth = NULL, value = c('count', 'proportion
       binEnd <- as.numeric(findBinEnd(unlist(dt$binLabel)))
       binWidth <- getMode(binEnd - binStart) 
     }
-    namedAttrList$binWidth <- binWidth
+    namedAttrList$binWidth <- jsonlite::unbox(binWidth)
   } else {
     numBins <- length(unlist(dt$binLabel))
-    namedAttrList$numBins <- numBins
+    namedAttrList$numBins <- jsonlite::unbox(numBins)
   }
 
   outFileName <- writeJSON(dt, 'histogram', namedAttrList, map)

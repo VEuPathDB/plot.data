@@ -1,8 +1,8 @@
 makeVariableDetails <- function(value, variableId, entityId) {
   if (!is.null(value)) {
-    variableDetails <- list('variableId'=variableId, 'entityId'=entityId, 'value'=value) 
+    variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=jsonlite::unbox(value)) 
   } else {
-    variableDetails <- list('variableId'=variableId, 'entityId'=entityId)
+    variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId))
   }
 
   return(variableDetails)
@@ -31,6 +31,10 @@ addStrataVariableDetails <- function(data, map) {
   return(data)
 }
 
+#TODO how to tell user the accepted plotRef values for a given plot?
+# this is going to have to become more involved..
+# consider ggplot style layers on top of a custom object ?
+
 #' Write json to local tmp file
 #'
 #' This function returns the name of a json file which it has
@@ -38,7 +42,7 @@ addStrataVariableDetails <- function(data, map) {
 #' @param data a data.table to convert to json and write to a tmp file
 #' @param pattern optional tmp file prefix
 #' @param namedAttrList named list of individual attributes to append to the json string after `data`
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. 
 #' @return character name of a tmp file w ext *.json
 #' @importFrom jsonlite toJSON
 #' @importFrom jsonlite prettify
@@ -66,9 +70,9 @@ writeJSON <- function(data, pattern = NULL, namedAttrList = NULL, map = NULL) {
   namedAttrList <- c(namedAttrList, xVariableDetails, yVariableDetails)
 
   if (!is.null(namedAttrList)) {
-    outJson <- jsonlite::toJSON(list(data, namedAttrList))
+    outJson <- jsonlite::toJSON(list('data'=data, 'config'=namedAttrList))
   } else {
-    outJson <- jsonlite::toJSON(data)
+    outJson <- jsonlite::toJSON(list('data'=data))
   }
 
   # just for now for debugging
@@ -413,16 +417,12 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
   if (viewport$min < min(x)) {
     x <- c(viewport$min, x)
     addViewportMin <- TRUE
-  } else {
-    x <- x[x >= viewport$min]
   }
 
   addViewportMax <- FALSE
   if (viewport$max > max(x)) {
     x <- c(x, viewport$max)
     addViewportMax <- TRUE
-  } else {
-    x <- x[x <= viewport$max]
   }
   
   if (is.null(myMethod)) {

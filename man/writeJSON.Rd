@@ -12,6 +12,8 @@ writeJSON(data, pattern = NULL, namedAttrList = NULL, map = NULL)
 \item{pattern}{optional tmp file prefix}
 
 \item{namedAttrList}{named list of individual attributes to append to the json string after `data`}
+
+\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot.}
 }
 \value{
 character name of a tmp file w ext *.json

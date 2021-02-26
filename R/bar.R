@@ -70,7 +70,7 @@ bar <- function(data, map, value = c('count', 'identity')) {
   value <- match.arg(value)
   outList <- bar.dt(data, map, value)
   dt <- outList[[1]]
-  namedAttrList <- list('completeCases' = outList[[2]])
+  namedAttrList <- list('incompleteCases' = jsonlite::unbox(outList[[2]]))
 
   outFileName <- writeJSON(dt, 'barplot', namedAttrList, map)
 

@@ -4,7 +4,7 @@
 \alias{findBinWidth}
 \title{Calculate Bin Width}
 \usage{
-findBinWidth(x)
+findBinWidth(x, viewport)
 }
 \arguments{
 \item{x}{Numeric or Date vector}
