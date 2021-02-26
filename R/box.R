@@ -26,6 +26,9 @@ box.dt <- function(data, map, points, mean) {
   myCols <- c(y, x, group, panel)
   data <- data[, myCols, with=FALSE]
 
+  incompleteCaseCount <- nrow(data[!complete.cases(data),])
+  data <- data[complete.cases(data),]
+
   summary <- groupSummary(data, x, y, group, panel)
   #summary <- summary[, -c('min', 'max'), with=FALSE]
   fences <- groupFences(data, x, y, group, panel)
@@ -56,7 +59,7 @@ box.dt <- function(data, map, points, mean) {
   #  data <- cbind(data.base, data.back)
   #}
 
-  return(data)
+  return(list(data, incompleteCaseCount))
 }
 
 #' Box Plot data file
@@ -75,8 +78,11 @@ box.dt <- function(data, map, points, mean) {
 #' @export
 box <- function(data, map, points = c('outliers', 'all', 'none'), mean = FALSE) {
   points <- match.arg(points)
-  dt <- box.dt(data, map, points, mean)
-  outFileName <- writeJSON(dt, 'boxplot')
+  outList <- box.dt(data, map, points, mean)
+  dt <- outList[[1]]
+  namedAttrList <- list('incompleteCases' = jsonlite::unbox(outList[[2]]))
+
+  outFileName <- writeJSON(dt, 'boxplot', namedAttrList, map)
 
   return(outFileName)
 }

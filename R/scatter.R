@@ -28,6 +28,9 @@ scattergl.dt <- function(data, map, value) {
   myCols <- c(y, x, group, panel)
   data <- data[, myCols, with=FALSE]
 
+  incompleteCaseCount <- nrow(data[!complete.cases(data),])
+  data <- data[complete.cases(data),]
+
   series <- noStatsFacet(data, group, panel)
   names(series) <- c(group, panel, 'series.y', 'series.x')
 
@@ -61,7 +64,7 @@ scattergl.dt <- function(data, map, value) {
   #  data <- cbind(data, data.back)
   #}
 
-  return(data)
+  return(list(data, incompleteCaseCount))
 }
 
 #' Scatter Plot data file
@@ -82,8 +85,11 @@ scattergl.dt <- function(data, map, value) {
 #' @export
 scattergl <- function(data, map, value = c('smoothedMean', 'density', 'raw')) {
   value <- match.arg(value)
-  dt <- scattergl.dt(data, map, value)
-  outFileName <- writeJSON(dt, 'scattergl')
+  outList <- scattergl.dt(data, map, value)
+  dt <- outList[[1]]
+  namedAttrList <- list('incompleteCases' = jsonlite::unbox(outList[[2]]))
+
+  outFileName <- writeJSON(dt, 'scattergl', namedAttrList, map)
 
   return(outFileName)
 }

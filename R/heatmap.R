@@ -30,7 +30,10 @@ heatmap.dt <- function(data, map, value) {
   data.back <- data
   myCols <- c(y, x, z, panel)
   data <- data[, myCols, with=FALSE]
-  
+ 
+  incompleteCaseCount <- nrow(data[!complete.cases(data),])
+  data <- data[complete.cases(data),]
+ 
   if (value == 'collection') {
     data <- groupSplit(data, x, y, NULL, NULL, panel)
   } else if (value == 'series' ) { 
@@ -50,7 +53,7 @@ heatmap.dt <- function(data, map, value) {
   #  data <- cbind(data, data.back)
   #} 
   
-  return(data)
+  return(list(data, incompleteCaseCount))
 }
 
 #' Heatmap data file
@@ -72,8 +75,11 @@ heatmap.dt <- function(data, map, value) {
 #' @export
 heatmap <- function(data, map, value = c('series','collection')) {
   value <- match.arg(value)
-  dt <- heatmap.dt(data, map, value)
-  outFileName <- writeJSON(dt, 'heatmap')
+  outList <- heatmap.dt(data, map, value)
+  dt <- outList[[1]]
+  namedAttrList <- list('incompleteCases' = jsonlite::unbox(outList[[2]]))
+
+  outFileName <- writeJSON(dt, 'heatmap', namedAttrList, map)
 
   return(outFileName)
 }

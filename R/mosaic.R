@@ -21,6 +21,9 @@ mosaic.dt <- function(data, map) {
   myCols <- c(x, group, panel)
   data <- data[, myCols, with=FALSE]
 
+  incompleteCaseCount <- nrow(data[!complete.cases(data),])
+  data <- data[complete.cases(data),]
+
   dims <- as.data.frame.matrix(table(data[[x]], data[[group]]))
   dims <- c(length(dims), nrow(dims))
 
@@ -52,8 +55,11 @@ mosaic.dt <- function(data, map) {
 #' @return character name of json file containing plot-ready data
 #' @export
 mosaic <- function(data, map) {
-  dt <- mosaic.dt(data, map)
-  outFileName <- writeJSON(dt, 'mosaic')
+  outList <- mosaic.dt(data, map)
+  dt <- outList[[1]]
+  namedAttrList <- list('incompleteCases' = jsonlite::unbox(outList[[2]]))
+
+  outFileName <- writeJSON(dt, 'mosaic', namedAttrList, map)
 
   return(outFileName)
 }
