@@ -1,3 +1,74 @@
+#TODO NOT WORKING, but not priority for now
+
+newHeatmapPD <- function(.dt = data.table::data.table(),
+                         xAxisVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         yAxisVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         zAxisVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         overlayVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         facetVariable1 = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         facetVariable2 = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         value = character(),
+                         ...,
+                         class = character()) {
+
+  .pd <- newPlotdata(.dt = .dt,
+                     xAxisVariable = xAxisVariable,
+                     overlayVariable = overlayVariable,
+                     facetVariable1 = facetVariable1,
+                     facetVariable2 = facetVariable2,
+                     class = "heatmapplot")
+
+  attr <- attributes(.pd)
+  attr$yAxisVariable <- yAxisVariable
+  attr$zAxisVariable <- zAxisVariable
+
+  #NOTE: one or the other of these could be a list for 'collection'
+  x <- attr$xAxisVariable$variableId
+  y <- attr$yAxisVariable$variableId
+  #NOTE: this for the case of 'series'
+  z <- attr$zAxisVariable$variableId
+  group <- attr$overlayVariable$variableId
+  panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
+
+  if (value == 'collection') {
+    data <- groupSplit(data, x, y, NULL, NULL, panel)
+  } else if (value == 'series' ) { 
+    data <- data[order(data[[x]]),]
+    data[[x]] <- as.factor(data[[x]])
+    data[[y]] <- as.factor(data[[y]])
+    data <- groupSplit(data, x, y, z, NULL, panel, longToWide = TRUE)
+  } else {
+    stop('Unrecognized argument to "value".')
+  } 
+  attr$names <- names(.pd)
+
+  attributes(.pd) <- attr
+
+  return(.pd)
+}
+
+#TODO figure how to validate x and y axes
+validateHeatmapPD <- function(.heatmap) {
+  zAxisVariable <- attr(.heatmap, 'zAxisVariable')
+  if (!zAxisVariable$dataType %in% c('NUMBER')) {
+    stop('The dependent axis must be of type number or date for heatmapplot.')
+  }
+
+  return(.heatmap)
+}
+
 #' Heatmap as data.table
 #'
 #' This function returns a data.table of 
@@ -16,44 +87,71 @@
 #' @return data.table plot-ready data
 #' @export
 heatmap.dt <- function(data, map, value) {
-  #NOTE: one or the other of these could be a list for 'collection'
-  y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
-  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
-  #NOTE: this for the case of 'series'
-  z <- emptyStringToNull(map$id[map$plotRef == 'zAxisVariable'])
-  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
-  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
+  zAxisVariable = list('variableId' = NULL,
+                         'entityId' = NULL,
+                         'dataType' = NULL)
+  overlayVariable = list('variableId' = NULL,
+                         'entityId' = NULL,
+                         'dataType' = NULL)
+  facetVariable1 = list('variableId' = NULL,
+                        'entityId' = NULL,
+                        'dataType' = NULL)
+  facetVariable2 = list('variableId' = NULL,
+                        'entityId' = NULL,
+                        'dataType' = NULL) 
 
-  panelData <- makePanels(data, facet1, facet2)
-  data <- data.table::setDT(panelData[[1]])
-  panel <- panelData[[2]]
-  data.back <- data
-  myCols <- c(y, x, z, panel)
-  data <- data[, myCols, with=FALSE]
- 
-  incompleteCaseCount <- nrow(data[!complete.cases(data),])
-  data <- data[complete.cases(data),]
- 
-  if (value == 'collection') {
-    data <- groupSplit(data, x, y, NULL, NULL, panel)
-  } else if (value == 'series' ) { 
-    data <- data[order(data[[x]]),]
-    data[[x]] <- as.factor(data[[x]])
-    data[[y]] <- as.factor(data[[y]])
-    data <- groupSplit(data, x, y, z, NULL, panel, longToWide = TRUE)
+  if (!'data.table' %in% class(data)) {
+    data <- data.table::as.data.table(data)
+  }
+
+  if ('xAxisVariable' %in% map$plotRef) {
+    xAxisVariable <- list('variableId' = map$id[map$plotRef == 'xAxisVariable'],
+                          'entityId' = map$entityId[map$plotRef == 'xAxisVariable'],
+                          'dataType' = map$dataType[map$plotRef == 'xAxisVariable'])
   } else {
-    stop('Unrecognized argument to "value".')
-  } 
-  
-  #data.back <- noStatsFacet(data.back, NULL, panel)
-  #data.back <- data.back[, -c(y, x, z), with = FALSE]
-  #if (!is.null(key(data.back))) {
-  #  data <- merge(data, data.back)
-  #} else {
-  #  data <- cbind(data, data.back)
-  #} 
-  
-  return(list(data, incompleteCaseCount))
+    stop("Must provide xAxisVariable for plot type scatter.")
+  }
+  if ('yAxisVariable' %in% map$plotRef) {
+    yAxisVariable <- list('variableId' = map$id[map$plotRef == 'yAxisVariable'],
+                          'entityId' = map$entityId[map$plotRef == 'yAxisVariable'],
+                          'dataType' = map$dataType[map$plotRef == 'yAxisVariable'])
+  } else {
+    stop("Must provide yAxisVariable for plot type scatter.")
+  }
+  if ('zAxisVariable' %in% map$plotRef) {
+    zAxisVariable <- list('variableId' = map$id[map$plotRef == 'zAxisVariable'],
+                          'entityId' = map$entityId[map$plotRef == 'zAxisVariable'],
+                          'dataType' = map$dataType[map$plotRef == 'zAxisVariable'])
+  }
+  if ('overlayVariable' %in% map$plotRef) {
+    overlayVariable <- list('variableId' = map$id[map$plotRef == 'overlayVariable'],              
+                            'entityId' = map$entityId[map$plotRef == 'overlayVariable'],          
+                            'dataType' = map$dataType[map$plotRef == 'overlayVariable'])
+  }
+  if ('facetVariable1' %in% map$plotRef) {
+    facetVariable1 <- list('variableId' = map$id[map$plotRef == 'facetVariable1'],
+                           'entityId' = map$entityId[map$plotRef == 'facetVariable1'],
+                           'dataType' = map$dataType[map$plotRef == 'facetVariable1'])
+  }
+  if ('facetVariable2' %in% map$plotRef) {
+    facetVariable2 <- list('variableId' = map$id[map$plotRef == 'facetVariable2'],
+                           'entityId' = map$entityId[map$plotRef == 'facetVariable2'],
+                           'dataType' = map$dataType[map$plotRef == 'facetVariable2'])
+  }
+ 
+  .heatmap <- newHeatmapPD(.dt = data,
+                            xAxisVariable = xAxisVariable,
+                            yAxisVariable = yAxisVariable,
+                            zAxisVariable = zAxisVariable,
+                            overlayVariable = overlayVariable,
+                            facetVariable1 = facetVariable1,
+                            facetVariable2 = facetVariable2,
+                            value)
+
+  .heatmap <- validateHeatmapPD(.heatmap)
+
+  return(.heatmap)
+
 }
 
 #' Heatmap data file
@@ -75,11 +173,8 @@ heatmap.dt <- function(data, map, value) {
 #' @export
 heatmap <- function(data, map, value = c('series','collection')) {
   value <- match.arg(value)
-  outList <- heatmap.dt(data, map, value)
-  dt <- outList[[1]]
-  namedAttrList <- list('incompleteCases' = jsonlite::unbox(outList[[2]]))
-
-  outFileName <- writeJSON(dt, 'heatmap', namedAttrList, map)
+  .heatmap <- heatmap.dt(data, map, value)
+  outFileName <- writeJSON(.heatmap, 'heatmap')
 
   return(outFileName)
 }

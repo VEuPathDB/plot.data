@@ -9,7 +9,7 @@ bar(data, map, value = c("count", "identity"))
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
 
-\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot}
+\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'}
 
 \item{value}{String indicating how to calculate y-values ('identity', 'count')}
 }

@@ -9,7 +9,7 @@ mosaic(data, map)
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
 
-\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot}
+\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'}
 }
 \value{
 character name of json file containing plot-ready data

@@ -1,3 +1,84 @@
+newScatterPD <- function(.dt = data.table::data.table(),
+                         xAxisVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         yAxisVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         overlayVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         facetVariable1 = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         facetVariable2 = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         value = character(),
+                         ...,
+                         class = character()) {
+
+  .pd <- newPlotdata(.dt = .dt,
+                     xAxisVariable = xAxisVariable,
+                     yAxisVariable = yAxisVariable,
+                     overlayVariable = overlayVariable,
+                     facetVariable1 = facetVariable1,
+                     facetVariable2 = facetVariable2,
+                     class = "scatterplot")
+
+  attr <- attributes(.pd)
+
+  x <- attr$xAxisVariable$variableId
+  y <- attr$yAxisVariable$variableId
+  group <- attr$overlayVariable$variableId
+  panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
+
+  series <- noStatsFacet(.pd, group, panel)
+  names(series) <- c(group, panel, 'series.y', 'series.x')
+
+  # TODO determine if we always want series, or if it depends on whats selected
+  if (value == 'smoothedMean') {
+    interval <- groupSmoothedMean(.pd, x, y, group, panel)
+    interval <- interval[, !c('ymin', 'ymax')]
+    names(interval) <- c('interval.x', 'interval.y', 'interval.se', group, panel)
+    if (!is.null(key(series))) {
+      .pd <- merge(series, interval)
+    } else {
+      .pd <- cbind(series, interval)
+    }
+  } else if (value == 'density') {
+    density <- groupDensity(.pd, x, group, panel)
+    names(density) <- c(group, panel, 'density.x', 'density.y')
+    if (!is.null(key(series))) {
+      .pd <- merge(series, density)
+    } else {
+      .pd <- cbind(series, density)
+    }
+  } else {
+    .pd <- series
+  }
+  attr$names <- names(.pd)
+
+  attributes(.pd) <- attr
+
+  return(.pd)
+}
+
+validateScatterPD <- function(.scatter) {
+  xAxisVariable <- attr(.scatter, 'xAxisVariable')
+  if (!xAxisVariable$dataType %in% c('NUMBER','DATE')) {
+    stop('The independent axis must be of type number or date for scatterplot.')
+  }
+  yAxisVariable <- attr(.scatter, 'yAxisVariable')
+  if (!yAxisVariable$dataType %in% c('NUMBER','DATE')) {
+    stop('The dependent axis must be of type number or date for scatterplot.')
+  }
+
+  return(.scatter)
+}
+
+#TODO maybe should match.arg here also, since its exported
+
 #' Scatter Plot as data.table
 #'
 #' This function returns a data.table of  
@@ -15,56 +96,61 @@
 #' @return data.table plot-ready data
 #' @export
 scattergl.dt <- function(data, map, value) {
-  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
-  y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
-  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
-  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
-  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
+  overlayVariable = list('variableId' = NULL,
+                         'entityId' = NULL,
+                         'dataType' = NULL)
+  facetVariable1 = list('variableId' = NULL,
+                        'entityId' = NULL,
+                        'dataType' = NULL)
+  facetVariable2 = list('variableId' = NULL,
+                        'entityId' = NULL,
+                        'dataType' = NULL)
 
-  panelData <- makePanels(data, facet1, facet2)
-  data <- data.table::setDT(panelData[[1]])
-  panel <- panelData[[2]]
-  data.back <- data
-  myCols <- c(y, x, group, panel)
-  data <- data[, myCols, with=FALSE]
-
-  incompleteCaseCount <- nrow(data[!complete.cases(data),])
-  data <- data[complete.cases(data),]
-
-  series <- noStatsFacet(data, group, panel)
-  names(series) <- c(group, panel, 'series.y', 'series.x')
-
-  # TODO determine if we always want series, or if it depends on whats selected
-  if (value == 'smoothedMean') {
-    interval <- groupSmoothedMean(data, x, y, group, panel)
-    interval <- interval[, !c('ymin', 'ymax')]
-    names(interval) <- c('interval.x', 'interval.y', 'interval.se', group, panel)
-    if (!is.null(key(series))) {
-      data <- merge(series, interval)
-    } else {
-      data <- cbind(series, interval)
-    }
-  } else if (value == 'density') {
-    density <- groupDensity(data, x, group, panel)
-    names(density) <- c(group, panel, 'density.x', 'density.y')
-    if (!is.null(key(series))) {
-      data <- merge(series, density)
-    } else {
-      data <- cbind(series, density)
-    }
-  } else {
-    data <- series
+  if (!'data.table' %in% class(data)) {
+    data <- data.table::as.data.table(data)
   }
 
-  #data.back <- noStatsFacet(data.back, group, panel)
-  #data.back <- data.back[, -c(y, x), with = FALSE]
-  #if (!is.null(key(data.back))) {
-  #  data <- merge(data, data.back)
-  #} else {
-  #  data <- cbind(data, data.back)
-  #}
+  if ('xAxisVariable' %in% map$plotRef) {
+    xAxisVariable <- list('variableId' = map$id[map$plotRef == 'xAxisVariable'],
+                          'entityId' = map$entityId[map$plotRef == 'xAxisVariable'],
+                          'dataType' = map$dataType[map$plotRef == 'xAxisVariable'])
+  } else {
+    stop("Must provide xAxisVariable for plot type scatter.")
+  }
+  if ('yAxisVariable' %in% map$plotRef) {
+    yAxisVariable <- list('variableId' = map$id[map$plotRef == 'yAxisVariable'],
+                          'entityId' = map$entityId[map$plotRef == 'yAxisVariable'],
+                          'dataType' = map$dataType[map$plotRef == 'yAxisVariable'])
+  } else {
+    stop("Must provide yAxisVariable for plot type scatter.")
+  }
+  if ('overlayVariable' %in% map$plotRef) {
+    overlayVariable <- list('variableId' = map$id[map$plotRef == 'overlayVariable'],
+                            'entityId' = map$entityId[map$plotRef == 'overlayVariable'],
+                            'dataType' = map$dataType[map$plotRef == 'overlayVariable'])
+  }
+  if ('facetVariable1' %in% map$plotRef) {
+    facetVariable1 <- list('variableId' = map$id[map$plotRef == 'facetVariable1'],
+                           'entityId' = map$entityId[map$plotRef == 'facetVariable1'],
+                           'dataType' = map$dataType[map$plotRef == 'facetVariable1'])
+  }
+  if ('facetVariable2' %in% map$plotRef) {
+    facetVariable2 <- list('variableId' = map$id[map$plotRef == 'facetVariable2'],
+                           'entityId' = map$entityId[map$plotRef == 'facetVariable2'],
+                           'dataType' = map$dataType[map$plotRef == 'facetVariable2'])
+  }
 
-  return(list(data, incompleteCaseCount))
+  .scatter <- newScatterPD(.dt = data,
+                            xAxisVariable = xAxisVariable,
+                            yAxisVariable = yAxisVariable,
+                            overlayVariable = overlayVariable,
+                            facetVariable1 = facetVariable1,
+                            facetVariable2 = facetVariable2,
+                            value)
+
+  .scatter <- validateScatterPD(.scatter)
+
+  return(.scatter)
 }
 
 #' Scatter Plot data file
@@ -85,11 +171,8 @@ scattergl.dt <- function(data, map, value) {
 #' @export
 scattergl <- function(data, map, value = c('smoothedMean', 'density', 'raw')) {
   value <- match.arg(value)
-  outList <- scattergl.dt(data, map, value)
-  dt <- outList[[1]]
-  namedAttrList <- list('incompleteCases' = jsonlite::unbox(outList[[2]]))
-
-  outFileName <- writeJSON(dt, 'scattergl', namedAttrList, map)
+  .scatter <- scattergl.dt(data, map, value)
+  outFileName <- writeJSON(.scatter, 'scattergl')
 
   return(outFileName)
 }

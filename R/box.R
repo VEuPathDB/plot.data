@@ -1,3 +1,79 @@
+newBoxPD <- function(.dt = data.table::data.table(),
+                         xAxisVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         yAxisVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         overlayVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         facetVariable1 = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         facetVariable2 = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         value = character(),
+                         ...,
+                         class = character()) {
+
+  .pd <- newPlotdata(.dt = .dt,
+                     xAxisVariable = xAxisVariable,
+                     overlayVariable = overlayVariable,
+                     facetVariable1 = facetVariable1,
+                     facetVariable2 = facetVariable2,
+                     class = "boxplot")
+
+  attr <- attributes(.pd)
+  attr$yAxisVariable <- yAxisVariable
+
+  x <- attr$xAxisVariable$variableId
+  y <- attr$yAxisVariable$variableId
+  group <- attr$overlayVariable$variableId
+  panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
+
+  summary <- groupSummary(.pd, x, y, group, panel)
+  fences <- groupFences(.pd, x, y, group, panel)
+  fences <- fences[, -x, with = FALSE]
+  .pd.base <- merge(summary, fences)
+
+  if (points == 'outliers') {
+    points <- groupOutliers(.pd, x, y, group, panel)
+    .pd.base <- merge(.pd.base, points)
+  } else if (points == 'all') {
+    #TODO make sure series.x and x have some format, both are unique lists of xaxis entries
+    rawData <- noStatsFacet(.pd.back, group, panel)
+    names(rawData)[names(rawData) == y] <- 'series.y'
+    names(rawData)[names(rawData) == x] <- 'series.x'
+    .pd.base <- merge(.pd.base, rawData)
+  }
+
+  if (mean) {
+    mean <- groupMean(.pd, x, y, group, panel)
+    .pd.base <- merge(.pd.base, mean)
+  }
+  .pd <- .pd.base
+  attr$names <- names(.pd)
+
+  attributes(.pd) <- attr
+
+  return(.pd)
+}
+
+validateBoxPD <- function(.box) {
+  xAxisVariable <- attr(.box, 'xAxisVariable')
+  if (!xAxisVariable$dataType %in% c('STRING')) {
+    stop('The independent axis must be of type string for boxplot.')
+  }
+  yAxisVariable <- attr(.box, 'yAxisVariable')
+  if (!yAxisVariable$dataType %in% c('NUMBER')) {
+    stop('The dependent axis must be of type number for boxplot.')
+  }
+
+  return(.box)
+}
+
 #' Box Plot as data.table
 #'
 #' This function returns a data.table of 
@@ -13,53 +89,63 @@
 #' @return data.table plot-ready data
 #' @export
 box.dt <- function(data, map, points, mean) {
-  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
-  y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
-  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
-  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
-  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
+  overlayVariable = list('variableId' = NULL,
+                         'entityId' = NULL,
+                         'dataType' = NULL)
+  facetVariable1 = list('variableId' = NULL,
+                        'entityId' = NULL,
+                        'dataType' = NULL)
+  facetVariable2 = list('variableId' = NULL,
+                        'entityId' = NULL,
+                        'dataType' = NULL)
 
-  panelData <- makePanels(data, facet1, facet2)
-  data <- data.table::setDT(panelData[[1]])
-  panel <- panelData[[2]]
-  data.back <- data
-  myCols <- c(y, x, group, panel)
-  data <- data[, myCols, with=FALSE]
-
-  incompleteCaseCount <- nrow(data[!complete.cases(data),])
-  data <- data[complete.cases(data),]
-
-  summary <- groupSummary(data, x, y, group, panel)
-  #summary <- summary[, -c('min', 'max'), with=FALSE]
-  fences <- groupFences(data, x, y, group, panel)
-  fences <- fences[, -x, with = FALSE]
-  data.base <- merge(summary, fences)
-
-  if (points == 'outliers') {
-    points <- groupOutliers(data, x, y, group, panel)
-    data.base <- merge(data.base, points)
-  } else if (points == 'all') {
-    #TODO make sure series.x and x have some format, both are unique lists of xaxis entries
-    rawData <- noStatsFacet(data.back, group, panel)
-    names(rawData)[names(rawData) == y] <- 'series.y'
-    names(rawData)[names(rawData) == x] <- 'series.x'
-    data.base <- merge(data.base, rawData)
+  if (!'data.table' %in% class(data)) {
+    data <- data.table::as.data.table(data)
   }
 
-  if (mean) {
-    mean <- groupMean(data, x, y, group, panel)
-    data.base <- merge(data.base, mean)
+  #TODO make helper for the map -> list conversion
+  if ('xAxisVariable' %in% map$plotRef) {
+    xAxisVariable <- list('variableId' = map$id[map$plotRef == 'xAxisVariable'],
+                          'entityId' = map$entityId[map$plotRef == 'xAxisVariable'],
+                          'dataType' = map$dataType[map$plotRef == 'xAxisVariable'])
+  } else {
+    stop("Must provide xAxisVariable for plot type box.")
+  }
+  if ('yAxisVariable' %in% map$plotRef) {
+    yAxisVariable <- list('variableId' = map$id[map$plotRef == 'yAxisVariable'],
+                          'entityId' = map$entityId[map$plotRef == 'yAxisVariable'],
+                          'dataType' = map$dataType[map$plotRef == 'yAxisVariable'])
+  } else {
+    stop("Must provide yAxisVariable for plot type box.")
+  }
+  if ('overlayVariable' %in% map$plotRef) {
+    overlayVariable <- list('variableId' = map$id[map$plotRef == 'overlayVariable'],
+                            'entityId' = map$entityId[map$plotRef == 'overlayVariable'],
+                            'dataType' = map$dataType[map$plotRef == 'overlayVariable'])
+  }
+  if ('facetVariable1' %in% map$plotRef) {
+    facetVariable1 <- list('variableId' = map$id[map$plotRef == 'facetVariable1'],
+                           'entityId' = map$entityId[map$plotRef == 'facetVariable1'],
+                           'dataType' = map$dataType[map$plotRef == 'facetVariable1'])
+  }
+  if ('facetVariable2' %in% map$plotRef) {
+    facetVariable2 <- list('variableId' = map$id[map$plotRef == 'facetVariable2'],
+                           'entityId' = map$entityId[map$plotRef == 'facetVariable2'],
+                           'dataType' = map$dataType[map$plotRef == 'facetVariable2'])
   }
 
-  #data.back <- noStatsFacet(data.back, group, panel)
-  #data.back <- data.back[, -c(y, x), with = FALSE]
-  #if (!is.null(key(data.back))) {
-  #  data <- merge(data.base, data.back)
-  #} else {
-  #  data <- cbind(data.base, data.back)
-  #}
+  .box <- newBoxPD(.dt = data,
+                    xAxisVariable = xAxisVariable,
+                    yAxisVariable = yAxisVariable,
+                    overlayVariable = overlayVariable,
+                    facetVariable1 = facetVariable1,
+                    facetVariable2 = facetVariable2,
+                    value)
 
-  return(list(data, incompleteCaseCount))
+  .box <- validateBoxPD(.box)
+
+  return(.box) 
+
 }
 
 #' Box Plot data file
@@ -78,11 +164,8 @@ box.dt <- function(data, map, points, mean) {
 #' @export
 box <- function(data, map, points = c('outliers', 'all', 'none'), mean = FALSE) {
   points <- match.arg(points)
-  outList <- box.dt(data, map, points, mean)
-  dt <- outList[[1]]
-  namedAttrList <- list('incompleteCases' = jsonlite::unbox(outList[[2]]))
-
-  outFileName <- writeJSON(dt, 'boxplot', namedAttrList, map)
+  .box <- box.dt(data, map, points, mean)
+  outFileName <- writeJSON(.box, 'boxplot')
 
   return(outFileName)
 }

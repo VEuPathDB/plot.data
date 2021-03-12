@@ -9,7 +9,7 @@ histogram.dt(data, map, binWidth, value, binReportValue, viewport)
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
 
-\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot}
+\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'}
 
 \item{binWidth}{numeric value indicating width of bins, character (ex: 'year') if xaxis is a date}
 

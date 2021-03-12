@@ -70,6 +70,8 @@ groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL) {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, length))
   }
   names(dt) <- c(x, group, panel, 'size')
+  #TODO figure how to handle group fxns consuming other group fxns
+  #bar needs noStatsFacet here, groupSmoothedMean doesnt
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
   

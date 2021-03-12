@@ -4,6 +4,12 @@ newPlotdata <- function(.dt = data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
+                         yAxisVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
+                         zAxisVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL),
                          overlayVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
@@ -13,20 +19,23 @@ newPlotdata <- function(.dt = data.table(),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
-                         viewport = list('min.x' = NULL,
-                                         'max.x' = NULL),
+                         viewport = list('x.min' = NULL,
+                                         'x.max' = NULL),
                          ...,
                          class = character()) {
 
   x <- emptyStringToNull(as.character(xAxisVariable$variableId))
+  y <- emptyStringToNull(as.character(yAxisVariable$variableId))
+  z <- emptyStringToNull(as.character(zAxisVariable$variableId))
   group <- emptyStringToNull(as.character(overlayVariable$variableId))
   facet1 <- emptyStringToNull(as.character(facetVariable1$variableId))
   facet2 <- emptyStringToNull(as.character(facetVariable2$variableId))
 
+  #TODO need to be able to optionally pass y and z axes
   panelData <- makePanels(.dt, facet1, facet2)
   .dt <- data.table::setDT(panelData[[1]])
   panel <- panelData[[2]]
-  myCols <- c(x, group, panel)
+  myCols <- c(x, y, z, group, panel)
   .dt <- .dt[, myCols, with=FALSE]
 
   incompleteCases <- nrow(.dt[!complete.cases(.dt),])
@@ -45,6 +54,8 @@ newPlotdata <- function(.dt = data.table(),
     xIsDate = xAxisVariable$dataType == 'DATE'
   } 
 
+  #TODO either move this to histo, or make it not specific to number types
+  #TODO also need to decide if its optional
   if (is.null(viewport)) {
     viewport <- list('x.min' = min(0,min(.dt[[x]])), 'x.max' = max(.dt[[x]]))
   } else {
@@ -59,6 +70,8 @@ newPlotdata <- function(.dt = data.table(),
 
   attr <- attributes(.dt)
   attr$xAxisVariable <-  xAxisVariable
+  if (!is.null(y)) { attr$yAxisVariable <- yAxisVariable }
+  if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
   attr$viewport <- viewport
   attr$incompleteCases <- incompleteCases
   attr$class = c(class, 'plot.data', attr$class)

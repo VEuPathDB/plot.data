@@ -57,13 +57,12 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   # binWidth as well
   if (value == 'count') {
     .pd <- binSize(.pd, x, group, panel, binWidth, viewport)
-    attr$names <- names(.pd)
   } else if (value == 'proportion' ) {
     .pd <- binProportion(.pd, x, group, panel, binWidth, viewport)
-    attr$names <- names(.pd)
   } else {
     stop('Unrecognized argument to "value".')
   }
+  attr$names <- names(.pd)
 
   if (binReportValue == 'binWidth') {
     if (is.null(binWidth)) {
@@ -186,8 +185,7 @@ histogram.dt <- function(data,
                            viewport = viewport,
                            binWidth,
                            binReportValue,
-                           value,
-                           class = "histogram")
+                           value)
 
   .histo <- validateHistogramPD(.histo)
 
