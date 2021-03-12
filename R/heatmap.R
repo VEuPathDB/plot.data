@@ -11,7 +11,7 @@
 #' 2) single numeric vs single categorical on a 'series' of dates
 #' where yAxisVariable = categorical, xAxisVariable = date and zaxis = numeric
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
 #' @return data.table plot-ready data
 #' @export
@@ -69,7 +69,7 @@ heatmap.dt <- function(data, map, value) {
 #' 2) single numeric vs single categorical on a 'series' of dates
 #' where yAxisVariable = categorical, xAxisVariable = date and zaxis = numeric
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
 #' @return character name of json file containing plot-ready data
 #' @export

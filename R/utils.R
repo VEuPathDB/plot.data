@@ -8,10 +8,11 @@ makeVariableDetails <- function(value, variableId, entityId) {
   return(variableDetails)
 }
 
-addStrataVariableDetails <- function(data, map) {
-  group <- emptyStringToNull(map$id[map$plotRef == 'overlayVariable'])
-  facet1 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable1'])
-  facet2 <- emptyStringToNull(map$id[map$plotRef == 'facetVariable2'])
+addStrataVariableDetails <- function(data) {
+  namedAttrList <- attributes(data)
+  group <- ifelse('overlayVariable' %in% names(namedAttrList), namedAttrList$overlayVariable$variableId, NULL) 
+  facet1 <- ifelse('facetVariable1' %in% names(namedAttrList), namedAttrList$facetVariable1$variableId, NULL)
+  facet2 <- ifelse('facetVariable2' %in% names(namedAttrList), namedAttrList$facetVariable2$variableId, NULL)
  
   # TODO test w two facets. not sure this will work..
   if ('panel' %in% names(data)) {
@@ -19,21 +20,17 @@ addStrataVariableDetails <- function(data, map) {
     data$facetVariableDetails <- lapply(data$facetVariableDetails, makeVariableDetails, list(facet1,facet2), map$entityId[map$id %in% c(facet1, facet2)])
   } else if (!is.null(group)) {
     names(data)[names(data) == group] <- 'overlayVariableDetails'
-    data$overlayVariableDetails <- lapply(data$overlayVariableDetails, makeVariableDetails, group, map$entityId[map$id == group])
+    data$overlayVariableDetails <- lapply(data$overlayVariableDetails, makeVariableDetails, group, namedAttrList$overlayVariable$entityId)
   } else if (!is.null(facet1)) {
     names(data)[names(data) == facet1] <- 'facetVariableDetails'
-    data$facetVariableDetails <- lapply(data$facetVariableDetails, makeVariableDetails, facet1, map$entityId[map$id == facet1])
+    data$facetVariableDetails <- lapply(data$facetVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId)
   } else if (!is.null(facet2)) {
     names(data)[names(data) == facet2] <- 'facetVariableDetails'
-    data$facetVariableDetails <- lapply(data$facetVariableDetails, makeVariableDetails, facet2, map$entityId[map$id == facet2])
+    data$facetVariableDetails <- lapply(data$facetVariableDetails, makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId)
   }
 
   return(data)
 }
-
-#TODO how to tell user the accepted plotRef values for a given plot?
-# this is going to have to become more involved..
-# consider ggplot style layers on top of a custom object ?
 
 #' Write json to local tmp file
 #'
@@ -41,39 +38,36 @@ addStrataVariableDetails <- function(data, map) {
 #' written a data.table object out to.
 #' @param data a data.table to convert to json and write to a tmp file
 #' @param pattern optional tmp file prefix
-#' @param namedAttrList named list of individual attributes to append to the json string after `data`
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. 
 #' @return character name of a tmp file w ext *.json
 #' @importFrom jsonlite toJSON
 #' @importFrom jsonlite prettify
 #' @export
-writeJSON <- function(data, pattern = NULL, namedAttrList = NULL, map = NULL) {
-  # TODO this is becoming complicated
-  # think of better ways to manage this
-  # a custom plot.data class of object maybe?
-  if (!is.null(map)) {
-    data <- addStrataVariableDetails(data, map)
+writeJSON <- function(data, pattern = NULL) {
+  namedAttrList <- getPDAttributes(data)
+
+  #TODO consider if this is something plot.data objects can do for themselves ?
+  if (any(c('overlayVariable', 'facetVariable1', 'facetVariable2') %in% names(namedAttrList))) {
+    data <- addStrataVariableDetails(data)
   }
 
-  y <- emptyStringToNull(map$id[map$plotRef == 'yAxisVariable'])
-  x <- emptyStringToNull(map$id[map$plotRef == 'xAxisVariable'])
-  xVariableDetails <- NULL
-  yVariableDetails <- NULL
-  # TODO need a test for z ??
-  if (!is.null(x)) {
-    xVariableDetails <- list('xVariableDetails' = makeVariableDetails(NULL, x, map$entityId[map$id == x]))
+  #TODO think of better way to do this reformatting
+  if ('xAxisVariable' %in% names(namedAttrList)) {
+    xVariableDetails <- list('xVariableDetails' = makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId))
+    namedAttrList$xAxisVariable <- NULL
+    namedAttrList$xVariableDetails <- xVariableDetails
   }
-  if (!is.null(y)) {
-    yVariableDetails <- list('yVariableDetails' = makeVariableDetails(NULL, y, map$entityId[map$id == y]))
+  if ('yAxisVariable' %in% names(namedAttrList)) {
+    yVariableDetails <- list('yVariableDetails' = makeVariableDetails(NULL, namedAttrList$yAxisVariable$variableId, namedAttrList$yAxisVariable$entityId))
+    namedAttrList$yAxisVariable <- NULL
+    namedAttrList$yVariableDetails <- yVariableDetails
+  }
+  if ('zAxisVariable' %in% names(namedAttrList)) {
+    zVariableDetails <- list('zVariableDetails' = makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId))
+    namedAttrList$zAxisVariable <- NULL
+    namedAttrList$zVariableDetails <- zVariableDetails
   }
 
-  namedAttrList <- c(namedAttrList, xVariableDetails, yVariableDetails)
-
-  if (!is.null(namedAttrList)) {
-    outJson <- jsonlite::toJSON(list('data'=data, 'config'=namedAttrList))
-  } else {
-    outJson <- jsonlite::toJSON(list('data'=data))
-  }
+  outJson <- jsonlite::toJSON(list('data'=data, 'config'=namedAttrList))
 
   # just for now for debugging
   outJson <- jsonlite::prettify(outJson)
@@ -129,6 +123,20 @@ contingencyDT <- function(data, labels = TRUE) {
   }
 
   return(data.table::as.data.table(dt))
+}
+
+findPanelColName <- function(facet1 = NULL, facet2 = NULL) {
+  if (!is.null(facet1) & !is.null(facet2)) {
+    panel <- 'panel'
+  } else if (!is.null(facet1)) {
+    panel <- facet1
+  } else if (!is.null(facet2)) {
+    panel <- facet2
+  } else {
+    panel <- NULL
+  }
+
+  return(panel)
 }
 
 #' Make Plot Panels
@@ -414,14 +422,14 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
   }
 
   addViewportMin <- FALSE
-  if (viewport$min < min(x)) {
-    x <- c(viewport$min, x)
+  if (viewport$x.min < min(x)) {
+    x <- c(viewport$x.min, x)
     addViewportMin <- TRUE
   }
 
   addViewportMax <- FALSE
-  if (viewport$max > max(x)) {
-    x <- c(x, viewport$max)
+  if (viewport$x.max > max(x)) {
+    x <- c(x, viewport$x.max)
     addViewportMax <- TRUE
   }
   
@@ -431,11 +439,11 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
 
   bins <- as.character(varrank::discretization(x, discretization.method = myMethod)$data.df)
   if (addViewportMin) {
-    bins <- bins[x != viewport$min]
-    x <- x[x != viewport$min]
+    bins <- bins[x != viewport$x.min]
+    x <- x[x != viewport$x.min]
   }
   if (addViewportMax) {
-    bins <- bins[x != viewport$max]
+    bins <- bins[x != viewport$x.max]
   }
 
   return(bins)

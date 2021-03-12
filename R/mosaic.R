@@ -5,7 +5,7 @@
 #' 'x' and 'y' contain the raw data for plotting. Column 'panel' 
 #' specifies the panel the data belongs to. 
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @return data.table plot-ready data
 #' @export
 mosaic.dt <- function(data, map) {
@@ -51,7 +51,7 @@ mosaic.dt <- function(data, map) {
 #' 'x' and 'y' contain the raw data for plotting. Column 'panel' 
 #' specifies the panel the data belongs to. 
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @return character name of json file containing plot-ready data
 #' @export
 mosaic <- function(data, map) {

@@ -10,7 +10,7 @@
 #'  Columns 'density.x' and 'density.y' contain the calculated kernel 
 #'  density estimates.
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates
 #' @return data.table plot-ready data
 #' @export
@@ -79,7 +79,7 @@ scattergl.dt <- function(data, map, value) {
 #'  Columns 'density.x' and 'density.y' contain the calculated kernel 
 #'  density estimates.
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates
 #' @return character name of json file containing plot-ready data
 #' @export

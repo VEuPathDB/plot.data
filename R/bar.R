@@ -8,7 +8,7 @@
 #' 1) raw 'identity' of values from data.table input
 #' 2) 'count' occurances of values from data.table input 
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating how to calculate y-values ('identity', 'count')
 #' @return data.table plot-ready data
 #' @export
@@ -62,7 +62,7 @@ bar.dt <- function(data, map, value) {
 #' 1) raw 'identity' of values from data.table input
 #' 2) 'count' occurances of values from data.table input 
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating how to calculate y-values ('identity', 'count')
 #' @return character name of json file containing plot-ready data
 #' @export
