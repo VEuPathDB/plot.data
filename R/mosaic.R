@@ -1,9 +1,9 @@
-#TODO consider explicitly using yaxis rather than group, and disallowing group
+#TODO consider explicitly using yaxis rather than y, and disallowing y
 newMosaicPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
-                         overlayVariable = list('variableId' = NULL,
+                         yAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
                          facetVariable1 = list('variableId' = NULL,
@@ -17,7 +17,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      xAxisVariable = xAxisVariable,
-                     overlayVariable = overlayVariable,
+                     yAxisVariable = yAxisVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      class = "mosaic")
@@ -25,16 +25,16 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   attr <- attributes(.pd)
 
   x <- attr$xAxisVariable$variableId
-  group <- attr$overlayVariable$variableId
+  y <- attr$yAxisVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
-  dims <- as.data.frame.matrix(table(.pd[[x]], .pd[[group]]))
+  dims <- as.data.frame.matrix(table(.pd[[x]], .pd[[y]]))
   dims <- c(length(dims), nrow(dims))
 
   if (any(dims > 2)) {
-    .pd <- panelChiSq(.pd, x, group, panel)
+    .pd <- panelChiSq(.pd, x, y, panel)
   } else {
-    .pd <- panelBothRatios(.pd, x, group, panel)
+    .pd <- panelBothRatios(.pd, x, y, panel)
   }
   attr$names <- names(.pd)
 
@@ -48,6 +48,10 @@ validateMosaicPD <- function(.mosaic) {
   if (!xAxisVariable$dataType %in% c('STRING')) {
     stop('The independent axis must be of type string for mosaicplot.')
   }
+  yAxisVariable <- attr(.mosaic, 'yAxisVariable')
+  if (!yAxisVariable$dataType %in% c('STRING')) {
+    stop('The independent axis must be of type string for mosaicplot.')
+  }
 
   return(.mosaic)
 }
@@ -55,7 +59,7 @@ validateMosaicPD <- function(.mosaic) {
 #' Mosaic plot as data.table
 #'
 #' This function returns a data.table of 
-#' plot-ready data with one row per group (per panel). Columns 
+#' plot-ready data with one row per panel. Columns 
 #' 'x' and 'y' contain the raw data for plotting. Column 'panel' 
 #' specifies the panel the data belongs to. 
 #' @param data data.frame to make plot-ready data for
@@ -63,7 +67,7 @@ validateMosaicPD <- function(.mosaic) {
 #' @return data.table plot-ready data
 #' @export
 mosaic.dt <- function(data, map) {
-  overlayVariable = list('variableId' = NULL,
+  yAxisVariable = list('variableId' = NULL,
                          'entityId' = NULL,
                          'dataType' = NULL)
   facetVariable1 = list('variableId' = NULL,
@@ -84,12 +88,12 @@ mosaic.dt <- function(data, map) {
   } else {
     stop("Must provide xAxisVariable for plot type mosaic.")
   }
-  if ('overlayVariable' %in% map$plotRef) {
-    overlayVariable <- list('variableId' = map$id[map$plotRef == 'overlayVariable'],
-                            'entityId' = map$entityId[map$plotRef == 'overlayVariable'],
-                            'dataType' = map$dataType[map$plotRef == 'overlayVariable'])
+  if ('yAxisVariable' %in% map$plotRef) {
+    yAxisVariable <- list('variableId' = map$id[map$plotRef == 'yAxisVariable'],
+                            'entityId' = map$entityId[map$plotRef == 'yAxisVariable'],
+                            'dataType' = map$dataType[map$plotRef == 'yAxisVariable'])
   } else {
-    stop("Must provide overlayVariable for plot type mosaic.")
+    stop("Must provide yAxisVariable for plot type mosaic.")
   }
   if ('facetVariable1' %in% map$plotRef) {
     facetVariable1 <- list('variableId' = map$id[map$plotRef == 'facetVariable1'],
@@ -104,7 +108,7 @@ mosaic.dt <- function(data, map) {
 
   .mosaic <- newMosaicPD(.dt = data,
                             xAxisVariable = xAxisVariable,
-                            overlayVariable = overlayVariable,
+                            yAxisVariable = yAxisVariable,
                             facetVariable1 = facetVariable1,
                             facetVariable2 = facetVariable2,
                             value)
@@ -117,7 +121,7 @@ mosaic.dt <- function(data, map) {
 #' Mosaic data file
 #'
 #' This function returns the name of a json file containing 
-#' plot-ready data with one row per group (per panel). Columns 
+#' plot-ready data with one row per panel. Columns 
 #' 'x' and 'y' contain the raw data for plotting. Column 'panel' 
 #' specifies the panel the data belongs to. 
 #' @param data data.frame to make plot-ready data for

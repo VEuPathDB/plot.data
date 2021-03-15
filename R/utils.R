@@ -8,46 +8,66 @@ makeVariableDetails <- function(value, variableId, entityId) {
   return(variableDetails)
 }
 
-addStrataVariableDetails <- function(data) {
-  namedAttrList <- attributes(data)
-  group <- ifelse('overlayVariable' %in% names(namedAttrList), namedAttrList$overlayVariable$variableId, NULL) 
-  facet1 <- ifelse('facetVariable1' %in% names(namedAttrList), namedAttrList$facetVariable1$variableId, NULL)
-  facet2 <- ifelse('facetVariable2' %in% names(namedAttrList), namedAttrList$facetVariable2$variableId, NULL)
+addStrataVariableDetails <- function(.pd) {
+  namedAttrList <- getPDAttributes(.pd)
+  group <- NULL
+  facet1 <- NULL
+  facet2 <- NULL
+  if ('overlayVariable' %in% names(namedAttrList)) { group <- namedAttrList$overlayVariable$variableId }
+  if ('facetVariable1' %in% names(namedAttrList)) { facet1 <- namedAttrList$facetVariable1$variableId }
+  if ('facetVariable2' %in% names(namedAttrList)) { facet2 <- namedAttrList$facetVariable2$variableId }
  
   # TODO test w two facets. not sure this will work..
-  if ('panel' %in% names(data)) {
-    names(data)[names(data) == 'panel'] <- 'facetVariableDetails'
-    data$facetVariableDetails <- lapply(data$facetVariableDetails, makeVariableDetails, list(facet1,facet2), map$entityId[map$id %in% c(facet1, facet2)])
+  if (!is.null(facet1) & !is.null(facet2)) {
+    names(.pd)[names(.pd) == 'panel'] <- 'facetVariableDetails'
+    .pd$facetVariableDetails <- lapply(.pd$facetVariableDetails, makeVariableDetails, list(facet1,facet2), map$entityId[map$id %in% c(facet1, facet2)])    
   } else if (!is.null(group)) {
-    names(data)[names(data) == group] <- 'overlayVariableDetails'
-    data$overlayVariableDetails <- lapply(data$overlayVariableDetails, makeVariableDetails, group, namedAttrList$overlayVariable$entityId)
+    names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
+    .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, group, namedAttrList$overlayVariable$entityId)
   } else if (!is.null(facet1)) {
-    names(data)[names(data) == facet1] <- 'facetVariableDetails'
-    data$facetVariableDetails <- lapply(data$facetVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId)
+    names(.pd)[names(.pd) == facet1] <- 'facetVariableDetails'
+    .pd$facetVariableDetails <- lapply(.pd$facetVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId)
   } else if (!is.null(facet2)) {
-    names(data)[names(data) == facet2] <- 'facetVariableDetails'
-    data$facetVariableDetails <- lapply(data$facetVariableDetails, makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId)
+    names(.pd)[names(.pd) == facet2] <- 'facetVariableDetails'
+    .pd$facetVariableDetails <- lapply(.pd$facetVariableDetails, makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId)
   }
 
-  return(data)
+  return(.pd)
+}
+
+getPDAttributes <- function(.pd) {
+  if (!"plot.data" %in% class(.pd)) {
+    stop(".pd must be an object which inherits from class 'plot.data'")
+  }
+
+  attr <- attributes(.pd)
+  attr$names <- NULL
+  attr$class <- NULL
+  attr$row.names <- NULL
+  attr$.internal.selfref <- NULL
+
+  return(attr)
 }
 
 #' Write json to local tmp file
 #'
 #' This function returns the name of a json file which it has
 #' written a data.table object out to.
-#' @param data a data.table to convert to json and write to a tmp file
+#' @param .pd a data.table to convert to json and write to a tmp file
 #' @param pattern optional tmp file prefix
 #' @return character name of a tmp file w ext *.json
 #' @importFrom jsonlite toJSON
 #' @importFrom jsonlite prettify
 #' @export
-writeJSON <- function(data, pattern = NULL) {
-  namedAttrList <- getPDAttributes(data)
+writeJSON <- function(.pd, pattern = NULL) {
+  namedAttrList <- getPDAttributes(.pd)
 
   #TODO consider if this is something plot.data objects can do for themselves ?
   if (any(c('overlayVariable', 'facetVariable1', 'facetVariable2') %in% names(namedAttrList))) {
-    data <- addStrataVariableDetails(data)
+    .pd <- addStrataVariableDetails(.pd)
+    namedAttrList$overlayVariable <- NULL
+    namedAttrList$facetVariable1 <- NULL
+    namedAttrList$facetVariable2 <- NULL
   }
 
   #TODO think of better way to do this reformatting
@@ -67,7 +87,7 @@ writeJSON <- function(data, pattern = NULL) {
     namedAttrList$zVariableDetails <- zVariableDetails
   }
 
-  outJson <- jsonlite::toJSON(list('data'=data, 'config'=namedAttrList))
+  outJson <- jsonlite::toJSON(list('data'=.pd, 'config'=namedAttrList))
 
   # just for now for debugging
   outJson <- jsonlite::prettify(outJson)
