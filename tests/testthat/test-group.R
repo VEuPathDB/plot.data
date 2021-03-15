@@ -123,3 +123,5 @@ test_that("groupDensity() returns consistent results", {
   dt <- groupDensity(data.xy, 'y', 'group', 'panel')
   expect_equal_to_reference(dt,"density.group.panel.rds")
 })
+
+#TODO test to make sure fences are within bounds of real data

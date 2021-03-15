@@ -14,19 +14,20 @@ newBoxPD <- function(.dt = data.table::data.table(),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
-                         value = character(),
+                         points = character(),
+                         mean = character(),
                          ...,
                          class = character()) {
 
   .pd <- newPlotdata(.dt = .dt,
                      xAxisVariable = xAxisVariable,
+                     yAxisVariable = yAxisVariable,
                      overlayVariable = overlayVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      class = "boxplot")
 
   attr <- attributes(.pd)
-  attr$yAxisVariable <- yAxisVariable
 
   x <- attr$xAxisVariable$variableId
   y <- attr$yAxisVariable$variableId
@@ -36,22 +37,40 @@ newBoxPD <- function(.dt = data.table::data.table(),
   summary <- groupSummary(.pd, x, y, group, panel)
   fences <- groupFences(.pd, x, y, group, panel)
   fences <- fences[, -x, with = FALSE]
-  .pd.base <- merge(summary, fences)
+  if (!is.null(key(summary))) {
+    .pd.base <- merge(summary, fences)
+  } else {
+    .pd.base <- cbind(summary, fences)
+  }
 
   if (points == 'outliers') {
     points <- groupOutliers(.pd, x, y, group, panel)
-    .pd.base <- merge(.pd.base, points)
+    points[[x]] <- NULL
+    if (!is.null(key(points))) {
+      .pd.base <- merge(.pd.base, points)
+    } else {
+      .pd.base <- cbind(.pd.base, points)
+    }
   } else if (points == 'all') {
-    #TODO make sure series.x and x have some format, both are unique lists of xaxis entries
-    rawData <- noStatsFacet(.pd.back, group, panel)
+    #TODO make sure series.x and x have same format, both are unique lists of xaxis entries
+    rawData <- noStatsFacet(.pd, group, panel)
     names(rawData)[names(rawData) == y] <- 'series.y'
     names(rawData)[names(rawData) == x] <- 'series.x'
-    .pd.base <- merge(.pd.base, rawData)
+    if (!is.null(key(rawData))) {
+      .pd.base <- merge(.pd.base, rawData)
+    } else {
+      .pd.base <- cbind(.pd.base, rawData)
+    }
   }
 
   if (mean) {
     mean <- groupMean(.pd, x, y, group, panel)
-    .pd.base <- merge(.pd.base, mean)
+    mean[[x]] <- NULL
+    if (!is.null(key(mean))) {
+      .pd.base <- merge(.pd.base, mean)
+    } else {
+      .pd.base <- cbind(.pd.base, mean)
+    }
   }
   .pd <- .pd.base
   attr$names <- names(.pd)
@@ -140,7 +159,8 @@ box.dt <- function(data, map, points, mean) {
                     overlayVariable = overlayVariable,
                     facetVariable1 = facetVariable1,
                     facetVariable2 = facetVariable2,
-                    value)
+                    points,
+                    mean)
 
   .box <- validateBoxPD(.box)
 
@@ -162,8 +182,9 @@ box.dt <- function(data, map, points, mean) {
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @return character name of json file containing plot-ready data
 #' @export
-box <- function(data, map, points = c('outliers', 'all', 'none'), mean = FALSE) {
+box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
   points <- match.arg(points)
+  mean <- match.arg(mean)
   .box <- box.dt(data, map, points, mean)
   outFileName <- writeJSON(.box, 'boxplot')
 

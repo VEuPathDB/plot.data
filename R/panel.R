@@ -1,8 +1,8 @@
 panelOddsRatio <- function(data, col, group, panel = NULL) {
-  names(data)[names(data) == col] <- 'y'
-  names(data)[names(data) == group] <- 'x'
-  col <- 'y'
-  group <- 'x'
+  names(data)[names(data) == col] <- 'x'
+  names(data)[names(data) == group] <- 'y'
+  col <- 'x'
+  group <- 'y'
 
   if (is.null(panel)) {
     dt <- oddsRatio(data)
@@ -17,10 +17,10 @@ panelOddsRatio <- function(data, col, group, panel = NULL) {
 }
 
 panelRelativeRisk <- function(data, col, group, panel = NULL) {
-  names(data)[names(data) == col] <- 'y'
-  names(data)[names(data) == group] <- 'x'
-  col <- 'y'
-  group <- 'x'
+  names(data)[names(data) == col] <- 'x'
+  names(data)[names(data) == group] <- 'y'
+  col <- 'x'
+  group <- 'y'
 
   if (is.null(panel)) {
     dt <- relativeRisk(data)
@@ -34,11 +34,13 @@ panelRelativeRisk <- function(data, col, group, panel = NULL) {
   return(dt)
 }
 
+#TODO update format of response from the epitools functions
+#currently returns two rows, we need one of listed vals
 panelBothRatios <- function(data, col, group, panel = NULL) {
-  names(data)[names(data) == col] <- 'y'
-  names(data)[names(data) == group] <- 'x'
-  col <- 'y'
-  group <- 'x'
+  names(data)[names(data) == col] <- 'x'
+  names(data)[names(data) == group] <- 'y'
+  col <- 'x'
+  group <- 'y'
   mergeByCols <- c(panel, 'p.value', 'x', 'y')
 
   if (is.null(panel)) {
@@ -54,14 +56,16 @@ panelBothRatios <- function(data, col, group, panel = NULL) {
 }
 
 panelChiSq <- function(data, col, group, panel = NULL) {
-  names(data)[names(data) == col] <- 'y'
-  names(data)[names(data) == group] <- 'x'
-  col <- 'y'
-  group <- 'x'
+  names(data)[names(data) == col] <- 'x'
+  names(data)[names(data) == group] <- 'y'
+  col <- 'x'
+  group <- 'y'
 
   if (is.null(panel)) {
     dt <- chiSq(data)
   } else {
+    levelsX <- unique(data[[x]])
+    levelsY <- unique(data[[y]])
     dt.list <- split(data, list(data[[panel]]))
     dt.list <- lapply(dt.list, chiSq)
     dt <- purrr::reduce(dt.list, rbind)

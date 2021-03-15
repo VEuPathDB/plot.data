@@ -12,7 +12,6 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
-                         value = character(),
                          ...,
                          class = character()) {
 
@@ -21,7 +20,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                      overlayVariable = overlayVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
-                     class = "mosaicplot")
+                     class = "mosaic")
 
   attr <- attributes(.pd)
 
@@ -29,7 +28,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
-  dims <- as..pd.frame.matrix(table(.pd[[x]], .pd[[group]]))
+  dims <- as.data.frame.matrix(table(.pd[[x]], .pd[[group]]))
   dims <- c(length(dims), nrow(dims))
 
   if (any(dims > 2)) {
@@ -89,6 +88,8 @@ mosaic.dt <- function(data, map) {
     overlayVariable <- list('variableId' = map$id[map$plotRef == 'overlayVariable'],
                             'entityId' = map$entityId[map$plotRef == 'overlayVariable'],
                             'dataType' = map$dataType[map$plotRef == 'overlayVariable'])
+  } else {
+    stop("Must provide overlayVariable for plot type mosaic.")
   }
   if ('facetVariable1' %in% map$plotRef) {
     facetVariable1 <- list('variableId' = map$id[map$plotRef == 'facetVariable1'],

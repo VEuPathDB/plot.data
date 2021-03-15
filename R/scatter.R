@@ -41,6 +41,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
     interval <- groupSmoothedMean(.pd, x, y, group, panel)
     interval <- interval[, !c('ymin', 'ymax')]
     names(interval) <- c('interval.x', 'interval.y', 'interval.se', group, panel)
+    #TODO helper for this. has to take any num of args..
     if (!is.null(key(series))) {
       .pd <- merge(series, interval)
     } else {

@@ -531,6 +531,7 @@ epitabToDT <- function(m, method) {
 oddsRatio <- function(data) {
   m <- epitools::epitab(data$x, data$y, method = "oddsratio")$tab
   dt <- epitabToDT(m, 'oddsratio')
+  dt <- noStatsFacet(dt)
 
   return(dt)
 }
@@ -544,20 +545,22 @@ oddsRatio <- function(data) {
 relativeRisk <- function(data) {
   m <- epitools::epitab(data$x, data$y, method = "riskratio")$tab
   dt <- epitabToDT(m, 'relativerisk')
+  dt <- noStatsFacet(dt)
 
   return(dt)
 }
 
 
 bothRatios <- function(data) {
-  mergeByCols <- c('p.value', 'x.label', 'y')
+  mergeByCols <- c('p.value', 'y.label', 'x', 'y')
 
   or <- oddsRatio(data)
-  names(or) <- c('oddsratio', 'p.value', 'x', 'or.interval', 'y')
+  names(or) <- c('oddsratio', 'p.value', 'x', 'or.interval', 'y.label', 'y')
   rr <- relativeRisk(data)
-  names(rr) <- c('relativerisk', 'p.value', 'x', 'rr.interval', 'y')
-  rr <- rr[, -(mergeByCols), with=FALSE]
-  dt <- merge(or, rr, by=mergeByCols)
+  names(rr) <- c('relativerisk', 'p.value', 'x', 'rr.interval', 'y.label', 'y')
+  #TODO check order is right and so cbind is valid
+  rr <- rr[, -mergeByCols, with=FALSE]
+  dt <- cbind(or, rr)
 
   return(dt)
 }
@@ -575,6 +578,8 @@ chiSq <- function(data) {
   dt$chisq <- chisq$statistic
   dt$p.value <- chisq$p.value
   dt$degrees.freedom <- chisq$parameter
+  #TODO check if we need this
+  dt <- noStatsFacet(dt)
 
   return(dt)
 }
