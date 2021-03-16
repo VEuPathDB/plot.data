@@ -424,20 +424,20 @@ bin <- function(x, binWidth, viewport) UseMethod("bin")
 
 bin.numeric <- function(x, binWidth = NULL, viewport) {
   bins <- NULL
-  myMethod <- NULL
+  binningMethod <- NULL
 
   # TODO consider if we are meant to choose method before or 
   # after the viewport adjustment 
   if (is.null(binWidth)) {
     if (length(x) < 200) {
-      myMethod <- 'sturges'
+      binningMethod <- 'sturges'
     }
     skewness <- moments::skewness(x)
     if (abs(skewness) > .5) {
-      myMethod <- 'doane'
+      binningMethod <- 'doane'
     }
-    if (is.null(bins)) {
-      myMethod <- 'fd'
+    if (is.null(binningMethod)) {
+      binningMethod <- 'fd'
     }
   }
 
@@ -453,11 +453,11 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
     addViewportMax <- TRUE
   }
   
-  if (is.null(myMethod)) {
-    myMethod <- ceiling(as.numeric(max(x) - min(x)) / binWidth)
+  if (is.null(binningMethod)) {
+    binningMethod <- ceiling(as.numeric(max(x) - min(x)) / binWidth)
   }
 
-  bins <- as.character(varrank::discretization(x, discretization.method = myMethod)$data.df)
+  bins <- as.character(varrank::discretization(x, discretization.method = binningMethod)$data.df)
   if (addViewportMin) {
     bins <- bins[x != viewport$x.min]
     x <- x[x != viewport$x.min]
