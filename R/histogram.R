@@ -72,7 +72,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     }
     attr$binWidth <- jsonlite::unbox(binWidth)
   } else {
-    numBins <- length(unlist(dt$binLabel))
+    numBins <- length(unlist(.pd$binLabel))
     attr$numBins <- jsonlite::unbox(numBins)
   }
 
