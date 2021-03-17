@@ -101,10 +101,12 @@ validateHistogramPD <- function(.histo) {
     stop('The independent axis must be either of type date or number for a histogram.')
   }
   binWidth <- attr(.histo, 'binWidth')
-  if (xAxisVariable$dataType == 'DATE' && !is.character(binWidth)) {
-    stop("binWidth must be a character string for histograms of date values.")
-  } else if (xAxisVariable$dataType == 'NUMBER' && !is.numeric(binWidth)) {
-    stop("binWidth must be numeric for histograms of numeric values.")
+  if (!is.null(binWidth)) {
+    if (xAxisVariable$dataType == 'DATE' && !is.character(binWidth)) {
+      stop("binWidth must be a character string for histograms of date values.")
+    } else if (xAxisVariable$dataType == 'NUMBER' && !is.numeric(binWidth)) {
+      stop("binWidth must be numeric for histograms of numeric values.")
+    }
   }
 
   return(.histo)
