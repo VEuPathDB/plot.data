@@ -397,9 +397,9 @@ findBinWidth.numeric <- function(x, viewport) {
 #TODO make sure it works w units other than days
 findBinWidth.POSIXct <- function(x, viewport) {
   dateMap <- data.table('date' = x, 'numeric' = as.numeric(x))
-  numericViewport <- list('x.min'=as.numeric(viewport$x.min), 'x.max'=as.numeric(viewport$x.max))
+  numericViewport <- list('xMin'=as.numeric(viewport$xMin), 'xMax'=as.numeric(viewport$xMax))
   numBins <- findNumBins(dateMap$numeric, numericViewport)
-  range <- (numericViewport$x.max - numericViewport$x.min)*1.01
+  range <- (numericViewport$xMax - numericViewport$xMin)*1.01
   binWidth <- range / numBins
   
   if (binWidth > 365) {
@@ -451,14 +451,14 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
   }
 
   addViewportMin <- FALSE
-  if (viewport$x.min < min(x)) {
-    x <- c(viewport$x.min, x)
+  if (viewport$xMin < min(x)) {
+    x <- c(viewport$xMin, x)
     addViewportMin <- TRUE
   }
 
   addViewportMax <- FALSE
-  if (viewport$x.max > max(x)) {
-    x <- c(x, viewport$x.max)
+  if (viewport$xMax > max(x)) {
+    x <- c(x, viewport$xMax)
     addViewportMax <- TRUE
   }
   
@@ -468,11 +468,11 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
 
   bins <- as.character(varrank::discretization(x, discretization.method = binningMethod)$data.df)
   if (addViewportMin) {
-    bins <- bins[x != viewport$x.min]
-    x <- x[x != viewport$x.min]
+    bins <- bins[x != viewport$xMin]
+    x <- x[x != viewport$xMin]
   }
   if (addViewportMax) {
-    bins <- bins[x != viewport$x.max]
+    bins <- bins[x != viewport$xMax]
   }
 
   return(bins)
@@ -484,19 +484,19 @@ bin.POSIXct <- function(x, binWidth = NULL, viewport) {
   }
 
   addViewportMin <- FALSE
-  if (viewport$x.min < min(x)) {
-    x <- c(viewport$x.min, x)
+  if (viewport$xMin < min(x)) {
+    x <- c(viewport$xMin, x)
     addViewportMin <- TRUE
   } else {
-    x <- x[x >= viewport$x.min]
+    x <- x[x >= viewport$xMin]
   }
 
   addViewportMax <- FALSE
-  if (viewport$x.max > max(x)) {
-    x <- c(x, viewport$x.max)
+  if (viewport$xMax > max(x)) {
+    x <- c(x, viewport$xMax)
     addViewportMax <- TRUE
   } else {
-    x <- x[x <= viewport$x.max]
+    x <- x[x <= viewport$xMax]
   }
 
   bins <- as.Date(cut(x, breaks=binWidth))

@@ -3,7 +3,7 @@ context('histogram')
 test_that("histogram.dt() returns an appropriately sized data.table", {
   map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
   df <- as.data.frame(bigData)
-  viewport <- list('x.min'=min(bigData$var), 'x.max'=max(bigData$var))
+  viewport <- list('xMin'=min(bigData$var), 'xMax'=max(bigData$var))
   binReportValue <- 'binWidth'
 
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue, viewport)
@@ -62,7 +62,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   #this for dates, TODO consider splitting into its own test
   map <- data.frame('id' = c('group', 'date', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'DATE', 'STRING'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.dates)
-  viewport <- list('x.min'=min(df$date), 'x.max'=max(df$date))
+  viewport <- list('xMin'=min(df$date), 'xMax'=max(df$date))
   binReportValue <- 'binWidth'
 
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue, viewport)

@@ -12,8 +12,8 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
-                         viewport = list('x.min' = NULL,
-                                         'x.max' = NULL),
+                         viewport = list('xMin' = NULL,
+                                         'xMax' = NULL),
                          binWidth,
                          binReportValue = character(),
                          value = character(),
@@ -35,27 +35,28 @@ newHistogramPD <- function(.dt = data.table::data.table(),
 
   summary <- as.list(summary(.pd[[x]]))
   names(summary) <- c('min', 'q1', 'median', 'mean', 'q3', 'max')
+  summary <- lapply(summary, jsonlite::unbox)
   attr$summary <- summary
 
   if (is.null(viewport)) {
     if (xType == 'NUMBER') {
-      viewport <- list('x.min' = jsonlite::unbox(min(0,min(.pd[[x]]))), 'x.max' = jsonlite::unbox(max(.pd[[x]])))
+      viewport <- list('xMin' = jsonlite::unbox(min(0,min(.pd[[x]]))), 'xMax' = jsonlite::unbox(max(.pd[[x]])))
     } else {
-      viewport <- list('x.min' = jsonlite::unbox(min(.pd[[x]])), 'x.max' = jsonlite::unbox(max(.pd[[x]])))
+      viewport <- list('xMin' = jsonlite::unbox(min(.pd[[x]])), 'xMax' = jsonlite::unbox(max(.pd[[x]])))
     }
   } else {
     if (xType == 'NUMBER') {
-      viewport$x.min <- jsonlite::unbox(as.numeric(viewport$x.min))
-      viewport$x.max <- jsonlite::unbox(as.numeric(viewport$x.max))
+      viewport$xMin <- jsonlite::unbox(as.numeric(viewport$xMin))
+      viewport$xMax <- jsonlite::unbox(as.numeric(viewport$xMax))
     } else if (xType == 'DATE') {
-      viewport$x.min <- jsonlite::unbox(as.POSIXct(viewport$x.min, format='%Y-%m-%d'))
-      viewport$x.max <- jsonlite::unbox(as.POSIXct(viewport$x.max, format='%Y-%m-%d'))
+      viewport$xMin <- jsonlite::unbox(as.POSIXct(viewport$xMin, format='%Y-%m-%d'))
+      viewport$xMax <- jsonlite::unbox(as.POSIXct(viewport$xMax, format='%Y-%m-%d'))
     }
   }
   attr$viewport <- viewport
 
   #TODO is there a better way to do this?
-  .pd <- subset(.pd, .pd[[x]] <= viewport$x.max & .pd[[x]] >= viewport$x.min)
+  .pd <- subset(.pd, .pd[[x]] <= viewport$xMax & .pd[[x]] >= viewport$xMin)
 
   if (binReportValue == 'numBins') {
     binSlider <- list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
@@ -118,7 +119,7 @@ validateViewport <- function(viewport) {
   if (!is.list(viewport)) {
     return(FALSE)
   } else{
-    if (!all(c('x.max', 'x.min') %in% names(viewport))) {
+    if (!all(c('xMax', 'xMin') %in% names(viewport))) {
       return(FALSE)
     }
   }

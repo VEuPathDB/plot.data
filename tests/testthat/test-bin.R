@@ -1,7 +1,7 @@
 context('bin')
 
 test_that("binProportion() returns an appropriately sized data.table", {
-  viewport <- list('x.min'=min(data.xy$y), 'x.max'=max(data.xy$y)) 
+  viewport <- list('xMin'=min(data.xy$y), 'xMax'=max(data.xy$y)) 
 
   dt <- binProportion(data.xy,'y', binWidth=.1, viewport=viewport)
   expect_is(dt, 'data.table')
@@ -26,7 +26,7 @@ test_that("binProportion() returns an appropriately sized data.table", {
 })
 
 test_that("binProportion() returns consistent results", {
-  viewport = list('x.min'=min(data.xy$y), 'x.max'=max(data.xy$y))
+  viewport = list('xMin'=min(data.xy$y), 'xMax'=max(data.xy$y))
 
   dt <- binProportion(data.xy,'y', binWidth=.1, viewport=viewport)
   expect_equal_to_reference(dt,"proportion.rds")

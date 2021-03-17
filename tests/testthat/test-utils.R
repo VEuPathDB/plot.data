@@ -15,9 +15,9 @@ test_that("smoothedMean() returns a data.table", {
 })
 
 test_that("bin() does not return NA", {
-  expect_false(any(is.na(bin(rnorm(100),binWidth=.1, viewport=list('x.min'=-5,'x.max'=5)))))
-  expect_false(any(is.na(bin(rnorm(100,10),binWidth=.1, viewport=list('x.min'=5,'x.max'=15)))))
-  expect_false(any(is.na(bin(rnorm(100,-10),binWidth=.1, viewport=list('x.min'=-15,'x.max'=-5)))))
+  expect_false(any(is.na(bin(rnorm(100),binWidth=.1, viewport=list('xMin'=-5,'xMax'=5)))))
+  expect_false(any(is.na(bin(rnorm(100,10),binWidth=.1, viewport=list('xMin'=5,'xMax'=15)))))
+  expect_false(any(is.na(bin(rnorm(100,-10),binWidth=.1, viewport=list('xMin'=-15,'xMax'=-5)))))
 })
 
 test_that("epitabToDT() returns appropriately sized data.table", {
