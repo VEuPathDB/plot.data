@@ -12,8 +12,8 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
-                         viewport = list('min.x' = NULL,
-                                         'max.x' = NULL),
+                         viewport = list('x.min' = NULL,
+                                         'x.max' = NULL),
                          binWidth,
                          binReportValue = character(),
                          value = character(),
@@ -38,7 +38,11 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   attr$summary <- summary
 
   if (is.null(viewport)) {
-    viewport <- list('x.min' = jsonlite::unbox(min(0,min(.pd[[x]]))), 'x.max' = jsonlite::unbox(max(.pd[[x]])))
+    if (xType == 'NUMBER') {
+      viewport <- list('x.min' = jsonlite::unbox(min(0,min(.pd[[x]]))), 'x.max' = jsonlite::unbox(max(.pd[[x]])))
+    } else {
+      viewport <- list('x.min' = jsonlite::unbox(min(.pd[[x]])), 'x.max' = jsonlite::unbox(max(.pd[[x]])))
+    }
   } else {
     if (xType == 'NUMBER') {
       viewport$x.min <- jsonlite::unbox(as.numeric(viewport$x.min))
@@ -84,7 +88,6 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     attr$numBins <- jsonlite::unbox(numBins)
   }
 
-  #TODO if viewport, binWidth are .histo attr, dont need to pass it
   if (value == 'count') {
     .pd <- binSize(.pd, x, group, panel, binWidth, viewport)
   } else if (value == 'proportion' ) {
@@ -219,9 +222,9 @@ histogram.dt <- function(data,
                            facetVariable1 = facetVariable1,
                            facetVariable2 = facetVariable2,
                            viewport = viewport,
-                           binWidth,
-                           binReportValue,
-                           value)
+                           binWidth = binWidth,
+                           binReportValue = binReportValue,
+                           value = value)
 
   .histo <- validateHistogramPD(.histo)
 
