@@ -1,3 +1,11 @@
+updateType <- function(x, xType) {
+  if (xType == 'NUMBER') { x <- as.numeric(x) }
+  if (xType == 'DATE') { x <- as.POSIXct(x) }
+  if (xType == 'STRING') { x <- as.character(x) }
+
+  return(x)
+}
+
 makeVariableDetails <- function(value, variableId, entityId) {
   if (!is.null(value)) {
     variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=jsonlite::unbox(value)) 

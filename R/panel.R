@@ -34,8 +34,6 @@ panelRelativeRisk <- function(data, x, y, panel = NULL) {
   return(dt)
 }
 
-#TODO update format of response from the epitools functions
-#currently returns two rows, we need one of listed vals
 panelBothRatios <- function(data, x, y, panel = NULL) {
   names(data)[names(data) == x] <- 'x'
   names(data)[names(data) == y] <- 'y'

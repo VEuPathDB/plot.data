@@ -22,11 +22,24 @@ newPlotdata <- function(.dt = data.table(),
                          class = character()) {
 
   x <- emptyStringToNull(as.character(xAxisVariable$variableId))
+  xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
   y <- emptyStringToNull(as.character(yAxisVariable$variableId))
+  yType <- emptyStringToNull(as.character(yAxisVariable$dataType))
   z <- emptyStringToNull(as.character(zAxisVariable$variableId))
+  zType <- emptyStringToNull(as.character(zAxisVariable$dataType))
   group <- emptyStringToNull(as.character(overlayVariable$variableId))
+  groupType <- emptyStringToNull(as.character(overlayVariable$dataType))
   facet1 <- emptyStringToNull(as.character(facetVariable1$variableId))
+  facetType1 <- emptyStringToNull(as.character(facetVariable1$dataType))
   facet2 <- emptyStringToNull(as.character(facetVariable2$variableId))
+  facetType2 <- emptyStringToNull(as.character(facetVariable2$dataType))
+
+  .dt[[x]] <- updateType(.dt[[x]], xType)
+  if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType) }
+  if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType) }
+  if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
+  if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1) }
+  if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2) }
 
   #TODO need to be able to optionally pass y and z axes
   panelData <- makePanels(.dt, facet1, facet2)
