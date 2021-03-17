@@ -4,7 +4,14 @@
 \alias{histogram.dt}
 \title{Histogram as data.table}
 \usage{
-histogram.dt(data, map, binWidth, value, binReportValue, viewport)
+histogram.dt(
+  data,
+  map,
+  binWidth = NULL,
+  value = c("count", "proportion"),
+  binReportValue = c("binWidth", "numBins"),
+  viewport = NULL
+)
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}

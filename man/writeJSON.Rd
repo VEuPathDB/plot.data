@@ -4,10 +4,10 @@
 \alias{writeJSON}
 \title{Write json to local tmp file}
 \usage{
-writeJSON(data, pattern = NULL)
+writeJSON(.pd, pattern = NULL)
 }
 \arguments{
-\item{data}{a data.table to convert to json and write to a tmp file}
+\item{.pd}{a data.table to convert to json and write to a tmp file}
 
 \item{pattern}{optional tmp file prefix}
 }

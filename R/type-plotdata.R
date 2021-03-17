@@ -1,5 +1,4 @@
 # TODO consider alternate ways of representing the list args
-# will viewport take additional args for yaxis if organized this way?
 newPlotdata <- function(.dt = data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
@@ -19,8 +18,6 @@ newPlotdata <- function(.dt = data.table(),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
-                         viewport = list('x.min' = NULL,
-                                         'x.max' = NULL),
                          ...,
                          class = character()) {
 
@@ -54,25 +51,10 @@ newPlotdata <- function(.dt = data.table(),
     xIsDate = xAxisVariable$dataType == 'DATE'
   } 
 
-  #TODO either move this to histo, or make it not specific to number types
-  #TODO also need to decide if its optional
-  if (is.null(viewport)) {
-    viewport <- list('x.min' = min(0,min(.dt[[x]])), 'x.max' = max(.dt[[x]]))
-  } else {
-    if (xIsNum) {
-      viewport$x.min <- as.numeric(viewport$x.min)
-      viewport$x.max <- as.numeric(viewport$x.max)
-    } else if (xIsDate) {
-      viewport$x.min <- as.POSIXct(viewport$x.min, format='%Y-%m-%d')
-      viewport$x.max <- as.POSIXct(viewport$x.max, format='%Y-%m-%d')
-    }
-  }
-
   attr <- attributes(.dt)
   attr$xAxisVariable <-  xAxisVariable
   if (!is.null(y)) { attr$yAxisVariable <- yAxisVariable }
   if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
-  attr$viewport <- viewport
   attr$incompleteCases <- incompleteCases
   attr$class = c(class, 'plot.data', attr$class)
   if (!is.null(group)) { attr$overlayVariable <- overlayVariable }
@@ -97,26 +79,11 @@ validateVariableAttr <- function(variableAttr) {
   return(TRUE)
 }
 
-#TODO have this be a generic? check for y for certain subclasses
-validateViewport <- function(viewport) {
-  if (!is.list(viewport)) {
-    return(FALSE)
-  } else{
-    if (!all(c('x.max', 'x.min') %in% names(viewport))) {
-      return(FALSE)
-    }
-  }
-
-  return(TRUE)
-}
-
 validatePlotdata <- function(.pd) {
   .dt <- unclass(.pd)
   xAxisVariable <- attr(.pd, 'xAxisVariable')
   stopifnot(validateVariableAttr(xAxisVariable))
   stopifnot(xAxisVariable$variableId %in% names(.dt))
-  viewport <- attr(.pd, 'viewport')
-  stopifnot(validateViewport(viewport))
   class <- attr(.pd, 'class')
   stopifnot(is.character(class))
 

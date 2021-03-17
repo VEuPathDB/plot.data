@@ -16,7 +16,7 @@ data.table plot-ready data
 }
 \description{
 This function returns a data.table of 
-plot-ready data with one row per group (per panel). Columns 
+plot-ready data with one row per panel. Columns 
 'x' and 'y' contain the raw data for plotting. Column 'panel' 
 specifies the panel the data belongs to.
 }

@@ -25,36 +25,66 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                      overlayVariable = overlayVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
-                     viewport = viewport,
                      class = "histogram")
 
   attr <- attributes(.pd)
-  viewport <- attr(.pd, 'viewport')
-
   x <- attr$xAxisVariable$variableId
+  xType <- attr$xAxisVariable$dataType
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
-  
-  #this makes sense for histo bc there are no other stats calculated
-  # do NOT do this for other plot types, figure something else out
+
+  summary <- as.list(summary(.pd[[x]]))
+  names(summary) <- c('min', 'q1', 'median', 'mean', 'q3', 'max')
+  attr$summary <- summary
+
+  if (is.null(viewport)) {
+    viewport <- list('x.min' = jsonlite::unbox(min(0,min(.pd[[x]]))), 'x.max' = jsonlite::unbox(max(.pd[[x]])))
+  } else {
+    if (xType == 'NUMBER') {
+      viewport$x.min <- jsonlite::unbox(as.numeric(viewport$x.min))
+      viewport$x.max <- jsonlite::unbox(as.numeric(viewport$x.max))
+    } else if (xType == 'DATE') {
+      viewport$x.min <- jsonlite::unbox(as.POSIXct(viewport$x.min, format='%Y-%m-%d'))
+      viewport$x.max <- jsonlite::unbox(as.POSIXct(viewport$x.max, format='%Y-%m-%d'))
+    }
+  }
+  attr$viewport <- viewport
+
+  #TODO is there a better way to do this?
   .pd <- subset(.pd, .pd[[x]] <= viewport$x.max & .pd[[x]] >= viewport$x.min)
 
   if (binReportValue == 'numBins') {
     binSlider <- list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
   } else {
-    binSliderMax <- (max(.pd[[x]]) - min(.pd[[x]])) / 2
-    binSliderMin <- (max(.pd[[x]]) - min(.pd[[x]])) / 1000
-    avgDigits <- floor(mean(stringr::str_count(as.character(.pd[[x]]), "[[:digit:]]")))
-    binSliderMax <- round(binSliderMax, avgDigits)
-    binSliderMin <- round(binSliderMin, avgDigits)
-    # TODO not sure this is the rule we meant ?
-    binSliderStep <- round((binSliderMax / 1000), avgDigits)
+    binSliderMax <- as.numeric((max(.pd[[x]]) - min(.pd[[x]])) / 2)
+    binSliderMin <- as.numeric((max(.pd[[x]]) - min(.pd[[x]])) / 1000)
+    if (xType == 'NUMBER') {
+      avgDigits <- floor(mean(stringr::str_count(as.character(.pd[[x]]), "[[:digit:]]")))
+      binSliderMax <- round(binSliderMax, avgDigits)
+      binSliderMin <- round(binSliderMin, avgDigits)
+      # TODO not sure this is the rule we meant ?
+      binSliderStep <- round((binSliderMax / 1000), avgDigits)
+    } else {
+      #TODO this assumes unit of days, step of 1 for date bin sliders
+      binSliderMin <- floor(binSliderMin)
+      binSliderMax <- ceiling(binSliderMax)
+      binSliderStep <- 1
+    }
     binSlider <- list('min'=jsonlite::unbox(binSliderMin), 'max'=jsonlite::unbox(binSliderMax), 'step'=jsonlite::unbox(binSliderStep))
   }
   attr$binSlider <- binSlider
 
-  #TODO since viewport is a .pd attr, dont need to pass it
-  # binWidth as well
+  if (binReportValue == 'binWidth') {
+    if (is.null(binWidth)) {
+      binWidth <- findBinWidth(.pd[[x]], viewport)
+    }
+    attr$binWidth <- jsonlite::unbox(binWidth)
+  } else {
+    numBins <- findNumBins(.pd[[x]], viewport)
+    attr$numBins <- jsonlite::unbox(numBins)
+  }
+
+  #TODO if viewport, binWidth are .histo attr, dont need to pass it
   if (value == 'count') {
     .pd <- binSize(.pd, x, group, panel, binWidth, viewport)
   } else if (value == 'proportion' ) {
@@ -63,18 +93,6 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     stop('Unrecognized argument to "value".')
   }
   attr$names <- names(.pd)
-
-  if (binReportValue == 'binWidth') {
-    if (is.null(binWidth)) {
-      binStart <- as.numeric(findBinStart(unlist(.pd$binLabel)))
-      binEnd <- as.numeric(findBinEnd(unlist(.pd$binLabel)))
-      binWidth <- getMode(binEnd - binStart)
-    }
-    attr$binWidth <- jsonlite::unbox(binWidth)
-  } else {
-    numBins <- length(unlist(.pd$binLabel))
-    attr$numBins <- jsonlite::unbox(numBins)
-  }
 
   attributes(.pd) <- attr
 
@@ -93,9 +111,23 @@ validateBinSlider <- function(binSlider) {
   return(TRUE)
 }
 
+validateViewport <- function(viewport) {
+  if (!is.list(viewport)) {
+    return(FALSE)
+  } else{
+    if (!all(c('x.max', 'x.min') %in% names(viewport))) {
+      return(FALSE)
+    }
+  }
+
+  return(TRUE)
+}
+
 validateHistogramPD <- function(.histo) {
   binSlider <- attr(.histo, 'binSlider')
   stopifnot(validateBinSlider(binSlider))
+  viewport <- attr(.histo, 'viewport')
+  stopifnot(validateViewport(viewport))
   xAxisVariable <- attr(.histo, 'xAxisVariable')
   if (!xAxisVariable$dataType %in% c('DATE','NUMBER')) {
     stop('The independent axis must be either of type date or number for a histogram.')
@@ -131,10 +163,10 @@ validateHistogramPD <- function(.histo) {
 #' @export
 histogram.dt <- function(data, 
                          map, 
-                         binWidth, 
-                         value, 
-                         binReportValue, 
-                         viewport) {
+                         binWidth = NULL, 
+                         value = c('count', 'proportion'), 
+                         binReportValue = c('binWidth', 'numBins'), 
+                         viewport = NULL) {
 
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -145,6 +177,8 @@ histogram.dt <- function(data,
   facetVariable2 = list('variableId' = NULL,
                         'entityId' = NULL,
                         'dataType' = NULL)
+  value <- match.arg(value)
+  binReportValue <- match.arg(binReportValue)
 
   if (!'data.table' %in% class(data)) {
     data <- data.table::as.data.table(data)

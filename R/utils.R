@@ -361,8 +361,8 @@ smoothedMean <- function(dt, method) {
 }
 
 findNumBins <- function(x, viewport) {
-  bins <- bin(x, viewport)
-  
+  bins <- bin(x, NULL, viewport)
+
   return(data.table::uniqueN(bins))
 }
 
@@ -389,8 +389,9 @@ findBinWidth.numeric <- function(x, viewport) {
 #TODO make sure it works w units other than days
 findBinWidth.POSIXct <- function(x, viewport) {
   dateMap <- data.table('date' = x, 'numeric' = as.numeric(x))
-  numBins <- findNumBins(dateMap$numeric, viewport)
-  range <- as.numeric(max(dateMap$date) - min(dateMap$date))
+  numericViewport <- list('x.min'=as.numeric(viewport$x.min), 'x.max'=as.numeric(viewport$x.max))
+  numBins <- findNumBins(dateMap$numeric, numericViewport)
+  range <- (numericViewport$x.max - numericViewport$x.min)*1.01
   binWidth <- range / numBins
   
   if (binWidth > 365) {
@@ -475,19 +476,19 @@ bin.POSIXct <- function(x, binWidth = NULL, viewport) {
   }
 
   addViewportMin <- FALSE
-  if (viewport$min < min(x)) {
-    x <- c(viewport$min, x)
+  if (viewport$x.min < min(x)) {
+    x <- c(viewport$x.min, x)
     addViewportMin <- TRUE
   } else {
-    x <- x[x >= viewport$min]
+    x <- x[x >= viewport$x.min]
   }
 
   addViewportMax <- FALSE
-  if (viewport$max > max(x)) {
-    x <- c(x, viewport$max)
+  if (viewport$x.max > max(x)) {
+    x <- c(x, viewport$x.max)
     addViewportMax <- TRUE
   } else {
-    x <- x[x <= viewport$max]
+    x <- x[x <= viewport$x.max]
   }
 
   bins <- as.Date(cut(x, breaks=binWidth))
