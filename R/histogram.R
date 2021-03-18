@@ -86,7 +86,8 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     }
     attr$binWidth <- jsonlite::unbox(binWidth)
   } else {
-    numBins <- findNumBins(.pd[[x]], viewport)
+    xVP <- adjustToViewport(.pd[[x]], viewport)
+    numBins <- findNumBins(xVP)
     attr$numBins <- jsonlite::unbox(numBins)
   }
 
