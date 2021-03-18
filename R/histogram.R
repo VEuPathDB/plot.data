@@ -81,7 +81,8 @@ newHistogramPD <- function(.dt = data.table::data.table(),
 
   if (binReportValue == 'binWidth') {
     if (is.null(binWidth)) {
-      binWidth <- findBinWidth(.pd[[x]], viewport)
+      xVP <- adjustToViewport(.pd[[x]], viewport)
+      binWidth <- findBinWidth(xVP)
     }
     attr$binWidth <- jsonlite::unbox(binWidth)
   } else {

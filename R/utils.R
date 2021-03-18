@@ -368,10 +368,38 @@ smoothedMean <- function(dt, method) {
   return(data.table::data.table("x" = list(smoothed$x), "y" = list(smoothed$y), "ymin" = list(smoothed$ymin), "ymax" = list(smoothed$ymax), "se" = list(smoothed$se)))
 }
 
-findNumBins <- function(x, viewport) {
-  bins <- bin(x, NULL, viewport)
+#' @importFrom grDevices nclass.FD
+#' @importFrom grDevices nclass.Sturges
+findNumBins <- function(x) {
+  numBins <- NULL
 
-  return(data.table::uniqueN(bins))
+  # TODO consider if we are meant to choose method before or 
+  # after the viewport adjustment 
+  if (length(x) < 200) {
+    numBins <- grDevices::nclass.FD(x)
+  }
+  skewness <- moments::skewness(x)
+  if (abs(skewness) > .5) {
+    abs <- abs(skewness)
+    n <- length(x)
+    se <- sqrt(6*(n-2)/((n+1)*(n+3)))
+    ke <- log2(1+abs/se)
+    numBins <- ceiling(nclass.Sturges(x)+ke)
+  }
+  if (is.null(numBins)) {
+    numBins <- grDevices::nclass.Sturges(x)
+  }
+
+  return(numBins)
+}
+
+#NOTE: bc of the ceiling, cant depend on each other
+binWidthToNumBins <- function(x, binWidth) {
+  ceiling(diff(range(x))/binWidth)
+}
+
+numBinsToBinWidth <- function(x, numBins) {
+  diff(range(x))/numBins
 }
 
 #' Calculate Bin Width
@@ -383,25 +411,20 @@ findNumBins <- function(x, viewport) {
 #' @export
 # @alias findBinWidth.numeric
 # @alias findBinWidth.POSIXct
-findBinWidth <- function(x, viewport) UseMethod("findBinWidth")
+findBinWidth <- function(x) UseMethod("findBinWidth")
 
-findBinWidth.numeric <- function(x, viewport) {
-  numBins <- findNumBins(x, viewport)
-  range <- as.numeric(max(x) - min(x))
-  range <- range + (range*.01)
-  binWidth <- range / numBins
-      
+findBinWidth.numeric <- function(x) {
+  numBins <- findNumBins(x)
+  binWidth <- numBinsToBinWidth(x, numBins)     
+ 
   return(binWidth)
 }
 
 #TODO make sure it works w units other than days
-findBinWidth.POSIXct <- function(x, viewport) {
+findBinWidth.POSIXct <- function(x) {
   dateMap <- data.table('date' = x, 'numeric' = as.numeric(x))
-  numericViewport <- list('xMin'=as.numeric(viewport$xMin), 'xMax'=as.numeric(viewport$xMax))
-  numBins <- findNumBins(dateMap$numeric, numericViewport)
-  range <- (numericViewport$xMax - numericViewport$xMin)*1.01
-  binWidth <- range / numBins
-  
+  binWidth <- findBinWidth(dateMap$numeric)
+ 
   if (binWidth > 365) {
     binWidth <- "year"
   } else if (binWidth > 31 ) {
@@ -415,6 +438,33 @@ findBinWidth.POSIXct <- function(x, viewport) {
   return(binWidth)
 }
 
+adjustToViewport <- function(x, viewport) {
+  if (viewport$xMin < min(x)) {
+    x <- c(viewport$xMin, x)
+  } else {
+    x <- x[x >= viewport$xMin]
+  }
+  if (viewport$xMax > max(x)) {
+    x <- c(x, viewport$xMax)
+  } else {
+    x <- x[x <= viewport$xMax]
+  }
+
+  return(x)
+}
+
+pruneViewportAdjustmentFromBins <- function(bins, x, viewport) {
+  if (viewport$xMin < min(x)) {
+    bins <- bins[x != viewport$xMin]
+    x <- x[x != viewport$xMin]
+  }
+  if (viewport$xMax > max(x)) {
+    bins <- bins[x != viewport$xMax]
+  }
+
+  return(bins)
+}
+
 #' Binning
 #' 
 #'
@@ -425,87 +475,36 @@ findBinWidth.POSIXct <- function(x, viewport) {
 #' @return Character vector of coded values 
 #' @export
 #' @importFrom lubridate ceiling_date
-#' @importFrom varrank discretization
 #' @importFrom moments skewness
 # @alias bin.numeric
 # @alias bin.POSIXct
 bin <- function(x, binWidth, viewport) UseMethod("bin")
 
 bin.numeric <- function(x, binWidth = NULL, viewport) {
-  bins <- NULL
-  binningMethod <- NULL
-
-  # TODO consider if we are meant to choose method before or 
-  # after the viewport adjustment 
-  if (is.null(binWidth)) {
-    if (length(x) < 200) {
-      binningMethod <- 'sturges'
-    }
-    skewness <- moments::skewness(x)
-    if (abs(skewness) > .5) {
-      binningMethod <- 'doane'
-    }
-    if (is.null(binningMethod)) {
-      binningMethod <- 'fd'
-    }
-  }
-
-  addViewportMin <- FALSE
-  if (viewport$xMin < min(x)) {
-    x <- c(viewport$xMin, x)
-    addViewportMin <- TRUE
-  }
-
-  addViewportMax <- FALSE
-  if (viewport$xMax > max(x)) {
-    x <- c(x, viewport$xMax)
-    addViewportMax <- TRUE
-  }
+  x <- adjustToViewport(x, viewport)
   
-  if (is.null(binningMethod)) {
-    binningMethod <- ceiling(as.numeric(max(x) - min(x)) / binWidth)
+  if (!is.null(binWidth)) {
+    numBins <- binWidthToNumBins(x, binWidth)
+  } else {
+    numBins <- findNumBins(x)
   }
 
-  bins <- as.character(varrank::discretization(x, discretization.method = binningMethod)$data.df)
-  if (addViewportMin) {
-    bins <- bins[x != viewport$xMin]
-    x <- x[x != viewport$xMin]
-  }
-  if (addViewportMax) {
-    bins <- bins[x != viewport$xMax]
-  }
+  bins <- cut(x, breaks=numBins)
+  bins <- pruneViewportAdjustmentFromBins(bins, x, viewport)
+  bins <- as.character(bins)
 
   return(bins)
 }
 
 bin.POSIXct <- function(x, binWidth = NULL, viewport) {
+  x <- adjustToViewport(x, viewport)
+ 
   if (is.null(binWidth)) {
-    binWidth = findBinWidth(x, viewport)
-  }
-
-  addViewportMin <- FALSE
-  if (viewport$xMin < min(x)) {
-    x <- c(viewport$xMin, x)
-    addViewportMin <- TRUE
-  } else {
-    x <- x[x >= viewport$xMin]
-  }
-
-  addViewportMax <- FALSE
-  if (viewport$xMax > max(x)) {
-    x <- c(x, viewport$xMax)
-    addViewportMax <- TRUE
-  } else {
-    x <- x[x <= viewport$xMax]
+    binWidth = findBinWidth(x)
   }
 
   bins <- as.Date(cut(x, breaks=binWidth))
-  if (addViewportMin) {
-    bins <- bins[x != viewport$min]
-  }
-  if (addViewportMax) {
-    bins <- bins[x != viewport$max]
-  }
+  bins <- pruneViewportAdjustmentFromBins(bins, x, viewport)
   bins <- paste0(bins, " - ", lubridate::ceiling_date(bins, binWidth) -1)
 
   return(bins)
