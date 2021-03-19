@@ -116,3 +116,23 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('binLabel', 'binStart', 'binEnd', 'value'))
 
 })
+
+test_that("histogram() returns consistent and appropriately formatted json", {
+  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
+  df <- as.data.frame(bigData)
+  viewport <- list('xMin'=min(bigData$var), 'xMax'=max(bigData$var))
+  binReportValue <- 'binWidth'
+
+  dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue, viewport)
+  outJson <- getJSON(dt)
+  expect_equal_to_reference(outJson, 'histogram.json')
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList),c('data','config'))
+  expect_equal(names(jsonList$data),c('overlayVariableDetails','panel','binLabel','binStart','binEnd','value'))
+  expect_equal(names(jsonList$data$overlayVariableDetails),c('variableId','entityId','value'))
+  expect_equal(names(jsonList$config),c('incompleteCases','summary','viewport','binSlider','binWidth','xVariableDetails'))  
+  expect_equal(names(jsonList$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(names(jsonList$config$viewport),c('xMin','xMax'))
+  expect_equal(names(jsonList$config$binSlider),c('min','max','step'))
+  expect_equal(names(jsonList$config$summary),c('min','q1','median','mean','q3','max'))
+})

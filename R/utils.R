@@ -57,17 +57,7 @@ getPDAttributes <- function(.pd) {
   return(attr)
 }
 
-#' Write json to local tmp file
-#'
-#' This function returns the name of a json file which it has
-#' written a data.table object out to.
-#' @param .pd a data.table to convert to json and write to a tmp file
-#' @param pattern optional tmp file prefix
-#' @return character name of a tmp file w ext *.json
-#' @importFrom jsonlite toJSON
-#' @importFrom jsonlite prettify
-#' @export
-writeJSON <- function(.pd, pattern = NULL) {
+getJSON <- function(.pd) {
   namedAttrList <- getPDAttributes(.pd)
 
   #TODO consider if this is something plot.data objects can do for themselves ?
@@ -80,25 +70,40 @@ writeJSON <- function(.pd, pattern = NULL) {
 
   #TODO think of better way to do this reformatting
   if ('xAxisVariable' %in% names(namedAttrList)) {
-    xVariableDetails <- list('xVariableDetails' = makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId))
+    xVariableDetails <- makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId)
     namedAttrList$xAxisVariable <- NULL
     namedAttrList$xVariableDetails <- xVariableDetails
   }
   if ('yAxisVariable' %in% names(namedAttrList)) {
-    yVariableDetails <- list('yVariableDetails' = makeVariableDetails(NULL, namedAttrList$yAxisVariable$variableId, namedAttrList$yAxisVariable$entityId))
+    yVariableDetails <- makeVariableDetails(NULL, namedAttrList$yAxisVariable$variableId, namedAttrList$yAxisVariable$entityId)
     namedAttrList$yAxisVariable <- NULL
     namedAttrList$yVariableDetails <- yVariableDetails
   }
   if ('zAxisVariable' %in% names(namedAttrList)) {
-    zVariableDetails <- list('zVariableDetails' = makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId))
+    zVariableDetails <- makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId)
     namedAttrList$zAxisVariable <- NULL
     namedAttrList$zVariableDetails <- zVariableDetails
   }
 
   outJson <- jsonlite::toJSON(list('data'=.pd, 'config'=namedAttrList))
+ 
+  return(outJson)
+}
 
+#' Write json to local tmp file
+#'
+#' This function returns the name of a json file which it has
+#' written a data.table object out to.
+#' @param .pd a data.table to convert to json and write to a tmp file
+#' @param pattern optional tmp file prefix
+#' @return character name of a tmp file w ext *.json
+#' @importFrom jsonlite toJSON
+#' @importFrom jsonlite prettify
+#' @export
+writeJSON <- function(.pd, pattern = NULL) {
+  outJson <- getJSON(.pd)
   # just for now for debugging
-  outJson <- jsonlite::prettify(outJson)
+  #outJson <- jsonlite::prettify(outJson)
   if (is.null(pattern)) { pattern <- 'file' }
   outFileName <- basename(tempfile(pattern = pattern, tmpdir = tempdir(), fileext = ".json"))
   write(outJson, outFileName)
