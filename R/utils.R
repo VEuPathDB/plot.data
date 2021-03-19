@@ -1,6 +1,6 @@
 updateType <- function(x, xType) {
   if (xType == 'NUMBER') { x <- as.numeric(x) }
-  if (xType == 'DATE') { x <- as.POSIXct(x) }
+  if (xType == 'DATE') { x <- as.Date(x) }
   if (xType == 'STRING') { x <- as.character(x) }
 
   return(x)
@@ -426,7 +426,7 @@ findBinWidth.numeric <- function(x) {
 }
 
 #TODO make sure it works w units other than days
-findBinWidth.POSIXct <- function(x) {
+findBinWidth.Date <- function(x) {
   dateMap <- data.table('date' = x, 'numeric' = as.numeric(x))
   binWidth <- findBinWidth(dateMap$numeric)
  
@@ -501,7 +501,9 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
   return(bins)
 }
 
-bin.POSIXct <- function(x, binWidth = NULL, viewport) {
+#use stri_c where we paste dates bc it can be a bit faster w large vectors
+#' @importFrom stringi stri_c
+bin.Date <- function(x, binWidth = NULL, viewport) {
   x <- adjustToViewport(x, viewport)
  
   if (is.null(binWidth)) {
@@ -510,7 +512,7 @@ bin.POSIXct <- function(x, binWidth = NULL, viewport) {
 
   bins <- as.Date(cut(x, breaks=binWidth))
   bins <- pruneViewportAdjustmentFromBins(bins, x, viewport)
-  bins <- paste0(bins, " - ", lubridate::ceiling_date(bins, binWidth) -1)
+  bins <- stringi::stri_c(bins, " - ", lubridate::ceiling_date(bins, binWidth) -1)
 
   return(bins)
 }
@@ -518,6 +520,11 @@ bin.POSIXct <- function(x, binWidth = NULL, viewport) {
 getMode <- function(x) {
    uniq <- unique(x)
    uniq[which.max(tabulate(match(x, uniq)))]
+}
+
+#these assumptions/defaults may be bad other places, but so far good
+strSplit(str, pattern, ncol = 2, index = 1, fixed = TRUE) {
+  matrix(unlist(strsplit(str, pattern, fixed = fixed)), ncol = ncol)[,index]
 }
 
 findBinStart <- function(x) {

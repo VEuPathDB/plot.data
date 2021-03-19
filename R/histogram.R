@@ -49,8 +49,8 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       viewport$xMin <- jsonlite::unbox(as.numeric(viewport$xMin))
       viewport$xMax <- jsonlite::unbox(as.numeric(viewport$xMax))
     } else if (xType == 'DATE') {
-      viewport$xMin <- jsonlite::unbox(as.POSIXct(viewport$xMin, format='%Y-%m-%d'))
-      viewport$xMax <- jsonlite::unbox(as.POSIXct(viewport$xMax, format='%Y-%m-%d'))
+      viewport$xMin <- jsonlite::unbox(as.Date(viewport$xMin, format='%Y-%m-%d'))
+      viewport$xMax <- jsonlite::unbox(as.Date(viewport$xMax, format='%Y-%m-%d'))
     }
   }
   attr$viewport <- viewport

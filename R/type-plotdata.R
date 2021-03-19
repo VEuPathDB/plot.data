@@ -54,7 +54,7 @@ newPlotdata <- function(.dt = data.table(),
   if (is.null(xAxisVariable$dataType)) {
     xIsNum = all(!is.na(as.numeric(.dt[[x]])))
     xAxisVariable$dataType <- 'NUMBER'
-    xIsDate = !xIsNum && all(!is.na(as.POSIXct(.dt[[x]], format='%Y-%m-%d')))
+    xIsDate = !xIsNum && all(!is.na(as.Date(.dt[[x]], format='%Y-%m-%d')))
     xAxisVariable$dataType <- 'DATE'
     xIsChar = !xIsNum && !xIsDate && all(!is.na(as.character(.dt[[x]])))
     xAxisVariable$dataType <- 'STRING'
