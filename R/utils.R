@@ -523,15 +523,15 @@ getMode <- function(x) {
 }
 
 #these assumptions/defaults may be bad other places, but so far good
-strSplit(str, pattern, ncol = 2, index = 1, fixed = TRUE) {
-  matrix(unlist(strsplit(str, pattern, fixed = fixed)), ncol = ncol)[,index]
+strSplit <- function(str, pattern, ncol = 2, index = 1, fixed = TRUE) {
+  matrix(unlist(strsplit(str, pattern, fixed = fixed)), ncol = ncol, byrow = TRUE)[,index]
 }
 
 findBinStart <- function(x) {
   if (all(grepl(" - ",x))) {
-    x <- unlist(lapply(strsplit(x, " - ", fixed=T), "[", 1))
+    x <- strSplit(x, " - ")
   } else {
-    x <- gsub("\\(|\\[", "", unlist(lapply(strsplit(as.character(x), ",", fixed=T), "[",1)))
+    x <- gsub("\\(|\\[", "", strSplit(as.character(x), ","))
   }
 
   return(x)
@@ -539,9 +539,9 @@ findBinStart <- function(x) {
 
 findBinEnd <- function(x) {
   if (all(grepl(" - ",x))) {
-    x <- unlist(lapply(strsplit(x, " - ", fixed=T), "[", 2))
+    x <- strSplit(x, " - ", index = 2)
   } else {
-    x <- gsub("\\)|\\]", "", unlist(lapply(strsplit(as.character(x), ",", fixed=T), "[", 2)))
+    x <- gsub("\\)|\\]", "", strSplit(as.character(x), ",", index = 2))
   }
 
   return(x)
