@@ -69,6 +69,8 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       binSliderMin <- round(binSliderMin, avgDigits)
       # TODO not sure this is the rule we meant ?
       binSliderStep <- round((binSliderMax / 1000), avgDigits)
+      # TODO again not sure this is what we want
+      if (binSliderStep == 0) { binSliderStep <- binSliderMin }
     } else {
       #TODO this assumes unit of days, step of 1 for date bin sliders
       binSliderMin <- floor(binSliderMin)

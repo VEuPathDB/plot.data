@@ -443,6 +443,15 @@ findBinWidth.Date <- function(x) {
   return(binWidth)
 }
 
+#' Adjust Data Range to Viewport
+#' 
+#'
+#' This function will adjust the range of numeric vector `x` 
+#' the values in ‘x’ according to which interval they fall
+#' @param x Numeric or Date vector to bin
+#' @param binWidth number to increment bin bounds by, or string for dates ex: 'month'
+#' @return Character vector of coded values 
+#' @export
 adjustToViewport <- function(x, viewport) {
   if (viewport$xMin < min(x)) {
     x <- c(viewport$xMin, x)
@@ -458,13 +467,13 @@ adjustToViewport <- function(x, viewport) {
   return(x)
 }
 
-pruneViewportAdjustmentFromBins <- function(bins, x, viewport) {
+pruneViewportAdjustmentFromBins <- function(bins, xVP, x, viewport) {
   if (viewport$xMin < min(x)) {
-    bins <- bins[x != viewport$xMin]
+    bins <- bins[xVP != viewport$xMin]
     x <- x[x != viewport$xMin]
   }
   if (viewport$xMax > max(x)) {
-    bins <- bins[x != viewport$xMax]
+    bins <- bins[xVP != viewport$xMax]
   }
 
   return(bins)
@@ -486,16 +495,16 @@ pruneViewportAdjustmentFromBins <- function(bins, x, viewport) {
 bin <- function(x, binWidth, viewport) UseMethod("bin")
 
 bin.numeric <- function(x, binWidth = NULL, viewport) {
-  x <- adjustToViewport(x, viewport)
+  xVP <- adjustToViewport(x, viewport)
   
   if (!is.null(binWidth)) {
-    numBins <- binWidthToNumBins(x, binWidth)
+    numBins <- binWidthToNumBins(xVP, binWidth)
   } else {
-    numBins <- findNumBins(x)
+    numBins <- findNumBins(xVP)
   }
 
-  bins <- cut(x, breaks=numBins)
-  bins <- pruneViewportAdjustmentFromBins(bins, x, viewport)
+  bins <- cut(xVP, breaks=numBins)
+  bins <- pruneViewportAdjustmentFromBins(bins, xVP, x, viewport)
   bins <- as.character(bins)
 
   return(bins)
@@ -504,14 +513,14 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
 #use stri_c where we paste dates bc it can be a bit faster w large vectors
 #' @importFrom stringi stri_c
 bin.Date <- function(x, binWidth = NULL, viewport) {
-  x <- adjustToViewport(x, viewport)
+  xVP <- adjustToViewport(x, viewport)
  
   if (is.null(binWidth)) {
-    binWidth = findBinWidth(x)
+    binWidth = findBinWidth(xVP)
   }
 
-  bins <- as.Date(cut(x, breaks=binWidth))
-  bins <- pruneViewportAdjustmentFromBins(bins, x, viewport)
+  bins <- as.Date(cut(xVP, breaks=binWidth))
+  bins <- pruneViewportAdjustmentFromBins(bins, xVP, x, viewport)
   bins <- stringi::stri_c(bins, " - ", lubridate::ceiling_date(bins, binWidth) -1)
 
   return(bins)
