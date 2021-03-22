@@ -453,6 +453,8 @@ findBinWidth.Date <- function(x) {
 #' @return Character vector of coded values 
 #' @export
 adjustToViewport <- function(x, viewport) {
+  if (is.null(viewport)) { return(x) }  
+
   if (viewport$xMin < min(x)) {
     x <- c(viewport$xMin, x)
   } else {
