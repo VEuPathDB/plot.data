@@ -9,6 +9,7 @@
 #' @export
 #' @importFrom lubridate ceiling_date
 #' @importFrom moments skewness
+#' @importFrom ggplot2 cut_width
 # @alias bin.numeric
 # @alias bin.POSIXct
 bin <- function(x, binWidth, viewport) UseMethod("bin")
@@ -17,12 +18,12 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
   xVP <- adjustToViewport(x, viewport)
 
   if (!is.null(binWidth)) {
-    numBins <- binWidthToNumBins(xVP, binWidth)
+    bins <- ggplot2::cut_width(xVP, binWidth)
   } else {
     numBins <- findNumBins(xVP)
+    bins <- cut(xVP, breaks=numBins)
   }
 
-  bins <- cut(xVP, breaks=numBins)
   bins <- pruneViewportAdjustmentFromBins(bins, xVP, x, viewport)
   bins <- as.character(bins)
 

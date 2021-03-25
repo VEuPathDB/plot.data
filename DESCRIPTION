@@ -1,6 +1,6 @@
 Package: plot.data
 Title: Create `data.table`s of Ready to Plot Data
-Version: 0.3.9
+Version: 0.3.10
 Authors@R: 
     person(given = "Danielle",
            family = "Callan",
@@ -9,6 +9,7 @@ Authors@R:
 Imports:
     data.table,
     epitools,
+    ggplot2,
     jsonlite,
     lubridate,
     magrittr,
