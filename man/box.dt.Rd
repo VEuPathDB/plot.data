@@ -4,7 +4,7 @@
 \alias{box.dt}
 \title{Box Plot as data.table}
 \usage{
-box.dt(data, map, points, mean)
+box.dt(data, map, points = c("outliers", "all", "none"), mean = c(FALSE, TRUE))
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}

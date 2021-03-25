@@ -52,6 +52,4 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('series.y', 'series.x', 'interval.x', 'interval.y', 'interval.se'))
-
-  #TODO test w two facets
 })

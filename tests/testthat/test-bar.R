@@ -25,6 +25,4 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('label', 'value'))
-
-  # TODO test w two facets
 })

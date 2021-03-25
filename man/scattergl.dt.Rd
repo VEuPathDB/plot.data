@@ -4,7 +4,7 @@
 \alias{scattergl.dt}
 \title{Scatter Plot as data.table}
 \usage{
-scattergl.dt(data, map, value)
+scattergl.dt(data, map, value = c("smoothedMean", "density", "raw"))
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}

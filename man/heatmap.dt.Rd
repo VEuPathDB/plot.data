@@ -4,7 +4,7 @@
 \alias{heatmap.dt}
 \title{Heatmap as data.table}
 \usage{
-heatmap.dt(data, map, value)
+heatmap.dt(data, map, value = c("series", "collection"))
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}

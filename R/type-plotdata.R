@@ -1,4 +1,3 @@
-# TODO consider alternate ways of representing the list args
 newPlotdata <- function(.dt = data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
@@ -41,7 +40,6 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1) }
   if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2) }
 
-  #TODO need to be able to optionally pass y and z axes
   panelData <- makePanels(.dt, facet1, facet2)
   .dt <- data.table::setDT(panelData[[1]])
   panel <- panelData[[2]]
@@ -102,11 +100,3 @@ validatePlotdata <- function(.pd) {
 
   return(.pd)
 }
-
-#TODO make a generic & methods for phyloseq, maybe ggplot obj ?
-# related, make helper as.plot.data that consumes these too
-# think as.plot.data needs to have an arg for plot type
-#  this to avoid loads of as.* helpers
-# may not need them for alpha div, richness data may be a data.frame
-#TODO also consider custom as.data.table that takes a plot.data
-#TODO do we need a helper as.plot.data for data.table ?

@@ -1,4 +1,3 @@
-#TODO helper functions for grabbing histo specific attrs
 newHistogramPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
@@ -54,25 +53,20 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     }
   }
   attr$viewport <- viewport
-
-  #TODO is there a better way to do this?
-  .pd <- subset(.pd, .pd[[x]] <= viewport$xMax & .pd[[x]] >= viewport$xMin)
+  xVP <- adjustToViewport(.pd[[x]], viewport)
 
   if (binReportValue == 'numBins') {
     binSlider <- list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
   } else {
-    binSliderMax <- as.numeric((max(.pd[[x]]) - min(.pd[[x]])) / 2)
-    binSliderMin <- as.numeric((max(.pd[[x]]) - min(.pd[[x]])) / 1000)
+    binSliderMax <- as.numeric((max(xVP) - min(xVP)) / 2)
+    binSliderMin <- as.numeric((max(xVP) - min(xVP)) / 1000)
     if (xType == 'NUMBER') {
-      avgDigits <- floor(mean(stringr::str_count(as.character(.pd[[x]]), "[[:digit:]]")))
+      avgDigits <- floor(mean(stringr::str_count(as.character(xVP), "[[:digit:]]")))
       binSliderMax <- round(binSliderMax, avgDigits)
       binSliderMin <- round(binSliderMin, avgDigits)
-      # TODO not sure this is the rule we meant ?
-      binSliderStep <- round((binSliderMax / 1000), avgDigits)
-      # TODO again not sure this is what we want
+      binSliderStep <- round(((binSliderMax - binSliderMin) / 1000), avgDigits)
       if (binSliderStep == 0) { binSliderStep <- binSliderMin }
     } else {
-      #TODO this assumes unit of days, step of 1 for date bin sliders
       binSliderMin <- floor(binSliderMin)
       binSliderMax <- ceiling(binSliderMax)
       binSliderStep <- 1
@@ -83,7 +77,6 @@ newHistogramPD <- function(.dt = data.table::data.table(),
 
   if (binReportValue == 'binWidth') {
     if (is.null(binWidth)) {
-      xVP <- adjustToViewport(.pd[[x]], viewport)
       binWidth <- findBinWidth(xVP)
     }
     attr$binWidth <- jsonlite::unbox(binWidth)
@@ -106,6 +99,11 @@ newHistogramPD <- function(.dt = data.table::data.table(),
 
   return(.pd)
 }
+
+binSlider <- function(.histo) { attr(.histo, 'binSlider') }
+viewport <- function(.histo) { attr(.histo, 'viewport') }
+binWidth <- function(.histo) { attr(.histo, 'binWidth') }
+numBins <- function(.histo) { attr(.histo, 'numBins') }
 
 validateBinSlider <- function(binSlider) {
   if (!is.list(binSlider)) {
@@ -193,9 +191,7 @@ histogram.dt <- function(data,
   }
 
   if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- list('variableId' = map$id[map$plotRef == 'xAxisVariable'],
-                          'entityId' = map$entityId[map$plotRef == 'xAxisVariable'],
-                          'dataType' = map$dataType[map$plotRef == 'xAxisVariable'])
+    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
     if (xAxisVariable$dataType == 'NUMBER' & !is.null(binWidth)) {
       binWidth <- suppressWarnings(as.numeric(binWidth))
       if (is.na(binWidth)) {
@@ -206,19 +202,13 @@ histogram.dt <- function(data,
     stop("Must provide xAxisVariable for plot type histogram.")
   }
   if ('overlayVariable' %in% map$plotRef) {
-    overlayVariable <- list('variableId' = map$id[map$plotRef == 'overlayVariable'],
-                            'entityId' = map$entityId[map$plotRef == 'overlayVariable'],
-                            'dataType' = map$dataType[map$plotRef == 'overlayVariable'])
+    overlayVariable <- plotRefMapToList(map, 'overlayVariable')
   }
   if ('facetVariable1' %in% map$plotRef) {
-    facetVariable1 <- list('variableId' = map$id[map$plotRef == 'facetVariable1'],
-                           'entityId' = map$entityId[map$plotRef == 'facetVariable1'],
-                           'dataType' = map$dataType[map$plotRef == 'facetVariable1'])
+    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   }
   if ('facetVariable2' %in% map$plotRef) {
-    facetVariable2 <- list('variableId' = map$id[map$plotRef == 'facetVariable2'],
-                           'entityId' = map$entityId[map$plotRef == 'facetVariable2'],
-                           'dataType' = map$dataType[map$plotRef == 'facetVariable2'])
+    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   }
 
   .histo <- newHistogramPD(.dt = data,

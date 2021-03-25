@@ -22,27 +22,22 @@ test_that("groupSummary() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),16)
   expect_equal(names(dt), c('group', 'panel', 'min', 'q1', 'median', 'q3', 'max'))
 
-  #TODO fix this so that the test doesnt also rely on bin
-  viewport <- list('xMin'=min(data.xy$x), 'xMax'=max(data.xy$x))
-  testData <- data.xy
-  testData$x <- bin(data.xy$x, .1, viewport)
-
-  dt <- groupSummary(testData, 'x', 'y')
+  dt <- groupSummary(data.catXcontY, 'x', 'y')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt), c('x', 'min', 'q1', 'median', 'q3', 'max'))
 
-  dt <- groupSummary(testData, 'x', 'y', 'group')
+  dt <- groupSummary(data.catXcontY, 'x', 'y', 'group')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt), c('group', 'x', 'min', 'q1', 'median', 'q3', 'max'))
 
-  dt <- groupSummary(testData, 'x', 'y', NULL, 'panel')
+  dt <- groupSummary(data.catXcontY, 'x', 'y', NULL, 'panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt), c('panel', 'x', 'min', 'q1', 'median', 'q3', 'max'))
 
-  dt <- groupSummary(testData, 'x', 'y', 'group', 'panel')
+  dt <- groupSummary(data.catXcontY, 'x', 'y', 'group', 'panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
   expect_equal(names(dt), c('group', 'panel', 'x', 'min', 'q1', 'median', 'q3', 'max'))
@@ -123,5 +118,3 @@ test_that("groupDensity() returns consistent results", {
   dt <- groupDensity(data.xy, 'y', 'group', 'panel')
   expect_equal_to_reference(dt,"density.group.panel.rds")
 })
-
-#TODO test to make sure fences are within bounds of real data

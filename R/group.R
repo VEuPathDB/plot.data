@@ -1,6 +1,3 @@
-# TODO profile and optimize
-# consider changing x and y to independent and dependent
-
 groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
@@ -70,8 +67,6 @@ groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL) {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, length))
   }
   names(dt) <- c(x, group, panel, 'size')
-  #TODO figure how to handle group fxns consuming other group fxns
-  #bar needs noStatsFacet here, groupSmoothedMean doesnt
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
   
@@ -160,8 +155,8 @@ noStatsFacet <- function(data, group = NULL, panel = NULL) {
   return(dt)
 }
 
-#TODO consider removing group here, if this is only for heatmap
-#TODO think we want table col reformatted to be two cols, 'label' and 'value'. the second will be a list.
+# consider removing group here, if this is only for heatmap
+# think we want table col reformatted to be two cols, 'label' and 'value'. the second will be a list.
 # can we use noStatsFacet for the second task ??
 
 groupSplit <- function(data, x, y, z, group, panel, longToWide = FALSE) {
@@ -177,7 +172,6 @@ groupSplit <- function(data, x, y, z, group, panel, longToWide = FALSE) {
     if (longToWide) {
       data <- data.table::dcast(data, as.formula(aggStr), value.var="z")
     }
-    # TODO consider if we can make a helper for dt.list
     colsList <- getInteractionColsList(data, group, panel)
     dt.list <- split(data, colsList)
     names <- names(dt.list)

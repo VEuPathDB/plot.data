@@ -56,10 +56,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('binLabel', 'binStart', 'binEnd', 'value'))
 
-  #TODO test w two facets
-  #TODO test binReportValue of numBins, null viewport
-
-  #this for dates, TODO consider splitting into its own test
+  #this for dates, split into its own test?
   map <- data.frame('id' = c('group', 'date', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'DATE', 'STRING'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.dates)
   viewport <- list('xMin'=min(df$date), 'xMax'=max(df$date))

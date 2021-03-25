@@ -36,12 +36,10 @@ newScatterPD <- function(.dt = data.table::data.table(),
   series <- noStatsFacet(.pd, group, panel)
   names(series) <- c(group, panel, 'series.y', 'series.x')
 
-  # TODO determine if we always want series, or if it depends on whats selected
   if (value == 'smoothedMean') {
     interval <- groupSmoothedMean(.pd, x, y, group, panel)
     interval <- interval[, !c('ymin', 'ymax')]
     names(interval) <- c('interval.x', 'interval.y', 'interval.se', group, panel)
-    #TODO helper for this. has to take any num of args..
     if (!is.null(key(series))) {
       .pd <- merge(series, interval)
     } else {
@@ -78,8 +76,6 @@ validateScatterPD <- function(.scatter) {
   return(.scatter)
 }
 
-#TODO maybe should match.arg here also, since its exported
-
 #' Scatter Plot as data.table
 #'
 #' This function returns a data.table of  
@@ -96,7 +92,11 @@ validateScatterPD <- function(.scatter) {
 #' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates
 #' @return data.table plot-ready data
 #' @export
-scattergl.dt <- function(data, map, value) {
+scattergl.dt <- function(data, 
+                         map, 
+                         value = c('smoothedMean', 'density', 'raw')) {
+  value <- match.arg(value)
+
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
                          'dataType' = NULL)
@@ -112,33 +112,23 @@ scattergl.dt <- function(data, map, value) {
   }
 
   if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- list('variableId' = map$id[map$plotRef == 'xAxisVariable'],
-                          'entityId' = map$entityId[map$plotRef == 'xAxisVariable'],
-                          'dataType' = map$dataType[map$plotRef == 'xAxisVariable'])
+    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   } else {
     stop("Must provide xAxisVariable for plot type scatter.")
   }
   if ('yAxisVariable' %in% map$plotRef) {
-    yAxisVariable <- list('variableId' = map$id[map$plotRef == 'yAxisVariable'],
-                          'entityId' = map$entityId[map$plotRef == 'yAxisVariable'],
-                          'dataType' = map$dataType[map$plotRef == 'yAxisVariable'])
+    yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
   } else {
     stop("Must provide yAxisVariable for plot type scatter.")
   }
   if ('overlayVariable' %in% map$plotRef) {
-    overlayVariable <- list('variableId' = map$id[map$plotRef == 'overlayVariable'],
-                            'entityId' = map$entityId[map$plotRef == 'overlayVariable'],
-                            'dataType' = map$dataType[map$plotRef == 'overlayVariable'])
+    overlayVariable <- plotRefMapToList(map, 'overlayVariable')
   }
   if ('facetVariable1' %in% map$plotRef) {
-    facetVariable1 <- list('variableId' = map$id[map$plotRef == 'facetVariable1'],
-                           'entityId' = map$entityId[map$plotRef == 'facetVariable1'],
-                           'dataType' = map$dataType[map$plotRef == 'facetVariable1'])
+    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   }
   if ('facetVariable2' %in% map$plotRef) {
-    facetVariable2 <- list('variableId' = map$id[map$plotRef == 'facetVariable2'],
-                           'entityId' = map$entityId[map$plotRef == 'facetVariable2'],
-                           'dataType' = map$dataType[map$plotRef == 'facetVariable2'])
+    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   }
 
   .scatter <- newScatterPD(.dt = data,

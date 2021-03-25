@@ -1,4 +1,3 @@
-#TODO helper functions for grabbing histo specific attrs
 newBarPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
@@ -44,8 +43,6 @@ newBarPD <- function(.dt = data.table::data.table(),
   return(.pd)
 }
 
-#TODO add dataShape validation as well
-#bc we dont care about type here, but categorical shape
 validateBarPD <- function(.bar) {
   xAxisVariable <- attr(.bar, 'xAxisVariable')
   if (!xAxisVariable$dataType %in% c('STRING')) {
@@ -69,7 +66,9 @@ validateBarPD <- function(.bar) {
 #' @param value String indicating how to calculate y-values ('identity', 'count')
 #' @return data.table plot-ready data
 #' @export
-bar.dt <- function(data, map, value) {
+bar.dt <- function(data, map, value = c('count', 'identity')) {
+  value <- match.arg(value)
+
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
                          'dataType' = NULL)
@@ -85,26 +84,18 @@ bar.dt <- function(data, map, value) {
   }
 
   if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- list('variableId' = map$id[map$plotRef == 'xAxisVariable'],
-                          'entityId' = map$entityId[map$plotRef == 'xAxisVariable'],
-                          'dataType' = map$dataType[map$plotRef == 'xAxisVariable'])
+    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   } else {
     stop("Must provide xAxisVariable for plot type bar.")
   }
   if ('overlayVariable' %in% map$plotRef) {
-    overlayVariable <- list('variableId' = map$id[map$plotRef == 'overlayVariable'],
-                            'entityId' = map$entityId[map$plotRef == 'overlayVariable'],
-                            'dataType' = map$dataType[map$plotRef == 'overlayVariable'])
+    overlayVariable <- plotRefMapToList(map, 'overlayVariable')
   }
   if ('facetVariable1' %in% map$plotRef) {
-    facetVariable1 <- list('variableId' = map$id[map$plotRef == 'facetVariable1'],
-                           'entityId' = map$entityId[map$plotRef == 'facetVariable1'],
-                           'dataType' = map$dataType[map$plotRef == 'facetVariable1'])
+    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   }
   if ('facetVariable2' %in% map$plotRef) {
-    facetVariable2 <- list('variableId' = map$id[map$plotRef == 'facetVariable2'],
-                           'entityId' = map$entityId[map$plotRef == 'facetVariable2'],
-                           'dataType' = map$dataType[map$plotRef == 'facetVariable2'])
+    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   }
 
   .bar <- newBarPD(.dt = data,

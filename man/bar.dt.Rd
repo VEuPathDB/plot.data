@@ -4,7 +4,7 @@
 \alias{bar.dt}
 \title{Bar Plot as data.table}
 \usage{
-bar.dt(data, map, value)
+bar.dt(data, map, value = c("count", "identity"))
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}

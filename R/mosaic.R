@@ -1,4 +1,3 @@
-#TODO consider explicitly using yaxis rather than y, and disallowing y
 newMosaicPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
@@ -82,28 +81,20 @@ mosaic.dt <- function(data, map) {
   }
 
   if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- list('variableId' = map$id[map$plotRef == 'xAxisVariable'],
-                          'entityId' = map$entityId[map$plotRef == 'xAxisVariable'],
-                          'dataType' = map$dataType[map$plotRef == 'xAxisVariable'])
+    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   } else {
     stop("Must provide xAxisVariable for plot type mosaic.")
   }
   if ('yAxisVariable' %in% map$plotRef) {
-    yAxisVariable <- list('variableId' = map$id[map$plotRef == 'yAxisVariable'],
-                            'entityId' = map$entityId[map$plotRef == 'yAxisVariable'],
-                            'dataType' = map$dataType[map$plotRef == 'yAxisVariable'])
+    yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
   } else {
     stop("Must provide yAxisVariable for plot type mosaic.")
   }
   if ('facetVariable1' %in% map$plotRef) {
-    facetVariable1 <- list('variableId' = map$id[map$plotRef == 'facetVariable1'],
-                           'entityId' = map$entityId[map$plotRef == 'facetVariable1'],
-                           'dataType' = map$dataType[map$plotRef == 'facetVariable1'])
+    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   }
   if ('facetVariable2' %in% map$plotRef) {
-    facetVariable2 <- list('variableId' = map$id[map$plotRef == 'facetVariable2'],
-                           'entityId' = map$entityId[map$plotRef == 'facetVariable2'],
-                           'dataType' = map$dataType[map$plotRef == 'facetVariable2'])
+    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   }
 
   .mosaic <- newMosaicPD(.dt = data,

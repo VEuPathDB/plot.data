@@ -52,7 +52,6 @@ newBoxPD <- function(.dt = data.table::data.table(),
       .pd.base <- cbind(.pd.base, points)
     }
   } else if (points == 'all') {
-    #TODO make sure series.x and x have same format, both are unique lists of xaxis entries
     rawData <- noStatsFacet(.pd, group, panel)
     names(rawData)[names(rawData) == y] <- 'series.y'
     names(rawData)[names(rawData) == x] <- 'series.x'
@@ -107,7 +106,12 @@ validateBoxPD <- function(.box) {
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @return data.table plot-ready data
 #' @export
-box.dt <- function(data, map, points, mean) {
+box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
+  points <- match.arg(points)
+  if (!mean %in% c(FALSE, TRUE)) { 
+    stop('invalid input to argument `mean`.') 
+  }
+
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
                          'dataType' = NULL)
@@ -122,35 +126,24 @@ box.dt <- function(data, map, points, mean) {
     data <- data.table::as.data.table(data)
   }
 
-  #TODO make helper for the map -> list conversion
   if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- list('variableId' = map$id[map$plotRef == 'xAxisVariable'],
-                          'entityId' = map$entityId[map$plotRef == 'xAxisVariable'],
-                          'dataType' = map$dataType[map$plotRef == 'xAxisVariable'])
+    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   } else {
     stop("Must provide xAxisVariable for plot type box.")
   }
   if ('yAxisVariable' %in% map$plotRef) {
-    yAxisVariable <- list('variableId' = map$id[map$plotRef == 'yAxisVariable'],
-                          'entityId' = map$entityId[map$plotRef == 'yAxisVariable'],
-                          'dataType' = map$dataType[map$plotRef == 'yAxisVariable'])
+    yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
   } else {
     stop("Must provide yAxisVariable for plot type box.")
   }
   if ('overlayVariable' %in% map$plotRef) {
-    overlayVariable <- list('variableId' = map$id[map$plotRef == 'overlayVariable'],
-                            'entityId' = map$entityId[map$plotRef == 'overlayVariable'],
-                            'dataType' = map$dataType[map$plotRef == 'overlayVariable'])
+    overlayVariable <- plotRefMapToList(map, 'overlayVariable')
   }
   if ('facetVariable1' %in% map$plotRef) {
-    facetVariable1 <- list('variableId' = map$id[map$plotRef == 'facetVariable1'],
-                           'entityId' = map$entityId[map$plotRef == 'facetVariable1'],
-                           'dataType' = map$dataType[map$plotRef == 'facetVariable1'])
+    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   }
   if ('facetVariable2' %in% map$plotRef) {
-    facetVariable2 <- list('variableId' = map$id[map$plotRef == 'facetVariable2'],
-                           'entityId' = map$entityId[map$plotRef == 'facetVariable2'],
-                           'dataType' = map$dataType[map$plotRef == 'facetVariable2'])
+    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   }
 
   .box <- newBoxPD(.dt = data,
@@ -184,7 +177,9 @@ box.dt <- function(data, map, points, mean) {
 #' @export
 box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
   points <- match.arg(points)
-  mean <- match.arg(mean)
+  if (!mean %in% c(FALSE, TRUE)) { 
+    stop('invalid input to argument `mean`.') 
+  }
   .box <- box.dt(data, map, points, mean)
   outFileName <- writeJSON(.box, 'boxplot')
 
