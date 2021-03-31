@@ -40,20 +40,28 @@ newScatterPD <- function(.dt = data.table::data.table(),
     interval <- groupSmoothedMean(.pd, x, y, group, panel)
     interval <- interval[, !c('ymin', 'ymax')]
     names(interval) <- c('interval.x', 'interval.y', 'interval.se', group, panel)
+    
+    .pd <- interval
+
+  } else if (value == 'smoothedMeanWithRaw') {
+    
+    interval <- groupSmoothedMean(.pd, x, y, group, panel)
+    interval <- interval[, !c('ymin', 'ymax')]
+    names(interval) <- c('interval.x', 'interval.y', 'interval.se', group, panel)
+    
     if (!is.null(key(series))) {
       .pd <- merge(series, interval)
     } else {
       .pd <- cbind(series, interval)
     }
+    
   } else if (value == 'density') {
     density <- groupDensity(.pd, x, group, panel)
     names(density) <- c(group, panel, 'density.x', 'density.y')
-    if (!is.null(key(series))) {
-      .pd <- merge(series, density)
-    } else {
-      .pd <- cbind(series, density)
-    }
+    .pd <- density
+    
   } else {
+    # Return raw data
     .pd <- series
   }
   attr$names <- names(.pd)
@@ -94,7 +102,7 @@ validateScatterPD <- function(.scatter) {
 #' @export
 scattergl.dt <- function(data, 
                          map, 
-                         value = c('smoothedMean', 'density', 'raw')) {
+                         value = c('smoothedMean', 'smoothedMeanWithRaw', 'density', 'raw')) {
   value <- match.arg(value)
 
   overlayVariable = list('variableId' = NULL,
@@ -160,7 +168,7 @@ scattergl.dt <- function(data,
 #' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates
 #' @return character name of json file containing plot-ready data
 #' @export
-scattergl <- function(data, map, value = c('smoothedMean', 'density', 'raw')) {
+scattergl <- function(data, map, value = c('smoothedMean', 'smoothedMeanWithRaw', 'density', 'raw')) {
   value <- match.arg(value)
   .scatter <- scattergl.dt(data, map, value)
   outFileName <- writeJSON(.scatter, 'scattergl')
