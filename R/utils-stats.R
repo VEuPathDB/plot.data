@@ -123,7 +123,7 @@ epitabToDT <- function(m, method) {
   dt$lower <- NULL
   dt$upper <- NULL
   dt$y.label <- list(names(dt)[c(1,3)])
-  names(dt) <- c('cond1', 'proportion1', 'cond2', 'proportion2', method, 'p.value', 'x', 'interval', 'y.label')
+  data.table::setnames(dt, c('cond1', 'proportion1', 'cond2', 'proportion2', method, 'p.value', 'x', 'interval', 'y.label'))
   dt[, y := lapply(transpose(.(cond1, cond2)), as.vector)]
   dt <- dt[, -c(1:4)]
 
@@ -163,9 +163,9 @@ bothRatios <- function(data) {
   mergeByCols <- c('p.value', 'y.label', 'x.label', 'y')
 
   or <- oddsRatio(data)
-  names(or) <- c('oddsratio', 'p.value', 'x.label', 'or.interval', 'y.label', 'y')
+  data.table::setnames(or, c('oddsratio', 'p.value', 'x.label', 'or.interval', 'y.label', 'y'))
   rr <- relativeRisk(data)
-  names(rr) <- c('relativerisk', 'p.value', 'x.label', 'rr.interval', 'y.label', 'y')
+  data.table::setnames(rr, c('relativerisk', 'p.value', 'x.label', 'rr.interval', 'y.label', 'y'))
   if (!identical(or$y.label, rr$y.label) |
       !identical(or$x, rr$x) |
       !identical(or$p.value, rr$p.value) |

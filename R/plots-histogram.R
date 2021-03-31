@@ -95,6 +95,9 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   }
   attr$names <- names(.pd)
 
+  
+  ### This change causes 2 new histogram errors!
+  # attributes(.pd) <- attr
   setAttrFromList(.pd, attr)
 
   return(.pd)
