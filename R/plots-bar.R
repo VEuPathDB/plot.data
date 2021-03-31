@@ -38,7 +38,7 @@ newBarPD <- function(.dt = data.table::data.table(),
   }
   attr$names <- names(.pd)
   
-  attributes(.pd) <- attr
+  setAttrFromList(.pd, attr)
 
   return(.pd)
 }

@@ -232,3 +232,18 @@ findBinEnd <- function(x) {
 
   return(x)
 }
+
+# Set attributes from a list
+setAttrFromList <- function(.dt, attr) {
+  
+  if (!"data.table" %in% class(.dt)) {
+    stop(".dt must be of class data.table")
+  }
+  
+  # For each item in the attr list, add to .dt attributes
+  for (ind in seq_along(attr)) {
+    data.table::setattr(.dt,names(attr)[ind], attr[[ind]])
+  }
+  
+  return(.dt)
+}
