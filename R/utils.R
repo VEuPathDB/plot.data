@@ -240,6 +240,16 @@ setAttrFromList <- function(.dt, attr) {
     stop(".dt must be of class data.table")
   }
   
+  # Remove any .dt attribute not in attr
+  attrNames <- names(attributes(.dt))
+  attrToRemove <- attrNames[!(attrNames %in% names(attr))]
+  if (length(attrToRemove) > 0) {
+    print(attrToRemove)
+    for (ind in seq_along(attrToRemove)) {
+      data.table::setattr(.dt, attrToRemove[ind], NULL)
+    }
+  }
+  
   # For each item in the attr list, add to .dt attributes
   for (ind in seq_along(attr)) {
     data.table::setattr(.dt,names(attr)[ind], attr[[ind]])
