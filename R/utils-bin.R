@@ -34,7 +34,6 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
 #' @importFrom stringi stri_c
 #' @importFrom lubridate days
 #' @importFrom lubridate weeks
-#' @importFrom lubridate months
 #' @importFrom lubridate years
 bin.Date <- function(x, binWidth = NULL, viewport) {
   xVP <- adjustToViewport(x, viewport)
@@ -55,7 +54,7 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
     } else if (unit %in% c('week', 'weeks')) {
       binEnd <- as.Date(binStart + lubridate::weeks(numericBinWidth)-1)
     } else if (unit %in% c('month', 'months')) {
-      binEnd <- as.Date(binStart + lubridate::months(numericBinWidth)-1)
+      binEnd <- as.Date(binStart + months(numericBinWidth)-1)
     } else if (unit %in% c('year', 'years')) {
       binEnd <- as.Date(binStart + lubridate::years(numericBinWidth)-1)
     } else {
