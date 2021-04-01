@@ -32,6 +32,10 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
 
 #use stri_c where we paste dates bc it can be a bit faster w large vectors
 #' @importFrom stringi stri_c
+#' @importFrom lubridate days
+#' @importFrom lubridate weeks
+#' @importFrom lubridate months
+#' @importFrom lubridate years
 bin.Date <- function(x, binWidth = NULL, viewport) {
   xVP <- adjustToViewport(x, viewport)
 
@@ -39,9 +43,30 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
     binWidth = findBinWidth(xVP)
   }
 
-  bins <- as.Date(cut(xVP, breaks=binWidth))
-  bins <- pruneViewportAdjustmentFromBins(bins, xVP, x, viewport)
-  bins <- stringi::stri_c(bins, " - ", lubridate::ceiling_date(bins, binWidth) -1)
+  binStart <- as.Date(cut(xVP, breaks=binWidth))
+  binStart <- pruneViewportAdjustmentFromBins(binStart, xVP, x, viewport)
+
+  if (grepl("^[[:digit:]].", binWidth) & gsub("[^0-9.-]", "", binWidth) != '1') {
+    #works bc we assume a single space between the binWidth and unit
+    unit <- gsub("^[[:digit:]].", "", binWidth)
+    numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth)) -1
+    if (unit %in% c('day','days')) {
+      binEnd <- as.Date(bins + lubridate::days(numericBinWidth)-1)
+    } else if (unit %in% c('week', 'weeks')) {
+      binEnd <- as.Date(binStart + lubridate::weeks(numericBinWidth)-1)
+    } else if (unit %in% c('month', 'months')) {
+      binEnd <- as.Date(binStart + lubridate::months(numericBinWidth)-1)
+    } else if (unit %in% c('year', 'years')) {
+      binEnd <- as.Date(binStart + lubridate::years(numericBinWidth)-1)
+    } else {
+      stop("Unrecognized units for binning date histogram.")
+    }   
+
+  } else {
+    binEnd <- lubridate::ceiling_date(binStart, binWidth) -1
+  }
+
+  bins <- stringi::stri_c(binStart, " - ", binEnd)
 
   return(bins)
 }

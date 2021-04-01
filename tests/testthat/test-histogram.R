@@ -127,7 +127,7 @@ test_that("histogram() returns consistent and appropriately formatted json", {
   expect_equal(names(jsonList),c('data','config'))
   expect_equal(names(jsonList$data),c('overlayVariableDetails','panel','binLabel','binStart','binEnd','value'))
   expect_equal(names(jsonList$data$overlayVariableDetails),c('variableId','entityId','value'))
-  expect_equal(names(jsonList$config),c('incompleteCases','summary','viewport','binSlider','binWidth','xVariableDetails'))  
+  expect_equal(names(jsonList$config),c('incompleteCases','summary','viewport','binWidth','binSlider','xVariableDetails'))  
   expect_equal(names(jsonList$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$config$binSlider),c('min','max','step'))
