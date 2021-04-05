@@ -81,7 +81,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       if (is.null(binWidth)) {
         binWidth <- findBinWidth(xVP)
       }
-      unit <- gsub("^[[:digit:]].", "", binWidth)
+      unit <- trim(gsub("^[[:digit:]].", "", binWidth))
       if (unit %in% c('day', 'days')) {
         binSliderMin <- floor(binSliderMin)
         binSliderMax <- ceiling(binSliderMax)
