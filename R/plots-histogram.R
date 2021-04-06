@@ -76,7 +76,8 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       binSliderMax <- round(binSliderMax, avgDigits)
       binSliderMin <- round(binSliderMin, avgDigits)
       binSliderStep <- round(((binSliderMax - binSliderMin) / 1000), avgDigits)
-      if (binSliderStep == 0) { binSliderStep <- binSliderMin }
+      binSliderMin <- ifelse(binSliderMin == 0, .1, binSliderMin)
+      binSliderStep <- ifelse(binSliderStep == 0, binSliderMin, binSliderStep)
     } else {
       if (is.null(binWidth)) {
         binWidth <- findBinWidth(xVP)
