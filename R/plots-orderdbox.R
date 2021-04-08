@@ -20,12 +20,13 @@ newOrderedBoxPD <- function(.dt = data.table::data.table(),
   
   # Note the initial order of the list determines the ordering of the boxes.
   
-  
-  longdt <- melt(.dt,
+  # Reshape to a long data table
+  .longdt <- data.table::melt(.dt,
                  id.vars = c(overlayVariable$variableId, facetVariable1$variableId, facetVariable2$variableId),
                  measure.vars = xAxisVars$variableId)
   
   # Now "value" will be y and "variable" will be x.
+  #### UPDATE - entityId should be the shared entity o f xAxisVars
   xAxisVariable <- list('variableId' = 'variable',
                         'entityId' = NULL,
                         'dataType' = 'STRING')
@@ -35,31 +36,33 @@ newOrderedBoxPD <- function(.dt = data.table::data.table(),
 
   
   
-  .box <- newBoxPD(.dt = longdt,
+  .box <- newBoxPD(.dt = .longdt,
                     xAxisVariable = xAxisVariable,
                     yAxisVariable = yAxisVariable,
                     overlayVariable = overlayVariable,
                     facetVariable1 = facetVariable1,
                     facetVariable2 = facetVariable2,
-                    points='none',
-                    mean=FALSE)
+                    points=points,
+                    mean=mean)
   
   
   ## Order mybox appropriately
   attr <- attributes(.box)
   varOrder <- xAxisVars$variableId
-  currentVarOrder <- .orderedBox[1, variable][[1]]
+  currentVarOrder <- .box[1, variable][[1]]
   
   # Do these match? If not, reorder .box
   if (!identical(varOrder, currentVarOrder)) {
-    index <- match(orderedVars, currentVarOrder)
+    index <- match(varOrder, currentVarOrder)
   
     # .box <- setBoxOrder(.box = .box, varOrder = varOrder)
     cols <- c('variable','min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence')
-    for (j in cols) {
-      print(j)
-      set(.box, j = j, value = lapply(.box[[j]],function(vals) {vals[index]}))
+    if (mean) {
+      cols <- append(cols, 'mean')
     }
+    #### UPDATE - the outliers will be wrong. Needs rework
+    #### UPDATE - write function into something else more helpful
+    .box[ , (cols) := lapply(.SD, function(vals, index) {vals[[1]][index]}, index), .SDcols = cols]
     
   }
   
@@ -76,16 +79,11 @@ newOrderedBoxPD <- function(.dt = data.table::data.table(),
 validateOrderedBoxPD <- function(.orderedBox) {
   
   
-  xAxisVariable <- attr(.box, 'xAxisVariable')
-  if (!xAxisVariable$dataType %in% c('STRING')) {
-    stop('The independent axis must be of type string for boxplot.')
-  }
-  yAxisVariable <- attr(.box, 'yAxisVariable')
-  if (!yAxisVariable$dataType %in% c('NUMBER')) {
-    stop('The dependent axis must be of type number for boxplot.')
-  }
+  #### UPDATE - add validateBox
   
-  return(.box)
+  #### UPDATE - add order 
+  
+  return(.orderedBox)
 }
 
 
@@ -115,13 +113,14 @@ orderedBox.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean
   #### UPDATE - could be better at getting xAxisList to xAxisVars
   #### QUESTION - will there be other cases where we need a list of vars? Could write a function...
   if ('xAxisList' %in% map$plotRef) {
-    xAxisVars <- list('variableId' = unlist(str_split(map$id[map$plotRef == plotRef], ", ")),
-                      'entityId' = unlist(str_split(map$entityId[map$plotRef == plotRef], ", ")),
-                      'dataType' = unlist(str_split(map$dataType[map$plotRef == plotRef], ", ")))
+    xAxisVars <- list('variableId' = unlist(stringr::str_split(map$id[map$plotRef == 'xAxisList'], ", ")),
+                      'entityId' = unlist(stringr::str_split(map$entityId[map$plotRef == 'xAxisList'], ", ")),
+                      'dataType' = unlist(stringr::str_split(map$dataType[map$plotRef == 'xAxisList'], ", ")))
     if (any(xAxisVars$dataType != "NUMBER")) {
       stop("All variables in xAxisList must be of type NUMBER")
     }
     #### UPDATE add check for lengths of variableId, etc.
+    #### UPDATE add check for all entityIds the same
   } else {
     stop("Must provide xAxisList for plot type box.")
   }
@@ -135,7 +134,7 @@ orderedBox.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean
     facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   }
   
-  .orderedBox <- newOrderedBoxPD(.dt = .dt,
+  .orderedBox <- newOrderedBoxPD(.dt = data,
                              xAxisVars = xAxisVars,
                              overlayVariable = overlayVariable,
                              facetVariable1 = facetVariable1,
@@ -160,7 +159,7 @@ orderedBox <- function(data, map, points = c('outliers', 'all', 'none'), mean = 
   }
   .orderedBox <- orderedBox.dt(data, map, points, mean)
   
-  #### QUESTION Are we going to expect the same boxplot plot component to render this? I think yes...
+  #### QUESTION Are we going to expect the same boxplot plot component to render this? 
   outFileName <- writeJSON(.orderedBox, 'orderedboxplot')
   
   return(outFileName)
