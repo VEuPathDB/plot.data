@@ -222,6 +222,11 @@ findBinStart <- function(x) {
     x <- gsub("\\(|\\[", "", strSplit(as.character(x), ","))
   }
 
+  #try to infer type. may need more robust solution  
+  if (!any(is.na(as.numeric(x)))) {
+    x <- as.numeric(x)
+  }
+
   return(x)
 }
 
