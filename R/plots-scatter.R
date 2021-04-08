@@ -97,7 +97,7 @@ validateScatterPD <- function(.scatter) {
 #'  density estimates.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean estimates.
+#' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean
 #' @return data.table plot-ready data
 #' @export
 scattergl.dt <- function(data, 
@@ -165,7 +165,7 @@ scattergl.dt <- function(data,
 #'  density estimates.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates
+#' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean
 #' @return character name of json file containing plot-ready data
 #' @export
 scattergl <- function(data, map, value = c('smoothedMean', 'smoothedMeanWithRaw', 'density', 'raw')) {
