@@ -1,3 +1,4 @@
+#### QUESTION Should this be a type- file instead?
 newOrderedBoxPD <- function(.dt = data.table::data.table(),
                           xAxisVars = list('variableId' = list(),
                                            'entityId' = list(),
@@ -16,10 +17,6 @@ newOrderedBoxPD <- function(.dt = data.table::data.table(),
                           ...,
                           class = character()) {
   
-  
-  # All xAxisVar dataTypes must be numeric
-  
-  # All xAxisVar entityIDs must be the same
   
   # Note the initial order of the list determines the ordering of the boxes.
   
@@ -76,7 +73,30 @@ newOrderedBoxPD <- function(.dt = data.table::data.table(),
 }
 
 
+validateOrderedBoxPD <- function(.orderedBox) {
+  
+  
+  xAxisVariable <- attr(.box, 'xAxisVariable')
+  if (!xAxisVariable$dataType %in% c('STRING')) {
+    stop('The independent axis must be of type string for boxplot.')
+  }
+  yAxisVariable <- attr(.box, 'yAxisVariable')
+  if (!yAxisVariable$dataType %in% c('NUMBER')) {
+    stop('The dependent axis must be of type number for boxplot.')
+  }
+  
+  return(.box)
+}
+
+
+
+#### UPDATE - add docs
 orderedBox.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
+  
+  points <- match.arg(points)
+  if (!mean %in% c(FALSE, TRUE)) { 
+    stop('invalid input to argument `mean`.') 
+  }
   
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -88,13 +108,33 @@ orderedBox.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean
                         'entityId' = NULL,
                         'dataType' = NULL)
   
-  # Massage input
-  plotRef = 'xAxisList'
-  xAxisVars <- list('variableId' = unlist(str_split(map$id[map$plotRef == plotRef], ", ")),
-                    'entityId' = unlist(str_split(map$entityId[map$plotRef == plotRef], ", ")),
-                    'dataType' = unlist(str_split(map$dataType[map$plotRef == plotRef], ", ")))
   
-  # Call combobox constructor
+  if (!'data.table' %in% class(data)) {
+    data <- data.table::as.data.table(data)
+  }
+  #### UPDATE - could be better at getting xAxisList to xAxisVars
+  #### QUESTION - will there be other cases where we need a list of vars? Could write a function...
+  if ('xAxisList' %in% map$plotRef) {
+    xAxisVars <- list('variableId' = unlist(str_split(map$id[map$plotRef == plotRef], ", ")),
+                      'entityId' = unlist(str_split(map$entityId[map$plotRef == plotRef], ", ")),
+                      'dataType' = unlist(str_split(map$dataType[map$plotRef == plotRef], ", ")))
+    if (any(xAxisVars$dataType != "NUMBER")) {
+      stop("All variables in xAxisList must be of type NUMBER")
+    }
+    #### UPDATE add check for lengths of variableId, etc.
+  } else {
+    stop("Must provide xAxisList for plot type box.")
+  }
+  if ('overlayVariable' %in% map$plotRef) {
+    overlayVariable <- plotRefMapToList(map, 'overlayVariable')
+  }
+  if ('facetVariable1' %in% map$plotRef) {
+    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
+  }
+  if ('facetVariable2' %in% map$plotRef) {
+    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
+  }
+  
   .orderedBox <- newOrderedBoxPD(.dt = .dt,
                              xAxisVars = xAxisVars,
                              overlayVariable = overlayVariable,
@@ -103,21 +143,26 @@ orderedBox.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean
                              points,
                              mean)
   
-  # .orderedBox <- validateOrderedBoxPD(.orderedBox)
+  .orderedBox <- validateOrderedBoxPD(.orderedBox)
   
   return(.orderedBox)
-  
-  
+
 }
 
+
+
+
+#### UPDATE - add docs
 orderedBox <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
-points <- match.arg(points)
-if (!mean %in% c(FALSE, TRUE)) { 
-  stop('invalid input to argument `mean`.') 
+  points <- match.arg(points)
+  if (!mean %in% c(FALSE, TRUE)) { 
+    stop('invalid input to argument `mean`.') 
+  }
+  .orderedBox <- orderedBox.dt(data, map, points, mean)
+  
+  #### QUESTION Are we going to expect the same boxplot plot component to render this? I think yes...
+  outFileName <- writeJSON(.orderedBox, 'orderedboxplot')
+  
+  return(outFileName)
+
 }
-.orderedBox <- orderedBox.dt(data, map, points, mean)
-
-#### Are we going to expect the same boxplot plot component to render this? I think yes...
-outFileName <- writeJSON(.orderedBox, 'boxplot')
-
-return(outFileName))
