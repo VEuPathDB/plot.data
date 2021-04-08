@@ -102,9 +102,13 @@ findPanelColName <- function(facet1 = NULL, facet2 = NULL) {
 #' @export
 makePanels <- function(data, facet1 = NULL, facet2 = NULL) {
   if (!is.null(facet1) & !is.null(facet2)) {
-    data$panel <- interaction(data[[facet1]], data[[facet2]])
-    data[[facet1]] <- NULL
-    data[[facet2]] <- NULL
+    data$panel <- as.character(interaction(data[[facet1]], data[[facet2]], sep='.||.'))
+    if (facet1 != 'panel') {
+      data[[facet1]] <- NULL
+    }
+    if (facet2 != 'panel') {
+      data[[facet2]] <- NULL
+    }
     panel <- 'panel'
   } else if (!is.null(facet1)) {
     panel <- facet1

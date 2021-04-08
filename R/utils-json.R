@@ -17,18 +17,22 @@ addStrataVariableDetails <- function(.pd) {
   if ('facetVariable1' %in% names(namedAttrList)) { facet1 <- namedAttrList$facetVariable1$variableId }
   if ('facetVariable2' %in% names(namedAttrList)) { facet2 <- namedAttrList$facetVariable2$variableId }
 
-  if (!is.null(facet1) & !is.null(facet2)) {
-    names(.pd)[names(.pd) == 'panel'] <- 'facetVariableDetails'
-    .pd$facetVariableDetails <- lapply(.pd$facetVariableDetails, makeVariableDetails, list(facet1,facet2), map$entityId[map$id %in% c(facet1, facet2)])
-  } else if (!is.null(group)) {
+  if (!is.null(group)) {
     names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
     .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, group, namedAttrList$overlayVariable$entityId)
-  } else if (!is.null(facet1)) {
-    names(.pd)[names(.pd) == facet1] <- 'facetVariableDetails'
-    .pd$facetVariableDetails <- lapply(.pd$facetVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId)
-  } else if (!is.null(facet2)) {
-    names(.pd)[names(.pd) == facet2] <- 'facetVariableDetails'
-    .pd$facetVariableDetails <- lapply(.pd$facetVariableDetails, makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId)
+  }
+
+  if (!is.null(facet1) & !is.null(facet2)) {
+    names(.pd)[names(.pd) == 'panel'] <- 'facetVariableDetails'
+    .pd$facetVariableDetails <- Map(list, lapply(strSplit(.pd$facetVariableDetails, '.||.'), makeVariableDetails, facet1, map$entityId[map$id == facet1]), lapply(strSplit(.pd$facetVariableDetails, '.||.', index=2), makeVariableDetails, facet2, map$entityId[map$id == facet2]))
+  } else {
+    if (!is.null(facet1)) {
+      names(.pd)[names(.pd) == facet1] <- 'facetVariableDetails'
+      .pd$facetVariableDetails <- lapply(.pd$facetVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId)
+    } else if (!is.null(facet2)) {
+      names(.pd)[names(.pd) == facet2] <- 'facetVariableDetails'
+      .pd$facetVariableDetails <- lapply(.pd$facetVariableDetails, makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId)
+    }
   }
 
   return(.pd)
