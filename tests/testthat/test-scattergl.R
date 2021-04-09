@@ -12,8 +12,17 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('panel', 'group', 'series.y', 'series.x', 'interval.x', 'interval.y', 'interval.se'))
+  expect_equal(names(dt),c('interval.x', 'interval.y', 'interval.se', 'group', 'panel'))
 
+  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),16)
+  expect_equal(names(dt),c('panel', 'group', 'series.y', 'series.x', 'interval.x', 'interval.y', 'interval.se'))
+  
+  dt <- scattergl.dt(df, map, 'density')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),16)
+  expect_equal(names(dt),c('group', 'panel', 'density.x', 'density.y'))
 
   map <- data.frame('id' = c('group', 'y', 'x'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER'), stringsAsFactors = FALSE)
 
@@ -22,10 +31,20 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('group', 'series.y', 'series.x'))
 
-  dt <- scattergl.dt(df, map, 'smoothedMean')
+  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('group', 'series.y', 'series.x', 'interval.x', 'interval.y', 'interval.se'))
+  
+  dt <- scattergl.dt(df, map, 'smoothedMean')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),4)
+  expect_equal(names(dt),c('interval.x', 'interval.y', 'interval.se', 'group'))
+  
+  dt <- scattergl.dt(df, map, 'density')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),4)
+  expect_equal(names(dt),c('group', 'density.x', 'density.y'))
 
 
   map <- data.frame('id' = c('y', 'x', 'panel'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), stringsAsFactors = FALSE)
@@ -35,11 +54,21 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('panel', 'series.y', 'series.x'))
 
-  dt <- scattergl.dt(df, map, 'smoothedMean')
+  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('panel', 'series.y', 'series.x', 'interval.x', 'interval.y', 'interval.se'))
-
+  
+  dt <- scattergl.dt(df, map, 'smoothedMean')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),4)
+  expect_equal(names(dt),c('interval.x', 'interval.y', 'interval.se', 'panel'))
+  
+  dt <- scattergl.dt(df, map, 'density')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),4)
+  expect_equal(names(dt),c('panel', 'density.x', 'density.y'))
+  
 
   map <- data.frame('id' = c('y', 'x'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER'), stringsAsFactors = FALSE)
 
@@ -48,8 +77,18 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('series.y', 'series.x'))
 
-  dt <- scattergl.dt(df, map, 'smoothedMean')
+  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('series.y', 'series.x', 'interval.x', 'interval.y', 'interval.se'))
+  
+  dt <- scattergl.dt(df, map, 'smoothedMean')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt),c('interval.x', 'interval.y', 'interval.se'))
+  
+  dt <- scattergl.dt(df, map, 'density')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt),c('density.x', 'density.y'))
 })
