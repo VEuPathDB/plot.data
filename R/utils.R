@@ -234,14 +234,15 @@ findBinEnd <- function(x) {
 }
 
 # Set object attributes from a list
-setAttrFromList <- function(.dt, attr, replace=T) {
+setAttrFromList <- function(.dt, attr, removeExtraAttrs=T) {
   
-  if (!"data.table" %in% class(.dt)) {
+  
+  if (!is.data.table(.dt)) {
     stop(".dt must be of class data.table")
   }
   
-  # If replace=T, remove any .dt attribute not in attr
-  if (replace) {
+  # If removeExtraAttrs=T, remove any .dt attribute not in attr
+  if (removeExtraAttrs) {
     attrNames <- names(attributes(.dt))
     attrToRemove <- attrNames[!(attrNames %in% names(attr))]
     if (length(attrToRemove) > 0) {
