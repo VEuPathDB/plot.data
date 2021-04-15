@@ -20,7 +20,7 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
     bins <- cut_width(xVP, binWidth, boundary = min(xVP))
   } else {
     numBins <- findNumBins(xVP)
-    bins <- cut_interval(xVP, breaks=numBins)
+    bins <- cut_interval(xVP, numBins)
   }
 
   bins <- pruneViewportAdjustmentFromBins(bins, xVP, x, viewport)
