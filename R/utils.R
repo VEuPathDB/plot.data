@@ -245,19 +245,13 @@ setAttrFromList <- function(.dt, attr, removeExtraAttrs=T) {
   if (removeExtraAttrs) {
     attrNames <- names(attributes(.dt))
     attrToRemove <- attrNames[!(attrNames %in% names(attr))]
+    
     if (length(attrToRemove) > 0) {
-      # for (ind in seq_along(attrToRemove)) {
-      #   data.table::setattr(.dt, attrToRemove[ind], NULL)
-      # }
-      
       invisible(lapply(attrToRemove, removeAttr, .dt))
     }
   }
   
   # For each item in the attr list, add to .dt attributes or update existing
-  # for (ind in seq_along(attr)) {
-  #   data.table::setattr(.dt, names(attr)[ind], attr[[ind]])
-  # }
   invisible(lapply(seq_along(attr), updateAttrById, attr, .dt))
   
   return(.dt)
@@ -268,7 +262,6 @@ removeAttr <- function(attrToRemove, .dt) {
   return(NULL)
 }
 
-# Not my favorite - could make a prettier function but it would use global vars...
 updateAttrById <- function(attrInd, attr, .dt) {
   data.table::setattr(.dt, names(attr)[attrInd], attr[[attrInd]])
   return(NULL)
