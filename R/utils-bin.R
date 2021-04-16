@@ -46,7 +46,7 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
 
   if (grepl("^[[:digit:]].", binWidth) & gsub("[^0-9.-]", "", binWidth) != '1') {
     #works bc we assume a single space between the binWidth and unit
-    unit <- trim(gsub("^[[:digit:]].", "", binWidth))
+    unit <- trim(gsub("^[[:digit:]]*", "", binWidth))
     numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
     if (unit %in% c('day','days')) {
       binEnd <- as.Date(bins + lubridate::days(numericBinWidth)-1)
