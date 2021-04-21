@@ -60,14 +60,13 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     if (is.null(binWidth)) {
       binWidth <- findBinWidth(xVP)
     }
-    attr$binWidth <- jsonlite::unbox(binWidth)
   } else {
     numBins <- findNumBins(xVP)
-    attr$numBins <- jsonlite::unbox(numBins)
   }
 
   if (binReportValue == 'numBins') {
     binSlider <- list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
+    binSpec <- list('type'=jsonlite::unbox('numBins'), 'value'=jsonlite::unbox(numBins))
   } else {
     binSliderMax <- as.numeric((max(xVP) - min(xVP)) / 2)
     binSliderMin <- as.numeric((max(xVP) - min(xVP)) / 1000)
@@ -78,6 +77,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       binSliderStep <- round(((binSliderMax - binSliderMin) / 1000), avgDigits)
       binSliderMin <- ifelse(binSliderMin == 0, .1, binSliderMin)
       binSliderStep <- ifelse(binSliderStep == 0, binSliderMin, binSliderStep)
+      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
     } else {
       if (is.null(binWidth)) {
         binWidth <- findBinWidth(xVP)
@@ -103,6 +103,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       }
       binSliderMin <- ifelse(binSliderMin == 0, 1, binSliderMin)
       binSliderStep <- 1
+      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth), 'units'=jsonlite::unbox(unit))
     }
     binSlider <- list('min'=jsonlite::unbox(binSliderMin), 'max'=jsonlite::unbox(binSliderMax), 'step'=jsonlite::unbox(binSliderStep))
   }
@@ -124,8 +125,8 @@ newHistogramPD <- function(.dt = data.table::data.table(),
 
 binSlider <- function(.histo) { attr(.histo, 'binSlider') }
 viewport <- function(.histo) { attr(.histo, 'viewport') }
-binWidth <- function(.histo) { attr(.histo, 'binWidth') }
-numBins <- function(.histo) { attr(.histo, 'numBins') }
+binWidth <- function(.histo) { ifelse(attr(.histo, 'binSpec')$type == 'binWidth', attr(.histo, 'binSpec')$value, NULL) }
+numBins <- function(.histo) { ifelse(attr(.histo, 'binSpec')$type == 'numBins', attr(.histo, 'binSpec')$value, NULL) } }
 
 validateBinSlider <- function(binSlider) {
   if (!is.list(binSlider)) {
