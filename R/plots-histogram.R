@@ -108,6 +108,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     binSlider <- list('min'=jsonlite::unbox(binSliderMin), 'max'=jsonlite::unbox(binSliderMax), 'step'=jsonlite::unbox(binSliderStep))
   }
   attr$binSlider <- binSlider
+  attr$binSpec <- binSpec
 
   if (value == 'count') {
     .pd <- binSize(.pd, x, group, panel, binWidth, viewport)
@@ -126,7 +127,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
 binSlider <- function(.histo) { attr(.histo, 'binSlider') }
 viewport <- function(.histo) { attr(.histo, 'viewport') }
 binWidth <- function(.histo) { ifelse(attr(.histo, 'binSpec')$type == 'binWidth', attr(.histo, 'binSpec')$value, NULL) }
-numBins <- function(.histo) { ifelse(attr(.histo, 'binSpec')$type == 'numBins', attr(.histo, 'binSpec')$value, NULL) } }
+numBins <- function(.histo) { ifelse(attr(.histo, 'binSpec')$type == 'numBins', attr(.histo, 'binSpec')$value, NULL) }
 
 validateBinSlider <- function(binSlider) {
   if (!is.list(binSlider)) {
