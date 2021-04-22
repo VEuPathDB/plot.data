@@ -8,12 +8,12 @@ plotRefMapToList <- function(map, plotRef) {
   return(plotRef)
 }
 
-updateType <- function(x, xType) {
-  if (xType == 'NUMBER') { x <- as.numeric(x) }
-  if (xType == 'DATE') { x <- as.Date(x) }
-  if (xType == 'STRING') { x <- as.character(x) }
+updateType <- function(var, varType) {
+  if (varType == 'NUMBER') { var <- as.numeric(var) }
+  if (varType == 'DATE') { var <- as.Date(var) }
+  if (varType == 'STRING') { var <- as.character(var) }
 
-  return(x)
+  return(var)
 }
 
 getPDAttributes <- function(.pd) {
@@ -68,7 +68,7 @@ removeOverlayPanel <- function(data, overlay, panel) {
 #' @return data.table of frequency distribution values
 #' @export
 contingencyDT <- function(data, labels = TRUE) {
-  dt <- as.data.frame.matrix(table(data$independent, data$y))
+  dt <- as.data.frame.matrix(table(data$independent, data$dependent))
   if (labels) {
     dt$label <- rownames(dt)
   }

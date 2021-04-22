@@ -62,8 +62,8 @@ panelChiSq <- function(data, independent, dependent, panel = NULL) {
   if (is.null(panel)) {
     dt <- chiSq(data)
   } else {
-    levelsX <- unique(data[[independent]])
-    levelsY <- unique(data[[dependent]])
+    levelsIndependent <- unique(data[[independent]])  # Unused?
+    levelsDependent <- unique(data[[dependent]])   # Unused?
     dt.list <- split(data, list(data[[panel]]))
     dt.list <- lapply(dt.list, chiSq)
     dt <- purrr::reduce(dt.list, rbind)

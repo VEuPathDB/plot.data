@@ -159,18 +159,18 @@ noStatsFacet <- function(data, overlay = NULL, panel = NULL) {
 # think we want table col reformatted to be two cols, 'label' and 'value'. the second will be a list.
 # can we use noStatsFacet for the second task ??
 
-groupSplit <- function(data, independent, dependent, z, overlay, panel, longToWide = FALSE) {
+groupSplit <- function(data, independent, dependent, gradient, overlay, panel, longToWide = FALSE) {
   aggStr <- getAggStr(c(overlay, panel, dependent), independent)
 
   if (!is.null(overlay) & !is.null(panel)) {
     if (longToWide) {
-      dt <- data.table::dcast(data, as.formula(aggStr), value.var="z")
+      dt <- data.table::dcast(data, as.formula(aggStr), value.var="gradient")
     } else {
       dt <- data.table::data.table('table' = list(data), 'name' = 'DUMMY')
     }
   } else {
     if (longToWide) {
-      data <- data.table::dcast(data, as.formula(aggStr), value.var="z")
+      data <- data.table::dcast(data, as.formula(aggStr), value.var="gradient")
     }
     colsList <- getInteractionColsList(data, overlay, panel)
     dt.list <- split(data, colsList)

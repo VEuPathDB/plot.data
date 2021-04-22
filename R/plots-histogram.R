@@ -29,7 +29,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
   independent <- attr$independentVar$variableId
-  xType <- attr$independentVar$dataType
+  independentType <- attr$independentVar$dataType
   overlay <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
@@ -39,16 +39,16 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   attr$summary <- summary
 
   if (is.null(viewport)) {
-    if (xType == 'NUMBER') {
+    if (independentType == 'NUMBER') {
       viewport <- list('xMin' = jsonlite::unbox(min(0,min(.pd[[independent]]))), 'xMax' = jsonlite::unbox(max(.pd[[independent]])))
     } else {
       viewport <- list('xMin' = jsonlite::unbox(min(.pd[[independent]])), 'xMax' = jsonlite::unbox(max(.pd[[independent]])))
     }
   } else {
-    if (xType == 'NUMBER') {
+    if (independentType == 'NUMBER') {
       viewport$xMin <- jsonlite::unbox(as.numeric(viewport$xMin))
       viewport$xMax <- jsonlite::unbox(as.numeric(viewport$xMax))
-    } else if (xType == 'DATE') {
+    } else if (independentType == 'DATE') {
       viewport$xMin <- jsonlite::unbox(as.Date(viewport$xMin, format='%Y-%m-%d'))
       viewport$xMax <- jsonlite::unbox(as.Date(viewport$xMax, format='%Y-%m-%d'))
     }
@@ -70,7 +70,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   } else {
     binSliderMax <- as.numeric((max(xVP) - min(xVP)) / 2)
     binSliderMin <- as.numeric((max(xVP) - min(xVP)) / 1000)
-    if (xType == 'NUMBER') {
+    if (independentType == 'NUMBER') {
       avgDigits <- floor(mean(stringr::str_count(as.character(xVP), "[[:digit:]]")))
       binSliderMax <- round(binSliderMax, avgDigits)
       binSliderMin <- round(binSliderMin, avgDigits)
@@ -183,7 +183,7 @@ validateHistogramPD <- function(.histo) {
 #' belongs to. 
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
+#' @param binWidth numeric value indicating width of bins, character (ex: 'year') if independent-axis is a date 
 #' @param value String indicating how to calculate dependent-axis values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param viewport List of min and max values to consider as the range of data
@@ -259,7 +259,7 @@ histogram.dt <- function(data,
 #' belongs to. 
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
+#' @param binWidth numeric value indicating width of bins, character (ex: 'year') if independent-axis is a date 
 #' @param value String indicating how to calculate dependent-axis values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param viewport List of min and max values to consider as the range of data

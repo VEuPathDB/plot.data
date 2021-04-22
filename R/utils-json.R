@@ -49,16 +49,16 @@ getJSON <- function(.pd) {
   }
 
   if ('independentVar' %in% names(namedAttrList)) {
-    namedAttrList$xVariableDetails <- makeVariableDetails(NULL, namedAttrList$independentVar$variableId, namedAttrList$independentVar$entityId)
+    namedAttrList$independentVariableDetails <- makeVariableDetails(NULL, namedAttrList$independentVar$variableId, namedAttrList$independentVar$entityId)
     namedAttrList$independentVar <- NULL
   }
   if ('dependentVar' %in% names(namedAttrList)) {
-    namedAttrList$yVariableDetails <- makeVariableDetails(NULL, namedAttrList$dependentVar$variableId, namedAttrList$dependentVar$entityId)
+    namedAttrList$dependentVariableDetails <- makeVariableDetails(NULL, namedAttrList$dependentVar$variableId, namedAttrList$dependentVar$entityId)
     namedAttrList$dependentVar <- NULL
   }
-  if ('zAxisVariable' %in% names(namedAttrList)) {
-    namedAttrList$zVariableDetails <- makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId)
-    namedAttrList$zAxisVariable <- NULL
+  if ('gradientVar' %in% names(namedAttrList)) {
+    namedAttrList$gradientVariableDetails <- makeVariableDetails(NULL, namedAttrList$gradientVar$variableId, namedAttrList$gradientVar$entityId)
+    namedAttrList$gradientAxisVariable <- NULL
   }
 
   outJson <- jsonlite::toJSON(list('data'=.pd, 'config'=namedAttrList))

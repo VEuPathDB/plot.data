@@ -52,37 +52,37 @@ densityCurve <- function(x) {
 # @keyword internal
 # @alias predictdf.gam
 # @alias predictdf.loess
-predictdf <- function(model, xseq, se, level) UseMethod("predictdf")
+predictdf <- function(model, independentSeq, se, level) UseMethod("predictdf")
 
-predictdf.loess <- function(model, xseq, se = TRUE, level = .95) {
-  pred <- stats::predict(model, newdata = data_frame(independent = xseq), se = se)
+predictdf.loess <- function(model, independentSeq, se = TRUE, level = .95) {
+  pred <- stats::predict(model, newdata = data_frame(independent = independentSeq), se = se)
 
   if (se) {
-    y = pred$fit
+    dependentHat = pred$fit
     ci <- pred$se.fit * stats::qt(level / 2 + .5, pred$df)
-    ymin = y - ci
-    ymax = y + ci
-    base::data.frame(independent = xseq, dependent = y, ymin, ymax, se = pred$se.fit)
+    dependentHatMin = dependentHat - ci
+    dependentHatMax = dependentHat + ci
+    base::data.frame(independent = independentSeq, dependent = dependentHat, dependentHatMin, dependentHatMax, se = pred$se.fit)
   } else {
-    base::data.frame(independent = xseq, dependent = as.vector(pred))
+    base::data.frame(independent = independentSeq, dependent = as.vector(pred))
   }
 }
 
-predictdf.gam <- function(model, xseq, se = TRUE, level = .95) {
-  pred <- stats::predict(model, newdata = data_frame(independent = xseq), se.fit = se,
+predictdf.gam <- function(model, independentSeq, se = TRUE, level = .95) {
+  pred <- stats::predict(model, newdata = data_frame(independent = independentSeq), se.fit = se,
     type = "link")
 
   if (se) {
     std <- stats::qnorm(level / 2 + 0.5)
     base::data.frame(
-      independent = xseq,
+      independent = independentSeq,
       dependent = model$family$linkinv(as.vector(pred$fit)),
       ymin = model$family$linkinv(as.vector(pred$fit - std * pred$se.fit)),
       ymax = model$family$linkinv(as.vector(pred$fit + std * pred$se.fit)),
       se = as.vector(pred$se.fit)
     )
   } else {
-    base::data.frame(independent = xseq, dependent = model$family$linkinv(as.vector(pred)))
+    base::data.frame(independent = independentSeq, dependent = model$family$linkinv(as.vector(pred)))
   }
 }
 
@@ -101,7 +101,7 @@ predictdf.gam <- function(model, xseq, se = TRUE, level = .95) {
 #' @export
 #' @importFrom mgcv gam
 smoothedMean <- function(dt, method) {
-  xseq <- sort(unique(dt$independent))
+  independentSeq <- sort(unique(dt$independent))
 
   if (method == 'loess') {
     smoothed <- stats::loess(dependent ~ independent, dt)
@@ -111,9 +111,9 @@ smoothedMean <- function(dt, method) {
     stop('Unrecognized smoothing method.')
   }
 
-  smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
+  smoothed <- data.table::as.data.table(predictdf(smoothed, independentSeq))
 
-  return(data.table::data.table("independent" = list(smoothed$independent), "dependent" = list(smoothed$dependent), "ymin" = list(smoothed$ymin), "ymax" = list(smoothed$ymax), "se" = list(smoothed$se)))
+  return(data.table::data.table("independent" = list(smoothed$independent), "dependent" = list(smoothed$dependent), "dependentHatMin" = list(smoothed$dependentHatMin), "dependentHatMax" = list(smoothed$dependentHatMax), "se" = list(smoothed$se))) #### predictedMin, predictedMax?
 }
 
 epitabToDT <- function(m, method) {

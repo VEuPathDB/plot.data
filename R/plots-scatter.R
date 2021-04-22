@@ -38,7 +38,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
   if (value == 'smoothedMean') {
     interval <- groupSmoothedMean(.pd, independent, dependent, overlay, panel)
-    interval <- interval[, !c('ymin', 'ymax')]
+    interval <- interval[, !c('dependentHatMin', 'dependentHatMax')]
     names(interval) <- c('interval.independent', 'interval.dependent', 'interval.se', overlay, panel)
     
     .pd <- interval
@@ -46,7 +46,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   } else if (value == 'smoothedMeanWithRaw') {
     
     interval <- groupSmoothedMean(.pd, independent, dependent, overlay, panel)
-    interval <- interval[, !c('ymin', 'ymax')]
+    interval <- interval[, !c('dependentHatMin', 'dependentHatMax')]
     names(interval) <- c('interval.independent', 'interval.dependent', 'interval.se', overlay, panel)
     
     if (!is.null(key(series))) {
