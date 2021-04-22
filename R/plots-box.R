@@ -29,14 +29,14 @@ newBoxPD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
 
-  x <- attr$xAxisVariable$variableId
+  independent <- attr$xAxisVariable$variableId
   y <- attr$yAxisVariable$variableId
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
-  summary <- groupSummary(.pd, x, y, group, panel)
-  fences <- groupFences(.pd, x, y, group, panel)
-  fences <- fences[, -x, with = FALSE]
+  summary <- groupSummary(.pd, independent, y, group, panel)
+  fences <- groupFences(.pd, independent, y, group, panel)
+  fences <- fences[, -independent, with = FALSE]
   if (!is.null(key(summary))) {
     .pd.base <- merge(summary, fences)
   } else {
@@ -44,8 +44,8 @@ newBoxPD <- function(.dt = data.table::data.table(),
   }
 
   if (points == 'outliers') {
-    points <- groupOutliers(.pd, x, y, group, panel)
-    points[[x]] <- NULL
+    points <- groupOutliers(.pd, independent, y, group, panel)
+    points[[independent]] <- NULL
     if (!is.null(key(points))) {
       .pd.base <- merge(.pd.base, points)
     } else {
@@ -54,7 +54,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   } else if (points == 'all') {
     rawData <- noStatsFacet(.pd, group, panel)
     names(rawData)[names(rawData) == y] <- 'series.y'
-    names(rawData)[names(rawData) == x] <- 'series.x'
+    names(rawData)[names(rawData) == independent] <- 'series.independent'
     if (!is.null(key(rawData))) {
       .pd.base <- merge(.pd.base, rawData)
     } else {
@@ -63,8 +63,8 @@ newBoxPD <- function(.dt = data.table::data.table(),
   }
 
   if (mean) {
-    mean <- groupMean(.pd, x, y, group, panel)
-    mean[[x]] <- NULL
+    mean <- groupMean(.pd, independent, y, group, panel)
+    mean[[independent]] <- NULL
     if (!is.null(key(mean))) {
       .pd.base <- merge(.pd.base, mean)
     } else {
@@ -96,7 +96,7 @@ validateBoxPD <- function(.box) {
 #'
 #' This function returns a data.table of 
 #' plot-ready data with one row per group (per panel). Columns 
-#' 'x', 'min', 'q1', 'median', 'q3' and 'max' represent the 
+#' 'independent', 'min', 'q1', 'median', 'q3' and 'max' represent the 
 #' pre-computed values per group. Columns 'group' and 'panel' specify
 #' the group the data belong to. 
 #' Optionally, can return columns 'outliers' and 'mean' as well.
@@ -165,7 +165,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 #'
 #' This function returns the name of a json file containing 
 #' plot-ready data with one row per group (per panel). Columns 
-#' 'x', 'min', 'q1', 'median', 'q3' and 'max' represent the 
+#' 'independent', 'min', 'q1', 'median', 'q3' and 'max' represent the 
 #' pre-computed values per group. Columns 'group' and 'panel' specify
 #' the group the data belong to. 
 #' Optionally, can return columns 'outliers' and 'mean' as well.

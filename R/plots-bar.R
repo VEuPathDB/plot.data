@@ -24,7 +24,7 @@ newBarPD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
 
-  x <- attr$xAxisVariable$variableId
+  independent <- attr$xAxisVariable$variableId
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
@@ -32,7 +32,7 @@ newBarPD <- function(.dt = data.table::data.table(),
     .pd <- noStatsFacet(.pd, group, panel)
   } else if (value == 'count' ) {
     .pd$dummy <- 1
-    .pd <- groupSize(.pd, x, 'dummy', group, panel)
+    .pd <- groupSize(.pd, independent, 'dummy', group, panel)
     names(.pd) <- c('label', group, panel, 'value')
     .pd <- noStatsFacet(.pd, group, panel)
   }

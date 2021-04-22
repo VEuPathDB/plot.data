@@ -1,5 +1,5 @@
-groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL) {
-  aggStr <- getAggStr(y, c(x, group, panel))
+groupSummary <- function(data, independent = NULL, y, group = NULL, panel = NULL) {
+  aggStr <- getAggStr(y, c(independent, group, panel))
 
   if (aggStr == y) {
     dt <- data.table::as.data.table(t(round(quantile(data[[y]]),4)))
@@ -7,14 +7,14 @@ groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL) {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, FUN = function(x){round(quantile(x),4)}))
   }
 
-  names(dt) <- c(x, group, panel, 'min', 'q1', 'median', 'q3', 'max')
+  names(dt) <- c(independent, group, panel, 'min', 'q1', 'median', 'q3', 'max')
   dt <- noStatsFacet(dt, group, panel)
 
   return(dt)
 }
 
-groupFences <- function(data, x = NULL, y, group = NULL, panel = NULL) {
-  aggStr <- getAggStr(y, c(x, group, panel))
+groupFences <- function(data, independent = NULL, y, group = NULL, panel = NULL) {
+  aggStr <- getAggStr(y, c(independent, group, panel))
 
   if (aggStr == y) {
     dt <- data.table::as.data.table(t(fences(data[[y]])))
@@ -22,14 +22,14 @@ groupFences <- function(data, x = NULL, y, group = NULL, panel = NULL) {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, fences))
   }
 
-  names(dt) <- c(x, group, panel, 'lowerfence', 'upperfence')
+  names(dt) <- c(independent, group, panel, 'lowerfence', 'upperfence')
   dt <- noStatsFacet(dt, group, panel)
 
   return(dt)
 }
 
-groupMean <- function(data, x = NULL, y, group = NULL, panel = NULL) {
-  aggStr <- getAggStr(y, c(x, group, panel))
+groupMean <- function(data, independent = NULL, y, group = NULL, panel = NULL) {
+  aggStr <- getAggStr(y, c(independent, group, panel))
 
   if (aggStr == y) {
     dt <- data.table::as.data.table(t(round(mean(data[[y]]),4)))
@@ -37,14 +37,14 @@ groupMean <- function(data, x = NULL, y, group = NULL, panel = NULL) {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, FUN = function(x){round(mean(x),4)}))
   }
 
-  names(dt) <- c(x, group, panel, 'mean')
+  names(dt) <- c(independent, group, panel, 'mean')
   dt <- noStatsFacet(dt, group, panel)
 
   return(dt)
 }
 
-groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL) {
-  aggStr <- getAggStr(y, c(x, group, panel))
+groupSD <- function(data, independent = NULL, y, group = NULL, panel = NULL) {
+  aggStr <- getAggStr(y, c(independent, group, panel))
 
   if (aggStr == y) {
     dt <- data.table::as.data.table(t(round(sd(data[[y]]),4)))
@@ -52,29 +52,29 @@ groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL) {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, FUN = function(x){round(stats::sd(x),4)}))
   }
 
-  names(dt) <- c(x, group, panel, 'sd')
+  names(dt) <- c(independent, group, panel, 'sd')
   dt <- noStatsFacet(dt, group, panel)
 
   return(dt)
 }
 
-groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL) {
-  aggStr <- getAggStr(y, c(x, group, panel))
+groupSize <- function(data, independent = NULL, y, group = NULL, panel = NULL) {
+  aggStr <- getAggStr(y, c(independent, group, panel))
 
   if (aggStr == y) {
     dt <- data.table::as.data.table(t(length(data[[y]])))
   } else {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, length))
   }
-  names(dt) <- c(x, group, panel, 'size')
+  names(dt) <- c(independent, group, panel, 'size')
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
   
   return(dt)
 }
 
-groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL) {
-  aggStr <- getAggStr(y, c(x, group, panel))
+groupOutliers <- function(data, independent = NULL, y, group = NULL, panel = NULL) {
+  aggStr <- getAggStr(y, c(independent, group, panel))
 
   if (aggStr == y) {
     dt <- data.table::as.data.table(t(outliers(data[[col]])))
@@ -82,7 +82,7 @@ groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL) {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, outliers))
   }
 
-  names(dt) <- c(x, group, panel, 'outliers')
+  names(dt) <- c(independent, group, panel, 'outliers')
   dt <- noStatsFacet(dt, group, panel)
 
   return(dt)
@@ -97,7 +97,7 @@ groupDensity <- function(data, col, group = NULL, panel = NULL) {
   } else {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, densityCurve))
   }
-  names(dt) <- c(group, panel, 'x', 'y')
+  names(dt) <- c(group, panel, 'independent', 'y')
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
   
@@ -105,11 +105,11 @@ groupDensity <- function(data, col, group = NULL, panel = NULL) {
 }
 
 #' @importFrom purrr reduce
-groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
+groupSmoothedMean <- function(data, independent, y, group = NULL, panel = NULL) {
   names(data)[names(data) == y] <- 'y'
-  names(data)[names(data) == x] <- 'x'
+  names(data)[names(data) == independent] <- 'independent'
   y <- 'y'
-  x <- 'x'
+  independent <- 'independent'
   aggStr <- getAggStr(y, c(group, panel))
 
   maxGroupSize <- max(groupSize(data, NULL, y, group, panel)$size)
@@ -159,8 +159,8 @@ noStatsFacet <- function(data, group = NULL, panel = NULL) {
 # think we want table col reformatted to be two cols, 'label' and 'value'. the second will be a list.
 # can we use noStatsFacet for the second task ??
 
-groupSplit <- function(data, x, y, z, group, panel, longToWide = FALSE) {
-  aggStr <- getAggStr(c(group, panel, y), x)
+groupSplit <- function(data, independent, y, z, group, panel, longToWide = FALSE) {
+  aggStr <- getAggStr(c(group, panel, y), independent)
 
   if (!is.null(group) & !is.null(panel)) {
     if (longToWide) {

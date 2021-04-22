@@ -1,7 +1,7 @@
-panelOddsRatio <- function(data, x, y, panel = NULL) {
-  names(data)[names(data) == x] <- 'x'
+panelOddsRatio <- function(data, independent, y, panel = NULL) {
+  names(data)[names(data) == independent] <- 'independent'
   names(data)[names(data) == y] <- 'y'
-  x <- 'x'
+  independent <- 'independent'
   y <- 'y'
 
   if (is.null(panel)) {
@@ -16,10 +16,10 @@ panelOddsRatio <- function(data, x, y, panel = NULL) {
   return(dt)
 }
 
-panelRelativeRisk <- function(data, x, y, panel = NULL) {
-  names(data)[names(data) == x] <- 'x'
+panelRelativeRisk <- function(data, independent, y, panel = NULL) {
+  names(data)[names(data) == independent] <- 'independent'
   names(data)[names(data) == y] <- 'y'
-  x <- 'x'
+  independent <- 'independent'
   y <- 'y'
 
   if (is.null(panel)) {
@@ -34,12 +34,12 @@ panelRelativeRisk <- function(data, x, y, panel = NULL) {
   return(dt)
 }
 
-panelBothRatios <- function(data, x, y, panel = NULL) {
-  names(data)[names(data) == x] <- 'x'
+panelBothRatios <- function(data, independent, y, panel = NULL) {
+  names(data)[names(data) == independent] <- 'independent'
   names(data)[names(data) == y] <- 'y'
-  x <- 'x'
+  independent <- 'independent'
   y <- 'y'
-  mergeByCols <- c(panel, 'p.value', 'x', 'y')
+  mergeByCols <- c(panel, 'p.value', 'independent', 'y')
 
   if (is.null(panel)) {
     dt <- bothRatios(data)
@@ -53,16 +53,16 @@ panelBothRatios <- function(data, x, y, panel = NULL) {
   return(dt)
 }
 
-panelChiSq <- function(data, x, y, panel = NULL) {
-  names(data)[names(data) == x] <- 'x'
+panelChiSq <- function(data, independent, y, panel = NULL) {
+  names(data)[names(data) == independent] <- 'independent'
   names(data)[names(data) == y] <- 'y'
-  x <- 'x'
+  independent <- 'independent'
   y <- 'y'
 
   if (is.null(panel)) {
     dt <- chiSq(data)
   } else {
-    levelsX <- unique(data[[x]])
+    levelsX <- unique(data[[independent]])
     levelsY <- unique(data[[y]])
     dt.list <- split(data, list(data[[panel]]))
     dt.list <- lapply(dt.list, chiSq)

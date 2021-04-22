@@ -28,21 +28,21 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                      class = "histogram")
 
   attr <- attributes(.pd)
-  x <- attr$xAxisVariable$variableId
+  independent <- attr$xAxisVariable$variableId
   xType <- attr$xAxisVariable$dataType
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
-  summary <- as.list(summary(.pd[[x]]))
+  summary <- as.list(summary(.pd[[independent]]))
   names(summary) <- c('min', 'q1', 'median', 'mean', 'q3', 'max')
   summary <- lapply(summary, jsonlite::unbox)
   attr$summary <- summary
 
   if (is.null(viewport)) {
     if (xType == 'NUMBER') {
-      viewport <- list('xMin' = jsonlite::unbox(min(0,min(.pd[[x]]))), 'xMax' = jsonlite::unbox(max(.pd[[x]])))
+      viewport <- list('xMin' = jsonlite::unbox(min(0,min(.pd[[independent]]))), 'xMax' = jsonlite::unbox(max(.pd[[independent]])))
     } else {
-      viewport <- list('xMin' = jsonlite::unbox(min(.pd[[x]])), 'xMax' = jsonlite::unbox(max(.pd[[x]])))
+      viewport <- list('xMin' = jsonlite::unbox(min(.pd[[independent]])), 'xMax' = jsonlite::unbox(max(.pd[[independent]])))
     }
   } else {
     if (xType == 'NUMBER') {
@@ -54,7 +54,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     }
   }
   attr$viewport <- viewport
-  xVP <- adjustToViewport(.pd[[x]], viewport)
+  xVP <- adjustToViewport(.pd[[independent]], viewport)
 
   if (binReportValue == 'binWidth') {
     if (is.null(binWidth)) {
@@ -111,9 +111,9 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   attr$binSpec <- binSpec
 
   if (value == 'count') {
-    .pd <- binSize(.pd, x, group, panel, binWidth, viewport)
+    .pd <- binSize(.pd, independent, group, panel, binWidth, viewport)
   } else if (value == 'proportion' ) {
-    .pd <- binProportion(.pd, x, group, panel, binWidth, viewport)
+    .pd <- binProportion(.pd, independent, group, panel, binWidth, viewport)
   } else {
     stop('Unrecognized argument to "value".')
   }
@@ -178,7 +178,7 @@ validateHistogramPD <- function(.histo) {
 #'
 #' This function returns a data.table of 
 #' plot-ready data with one row per group (per panel). Columns 
-#' 'x' and 'y' contain the bin label and count respectively. 
+#' 'independent' and 'y' contain the bin label and count respectively. 
 #' Column 'group' and 'panel' specify the group the series data 
 #' belongs to. 
 #' @param data data.frame to make plot-ready data for
@@ -254,7 +254,7 @@ histogram.dt <- function(data,
 #'
 #' This function returns the name of a json file containing 
 #' plot-ready data with one row per group (per panel). Columns 
-#' 'x' and 'y' contain the bin label and count respectively. 
+#' 'independent' and 'y' contain the bin label and count respectively. 
 #' Column 'group' and 'panel' specify the group the series data 
 #' belongs to. 
 #' @param data data.frame to make plot-ready data for

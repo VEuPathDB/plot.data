@@ -68,7 +68,7 @@ removeGroupPanel <- function(data, group, panel) {
 #' @return data.table of frequency distribution values
 #' @export
 contingencyDT <- function(data, labels = TRUE) {
-  dt <- as.data.frame.matrix(table(data$x, data$y))
+  dt <- as.data.frame.matrix(table(data$independent, data$y))
   if (labels) {
     dt$label <- rownames(dt)
   }

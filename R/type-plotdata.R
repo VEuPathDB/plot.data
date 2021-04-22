@@ -20,7 +20,7 @@ newPlotdata <- function(.dt = data.table(),
                          ...,
                          class = character()) {
 
-  x <- emptyStringToNull(as.character(xAxisVariable$variableId))
+  independent <- emptyStringToNull(as.character(xAxisVariable$variableId))
   xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
   y <- emptyStringToNull(as.character(yAxisVariable$variableId))
   yType <- emptyStringToNull(as.character(yAxisVariable$dataType))
@@ -33,7 +33,7 @@ newPlotdata <- function(.dt = data.table(),
   facet2 <- emptyStringToNull(as.character(facetVariable2$variableId))
   facetType2 <- emptyStringToNull(as.character(facetVariable2$dataType))
 
-  .dt[[x]] <- updateType(.dt[[x]], xType)
+  .dt[[independent]] <- updateType(.dt[[independent]], xType)
   if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType) }
   if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType) }
   if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
@@ -43,18 +43,18 @@ newPlotdata <- function(.dt = data.table(),
   panelData <- makePanels(.dt, facet1, facet2)
   .dt <- data.table::setDT(panelData[[1]])
   panel <- panelData[[2]]
-  myCols <- c(x, y, z, group, panel)
+  myCols <- c(independent, y, z, group, panel)
   .dt <- .dt[, myCols, with=FALSE]
 
   incompleteCases <- nrow(.dt[!complete.cases(.dt),])
   .dt <- .dt[complete.cases(.dt),]
 
   if (is.null(xAxisVariable$dataType)) {
-    xIsNum = all(!is.na(as.numeric(.dt[[x]])))
+    xIsNum = all(!is.na(as.numeric(.dt[[independent]])))
     xAxisVariable$dataType <- 'NUMBER'
-    xIsDate = !xIsNum && all(!is.na(as.Date(.dt[[x]], format='%Y-%m-%d')))
+    xIsDate = !xIsNum && all(!is.na(as.Date(.dt[[independent]], format='%Y-%m-%d')))
     xAxisVariable$dataType <- 'DATE'
-    xIsChar = !xIsNum && !xIsDate && all(!is.na(as.character(.dt[[x]])))
+    xIsChar = !xIsNum && !xIsDate && all(!is.na(as.character(.dt[[independent]])))
     xAxisVariable$dataType <- 'STRING'
   } else {
     xIsChar = xAxisVariable$dataType == 'STRING'

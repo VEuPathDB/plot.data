@@ -37,13 +37,13 @@ outliers <- function(x) {
 #' The kernels are scaled such that the bandwidth is the standard 
 #' deviation of the smoothing kernel.  
 #' @param x Numeric vector to calculate smoothed density estimates for
-#' @return data.table with two columns: x) the coordinates of the points where the density is estimated and y) the estimated density values. These will be non-negative, but can be zero. 
+#' @return data.table with two columns: independent) the coordinates of the points where the density is estimated and y) the estimated density values. These will be non-negative, but can be zero. 
 #' @export
 #' @import data.table
 densityCurve <- function(x) {
   curve <- stats::density(x)
 
-  return(data.table::data.table("x" = c(curve$x), "y" = c(curve$y)))
+  return(data.table::data.table("independent" = c(curve$x), "y" = c(curve$y)))
 }
 
 # Prediction data frame
@@ -55,75 +55,75 @@ densityCurve <- function(x) {
 predictdf <- function(model, xseq, se, level) UseMethod("predictdf")
 
 predictdf.loess <- function(model, xseq, se = TRUE, level = .95) {
-  pred <- stats::predict(model, newdata = data_frame(x = xseq), se = se)
+  pred <- stats::predict(model, newdata = data_frame(independent = xseq), se = se)
 
   if (se) {
     y = pred$fit
     ci <- pred$se.fit * stats::qt(level / 2 + .5, pred$df)
     ymin = y - ci
     ymax = y + ci
-    base::data.frame(x = xseq, y, ymin, ymax, se = pred$se.fit)
+    base::data.frame(independent = xseq, y, ymin, ymax, se = pred$se.fit)
   } else {
-    base::data.frame(x = xseq, y = as.vector(pred))
+    base::data.frame(independent = xseq, y = as.vector(pred))
   }
 }
 
 predictdf.gam <- function(model, xseq, se = TRUE, level = .95) {
-  pred <- stats::predict(model, newdata = data_frame(x = xseq), se.fit = se,
+  pred <- stats::predict(model, newdata = data_frame(independent = xseq), se.fit = se,
     type = "link")
 
   if (se) {
     std <- stats::qnorm(level / 2 + 0.5)
     base::data.frame(
-      x = xseq,
+      independent = xseq,
       y = model$family$linkinv(as.vector(pred$fit)),
       ymin = model$family$linkinv(as.vector(pred$fit - std * pred$se.fit)),
       ymax = model$family$linkinv(as.vector(pred$fit + std * pred$se.fit)),
       se = as.vector(pred$se.fit)
     )
   } else {
-    base::data.frame(x = xseq, y = model$family$linkinv(as.vector(pred)))
+    base::data.frame(independent = xseq, y = model$family$linkinv(as.vector(pred)))
   }
 }
 
 #' Smoothed Conditional Mean
 #'
-#' This function returns for every x value the predicted mean, 95% confidence interval and standard error.
+#' This function returns for every independent value the predicted mean, 95% confidence interval and standard error.
 #' Calculation is performed by the (currently undocumented)
 #' `predictdf()` generic and its methods. `loess`, uses a t-based 
 #' approximation, and for `gam` the normal confidence interval is 
 #' constructed on the link scale and then back-transformed to 
 #' the response scale.
-#' @param dt data.frame with at least two columns: x) representing the independent variable and y) representing the dependent variable
+#' @param dt data.frame with at least two columns: independent) representing the independent variable and y) representing the dependent variable
 #' @param method Character string one of 'loess' or 'gam'
-#' @return data.table with the follwing columns x, y (predicted mean), ymin, ymax (lower and upper bound of confidence interval), se (standard error) 
+#' @return data.table with the follwing columns independent, y (predicted mean), ymin, ymax (lower and upper bound of confidence interval), se (standard error) 
 
 #' @export
 #' @importFrom mgcv gam
 smoothedMean <- function(dt, method) {
-  xseq <- sort(unique(dt$x))
+  xseq <- sort(unique(dt$independent))
 
   if (method == 'loess') {
-    smoothed <- stats::loess(y ~ x, dt)
+    smoothed <- stats::loess(y ~ independent, dt)
   } else if (method == 'gam') {
-    smoothed <- mgcv::gam(y ~ s(x, bs = "cs"), data = dt, method = "REML")
+    smoothed <- mgcv::gam(y ~ s(independent, bs = "cs"), data = dt, method = "REML")
   } else {
     stop('Unrecognized smoothing method.')
   }
 
   smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
 
-  return(data.table::data.table("x" = list(smoothed$x), "y" = list(smoothed$y), "ymin" = list(smoothed$ymin), "ymax" = list(smoothed$ymax), "se" = list(smoothed$se)))
+  return(data.table::data.table("independent" = list(smoothed$independent), "y" = list(smoothed$y), "ymin" = list(smoothed$ymin), "ymax" = list(smoothed$ymax), "se" = list(smoothed$se)))
 }
 
 epitabToDT <- function(m, method) {
   dt <- data.table::as.data.table(m)
-  dt$x.label <- rownames(m)
+  dt$independent.label <- rownames(m)
   dt <- transform(dt, "interval" = paste(lower, " - ", upper))
   dt$lower <- NULL
   dt$upper <- NULL
   dt$y.label <- list(names(dt)[c(1,3)])
-  names(dt) <- c('cond1', 'proportion1', 'cond2', 'proportion2', method, 'p.value', 'x', 'interval', 'y.label')
+  names(dt) <- c('cond1', 'proportion1', 'cond2', 'proportion2', method, 'p.value', 'independent', 'interval', 'y.label')
   dt[, y := lapply(transpose(.(cond1, cond2)), as.vector)]
   dt <- dt[, -c(1:4)]
 
@@ -133,12 +133,12 @@ epitabToDT <- function(m, method) {
 #' Odds Ratio
 #'
 #' This function calculates odds ratio, confidence intervals and p-values for epidemiologic data 
-#' @param data A data.table with two columns 'x' and 'y'. The two will be combined into a table. The first is the independent variable and can have any number of values. The second is the dependent variable, and should have two unique values.
+#' @param data A data.table with two columns 'independent' and 'y'. The two will be combined into a table. The first is the independent variable and can have any number of values. The second is the dependent variable, and should have two unique values.
 #' @return data.table with one row per group
 #' @export
 #' @importFrom epitools epitab
 oddsRatio <- function(data) {
-  m <- epitools::epitab(data$x, data$y, method = "oddsratio")$tab
+  m <- epitools::epitab(data$independent, data$y, method = "oddsratio")$tab
   dt <- epitabToDT(m, 'oddsratio')
   dt <- noStatsFacet(dt)
 
@@ -148,11 +148,11 @@ oddsRatio <- function(data) {
 #' Relative Risk
 #'
 #' This function calculates relative risk, confidence intervals and p-values for epidemiologic data 
-#' @param data A data.table with two columns 'x' and 'y'. The two will be combined into a table. The first is the independent variable and can have any number of values. The second is the dependent variable, and should have two unique values.
+#' @param data A data.table with two columns 'independent' and 'y'. The two will be combined into a table. The first is the independent variable and can have any number of values. The second is the dependent variable, and should have two unique values.
 #' @return data.table with one row per group
 #' @export
 relativeRisk <- function(data) {
-  m <- epitools::epitab(data$x, data$y, method = "riskratio")$tab
+  m <- epitools::epitab(data$independent, data$y, method = "riskratio")$tab
   dt <- epitabToDT(m, 'relativerisk')
   dt <- noStatsFacet(dt)
 
@@ -160,14 +160,14 @@ relativeRisk <- function(data) {
 }
 
 bothRatios <- function(data) {
-  mergeByCols <- c('p.value', 'y.label', 'x.label', 'y')
+  mergeByCols <- c('p.value', 'y.label', 'independent.label', 'y')
 
   or <- oddsRatio(data)
-  names(or) <- c('oddsratio', 'p.value', 'x.label', 'or.interval', 'y.label', 'y')
+  names(or) <- c('oddsratio', 'p.value', 'independent.label', 'or.interval', 'y.label', 'y')
   rr <- relativeRisk(data)
-  names(rr) <- c('relativerisk', 'p.value', 'x.label', 'rr.interval', 'y.label', 'y')
+  names(rr) <- c('relativerisk', 'p.value', 'independent.label', 'rr.interval', 'y.label', 'y')
   if (!identical(or$y.label, rr$y.label) |
-      !identical(or$x, rr$x) |
+      !identical(or$independent, rr$independent) |
       !identical(or$p.value, rr$p.value) |
       !identical(or$y, rr$y)) {
     stop('cannot merge odds ratio and relative risk data!')
@@ -179,13 +179,13 @@ bothRatios <- function(data) {
 }
 
 chiSq <- function(data) {
-  tbl <- table(data$x, data$y)
+  tbl <- table(data$independent, data$y)
   dt <- as.data.frame.matrix(tbl)
   dt <- data.table::as.data.table(dt)
   dt[, y := lapply(transpose(.SD), as.vector)]
   dt$y.label <- list(names(dt)[names(dt) != 'y'])
-  dt$x.label <- rownames(tbl)
-  dt <- dt[, c('y','y.label','x.label'), with=FALSE]
+  dt$independent.label <- rownames(tbl)
+  dt <- dt[, c('y','y.label','independent.label'), with=FALSE]
   dt <- noStatsFacet(dt)
   chisq <- chisq.test(tbl)
   dt$chisq <- chisq$statistic
