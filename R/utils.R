@@ -64,7 +64,7 @@ removeGroupPanel <- function(data, group, panel) {
 #'
 #' This function returns a data.table representation of the results
 #' from table() 
-#' @param data data.table to make contingency table for
+#' @param data data.table to make contingency table for, with columns 'independent' and 'dependent'
 #' @return data.table of frequency distribution values
 #' @export
 contingencyDT <- function(data, labels = TRUE) {

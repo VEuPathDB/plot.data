@@ -9,7 +9,7 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_is(dt$y, 'list')
   expect_is(dt$y[[1]], 'list')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('oddsratio', 'p.value', 'x.label', 'or.interval', 'y.label', 'y', 'relativerisk', 'rr.interval', 'panel'))
+  expect_equal(names(dt),c('oddsratio', 'p.value', 'independent.label', 'or.interval', 'y.label', 'y', 'relativerisk', 'rr.interval', 'panel'))
 
   map <- data.frame('id' = c('group', 'var'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'STRING'), stringsAsFactors=FALSE)
 
@@ -19,5 +19,5 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_is(dt$y, 'list')
   expect_is(dt$y[[1]], 'list')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('oddsratio', 'p.value', 'x.label', 'or.interval', 'y.label', 'y', 'relativerisk', 'rr.interval'))
+  expect_equal(names(dt),c('oddsratio', 'p.value', 'independent.label', 'or.interval', 'y.label', 'y', 'relativerisk', 'rr.interval'))
 })
