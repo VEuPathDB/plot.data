@@ -30,12 +30,12 @@ newBoxPD <- function(.dt = data.table::data.table(),
   attr <- attributes(.pd)
 
   independent <- attr$xAxisVariable$variableId
-  y <- attr$yAxisVariable$variableId
+  dependent <- attr$yAxisVariable$variableId
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
-  summary <- groupSummary(.pd, independent, y, group, panel)
-  fences <- groupFences(.pd, independent, y, group, panel)
+  summary <- groupSummary(.pd, independent, dependent, group, panel)
+  fences <- groupFences(.pd, independent, dependent, group, panel)
   fences <- fences[, -independent, with = FALSE]
   if (!is.null(key(summary))) {
     .pd.base <- merge(summary, fences)
@@ -44,7 +44,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   }
 
   if (points == 'outliers') {
-    points <- groupOutliers(.pd, independent, y, group, panel)
+    points <- groupOutliers(.pd, independent, dependent, group, panel)
     points[[independent]] <- NULL
     if (!is.null(key(points))) {
       .pd.base <- merge(.pd.base, points)
@@ -53,7 +53,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
     }
   } else if (points == 'all') {
     rawData <- noStatsFacet(.pd, group, panel)
-    names(rawData)[names(rawData) == y] <- 'series.y'
+    names(rawData)[names(rawData) == dependent] <- 'series.dependent'
     names(rawData)[names(rawData) == independent] <- 'series.independent'
     if (!is.null(key(rawData))) {
       .pd.base <- merge(.pd.base, rawData)
@@ -63,7 +63,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   }
 
   if (mean) {
-    mean <- groupMean(.pd, independent, y, group, panel)
+    mean <- groupMean(.pd, independent, dependent, group, panel)
     mean[[independent]] <- NULL
     if (!is.null(key(mean))) {
       .pd.base <- merge(.pd.base, mean)

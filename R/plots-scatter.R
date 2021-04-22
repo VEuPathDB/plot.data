@@ -29,25 +29,25 @@ newScatterPD <- function(.dt = data.table::data.table(),
   attr <- attributes(.pd)
 
   independent <- attr$xAxisVariable$variableId
-  y <- attr$yAxisVariable$variableId
+  dependent <- attr$yAxisVariable$variableId
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
   series <- noStatsFacet(.pd, group, panel)
-  names(series) <- c(group, panel, 'series.y', 'series.independent')
+  names(series) <- c(group, panel, 'series.dependent', 'series.independent')
 
   if (value == 'smoothedMean') {
-    interval <- groupSmoothedMean(.pd, independent, y, group, panel)
+    interval <- groupSmoothedMean(.pd, independent, dependent, group, panel)
     interval <- interval[, !c('ymin', 'ymax')]
-    names(interval) <- c('interval.independent', 'interval.y', 'interval.se', group, panel)
+    names(interval) <- c('interval.independent', 'interval.dependent', 'interval.se', group, panel)
     
     .pd <- interval
 
   } else if (value == 'smoothedMeanWithRaw') {
     
-    interval <- groupSmoothedMean(.pd, independent, y, group, panel)
+    interval <- groupSmoothedMean(.pd, independent, dependent, group, panel)
     interval <- interval[, !c('ymin', 'ymax')]
-    names(interval) <- c('interval.independent', 'interval.y', 'interval.se', group, panel)
+    names(interval) <- c('interval.independent', 'interval.dependent', 'interval.se', group, panel)
     
     if (!is.null(key(series))) {
       .pd <- merge(series, interval)
@@ -57,7 +57,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
     
   } else if (value == 'density') {
     density <- groupDensity(.pd, independent, group, panel)
-    names(density) <- c(group, panel, 'density.independent', 'density.y')
+    names(density) <- c(group, panel, 'density.independent', 'density.dependent')
     .pd <- density
     
   } else {
@@ -88,12 +88,12 @@ validateScatterPD <- function(.scatter) {
 #'
 #' This function returns a data.table of  
 #' plot-ready data with one row per group (per panel). Columns 
-#' 'series.independent' and 'series.y' contain the raw data for the 
+#' 'series.independent' and 'series.dependent' contain the raw data for the 
 #' scatter plot. Column 'group' and 'panel' specify the group the 
 #' series data belongs to. Optionally, columns 'interval.independent', 
-#' 'interval.y' and 'interval.se' specify the independent, y and standard error
+#' 'interval.dependent' and 'interval.se' specify the independent var, dependent var, and standard error
 #'  respectively of the smoothed conditional mean for the group. 
-#'  Columns 'density.independent' and 'density.y' contain the calculated kernel 
+#'  Columns 'density.independent' and 'density.dependent' contain the calculated kernel 
 #'  density estimates.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
@@ -156,12 +156,12 @@ scattergl.dt <- function(data,
 #'
 #' This function returns the name of a json file containing 
 #' plot-ready data with one row per group (per panel). Columns 
-#' 'series.independent' and 'series.y' contain the raw data for the 
+#' 'series.independent' and 'series.dependent' contain the raw data for the 
 #' scatter plot. Column 'group' and 'panel' specify the group the 
 #' series data belongs to. Optionally, columns 'interval.independent', 
-#' 'interval.y' and 'interval.se' specify the independent, y and standard error
+#' 'interval.dependent' and 'interval.se' specify the independent var, dependent var, and standard error
 #'  respectively of the smoothed conditional mean for the group.
-#'  Columns 'density.independent' and 'density.y' contain the calculated kernel 
+#'  Columns 'density.independent' and 'density.dependent' contain the calculated kernel 
 #'  density estimates.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'

@@ -22,7 +22,7 @@ newPlotdata <- function(.dt = data.table(),
 
   independent <- emptyStringToNull(as.character(xAxisVariable$variableId))
   xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
-  y <- emptyStringToNull(as.character(yAxisVariable$variableId))
+  dependent <- emptyStringToNull(as.character(yAxisVariable$variableId))
   yType <- emptyStringToNull(as.character(yAxisVariable$dataType))
   z <- emptyStringToNull(as.character(zAxisVariable$variableId))
   zType <- emptyStringToNull(as.character(zAxisVariable$dataType))
@@ -34,7 +34,7 @@ newPlotdata <- function(.dt = data.table(),
   facetType2 <- emptyStringToNull(as.character(facetVariable2$dataType))
 
   .dt[[independent]] <- updateType(.dt[[independent]], xType)
-  if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType) }
+  if (!is.null(dependent)) { .dt[[dependent]] <- updateType(.dt[[dependent]], yType) }
   if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType) }
   if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
   if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1) }
@@ -43,7 +43,7 @@ newPlotdata <- function(.dt = data.table(),
   panelData <- makePanels(.dt, facet1, facet2)
   .dt <- data.table::setDT(panelData[[1]])
   panel <- panelData[[2]]
-  myCols <- c(independent, y, z, group, panel)
+  myCols <- c(independent, dependent, z, group, panel)
   .dt <- .dt[, myCols, with=FALSE]
 
   incompleteCases <- nrow(.dt[!complete.cases(.dt),])
@@ -64,7 +64,7 @@ newPlotdata <- function(.dt = data.table(),
 
   attr <- attributes(.dt)
   attr$xAxisVariable <-  xAxisVariable
-  if (!is.null(y)) { attr$yAxisVariable <- yAxisVariable }
+  if (!is.null(dependent)) { attr$yAxisVariable <- yAxisVariable }
   if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
   attr$incompleteCases <- incompleteCases
   attr$class = c(class, 'plot.data', attr$class)

@@ -24,16 +24,16 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   attr <- attributes(.pd)
 
   independent <- attr$xAxisVariable$variableId
-  y <- attr$yAxisVariable$variableId
+  dependent <- attr$yAxisVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
-  dims <- as.data.frame.matrix(table(.pd[[independent]], .pd[[y]]))
+  dims <- as.data.frame.matrix(table(.pd[[independent]], .pd[[dependent]]))
   dims <- c(length(dims), nrow(dims))
 
   if (any(dims > 2)) {
-    .pd <- panelChiSq(.pd, independent, y, panel)
+    .pd <- panelChiSq(.pd, independent, dependent, panel)
   } else {
-    .pd <- panelBothRatios(.pd, independent, y, panel)
+    .pd <- panelBothRatios(.pd, independent, dependent, panel)
   }
   attr$names <- names(.pd)
 
@@ -59,7 +59,7 @@ validateMosaicPD <- function(.mosaic) {
 #'
 #' This function returns a data.table of 
 #' plot-ready data with one row per panel. Columns 
-#' 'independent' and 'y' contain the raw data for plotting. Column 'panel' 
+#' 'independent' and 'dependent' contain the raw data for plotting. Column 'panel' 
 #' specifies the panel the data belongs to. 
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
@@ -113,7 +113,7 @@ mosaic.dt <- function(data, map) {
 #'
 #' This function returns the name of a json file containing 
 #' plot-ready data with one row per panel. Columns 
-#' 'independent' and 'y' contain the raw data for plotting. Column 'panel' 
+#' 'independent' and 'dependent' contain the raw data for plotting. Column 'panel' 
 #' specifies the panel the data belongs to. 
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'

@@ -28,12 +28,12 @@ test_that("box.dt() returns an appropriately sized data.table", {
   dt <- box.dt(df, map, 'all', FALSE)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'panel', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'series.independent', 'series.y'))
+  expect_equal(names(dt),c('group', 'panel', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'series.independent', 'series.dependent'))
 
   dt <- box.dt(df, map, 'all', TRUE)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'panel', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'series.independent', 'series.y', 'mean'))
+  expect_equal(names(dt),c('group', 'panel', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'series.independent', 'series.dependent', 'mean'))
 
 
   map <- data.frame('id' = c('y', 'panel'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'STRING'), stringsAsFactors=FALSE)
@@ -61,10 +61,10 @@ test_that("box.dt() returns an appropriately sized data.table", {
   dt <- box.dt(df, map, 'all', FALSE)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('panel', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'series.independent', 'series.y'))
+  expect_equal(names(dt),c('panel', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'series.independent', 'series.dependent'))
 
   dt <- box.dt(df, map, 'all', TRUE)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('panel', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'series.independent', 'series.y', 'mean'))
+  expect_equal(names(dt),c('panel', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'series.independent', 'series.dependent', 'mean'))
 })

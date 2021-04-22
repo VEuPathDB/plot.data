@@ -58,12 +58,12 @@ validateBarPD <- function(.bar) {
 #' plot-ready data with one row per group (per panel). Columns 
 #' 'label' and 'value' contain the raw data for plotting. Column 
 #' 'group' and 'panel' specify the group the series data belongs to.
-#' There are two options to calculate y-values for plotting.
+#' There are two options to calculate dependent-axis values for plotting.
 #' 1) raw 'identity' of values from data.table input
 #' 2) 'count' occurances of values from data.table input 
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value String indicating how to calculate y-values ('identity', 'count')
+#' @param value String indicating how to calculate dependent-axis values ('identity', 'count')
 #' @return data.table plot-ready data
 #' @export
 bar.dt <- function(data, map, value = c('count', 'identity')) {
@@ -116,12 +116,12 @@ bar.dt <- function(data, map, value = c('count', 'identity')) {
 #' plot-ready data with one row per group (per panel). Columns 
 #' 'label' and 'value' contain the raw data for plotting. Column 
 #' 'group' and 'panel' specify the group the series data belongs to.
-#' There are two options to calculate y-values for plotting.
+#' There are two options to calculate dependent-axis values for plotting.
 #' 1) raw 'identity' of values from data.table input
 #' 2) 'count' occurances of values from data.table input 
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value String indicating how to calculate y-values ('identity', 'count')
+#' @param value String indicating how to calculate dependent-axis values ('identity', 'count')
 #' @return character name of json file containing plot-ready data
 #' @export
 bar <- function(data, map, value = c('count', 'identity')) {

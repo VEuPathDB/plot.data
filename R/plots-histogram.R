@@ -178,13 +178,13 @@ validateHistogramPD <- function(.histo) {
 #'
 #' This function returns a data.table of 
 #' plot-ready data with one row per group (per panel). Columns 
-#' 'independent' and 'y' contain the bin label and count respectively. 
+#' 'independent' and 'dependent' contain the bin label and count respectively. 
 #' Column 'group' and 'panel' specify the group the series data 
 #' belongs to. 
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
-#' @param value String indicating how to calculate y-values ('count, 'proportion')
+#' @param value String indicating how to calculate dependent-axis values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param viewport List of min and max values to consider as the range of data
 #' @return data.table plot-ready data
@@ -254,13 +254,13 @@ histogram.dt <- function(data,
 #'
 #' This function returns the name of a json file containing 
 #' plot-ready data with one row per group (per panel). Columns 
-#' 'independent' and 'y' contain the bin label and count respectively. 
+#' 'independent' and 'dependent' contain the bin label and count respectively. 
 #' Column 'group' and 'panel' specify the group the series data 
 #' belongs to. 
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
-#' @param value String indicating how to calculate y-values ('count, 'proportion')
+#' @param value String indicating how to calculate dependent-axis values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param viewport List of min and max values to consider as the range of data
 #' @return character name of json file containing plot-ready data

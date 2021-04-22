@@ -48,44 +48,44 @@ test_that("groupSmoothedMean() returns an appropriately sized data.table", {
   dt <- groupSmoothedMean(data.xy, 'x', 'y')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt), c('independent', 'y', 'ymin', 'ymax', 'se'))
+  expect_equal(names(dt), c('independent', 'dependent', 'ymin', 'ymax', 'se'))
 
   dt <- groupSmoothedMean(data.xy, 'x', 'y', 'group')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('independent', 'y', 'ymin', 'ymax', 'se', 'group'))
+  expect_equal(names(dt), c('independent', 'dependent', 'ymin', 'ymax', 'se', 'group'))
 
   dt <- groupSmoothedMean(data.xy, 'x', 'y', NULL, 'panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('independent', 'y', 'ymin', 'ymax', 'se', 'panel'))
+  expect_equal(names(dt), c('independent', 'dependent', 'ymin', 'ymax', 'se', 'panel'))
 
   dt <- groupSmoothedMean(data.xy, 'x', 'y', 'group', 'panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt), c('independent', 'y', 'ymin', 'ymax', 'se', 'group', 'panel'))
+  expect_equal(names(dt), c('independent', 'dependent', 'ymin', 'ymax', 'se', 'group', 'panel'))
 })
 
 test_that("groupDensity() returns an appropriately sized data.table", {
   dt <- groupDensity(data.xy, 'y')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt), c('independent', 'y'))
+  expect_equal(names(dt), c('independent', 'dependent'))
 
   dt <- groupDensity(data.xy, 'y', 'group')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('group', 'independent', 'y'))
+  expect_equal(names(dt), c('group', 'independent', 'dependent'))
 
   dt <- groupDensity(data.xy, 'y', NULL, 'panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('panel', 'independent', 'y'))
+  expect_equal(names(dt), c('panel', 'independent', 'dependent'))
 
   dt <- groupDensity(data.xy, 'y', 'group', 'panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt), c('group', 'panel', 'independent', 'y'))
+  expect_equal(names(dt), c('group', 'panel', 'independent', 'dependent'))
 })
 
 #my canaries

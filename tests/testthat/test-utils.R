@@ -1,14 +1,14 @@
 context('utils')
 
 test_that("smoothed data is ordered by independent", {
-  dt <- data.table::data.table(independent = c(1, 5, 2, 3, 4), y = 1:5)
+  dt <- data.table::data.table(independent = c(1, 5, 2, 3, 4), dependent = 1:5)
   sm <- smoothedMean(dt, 'loess')
 
   expect_equal(unlist(sm$independent), dt$independent[order(dt$independent)])
 })
 
 test_that("smoothedMean() returns a data.table", {
-  dt <- data.table::data.table(independent = c(1, 5, 2, 3, 4), y = 1:5)
+  dt <- data.table::data.table(independent = c(1, 5, 2, 3, 4), dependent = 1:5)
   sm <- smoothedMean(dt, 'loess')
 
   expect_is(sm, 'data.table')
@@ -30,17 +30,17 @@ test_that("epitabToDT() returns appropriately sized data.table", {
 })
 
 test_that("relativeRisk() returns the right columns", {
-  data <- data.table('independent' = as.factor(rnorm(10)), 'y' = as.factor(rep(c(1,2),5)))
+  data <- data.table('independent' = as.factor(rnorm(10)), 'dependent' = as.factor(rep(c(1,2),5)))
   dt <- relativeRisk(data)
 
-  expect_equal(names(dt), c('relativerisk', 'p.value', 'independent', 'interval', 'y.label', 'y'))
+  expect_equal(names(dt), c('relativerisk', 'p.value', 'independent', 'interval', 'dependent.label', 'dependent'))
 })
 
 test_that("oddsRatio() returns the right columns", {
-  data <- data.table('independent' = as.factor(rnorm(10)), 'y' = as.factor(rep(c(1,2),5)))
+  data <- data.table('independent' = as.factor(rnorm(10)), 'dependent' = as.factor(rep(c(1,2),5)))
   dt <- oddsRatio(data)
 
-  expect_equal(names(dt), c('oddsratio', 'p.value', 'independent', 'interval', 'y.label', 'y'))
+  expect_equal(names(dt), c('oddsratio', 'p.value', 'independent', 'interval', 'dependent.label', 'dependent'))
 })
 
 

@@ -34,19 +34,19 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
 
   #NOTE: one or the other of these could be a list for 'collection'
   independent <- attr$xAxisVariable$variableId
-  y <- attr$yAxisVariable$variableId
+  dependent <- attr$yAxisVariable$variableId
   #NOTE: this for the case of 'series'
   z <- attr$zAxisVariable$variableId
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
   if (value == 'collection') {
-    data <- groupSplit(data, independent, y, NULL, NULL, panel)
+    data <- groupSplit(data, independent, dependent, NULL, NULL, panel)
   } else if (value == 'series' ) { 
     data <- data[order(data[[independent]]),]
     data[[independent]] <- as.factor(data[[independent]])
-    data[[y]] <- as.factor(data[[y]])
-    data <- groupSplit(data, independent, y, z, NULL, panel, longToWide = TRUE)
+    data[[dependent]] <- as.factor(data[[dependent]])
+    data <- groupSplit(data, independent, dependent, z, NULL, panel, longToWide = TRUE)
   } else {
     stop('Unrecognized argument to "value".')
   } 
@@ -72,7 +72,7 @@ validateHeatmapPD <- function(.heatmap) {
 #' plot-ready data with one row per group (per panel). Column 'table'
 #'  contains a nested data.table of z-values for plotting. This 
 #' table has a column for each x-axis (independent-axis) entry and a row for each 
-#' y-axis entry. Columns 'group' and 'panel' specify the group the 
+#' dependent-axis entry. Columns 'group' and 'panel' specify the group the 
 #' series data belongs to. 
 #' There are two ways to calculate z-values for the heatmap.
 #' 1) 'collection' of numeric variables vs single categorical
@@ -146,8 +146,8 @@ heatmap.dt <- function(data, map, value = c('series', 'collection')) {
 #' This function returns the name of a json file containing 
 #' plot-ready data with one row per group (per panel). Column 'table'
 #'  contains a nested data.table of z-values for plotting. This 
-#' table has a column for each x-axis (independent-axia) entry and a row for each 
-#' y-axis entry. Columns 'group' and 'panel' specify the group the 
+#' table has a column for each independent-axis entry and a row for each 
+#' dependent-axis entry. Columns 'group' and 'panel' specify the group the 
 #' series data belongs to. 
 #' There are two ways to calculate z-values for the heatmap.
 #' 1) 'collection' of numeric variables vs single categorical

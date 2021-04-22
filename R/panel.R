@@ -1,8 +1,8 @@
-panelOddsRatio <- function(data, independent, y, panel = NULL) {
+panelOddsRatio <- function(data, independent, dependent, panel = NULL) {
   names(data)[names(data) == independent] <- 'independent'
-  names(data)[names(data) == y] <- 'y'
+  names(data)[names(data) == dependent] <- 'dependent'
   independent <- 'independent'
-  y <- 'y'
+  dependent <- 'dependent'
 
   if (is.null(panel)) {
     dt <- oddsRatio(data)
@@ -16,11 +16,11 @@ panelOddsRatio <- function(data, independent, y, panel = NULL) {
   return(dt)
 }
 
-panelRelativeRisk <- function(data, independent, y, panel = NULL) {
+panelRelativeRisk <- function(data, independent, dependent, panel = NULL) {
   names(data)[names(data) == independent] <- 'independent'
-  names(data)[names(data) == y] <- 'y'
+  names(data)[names(data) == dependent] <- 'dependent'
   independent <- 'independent'
-  y <- 'y'
+  dependent <- 'dependent'
 
   if (is.null(panel)) {
     dt <- relativeRisk(data)
@@ -34,12 +34,12 @@ panelRelativeRisk <- function(data, independent, y, panel = NULL) {
   return(dt)
 }
 
-panelBothRatios <- function(data, independent, y, panel = NULL) {
+panelBothRatios <- function(data, independent, dependent, panel = NULL) {
   names(data)[names(data) == independent] <- 'independent'
-  names(data)[names(data) == y] <- 'y'
+  names(data)[names(data) == dependent] <- 'dependent'
   independent <- 'independent'
-  y <- 'y'
-  mergeByCols <- c(panel, 'p.value', 'independent', 'y')
+  dependent <- 'dependent'
+  mergeByCols <- c(panel, 'p.value', 'independent', 'dependent')
 
   if (is.null(panel)) {
     dt <- bothRatios(data)
@@ -53,17 +53,17 @@ panelBothRatios <- function(data, independent, y, panel = NULL) {
   return(dt)
 }
 
-panelChiSq <- function(data, independent, y, panel = NULL) {
+panelChiSq <- function(data, independent, dependent, panel = NULL) {
   names(data)[names(data) == independent] <- 'independent'
-  names(data)[names(data) == y] <- 'y'
+  names(data)[names(data) == dependent] <- 'dependent'
   independent <- 'independent'
-  y <- 'y'
+  dependent <- 'dependent'
 
   if (is.null(panel)) {
     dt <- chiSq(data)
   } else {
     levelsX <- unique(data[[independent]])
-    levelsY <- unique(data[[y]])
+    levelsY <- unique(data[[dependent]])
     dt.list <- split(data, list(data[[panel]]))
     dt.list <- lapply(dt.list, chiSq)
     dt <- purrr::reduce(dt.list, rbind)
