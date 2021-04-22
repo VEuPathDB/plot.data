@@ -1,5 +1,5 @@
 newBarPD <- function(.dt = data.table::data.table(),
-                         xAxisVariable = list('variableId' = NULL,
+                         independentVar = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
                          overlayVariable = list('variableId' = NULL,
@@ -16,7 +16,7 @@ newBarPD <- function(.dt = data.table::data.table(),
                          class = character()) {
 
   .pd <- newPlotdata(.dt = .dt,
-                     xAxisVariable = xAxisVariable,
+                     independentVar = independentVar,
                      overlayVariable = overlayVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
@@ -24,7 +24,7 @@ newBarPD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
 
-  independent <- attr$xAxisVariable$variableId
+  independent <- attr$independentVar$variableId
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
@@ -44,8 +44,8 @@ newBarPD <- function(.dt = data.table::data.table(),
 }
 
 validateBarPD <- function(.bar) {
-  xAxisVariable <- attr(.bar, 'xAxisVariable')
-  if (!xAxisVariable$dataType %in% c('STRING')) {
+  independentVar <- attr(.bar, 'independentVar')
+  if (!independentVar$dataType %in% c('STRING')) {
     stop('The independent axis must be of type string for barplot.')
   }
 
@@ -62,7 +62,7 @@ validateBarPD <- function(.bar) {
 #' 1) raw 'identity' of values from data.table input
 #' 2) 'count' occurances of values from data.table input 
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating how to calculate dependent-axis values ('identity', 'count')
 #' @return data.table plot-ready data
 #' @export
@@ -83,10 +83,10 @@ bar.dt <- function(data, map, value = c('count', 'identity')) {
     data <- data.table::as.data.table(data)
   }
 
-  if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  if ('independentVar' %in% map$plotRef) {
+    independentVar <- plotRefMapToList(map, 'independentVar')
   } else {
-    stop("Must provide xAxisVariable for plot type bar.")
+    stop("Must provide independentVar for plot type bar.")
   }
   if ('overlayVariable' %in% map$plotRef) {
     overlayVariable <- plotRefMapToList(map, 'overlayVariable')
@@ -99,7 +99,7 @@ bar.dt <- function(data, map, value = c('count', 'identity')) {
   }
 
   .bar <- newBarPD(.dt = data,
-                    xAxisVariable = xAxisVariable,
+                    independentVar = independentVar,
                     overlayVariable = overlayVariable,
                     facetVariable1 = facetVariable1,
                     facetVariable2 = facetVariable2,
@@ -120,7 +120,7 @@ bar.dt <- function(data, map, value = c('count', 'identity')) {
 #' 1) raw 'identity' of values from data.table input
 #' 2) 'count' occurances of values from data.table input 
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating how to calculate dependent-axis values ('identity', 'count')
 #' @return character name of json file containing plot-ready data
 #' @export

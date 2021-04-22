@@ -48,9 +48,9 @@ getJSON <- function(.pd) {
     namedAttrList$facetVariable2 <- NULL
   }
 
-  if ('xAxisVariable' %in% names(namedAttrList)) {
-    namedAttrList$xVariableDetails <- makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId)
-    namedAttrList$xAxisVariable <- NULL
+  if ('independentVar' %in% names(namedAttrList)) {
+    namedAttrList$xVariableDetails <- makeVariableDetails(NULL, namedAttrList$independentVar$variableId, namedAttrList$independentVar$entityId)
+    namedAttrList$independentVar <- NULL
   }
   if ('yAxisVariable' %in% names(namedAttrList)) {
     namedAttrList$yVariableDetails <- makeVariableDetails(NULL, namedAttrList$yAxisVariable$variableId, namedAttrList$yAxisVariable$entityId)

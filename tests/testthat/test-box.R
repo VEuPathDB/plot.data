@@ -2,7 +2,7 @@ context('box')
 
 test_that("box.dt() returns an appropriately sized data.table", {
   #using panel for xaxis.. maybe make another test.dt for this?
-  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'independentVar'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
   df <- data.xy
 
   dt <- box.dt(df, map, 'none', FALSE)
@@ -36,7 +36,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('group', 'panel', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'series.independent', 'series.dependent', 'mean'))
 
 
-  map <- data.frame('id' = c('y', 'panel'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('y', 'panel'), 'plotRef' = c('yAxisVariable', 'independentVar'), 'dataType' = c('NUMBER', 'STRING'), stringsAsFactors=FALSE)
 
   dt <- box.dt(df, map, 'none', FALSE)
   expect_is(dt, 'data.table')

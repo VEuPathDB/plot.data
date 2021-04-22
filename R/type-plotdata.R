@@ -1,5 +1,5 @@
 newPlotdata <- function(.dt = data.table(),
-                         xAxisVariable = list('variableId' = NULL,
+                         independentVar = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
                          yAxisVariable = list('variableId' = NULL,
@@ -20,8 +20,8 @@ newPlotdata <- function(.dt = data.table(),
                          ...,
                          class = character()) {
 
-  independent <- emptyStringToNull(as.character(xAxisVariable$variableId))
-  xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
+  independent <- emptyStringToNull(as.character(independentVar$variableId))
+  xType <- emptyStringToNull(as.character(independentVar$dataType))
   dependent <- emptyStringToNull(as.character(yAxisVariable$variableId))
   yType <- emptyStringToNull(as.character(yAxisVariable$dataType))
   z <- emptyStringToNull(as.character(zAxisVariable$variableId))
@@ -49,21 +49,21 @@ newPlotdata <- function(.dt = data.table(),
   incompleteCases <- nrow(.dt[!complete.cases(.dt),])
   .dt <- .dt[complete.cases(.dt),]
 
-  if (is.null(xAxisVariable$dataType)) {
+  if (is.null(independentVar$dataType)) {
     xIsNum = all(!is.na(as.numeric(.dt[[independent]])))
-    xAxisVariable$dataType <- 'NUMBER'
+    independentVar$dataType <- 'NUMBER'
     xIsDate = !xIsNum && all(!is.na(as.Date(.dt[[independent]], format='%Y-%m-%d')))
-    xAxisVariable$dataType <- 'DATE'
+    independentVar$dataType <- 'DATE'
     xIsChar = !xIsNum && !xIsDate && all(!is.na(as.character(.dt[[independent]])))
-    xAxisVariable$dataType <- 'STRING'
+    independentVar$dataType <- 'STRING'
   } else {
-    xIsChar = xAxisVariable$dataType == 'STRING'
-    xIsNum = xAxisVariable$dataType == 'NUMBER'
-    xIsDate = xAxisVariable$dataType == 'DATE'
+    xIsChar = independentVar$dataType == 'STRING'
+    xIsNum = independentVar$dataType == 'NUMBER'
+    xIsDate = independentVar$dataType == 'DATE'
   } 
 
   attr <- attributes(.dt)
-  attr$xAxisVariable <-  xAxisVariable
+  attr$independentVar <-  independentVar
   if (!is.null(dependent)) { attr$yAxisVariable <- yAxisVariable }
   if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
   attr$incompleteCases <- incompleteCases
@@ -92,9 +92,9 @@ validateVariableAttr <- function(variableAttr) {
 
 validatePlotdata <- function(.pd) {
   .dt <- unclass(.pd)
-  xAxisVariable <- attr(.pd, 'xAxisVariable')
-  stopifnot(validateVariableAttr(xAxisVariable))
-  stopifnot(xAxisVariable$variableId %in% names(.dt))
+  independentVar <- attr(.pd, 'independentVar')
+  stopifnot(validateVariableAttr(independentVar))
+  stopifnot(independentVar$variableId %in% names(.dt))
   class <- attr(.pd, 'class')
   stopifnot(is.character(class))
 

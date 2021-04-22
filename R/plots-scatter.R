@@ -1,5 +1,5 @@
 newScatterPD <- function(.dt = data.table::data.table(),
-                         xAxisVariable = list('variableId' = NULL,
+                         independentVar = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
                          yAxisVariable = list('variableId' = NULL,
@@ -19,7 +19,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                          class = character()) {
 
   .pd <- newPlotdata(.dt = .dt,
-                     xAxisVariable = xAxisVariable,
+                     independentVar = independentVar,
                      yAxisVariable = yAxisVariable,
                      overlayVariable = overlayVariable,
                      facetVariable1 = facetVariable1,
@@ -28,7 +28,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
 
-  independent <- attr$xAxisVariable$variableId
+  independent <- attr$independentVar$variableId
   dependent <- attr$yAxisVariable$variableId
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
@@ -72,8 +72,8 @@ newScatterPD <- function(.dt = data.table::data.table(),
 }
 
 validateScatterPD <- function(.scatter) {
-  xAxisVariable <- attr(.scatter, 'xAxisVariable')
-  if (!xAxisVariable$dataType %in% c('NUMBER','DATE')) {
+  independentVar <- attr(.scatter, 'independentVar')
+  if (!independentVar$dataType %in% c('NUMBER','DATE')) {
     stop('The independent axis must be of type number or date for scatterplot.')
   }
   yAxisVariable <- attr(.scatter, 'yAxisVariable')
@@ -96,7 +96,7 @@ validateScatterPD <- function(.scatter) {
 #'  Columns 'density.independent' and 'density.dependent' contain the calculated kernel 
 #'  density estimates.
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean
 #' @return data.table plot-ready data
 #' @export
@@ -119,10 +119,10 @@ scattergl.dt <- function(data,
     data <- data.table::as.data.table(data)
   }
 
-  if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  if ('independentVar' %in% map$plotRef) {
+    independentVar <- plotRefMapToList(map, 'independentVar')
   } else {
-    stop("Must provide xAxisVariable for plot type scatter.")
+    stop("Must provide independentVar for plot type scatter.")
   }
   if ('yAxisVariable' %in% map$plotRef) {
     yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
@@ -140,7 +140,7 @@ scattergl.dt <- function(data,
   }
 
   .scatter <- newScatterPD(.dt = data,
-                            xAxisVariable = xAxisVariable,
+                            independentVar = independentVar,
                             yAxisVariable = yAxisVariable,
                             overlayVariable = overlayVariable,
                             facetVariable1 = facetVariable1,
@@ -164,7 +164,7 @@ scattergl.dt <- function(data,
 #'  Columns 'density.independent' and 'density.dependent' contain the calculated kernel 
 #'  density estimates.
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean
 #' @return character name of json file containing plot-ready data
 #' @export

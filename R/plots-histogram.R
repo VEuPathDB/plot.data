@@ -1,6 +1,6 @@
 #' @importFrom zoo as.yearmon
 newHistogramPD <- function(.dt = data.table::data.table(),
-                         xAxisVariable = list('variableId' = NULL,
+                         independentVar = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
                          overlayVariable = list('variableId' = NULL,
@@ -21,15 +21,15 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          class = character()) {
 
   .pd <- newPlotdata(.dt = .dt,
-                     xAxisVariable = xAxisVariable,
+                     independentVar = independentVar,
                      overlayVariable = overlayVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      class = "histogram")
 
   attr <- attributes(.pd)
-  independent <- attr$xAxisVariable$variableId
-  xType <- attr$xAxisVariable$dataType
+  independent <- attr$independentVar$variableId
+  xType <- attr$independentVar$dataType
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
@@ -158,15 +158,15 @@ validateHistogramPD <- function(.histo) {
   stopifnot(validateBinSlider(binSlider))
   viewport <- attr(.histo, 'viewport')
   stopifnot(validateViewport(viewport))
-  xAxisVariable <- attr(.histo, 'xAxisVariable')
-  if (!xAxisVariable$dataType %in% c('DATE','NUMBER')) {
+  independentVar <- attr(.histo, 'independentVar')
+  if (!independentVar$dataType %in% c('DATE','NUMBER')) {
     stop('The independent axis must be either of type date or number for a histogram.')
   }
   binWidth <- attr(.histo, 'binWidth')
   if (!is.null(binWidth)) {
-    if (xAxisVariable$dataType == 'DATE' && !is.character(binWidth)) {
+    if (independentVar$dataType == 'DATE' && !is.character(binWidth)) {
       stop("binWidth must be a character string for histograms of date values.")
-    } else if (xAxisVariable$dataType == 'NUMBER' && !is.numeric(binWidth)) {
+    } else if (independentVar$dataType == 'NUMBER' && !is.numeric(binWidth)) {
       stop("binWidth must be numeric for histograms of numeric values.")
     }
   }
@@ -182,7 +182,7 @@ validateHistogramPD <- function(.histo) {
 #' Column 'group' and 'panel' specify the group the series data 
 #' belongs to. 
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
 #' @param value String indicating how to calculate dependent-axis values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
@@ -214,16 +214,16 @@ histogram.dt <- function(data,
     data <- data.table::as.data.table(data)
   }
 
-  if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
-    if (xAxisVariable$dataType == 'NUMBER' & !is.null(binWidth)) {
+  if ('independentVar' %in% map$plotRef) {
+    independentVar <- plotRefMapToList(map, 'independentVar')
+    if (independentVar$dataType == 'NUMBER' & !is.null(binWidth)) {
       binWidth <- suppressWarnings(as.numeric(binWidth))
       if (is.na(binWidth)) {
         stop("binWidth must be numeric for histograms of numeric values.")
       }
     }
   } else {
-    stop("Must provide xAxisVariable for plot type histogram.")
+    stop("Must provide independentVar for plot type histogram.")
   }
   if ('overlayVariable' %in% map$plotRef) {
     overlayVariable <- plotRefMapToList(map, 'overlayVariable')
@@ -236,7 +236,7 @@ histogram.dt <- function(data,
   }
 
   .histo <- newHistogramPD(.dt = data,
-                           xAxisVariable = xAxisVariable,
+                           independentVar = independentVar,
                            overlayVariable = overlayVariable,
                            facetVariable1 = facetVariable1,
                            facetVariable2 = facetVariable2,
@@ -258,7 +258,7 @@ histogram.dt <- function(data,
 #' Column 'group' and 'panel' specify the group the series data 
 #' belongs to. 
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
 #' @param value String indicating how to calculate dependent-axis values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
