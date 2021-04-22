@@ -26,7 +26,7 @@ newPlotdata <- function(.dt = data.table(),
   yType <- emptyStringToNull(as.character(dependentVar$dataType))
   z <- emptyStringToNull(as.character(zAxisVariable$variableId))
   zType <- emptyStringToNull(as.character(zAxisVariable$dataType))
-  group <- emptyStringToNull(as.character(overlayVariable$variableId))
+  overlay <- emptyStringToNull(as.character(overlayVariable$variableId))
   groupType <- emptyStringToNull(as.character(overlayVariable$dataType))
   facet1 <- emptyStringToNull(as.character(facetVariable1$variableId))
   facetType1 <- emptyStringToNull(as.character(facetVariable1$dataType))
@@ -36,14 +36,14 @@ newPlotdata <- function(.dt = data.table(),
   .dt[[independent]] <- updateType(.dt[[independent]], xType)
   if (!is.null(dependent)) { .dt[[dependent]] <- updateType(.dt[[dependent]], yType) }
   if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType) }
-  if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
+  if (!is.null(overlay)) { .dt[[overlay]] <- updateType(.dt[[overlay]], groupType) }
   if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1) }
   if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2) }
 
   panelData <- makePanels(.dt, facet1, facet2)
   .dt <- data.table::setDT(panelData[[1]])
   panel <- panelData[[2]]
-  myCols <- c(independent, dependent, z, group, panel)
+  myCols <- c(independent, dependent, z, overlay, panel)
   .dt <- .dt[, myCols, with=FALSE]
 
   incompleteCases <- nrow(.dt[!complete.cases(.dt),])
@@ -68,7 +68,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(z)) { attr$dependentVar <- zAxisVariable }
   attr$incompleteCases <- incompleteCases
   attr$class = c(class, 'plot.data', attr$class)
-  if (!is.null(group)) { attr$overlayVariable <- overlayVariable }
+  if (!is.null(overlay)) { attr$overlayVariable <- overlayVariable }
   if (!is.null(facet1)) { attr$facetVariable1 <- facetVariable1 }
   if (!is.null(facet2)) { attr$facetVariable2 <- facetVariable2 }
 

@@ -37,7 +37,7 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
   dependent <- attr$dependentVar$variableId
   #NOTE: this for the case of 'series'
   z <- attr$zAxisVariable$variableId
-  group <- attr$overlayVariable$variableId
+  overlay <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
   if (value == 'collection') {
@@ -69,10 +69,10 @@ validateHeatmapPD <- function(.heatmap) {
 #' Heatmap as data.table
 #'
 #' This function returns a data.table of 
-#' plot-ready data with one row per group (per panel). Column 'table'
+#' plot-ready data with one row per overlay (per panel). Column 'table'
 #'  contains a nested data.table of z-values for plotting. This 
 #' table has a column for each x-axis (independent-axis) entry and a row for each 
-#' dependent-axis entry. Columns 'group' and 'panel' specify the group the 
+#' dependent-axis entry. Columns 'overlay' and 'panel' specify the group the 
 #' series data belongs to. 
 #' There are two ways to calculate z-values for the heatmap.
 #' 1) 'collection' of numeric variables vs single categorical
@@ -144,10 +144,10 @@ heatmap.dt <- function(data, map, value = c('series', 'collection')) {
 #' Heatmap data file
 #'
 #' This function returns the name of a json file containing 
-#' plot-ready data with one row per group (per panel). Column 'table'
+#' plot-ready data with one row per overlay (per panel). Column 'table'
 #'  contains a nested data.table of z-values for plotting. This 
 #' table has a column for each independent-axis entry and a row for each 
-#' dependent-axis entry. Columns 'group' and 'panel' specify the group the 
+#' dependent-axis entry. Columns 'overlay' and 'panel' specify the group the 
 #' series data belongs to. 
 #' There are two ways to calculate z-values for the heatmap.
 #' 1) 'collection' of numeric variables vs single categorical

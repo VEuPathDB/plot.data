@@ -30,7 +30,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   attr <- attributes(.pd)
   independent <- attr$independentVar$variableId
   xType <- attr$independentVar$dataType
-  group <- attr$overlayVariable$variableId
+  overlay <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
   summary <- as.list(summary(.pd[[independent]]))
@@ -111,9 +111,9 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   attr$binSpec <- binSpec
 
   if (value == 'count') {
-    .pd <- binSize(.pd, independent, group, panel, binWidth, viewport)
+    .pd <- binSize(.pd, independent, overlay, panel, binWidth, viewport)
   } else if (value == 'proportion' ) {
-    .pd <- binProportion(.pd, independent, group, panel, binWidth, viewport)
+    .pd <- binProportion(.pd, independent, overlay, panel, binWidth, viewport)
   } else {
     stop('Unrecognized argument to "value".')
   }
@@ -177,9 +177,9 @@ validateHistogramPD <- function(.histo) {
 #' Histogram as data.table
 #'
 #' This function returns a data.table of 
-#' plot-ready data with one row per group (per panel). Columns 
+#' plot-ready data with one row per overlay (per panel). Columns 
 #' 'independent' and 'dependent' contain the bin label and count respectively. 
-#' Column 'group' and 'panel' specify the group the series data 
+#' Column 'overlay' and 'panel' specify the group the series data 
 #' belongs to. 
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
@@ -253,9 +253,9 @@ histogram.dt <- function(data,
 #' Histogram data file
 #'
 #' This function returns the name of a json file containing 
-#' plot-ready data with one row per group (per panel). Columns 
+#' plot-ready data with one row per overlay (per panel). Columns 
 #' 'independent' and 'dependent' contain the bin label and count respectively. 
-#' Column 'group' and 'panel' specify the group the series data 
+#' Column 'overlay' and 'panel' specify the group the series data 
 #' belongs to. 
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'overlayVariable', 'facetVariable1' and 'facetVariable2'

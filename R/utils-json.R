@@ -10,16 +10,16 @@ makeVariableDetails <- function(value, variableId, entityId) {
 
 addStrataVariableDetails <- function(.pd) {
   namedAttrList <- getPDAttributes(.pd)
-  group <- NULL
+  overlay <- NULL
   facet1 <- NULL
   facet2 <- NULL
-  if ('overlayVariable' %in% names(namedAttrList)) { group <- namedAttrList$overlayVariable$variableId }
+  if ('overlayVariable' %in% names(namedAttrList)) { overlay <- namedAttrList$overlayVariable$variableId }
   if ('facetVariable1' %in% names(namedAttrList)) { facet1 <- namedAttrList$facetVariable1$variableId }
   if ('facetVariable2' %in% names(namedAttrList)) { facet2 <- namedAttrList$facetVariable2$variableId }
 
-  if (!is.null(group)) {
-    names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
-    .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, group, namedAttrList$overlayVariable$entityId)
+  if (!is.null(overlay)) {
+    names(.pd)[names(.pd) == overlay] <- 'overlayVariableDetails'
+    .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, overlay, namedAttrList$overlayVariable$entityId)
   }
 
   if (!is.null(facet1) & !is.null(facet2)) {

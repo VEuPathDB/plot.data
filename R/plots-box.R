@@ -31,11 +31,11 @@ newBoxPD <- function(.dt = data.table::data.table(),
 
   independent <- attr$independentVar$variableId
   dependent <- attr$dependentVar$variableId
-  group <- attr$overlayVariable$variableId
+  overlay <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
-  summary <- groupSummary(.pd, independent, dependent, group, panel)
-  fences <- groupFences(.pd, independent, dependent, group, panel)
+  summary <- groupSummary(.pd, independent, dependent, overlay, panel)
+  fences <- groupFences(.pd, independent, dependent, overlay, panel)
   fences <- fences[, -independent, with = FALSE]
   if (!is.null(key(summary))) {
     .pd.base <- merge(summary, fences)
@@ -44,7 +44,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   }
 
   if (points == 'outliers') {
-    points <- groupOutliers(.pd, independent, dependent, group, panel)
+    points <- groupOutliers(.pd, independent, dependent, overlay, panel)
     points[[independent]] <- NULL
     if (!is.null(key(points))) {
       .pd.base <- merge(.pd.base, points)
@@ -52,7 +52,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
       .pd.base <- cbind(.pd.base, points)
     }
   } else if (points == 'all') {
-    rawData <- noStatsFacet(.pd, group, panel)
+    rawData <- noStatsFacet(.pd, overlay, panel)
     names(rawData)[names(rawData) == dependent] <- 'series.dependent'
     names(rawData)[names(rawData) == independent] <- 'series.independent'
     if (!is.null(key(rawData))) {
@@ -63,7 +63,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   }
 
   if (mean) {
-    mean <- groupMean(.pd, independent, dependent, group, panel)
+    mean <- groupMean(.pd, independent, dependent, overlay, panel)
     mean[[independent]] <- NULL
     if (!is.null(key(mean))) {
       .pd.base <- merge(.pd.base, mean)
@@ -95,15 +95,15 @@ validateBoxPD <- function(.box) {
 #' Box Plot as data.table
 #'
 #' This function returns a data.table of 
-#' plot-ready data with one row per group (per panel). Columns 
+#' plot-ready data with one row per overlay (per panel). Columns 
 #' 'independent', 'min', 'q1', 'median', 'q3' and 'max' represent the 
-#' pre-computed values per group. Columns 'group' and 'panel' specify
+#' pre-computed values per group. Columns 'overlay' and 'panel' specify
 #' the group the data belong to. 
 #' Optionally, can return columns 'outliers' and 'mean' as well.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'dependentVar', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param points character vector indicating which points to return 'outliers' or 'all'
-#' @param mean boolean indicating whether to return mean value per group (per panel)
+#' @param mean boolean indicating whether to return mean value per overlay (per panel)
 #' @return data.table plot-ready data
 #' @export
 box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
@@ -164,15 +164,15 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 #' Box Plot data file
 #'
 #' This function returns the name of a json file containing 
-#' plot-ready data with one row per group (per panel). Columns 
+#' plot-ready data with one row per overlay (per panel). Columns 
 #' 'independent', 'min', 'q1', 'median', 'q3' and 'max' represent the 
-#' pre-computed values per group. Columns 'group' and 'panel' specify
+#' pre-computed values per group. Columns 'overlay' and 'panel' specify
 #' the group the data belong to. 
 #' Optionally, can return columns 'outliers' and 'mean' as well.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'dependentVar', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param points character vector indicating which points to return 'outliers' or 'all'
-#' @param mean boolean indicating whether to return mean value per group (per panel)
+#' @param mean boolean indicating whether to return mean value per overlay (per panel)
 #' @return character name of json file containing plot-ready data
 #' @export
 box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {

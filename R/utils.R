@@ -39,22 +39,22 @@ getPDAttributes <- function(.pd) {
 #' @export
 is.POSIXct <- function(x) inherits(x, "POSIXct")
 
-getInteractionColsList <- function(data, group, panel) {
+getInteractionColsList <- function(data, overlay, panel) {
   if (is.null(panel)) {
-    colsList <- list(data[[group]])
+    colsList <- list(data[[overlay]])
   } else {
-    if (is.null(group)) {
+    if (is.null(overlay)) {
       colsList <- list(data[[panel]])
     } else {
-      colsList <- list(data[[group]], data[[panel]])
+      colsList <- list(data[[overlay]], data[[panel]])
     }
   }
   
   return(colsList)  
 }
 
-removeGroupPanel <- function(data, group, panel) {
-  data[[group]] <- NULL
+removeOverlayPanel <- function(data, overlay, panel) {
+  data[[overlay]] <- NULL
   data[[panel]] <- NULL
   
   return(data)

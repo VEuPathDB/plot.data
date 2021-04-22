@@ -25,16 +25,16 @@ newBarPD <- function(.dt = data.table::data.table(),
   attr <- attributes(.pd)
 
   independent <- attr$independentVar$variableId
-  group <- attr$overlayVariable$variableId
+  overlay <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
   if (value == 'identity') {
-    .pd <- noStatsFacet(.pd, group, panel)
+    .pd <- noStatsFacet(.pd, overlay, panel)
   } else if (value == 'count' ) {
     .pd$dummy <- 1
-    .pd <- groupSize(.pd, independent, 'dummy', group, panel)
-    names(.pd) <- c('label', group, panel, 'value')
-    .pd <- noStatsFacet(.pd, group, panel)
+    .pd <- groupSize(.pd, independent, 'dummy', overlay, panel)
+    names(.pd) <- c('label', overlay, panel, 'value')
+    .pd <- noStatsFacet(.pd, overlay, panel)
   }
   attr$names <- names(.pd)
   
@@ -55,9 +55,9 @@ validateBarPD <- function(.bar) {
 #' Bar Plot as data.table
 #'
 #' This function returns a data.table of 
-#' plot-ready data with one row per group (per panel). Columns 
-#' 'label' and 'value' contain the raw data for plotting. Column 
-#' 'group' and 'panel' specify the group the series data belongs to.
+#' plot-ready data with one row per overlay (per panel). Columns 
+#' 'label' and 'value' contain the raw data for plotting. Columns 
+#' 'overlay' and 'panel' specify the group the series data belongs to.
 #' There are two options to calculate dependent-axis values for plotting.
 #' 1) raw 'identity' of values from data.table input
 #' 2) 'count' occurances of values from data.table input 
@@ -113,9 +113,9 @@ bar.dt <- function(data, map, value = c('count', 'identity')) {
 #' Bar Plot data file
 #'
 #' This function returns the name of a json file containing 
-#' plot-ready data with one row per group (per panel). Columns 
+#' plot-ready data with one row per overlay (per panel). Columns 
 #' 'label' and 'value' contain the raw data for plotting. Column 
-#' 'group' and 'panel' specify the group the series data belongs to.
+#' 'overlay' and 'panel' specify the group the series data belongs to.
 #' There are two options to calculate dependent-axis values for plotting.
 #' 1) raw 'identity' of values from data.table input
 #' 2) 'count' occurances of values from data.table input 

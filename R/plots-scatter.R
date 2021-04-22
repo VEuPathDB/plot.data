@@ -30,24 +30,24 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
   independent <- attr$independentVar$variableId
   dependent <- attr$dependentVar$variableId
-  group <- attr$overlayVariable$variableId
+  overlay <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
-  series <- noStatsFacet(.pd, group, panel)
-  names(series) <- c(group, panel, 'series.dependent', 'series.independent')
+  series <- noStatsFacet(.pd, overlay, panel)
+  names(series) <- c(overlay, panel, 'series.dependent', 'series.independent')
 
   if (value == 'smoothedMean') {
-    interval <- groupSmoothedMean(.pd, independent, dependent, group, panel)
+    interval <- groupSmoothedMean(.pd, independent, dependent, overlay, panel)
     interval <- interval[, !c('ymin', 'ymax')]
-    names(interval) <- c('interval.independent', 'interval.dependent', 'interval.se', group, panel)
+    names(interval) <- c('interval.independent', 'interval.dependent', 'interval.se', overlay, panel)
     
     .pd <- interval
 
   } else if (value == 'smoothedMeanWithRaw') {
     
-    interval <- groupSmoothedMean(.pd, independent, dependent, group, panel)
+    interval <- groupSmoothedMean(.pd, independent, dependent, overlay, panel)
     interval <- interval[, !c('ymin', 'ymax')]
-    names(interval) <- c('interval.independent', 'interval.dependent', 'interval.se', group, panel)
+    names(interval) <- c('interval.independent', 'interval.dependent', 'interval.se', overlay, panel)
     
     if (!is.null(key(series))) {
       .pd <- merge(series, interval)
@@ -56,8 +56,8 @@ newScatterPD <- function(.dt = data.table::data.table(),
     }
     
   } else if (value == 'density') {
-    density <- groupDensity(.pd, independent, group, panel)
-    names(density) <- c(group, panel, 'density.independent', 'density.dependent')
+    density <- groupDensity(.pd, independent, overlay, panel)
+    names(density) <- c(overlay, panel, 'density.independent', 'density.dependent')
     .pd <- density
     
   } else {
@@ -87,9 +87,9 @@ validateScatterPD <- function(.scatter) {
 #' Scatter Plot as data.table
 #'
 #' This function returns a data.table of  
-#' plot-ready data with one row per group (per panel). Columns 
+#' plot-ready data with one row per overlay (per panel). Columns 
 #' 'series.independent' and 'series.dependent' contain the raw data for the 
-#' scatter plot. Column 'group' and 'panel' specify the group the 
+#' scatter plot. Column 'overlay' and 'panel' specify the group the 
 #' series data belongs to. Optionally, columns 'interval.independent', 
 #' 'interval.dependent' and 'interval.se' specify the independent var, dependent var, and standard error
 #'  respectively of the smoothed conditional mean for the group. 
@@ -155,9 +155,9 @@ scattergl.dt <- function(data,
 #' Scatter Plot data file
 #'
 #' This function returns the name of a json file containing 
-#' plot-ready data with one row per group (per panel). Columns 
+#' plot-ready data with one row per overlay (per panel). Columns 
 #' 'series.independent' and 'series.dependent' contain the raw data for the 
-#' scatter plot. Column 'group' and 'panel' specify the group the 
+#' scatter plot. Column 'overlay' and 'panel' specify the group the 
 #' series data belongs to. Optionally, columns 'interval.independent', 
 #' 'interval.dependent' and 'interval.se' specify the independent var, dependent var, and standard error
 #'  respectively of the smoothed conditional mean for the group.
