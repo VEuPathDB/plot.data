@@ -2,7 +2,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                          independentVar = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
-                         yAxisVariable = list('variableId' = NULL,
+                         dependentVar = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
                          facetVariable1 = list('variableId' = NULL,
@@ -16,7 +16,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      independentVar = independentVar,
-                     yAxisVariable = yAxisVariable,
+                     dependentVar = dependentVar,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      class = "mosaic")
@@ -24,7 +24,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   attr <- attributes(.pd)
 
   independent <- attr$independentVar$variableId
-  dependent <- attr$yAxisVariable$variableId
+  dependent <- attr$dependentVar$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
   dims <- as.data.frame.matrix(table(.pd[[independent]], .pd[[dependent]]))
@@ -47,8 +47,8 @@ validateMosaicPD <- function(.mosaic) {
   if (!independentVar$dataType %in% c('STRING')) {
     stop('The independent axis must be of type string for mosaicplot.')
   }
-  yAxisVariable <- attr(.mosaic, 'yAxisVariable')
-  if (!yAxisVariable$dataType %in% c('STRING')) {
+  dependentVar <- attr(.mosaic, 'dependentVar')
+  if (!dependentVar$dataType %in% c('STRING')) {
     stop('The independent axis must be of type string for mosaicplot.')
   }
 
@@ -62,11 +62,11 @@ validateMosaicPD <- function(.mosaic) {
 #' 'independent' and 'dependent' contain the raw data for plotting. Column 'panel' 
 #' specifies the panel the data belongs to. 
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'dependentVar', 'facetVariable1' and 'facetVariable2'
 #' @return data.table plot-ready data
 #' @export
 mosaic.dt <- function(data, map) {
-  yAxisVariable = list('variableId' = NULL,
+  dependentVar = list('variableId' = NULL,
                          'entityId' = NULL,
                          'dataType' = NULL)
   facetVariable1 = list('variableId' = NULL,
@@ -85,10 +85,10 @@ mosaic.dt <- function(data, map) {
   } else {
     stop("Must provide independentVar for plot type mosaic.")
   }
-  if ('yAxisVariable' %in% map$plotRef) {
-    yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+  if ('dependentVar' %in% map$plotRef) {
+    dependentVar <- plotRefMapToList(map, 'dependentVar')
   } else {
-    stop("Must provide yAxisVariable for plot type mosaic.")
+    stop("Must provide dependentVar for plot type mosaic.")
   }
   if ('facetVariable1' %in% map$plotRef) {
     facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
@@ -99,7 +99,7 @@ mosaic.dt <- function(data, map) {
 
   .mosaic <- newMosaicPD(.dt = data,
                             independentVar = independentVar,
-                            yAxisVariable = yAxisVariable,
+                            dependentVar = dependentVar,
                             facetVariable1 = facetVariable1,
                             facetVariable2 = facetVariable2,
                             value)
@@ -116,7 +116,7 @@ mosaic.dt <- function(data, map) {
 #' 'independent' and 'dependent' contain the raw data for plotting. Column 'panel' 
 #' specifies the panel the data belongs to. 
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'dependentVar', 'facetVariable1' and 'facetVariable2'
 #' @return character name of json file containing plot-ready data
 #' @export
 mosaic <- function(data, map) {

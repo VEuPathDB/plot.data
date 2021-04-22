@@ -1,7 +1,7 @@
 context('mosaic')
 
 test_that("mosaic.dt() returns an appropriately sized data.table", {
-  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('yAxisVariable', 'independentVar', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('dependentVar', 'independentVar', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), stringsAsFactors=FALSE)
 
   dt <- mosaic.dt(data.binary, map)
   expect_is(dt, 'data.table')
@@ -11,7 +11,7 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('oddsratio', 'p.value', 'independent.label', 'or.interval', 'dependent.label', 'dependent', 'relativerisk', 'rr.interval', 'panel'))
 
-  map <- data.frame('id' = c('group', 'var'), 'plotRef' = c('yAxisVariable', 'independentVar'), 'dataType' = c('STRING', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'var'), 'plotRef' = c('dependentVar', 'independentVar'), 'dataType' = c('STRING', 'STRING'), stringsAsFactors=FALSE)
 
   dt <- mosaic.dt(data.binary, map)
   expect_is(dt, 'data.table')

@@ -52,9 +52,9 @@ getJSON <- function(.pd) {
     namedAttrList$xVariableDetails <- makeVariableDetails(NULL, namedAttrList$independentVar$variableId, namedAttrList$independentVar$entityId)
     namedAttrList$independentVar <- NULL
   }
-  if ('yAxisVariable' %in% names(namedAttrList)) {
-    namedAttrList$yVariableDetails <- makeVariableDetails(NULL, namedAttrList$yAxisVariable$variableId, namedAttrList$yAxisVariable$entityId)
-    namedAttrList$yAxisVariable <- NULL
+  if ('dependentVar' %in% names(namedAttrList)) {
+    namedAttrList$yVariableDetails <- makeVariableDetails(NULL, namedAttrList$dependentVar$variableId, namedAttrList$dependentVar$entityId)
+    namedAttrList$dependentVar <- NULL
   }
   if ('zAxisVariable' %in% names(namedAttrList)) {
     namedAttrList$zVariableDetails <- makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId)

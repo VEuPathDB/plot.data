@@ -2,7 +2,7 @@ newPlotdata <- function(.dt = data.table(),
                          independentVar = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
-                         yAxisVariable = list('variableId' = NULL,
+                         dependentVar = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
                          zAxisVariable = list('variableId' = NULL,
@@ -22,8 +22,8 @@ newPlotdata <- function(.dt = data.table(),
 
   independent <- emptyStringToNull(as.character(independentVar$variableId))
   xType <- emptyStringToNull(as.character(independentVar$dataType))
-  dependent <- emptyStringToNull(as.character(yAxisVariable$variableId))
-  yType <- emptyStringToNull(as.character(yAxisVariable$dataType))
+  dependent <- emptyStringToNull(as.character(dependentVar$variableId))
+  yType <- emptyStringToNull(as.character(dependentVar$dataType))
   z <- emptyStringToNull(as.character(zAxisVariable$variableId))
   zType <- emptyStringToNull(as.character(zAxisVariable$dataType))
   group <- emptyStringToNull(as.character(overlayVariable$variableId))
@@ -64,8 +64,8 @@ newPlotdata <- function(.dt = data.table(),
 
   attr <- attributes(.dt)
   attr$independentVar <-  independentVar
-  if (!is.null(dependent)) { attr$yAxisVariable <- yAxisVariable }
-  if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
+  if (!is.null(dependent)) { attr$dependentVar <- dependentVar }
+  if (!is.null(z)) { attr$dependentVar <- zAxisVariable }
   attr$incompleteCases <- incompleteCases
   attr$class = c(class, 'plot.data', attr$class)
   if (!is.null(group)) { attr$overlayVariable <- overlayVariable }

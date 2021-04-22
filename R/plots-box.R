@@ -2,7 +2,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                          independentVar = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
-                         yAxisVariable = list('variableId' = NULL,
+                         dependentVar = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
                          overlayVariable = list('variableId' = NULL,
@@ -21,7 +21,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      independentVar = independentVar,
-                     yAxisVariable = yAxisVariable,
+                     dependentVar = dependentVar,
                      overlayVariable = overlayVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
@@ -30,7 +30,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   attr <- attributes(.pd)
 
   independent <- attr$independentVar$variableId
-  dependent <- attr$yAxisVariable$variableId
+  dependent <- attr$dependentVar$variableId
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
@@ -84,8 +84,8 @@ validateBoxPD <- function(.box) {
   if (!independentVar$dataType %in% c('STRING')) {
     stop('The independent axis must be of type string for boxplot.')
   }
-  yAxisVariable <- attr(.box, 'yAxisVariable')
-  if (!yAxisVariable$dataType %in% c('NUMBER')) {
+  dependentVar <- attr(.box, 'dependentVar')
+  if (!dependentVar$dataType %in% c('NUMBER')) {
     stop('The dependent axis must be of type number for boxplot.')
   }
 
@@ -101,7 +101,7 @@ validateBoxPD <- function(.box) {
 #' the group the data belong to. 
 #' Optionally, can return columns 'outliers' and 'mean' as well.
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'dependentVar', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @return data.table plot-ready data
@@ -131,10 +131,10 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   } else {
     stop("Must provide independentVar for plot type box.")
   }
-  if ('yAxisVariable' %in% map$plotRef) {
-    yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+  if ('dependentVar' %in% map$plotRef) {
+    dependentVar <- plotRefMapToList(map, 'dependentVar')
   } else {
-    stop("Must provide yAxisVariable for plot type box.")
+    stop("Must provide dependentVar for plot type box.")
   }
   if ('overlayVariable' %in% map$plotRef) {
     overlayVariable <- plotRefMapToList(map, 'overlayVariable')
@@ -148,7 +148,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 
   .box <- newBoxPD(.dt = data,
                     independentVar = independentVar,
-                    yAxisVariable = yAxisVariable,
+                    dependentVar = dependentVar,
                     overlayVariable = overlayVariable,
                     facetVariable1 = facetVariable1,
                     facetVariable2 = facetVariable2,
@@ -170,7 +170,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 #' the group the data belong to. 
 #' Optionally, can return columns 'outliers' and 'mean' as well.
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'dependentVar', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @return character name of json file containing plot-ready data

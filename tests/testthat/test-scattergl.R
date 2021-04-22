@@ -1,7 +1,7 @@
 context('scattergl')
 
 test_that("scattergl.dt() returns an appropriately sized data.table", {
-  map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'independentVar', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'dependentVar', 'independentVar', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
   df <- data.xy
 
   dt <- scattergl.dt(df, map, 'raw')
@@ -24,7 +24,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),16)
   expect_equal(names(dt),c('group', 'panel', 'density.independent', 'density.dependent'))
 
-  map <- data.frame('id' = c('group', 'y', 'x'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'independentVar'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER'), stringsAsFactors = FALSE)
+  map <- data.frame('id' = c('group', 'y', 'x'), 'plotRef' = c('overlayVariable', 'dependentVar', 'independentVar'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER'), stringsAsFactors = FALSE)
 
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')
@@ -47,7 +47,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('group', 'density.independent', 'density.dependent'))
 
 
-  map <- data.frame('id' = c('y', 'x', 'panel'), 'plotRef' = c('yAxisVariable', 'independentVar', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), stringsAsFactors = FALSE)
+  map <- data.frame('id' = c('y', 'x', 'panel'), 'plotRef' = c('dependentVar', 'independentVar', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), stringsAsFactors = FALSE)
 
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')
@@ -70,7 +70,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('panel', 'density.independent', 'density.dependent'))
   
 
-  map <- data.frame('id' = c('y', 'x'), 'plotRef' = c('yAxisVariable', 'independentVar'), 'dataType' = c('NUMBER', 'NUMBER'), stringsAsFactors = FALSE)
+  map <- data.frame('id' = c('y', 'x'), 'plotRef' = c('dependentVar', 'independentVar'), 'dataType' = c('NUMBER', 'NUMBER'), stringsAsFactors = FALSE)
 
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')

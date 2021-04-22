@@ -2,7 +2,7 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
                          independentVar = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
-                         yAxisVariable = list('variableId' = NULL,
+                         dependentVar = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL),
                          zAxisVariable = list('variableId' = NULL,
@@ -29,12 +29,12 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
                      class = "heatmapplot")
 
   attr <- attributes(.pd)
-  attr$yAxisVariable <- yAxisVariable
+  attr$dependentVar <- dependentVar
   attr$zAxisVariable <- zAxisVariable
 
   #NOTE: one or the other of these could be a list for 'collection'
   independent <- attr$independentVar$variableId
-  dependent <- attr$yAxisVariable$variableId
+  dependent <- attr$dependentVar$variableId
   #NOTE: this for the case of 'series'
   z <- attr$zAxisVariable$variableId
   group <- attr$overlayVariable$variableId
@@ -77,9 +77,9 @@ validateHeatmapPD <- function(.heatmap) {
 #' There are two ways to calculate z-values for the heatmap.
 #' 1) 'collection' of numeric variables vs single categorical
 #' 2) single numeric vs single categorical on a 'series' of dates
-#' where yAxisVariable = categorical, independentVar = date and zaxis = numeric
+#' where dependentVar = categorical, independentVar = date and zaxis = numeric
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'dependentVar', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
 #' @return data.table plot-ready data
 #' @export
@@ -108,10 +108,10 @@ heatmap.dt <- function(data, map, value = c('series', 'collection')) {
   } else {
     stop("Must provide independentVar for plot type scatter.")
   }
-  if ('yAxisVariable' %in% map$plotRef) {
-    yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+  if ('dependentVar' %in% map$plotRef) {
+    dependentVar <- plotRefMapToList(map, 'dependentVar')
   } else {
-    stop("Must provide yAxisVariable for plot type scatter.")
+    stop("Must provide dependentVar for plot type scatter.")
   }
   if ('zAxisVariable' %in% map$plotRef) {
     zAxisVariable <- plotRefMapToList(map, 'zAxisVariable')
@@ -128,7 +128,7 @@ heatmap.dt <- function(data, map, value = c('series', 'collection')) {
  
   .heatmap <- newHeatmapPD(.dt = data,
                             independentVar = independentVar,
-                            yAxisVariable = yAxisVariable,
+                            dependentVar = dependentVar,
                             zAxisVariable = zAxisVariable,
                             overlayVariable = overlayVariable,
                             facetVariable1 = facetVariable1,
@@ -152,9 +152,9 @@ heatmap.dt <- function(data, map, value = c('series', 'collection')) {
 #' There are two ways to calculate z-values for the heatmap.
 #' 1) 'collection' of numeric variables vs single categorical
 #' 2) single numeric vs single categorical on a 'series' of dates
-#' where yAxisVariable = categorical, independentVar = date and zaxis = numeric
+#' where dependentVar = categorical, independentVar = date and zaxis = numeric
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'independentVar', 'dependentVar', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
 #' @return character name of json file containing plot-ready data
 #' @export
