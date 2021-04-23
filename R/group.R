@@ -1,4 +1,4 @@
-groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=T) {
+groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
@@ -9,14 +9,14 @@ groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoSta
 
   names(dt) <- c(x, group, panel, 'min', 'q1', 'median', 'q3', 'max')
 
-  if(useNoStatsFacet){
-    dt <- noStatsFacet(dt, group, panel)
+  if(collapse){
+    dt <- collapseByGroup(dt, group, panel)
   }
 
   return(dt)
 }
 
-groupFences <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=T) {
+groupFences <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
@@ -27,14 +27,14 @@ groupFences <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStat
 
   names(dt) <- c(x, group, panel, 'lowerfence', 'upperfence')
 
-  if(useNoStatsFacet) {
-    dt <- noStatsFacet(dt, group, panel)
+  if(collapse) {
+    dt <- collapseByGroup(dt, group, panel)
   }
 
   return(dt)
 }
 
-groupMean <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=T) {
+groupMean <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
@@ -45,14 +45,14 @@ groupMean <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsF
 
   names(dt) <- c(x, group, panel, 'mean')
 
-  if(useNoStatsFacet) {
-    dt <- noStatsFacet(dt, group, panel)
+  if(collapse) {
+    dt <- collapseByGroup(dt, group, panel)
   }
 
   return(dt)
 }
 
-groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=T) {
+groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
@@ -63,14 +63,14 @@ groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFac
 
   names(dt) <- c(x, group, panel, 'sd')
   
-  if(useNoStatsFacet){
-    dt <- noStatsFacet(dt, group, panel)
+  if(collapse){
+    dt <- collapseByGroup(dt, group, panel)
   }
 
   return(dt)
 }
 
-groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=T) {
+groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
@@ -82,14 +82,14 @@ groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsF
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
 
-  if (useNoStatsFacet) {
-    dt <- noStatsFacet(dt, group, panel)
+  if (collapse) {
+    dt <- collapseByGroup(dt, group, panel)
   }
   
   return(dt)
 }
 
-groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=T) {
+groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
@@ -100,8 +100,8 @@ groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoSt
 
   names(dt) <- c(x, group, panel, 'outliers')
 
-  if(useNoStatsFacet){
-    dt <- noStatsFacet(dt, group, panel)
+  if(collapse){
+    dt <- collapseByGroup(dt, group, panel)
   }
 
   return(dt)
@@ -112,7 +112,7 @@ groupDensity <- function(data, col, group = NULL, panel = NULL) {
 
   if (aggStr == col) {
     dt <- densityCurve(data[[col]])
-    dt <- noStatsFacet(dt)
+    dt <- collapseByGroup(dt)
   } else {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, densityCurve))
   }
@@ -131,7 +131,7 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
   x <- 'x'
   aggStr <- getAggStr(y, c(group, panel))
 
-  maxGroupSize <- max(groupSize(data, NULL, y, group, panel, useNoStatsFacet=F)$size)
+  maxGroupSize <- max(groupSize(data, NULL, y, group, panel, collapse=F)$size)
   method <- 'loess'
   if (maxGroupSize > 1000) { method <- 'gam' }
 
@@ -158,7 +158,7 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
   return(dt)
 }
 
-noStatsFacet <- function(data, group = NULL, panel = NULL) {
+collapseByGroup <- function(data, group = NULL, panel = NULL) {
   if (class(data)[1] != "data.table") {
     data <- data.table::setDT(data)
   }
@@ -176,7 +176,7 @@ noStatsFacet <- function(data, group = NULL, panel = NULL) {
 
 # consider removing group here, if this is only for heatmap
 # think we want table col reformatted to be two cols, 'label' and 'value'. the second will be a list.
-# can we use noStatsFacet for the second task ??
+# can we use collapseByGroup for the second task ??
 
 groupSplit <- function(data, x, y, z, group, panel, longToWide = FALSE) {
   aggStr <- getAggStr(c(group, panel, y), x)

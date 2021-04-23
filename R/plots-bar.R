@@ -29,10 +29,10 @@ newBarPD <- function(.dt = data.table::data.table(),
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
   if (value == 'identity') {
-    .pd <- noStatsFacet(.pd, group, panel)
+    .pd <- collapseByGroup(.pd, group, panel)
   } else if (value == 'count' ) {
     .pd$dummy <- 1
-    .pd <- groupSize(.pd, x, 'dummy', group, panel, useNoStatsFacet = T)
+    .pd <- groupSize(.pd, x, 'dummy', group, panel, collapse = T)
     names(.pd) <- c(group, panel, 'label', 'value')
   }
   attr$names <- names(.pd)

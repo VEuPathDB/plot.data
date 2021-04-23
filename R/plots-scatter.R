@@ -33,7 +33,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
-  series <- noStatsFacet(.pd, group, panel)
+  series <- collapseByGroup(.pd, group, panel)
   names(series) <- c(group, panel, 'series.y', 'series.x')
 
   if (value == 'smoothedMean') {

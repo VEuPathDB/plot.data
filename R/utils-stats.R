@@ -140,7 +140,7 @@ epitabToDT <- function(m, method) {
 oddsRatio <- function(data) {
   m <- epitools::epitab(data$x, data$y, method = "oddsratio")$tab
   dt <- epitabToDT(m, 'oddsratio')
-  dt <- noStatsFacet(dt)
+  dt <- collapseByGroup(dt)
 
   return(dt)
 }
@@ -154,7 +154,7 @@ oddsRatio <- function(data) {
 relativeRisk <- function(data) {
   m <- epitools::epitab(data$x, data$y, method = "riskratio")$tab
   dt <- epitabToDT(m, 'relativerisk')
-  dt <- noStatsFacet(dt)
+  dt <- collapseByGroup(dt)
 
   return(dt)
 }
@@ -186,7 +186,7 @@ chiSq <- function(data) {
   dt$y.label <- list(names(dt)[names(dt) != 'y'])
   dt$x.label <- rownames(tbl)
   dt <- dt[, c('y','y.label','x.label'), with=FALSE]
-  dt <- noStatsFacet(dt)
+  dt <- collapseByGroup(dt)
   chisq <- chisq.test(tbl)
   dt$chisq <- chisq$statistic
   dt$p.value <- chisq$p.value

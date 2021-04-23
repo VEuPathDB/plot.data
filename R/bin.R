@@ -8,7 +8,7 @@ binSize <- function(data, col, group = NULL, panel = NULL, binWidth = NULL, view
   dt <- aggregate(as.formula(aggStr), data, length)
   dt <- dt[order(dt$binStart),]
   dt$binStart <- as.character(dt$binStart)
-  dt <- noStatsFacet(dt, group, panel)
+  dt <- collapseByGroup(dt, group, panel)
   names(dt) <- c(group, panel, 'binLabel', 'binStart', 'binEnd', 'value')
 
   return(dt)
@@ -35,7 +35,7 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL
     dt <- merge(dt, dt2, by = mergeByCols)
     dt[[col]] <- dt[[col]]/dt$denom
     dt$denom <- NULL
-    dt <- noStatsFacet(dt, group, panel)
+    dt <- collapseByGroup(dt, group, panel)
     names(dt) <- c(group, panel, 'binLabel', 'binStart', 'binEnd', 'value')
   }
 
