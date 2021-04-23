@@ -70,7 +70,7 @@ groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFac
   return(dt)
 }
 
-groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=F) {
+groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
@@ -131,7 +131,7 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
   x <- 'x'
   aggStr <- getAggStr(y, c(group, panel))
 
-  maxGroupSize <- max(groupSize(data, NULL, y, group, panel)$size, useNoStatsFacet=F)
+  maxGroupSize <- max(groupSize(data, NULL, y, group, panel, useNoStatsFacet=F)$size)
   method <- 'loess'
   if (maxGroupSize > 1000) { method <- 'gam' }
 
