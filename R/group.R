@@ -58,7 +58,7 @@ groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL) {
   return(dt)
 }
 
-groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL) {
+groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=F) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
@@ -69,6 +69,10 @@ groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL) {
   names(dt) <- c(x, group, panel, 'size')
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
+
+  if (useNoStatsFacet) {
+    dt <- noStatsFacet(dt, group, panel)
+  }
   
   return(dt)
 }
