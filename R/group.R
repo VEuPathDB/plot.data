@@ -1,4 +1,4 @@
-groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL) {
+groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
@@ -8,12 +8,15 @@ groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL) {
   }
 
   names(dt) <- c(x, group, panel, 'min', 'q1', 'median', 'q3', 'max')
-  dt <- noStatsFacet(dt, group, panel)
+
+  if(useNoStatsFacet){
+    dt <- noStatsFacet(dt, group, panel)
+  }
 
   return(dt)
 }
 
-groupFences <- function(data, x = NULL, y, group = NULL, panel = NULL) {
+groupFences <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
@@ -23,12 +26,15 @@ groupFences <- function(data, x = NULL, y, group = NULL, panel = NULL) {
   }
 
   names(dt) <- c(x, group, panel, 'lowerfence', 'upperfence')
-  dt <- noStatsFacet(dt, group, panel)
+
+  if(useNoStatsFacet) {
+    dt <- noStatsFacet(dt, group, panel)
+  }
 
   return(dt)
 }
 
-groupMean <- function(data, x = NULL, y, group = NULL, panel = NULL) {
+groupMean <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
@@ -38,12 +44,15 @@ groupMean <- function(data, x = NULL, y, group = NULL, panel = NULL) {
   }
 
   names(dt) <- c(x, group, panel, 'mean')
-  dt <- noStatsFacet(dt, group, panel)
+
+  if(useNoStatsFacet) {
+    dt <- noStatsFacet(dt, group, panel)
+  }
 
   return(dt)
 }
 
-groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL) {
+groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
@@ -53,7 +62,10 @@ groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL) {
   }
 
   names(dt) <- c(x, group, panel, 'sd')
-  dt <- noStatsFacet(dt, group, panel)
+  
+  if(useNoStatsFacet){
+    dt <- noStatsFacet(dt, group, panel)
+  }
 
   return(dt)
 }
@@ -77,7 +89,7 @@ groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsF
   return(dt)
 }
 
-groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL) {
+groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL, useNoStatsFacet=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
   if (aggStr == y) {
@@ -87,7 +99,10 @@ groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL) {
   }
 
   names(dt) <- c(x, group, panel, 'outliers')
-  dt <- noStatsFacet(dt, group, panel)
+
+  if(useNoStatsFacet){
+    dt <- noStatsFacet(dt, group, panel)
+  }
 
   return(dt)
 }
@@ -116,7 +131,7 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
   x <- 'x'
   aggStr <- getAggStr(y, c(group, panel))
 
-  maxGroupSize <- max(groupSize(data, NULL, y, group, panel)$size)
+  maxGroupSize <- max(groupSize(data, NULL, y, group, panel)$size, useNoStatsFacet=F)
   method <- 'loess'
   if (maxGroupSize > 1000) { method <- 'gam' }
 
