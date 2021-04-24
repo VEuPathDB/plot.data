@@ -17,6 +17,7 @@ updateType <- function(x, xType) {
 }
 
 getPDAttributes <- function(.pd) {
+  #should write is.plot.data, etc helpers
   if (!"plot.data" %in% class(.pd)) {
     stop(".pd must be an object which inherits from class 'plot.data'")
   }
@@ -149,6 +150,7 @@ getAggStr <- function(numericVars, groupingVars) {
   return(aggStr)
 }
 
+# should switch to data.table for consistency
 # Fast data.frame constructor and indexing
 # No checking, recycling etc. unless asked for
 new_data_frame <- function(x = list(), n = NULL) {

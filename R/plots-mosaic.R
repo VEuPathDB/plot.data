@@ -32,10 +32,19 @@ newMosaicPD <- function(.dt = data.table::data.table(),
 
   if (any(dims > 2)) {
     .pd <- panelChiSq(.pd, x, y, panel)
+    statsCols <- c('pvalue', 'chiSq', 'degreesFreedom', 'xLabel', 'yLabel', panel)
+    statsTable <- .pd[, statsCols, with=FALSE]
   } else {
     .pd <- panelBothRatios(.pd, x, y, panel)
+    statsCols <- c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'xLabel', 'yLabel', panel)
+    statsTable <- .pd[, statsCols, with=FALSE]
   }
+
+  plotCols <- c('xLabel', 'yLabel', 'value', panel)
+  .pd <- .pd[, plotCols, with=FALSE]
+
   attr$names <- names(.pd)
+  attr$statsTable <- statsTable
 
   setAttrFromList(.pd, attr)
 
@@ -54,6 +63,9 @@ validateMosaicPD <- function(.mosaic) {
 
   return(.mosaic)
 }
+
+#these helpers need either validation or to be a dedicated method
+statsTable <- function(.mosaic) { attr(.mosaic, 'statsTable') }
 
 #' Mosaic plot as data.table
 #'
@@ -121,6 +133,7 @@ mosaic.dt <- function(data, map) {
 #' @export
 mosaic <- function(data, map) {
   .mosaic <- mosaic.dt(data, map)
+
   outFileName <- writeJSON(.mosaic, 'mosaic')
 
   return(outFileName)

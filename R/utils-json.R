@@ -40,12 +40,25 @@ addStrataVariableDetails <- function(.pd) {
 
 getJSON <- function(.pd) {
   namedAttrList <- getPDAttributes(.pd)
+  class <- attr(.pd, 'class')[1] 
+
+  if ('statsTable' %in% names(namedAttrList)) {
+    statsTable <- attr(.pd, 'statsTable')
+  }
 
   if (any(c('overlayVariable', 'facetVariable1', 'facetVariable2') %in% names(namedAttrList))) {
     .pd <- addStrataVariableDetails(.pd)
     namedAttrList$overlayVariable <- NULL
     namedAttrList$facetVariable1 <- NULL
     namedAttrList$facetVariable2 <- NULL
+    if ('statsTable' %in% names(namedAttrList)) {
+      if ('overlayVariableDetails' %in% names(.pd)) {
+        statsTable$overlayVariableDetails <- .pd$overlayVariableDetails 
+      }
+      if ('facetVariableDetails' %in% names(.pd)) {
+        statsTable$facetVariableDetails <- .pd$facetVariableDetails
+      }
+    }
   }
 
   if ('xAxisVariable' %in% names(namedAttrList)) {
@@ -61,7 +74,15 @@ getJSON <- function(.pd) {
     namedAttrList$zAxisVariable <- NULL
   }
 
-  outJson <- jsonlite::toJSON(list('data'=.pd, 'config'=namedAttrList))
+  
+  if ('statsTable' %in% names(namedAttrList)) {
+    namedAttrList$statsTable <- NULL
+    outList <- list(class = list('data'=.pd, 'config'=namedAttrList), 'statsTable'=statsTable)
+  } else {
+    outList <- list(class = list('data'=.pd, 'config'=namedAttrList))
+  }
+  names(outList)[1] <- class
+  outJson <- jsonlite::toJSON(outList)
 
   return(outJson)
 }
@@ -78,9 +99,12 @@ getJSON <- function(.pd) {
 #' @export
 writeJSON <- function(.pd, pattern = NULL) {
   outJson <- getJSON(.pd)
-  # just for now for debugging
-  #outJson <- jsonlite::prettify(outJson)
-  if (is.null(pattern)) { pattern <- 'file' }
+  if (is.null(pattern)) { 
+    pattern <- attr(.pd, 'class')[1]
+    if (is.null(pattern)) {
+      pattern <- 'file'
+    } 
+  }
   outFileName <- basename(tempfile(pattern = pattern, tmpdir = tempdir(), fileext = ".json"))
   write(outJson, outFileName)
 

@@ -46,7 +46,7 @@ newPlotdata <- function(.dt = data.table(),
   myCols <- c(x, y, z, group, panel)
   .dt <- .dt[, myCols, with=FALSE]
 
-  incompleteCases <- nrow(.dt[!complete.cases(.dt),])
+  incompleteCases <- jsonlite::unbox(nrow(.dt[!complete.cases(.dt),]))
   .dt <- .dt[complete.cases(.dt),]
 
   if (is.null(xAxisVariable$dataType)) {
