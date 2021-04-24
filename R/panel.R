@@ -39,7 +39,6 @@ panelBothRatios <- function(data, x, y, panel = NULL) {
   names(data)[names(data) == y] <- 'y'
   x <- 'x'
   y <- 'y'
-  mergeByCols <- c(panel, 'p.value', 'x', 'y')
 
   if (is.null(panel)) {
     dt <- bothRatios(data)
@@ -62,8 +61,6 @@ panelChiSq <- function(data, x, y, panel = NULL) {
   if (is.null(panel)) {
     dt <- chiSq(data)
   } else {
-    levelsX <- unique(data[[x]])
-    levelsY <- unique(data[[y]])
     dt.list <- split(data, list(data[[panel]]))
     dt.list <- lapply(dt.list, chiSq)
     dt <- purrr::reduce(dt.list, rbind)
