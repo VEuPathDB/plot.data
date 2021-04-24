@@ -1,3 +1,5 @@
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
 plotRefMapToList <- function(map, plotRef) {
   plotRef <- list('variableId' = map$id[map$plotRef == plotRef],
                   'entityId' = map$entityId[map$plotRef == plotRef],
@@ -100,9 +102,13 @@ findPanelColName <- function(facet1 = NULL, facet2 = NULL) {
 #' @export
 makePanels <- function(data, facet1 = NULL, facet2 = NULL) {
   if (!is.null(facet1) & !is.null(facet2)) {
-    data$panel <- interaction(data[[facet1]], data[[facet2]])
-    data[[facet1]] <- NULL
-    data[[facet2]] <- NULL
+    data$panel <- as.character(interaction(data[[facet1]], data[[facet2]], sep='.||.'))
+    if (facet1 != 'panel') {
+      data[[facet1]] <- NULL
+    }
+    if (facet2 != 'panel') {
+      data[[facet2]] <- NULL
+    }
     panel <- 'panel'
   } else if (!is.null(facet1)) {
     panel <- facet1
@@ -147,7 +153,7 @@ getAggStr <- function(numericVars, groupingVars) {
 # No checking, recycling etc. unless asked for
 new_data_frame <- function(x = list(), n = NULL) {
   if (length(x) != 0 && is.null(names(x))) {
-    abort("Elements must be named")
+    stop("Elements must be named")
   }
   lengths <- vapply(x, length, integer(1))
   if (is.null(n)) {
@@ -156,7 +162,7 @@ new_data_frame <- function(x = list(), n = NULL) {
   for (i in seq_along(x)) {
     if (lengths[i] == n) next
     if (lengths[i] != 1) {
-      abort("Elements must equal the number of rows or 1")
+      stop("Elements must equal the number of rows or 1")
     }
     x[[i]] <- rep(x[[i]], n)
   }
@@ -218,6 +224,11 @@ findBinStart <- function(x) {
     x <- strSplit(x, " - ")
   } else {
     x <- gsub("\\(|\\[", "", strSplit(as.character(x), ","))
+  }
+
+  #try to infer type. may need more robust solution  
+  if (!any(is.na(as.numeric(x)))) {
+    x <- as.numeric(x)
   }
 
   return(x)

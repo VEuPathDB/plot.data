@@ -39,21 +39,30 @@ newScatterPD <- function(.dt = data.table::data.table(),
   if (value == 'smoothedMean') {
     interval <- groupSmoothedMean(.pd, x, y, group, panel)
     interval <- interval[, !c('ymin', 'ymax')]
-    data.table::setnames(interval, c('interval.x', 'interval.y', 'interval.se', group, panel))
+
+    data.table::setnames(interval, c('interval.x', 'interval.y', 'interval.se', group, panel))    
+    .pd <- interval
+
+  } else if (value == 'smoothedMeanWithRaw') {
+    
+    interval <- groupSmoothedMean(.pd, x, y, group, panel)
+    interval <- interval[, !c('ymin', 'ymax')]
+    data.table::setnames(interval, c('interval.x', 'interval.y', 'interval.se', group, panel)
+    
     if (!is.null(key(series))) {
       .pd <- merge(series, interval)
     } else {
       .pd <- cbind(series, interval)
     }
+    
   } else if (value == 'density') {
+    
     density <- groupDensity(.pd, x, group, panel)
     data.table::setnames(density, c(group, panel, 'density.x', 'density.y'))
-    if (!is.null(key(series))) {
-      .pd <- merge(series, density)
-    } else {
-      .pd <- cbind(series, density)
-    }
+    .pd <- density
+    
   } else {
+    # Return raw data
     .pd <- series
   }
   attr$names <- names(.pd)
@@ -89,12 +98,12 @@ validateScatterPD <- function(.scatter) {
 #'  density estimates.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates
+#' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean
 #' @return data.table plot-ready data
 #' @export
 scattergl.dt <- function(data, 
                          map, 
-                         value = c('smoothedMean', 'density', 'raw')) {
+                         value = c('smoothedMean', 'smoothedMeanWithRaw', 'density', 'raw')) {
   value <- match.arg(value)
 
   overlayVariable = list('variableId' = NULL,
@@ -157,10 +166,10 @@ scattergl.dt <- function(data,
 #'  density estimates.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates
+#' @param value character indicating whether to calculate 'smoothedMean' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean
 #' @return character name of json file containing plot-ready data
 #' @export
-scattergl <- function(data, map, value = c('smoothedMean', 'density', 'raw')) {
+scattergl <- function(data, map, value = c('smoothedMean', 'smoothedMeanWithRaw', 'density', 'raw')) {
   value <- match.arg(value)
   .scatter <- scattergl.dt(data, map, value)
   outFileName <- writeJSON(.scatter, 'scattergl')

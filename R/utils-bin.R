@@ -9,7 +9,6 @@
 #' @export
 #' @importFrom lubridate ceiling_date
 #' @importFrom moments skewness
-#' @importFrom ggplot2 cut_width
 # @alias bin.numeric
 # @alias bin.POSIXct
 bin <- function(x, binWidth, viewport) UseMethod("bin")
@@ -18,10 +17,10 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
   xVP <- adjustToViewport(x, viewport)
 
   if (!is.null(binWidth)) {
-    bins <- ggplot2::cut_width(xVP, binWidth)
+    bins <- cut_width(xVP, binWidth, boundary = min(xVP))
   } else {
     numBins <- findNumBins(xVP)
-    bins <- cut(xVP, breaks=numBins)
+    bins <- cut_interval(xVP, numBins)
   }
 
   bins <- pruneViewportAdjustmentFromBins(bins, xVP, x, viewport)
@@ -32,6 +31,9 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
 
 #use stri_c where we paste dates bc it can be a bit faster w large vectors
 #' @importFrom stringi stri_c
+#' @importFrom lubridate days
+#' @importFrom lubridate weeks
+#' @importFrom lubridate years
 bin.Date <- function(x, binWidth = NULL, viewport) {
   xVP <- adjustToViewport(x, viewport)
 
@@ -39,9 +41,30 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
     binWidth = findBinWidth(xVP)
   }
 
-  bins <- as.Date(cut(xVP, breaks=binWidth))
-  bins <- pruneViewportAdjustmentFromBins(bins, xVP, x, viewport)
-  bins <- stringi::stri_c(bins, " - ", lubridate::ceiling_date(bins, binWidth) -1)
+  binStart <- as.Date(cut(xVP, breaks=binWidth))
+  binStart <- pruneViewportAdjustmentFromBins(binStart, xVP, x, viewport)
+
+  if (grepl("^[[:digit:]].", binWidth) & gsub("[^0-9.-]", "", binWidth) != '1') {
+    #works bc we assume a single space between the binWidth and unit
+    unit <- trim(gsub("^[[:digit:]]*", "", binWidth))
+    numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
+    if (unit %in% c('day','days')) {
+      binEnd <- as.Date(binStart + lubridate::days(numericBinWidth)-1)
+    } else if (unit %in% c('week', 'weeks')) {
+      binEnd <- as.Date(binStart + lubridate::weeks(numericBinWidth)-1)
+    } else if (unit %in% c('month', 'months')) {
+      binEnd <- as.Date(binStart + months(numericBinWidth)-1)
+    } else if (unit %in% c('year', 'years')) {
+      binEnd <- as.Date(binStart + lubridate::years(numericBinWidth)-1)
+    } else {
+      stop("Unrecognized units for binning date histogram.")
+    }   
+
+  } else {
+    binEnd <- lubridate::ceiling_date(binStart, binWidth) -1
+  }
+
+  bins <- stringi::stri_c(binStart, " - ", binEnd)
 
   return(bins)
 }
@@ -60,6 +83,8 @@ findBinWidth <- function(x) UseMethod("findBinWidth")
 findBinWidth.numeric <- function(x) {
   numBins <- findNumBins(x)
   binWidth <- numBinsToBinWidth(x, numBins)
+  avgDigits <- floor(mean(stringr::str_count(as.character(x), "[[:digit:]]")))
+  binWidth <- round(binWidth, avgDigits)
 
   return(binWidth)
 }
