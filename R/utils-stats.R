@@ -134,13 +134,16 @@ epitabToDT <- function(m, method) {
 #'
 #' This function calculates odds ratio, confidence intervals and p-values for epidemiologic data 
 #' @param data A data.table with two columns 'x' and 'y'. The two will be combined into a table. The first is the independent variable and can have any number of values. The second is the dependent variable, and should have two unique values.
-#' @return data.table with one row per group
+#' @param collapse boolean indicating whether or not to collapse the data.table to have only one row per group. If true, values per group will be represented as lists within the data.table.
+#' @return data.table, optionally with only one row per group
 #' @export
 #' @importFrom epitools epitab
-oddsRatio <- function(data) {
+oddsRatio <- function(data, collapse = TRUE) {
   m <- epitools::epitab(data$x, data$y, method = "oddsratio")$tab
   dt <- epitabToDT(m, 'oddsratio')
-  dt <- noStatsFacet(dt)
+  if (collapse) {
+    dt <- noStatsFacet(dt)
+  }
 
   return(dt)
 }
@@ -149,48 +152,57 @@ oddsRatio <- function(data) {
 #'
 #' This function calculates relative risk, confidence intervals and p-values for epidemiologic data 
 #' @param data A data.table with two columns 'x' and 'y'. The two will be combined into a table. The first is the independent variable and can have any number of values. The second is the dependent variable, and should have two unique values.
-#' @return data.table with one row per group
+#' @param collapse boolean indicating whether or not to collapse the data.table to have only one row per group. If true, values per group will be represented as lists within the data.table.
+#' @return data.table, optionally with only one row per group
 #' @export
-relativeRisk <- function(data) {
+relativeRisk <- function(data, collapse = TRUE) {
   m <- epitools::epitab(data$x, data$y, method = "riskratio")$tab
   dt <- epitabToDT(m, 'relativerisk')
-  dt <- noStatsFacet(dt)
-
-  return(dt)
-}
-
-bothRatios <- function(data) {
-  mergeByCols <- c('p.value', 'y.label', 'x.label', 'y')
-
-  or <- oddsRatio(data)
-  names(or) <- c('oddsratio', 'p.value', 'x.label', 'or.interval', 'y.label', 'y')
-  rr <- relativeRisk(data)
-  names(rr) <- c('relativerisk', 'p.value', 'x.label', 'rr.interval', 'y.label', 'y')
-  if (!identical(or$y.label, rr$y.label) |
-      !identical(or$x, rr$x) |
-      !identical(or$p.value, rr$p.value) |
-      !identical(or$y, rr$y)) {
-    stop('cannot merge odds ratio and relative risk data!')
+  if (collapse) {
+    dt <- noStatsFacet(dt)
   }
-  rr <- rr[, -mergeByCols, with=FALSE]
-  dt <- cbind(or, rr)
 
   return(dt)
 }
 
-chiSq <- function(data) {
+bothRatios <- function(data, collapse = TRUE) {
+  mergeByCols <- c('pvalue', 'yLabel', 'xLabel', 'value')
+
+  or <- oddsRatio(data, collapse)
+  names(or) <- c('oddsratio', 'pvalue', 'xLabel', 'orInterval', 'yLabel', 'value')
+  rr <- relativeRisk(data, collapse)
+  names(rr) <- c('relativerisk', 'pvalue', 'xLabel', 'rrInterval', 'yLabel', 'value')
+  if (collapse) { 
+    if (!identical(or$yLabel, rr$yLabel) |
+        !identical(or$xLabel, rr$xLabel) |
+        !identical(or$pvalue, rr$pvalue) |
+        !identical(or$value, rr$value)) {
+      stop('cannot merge odds ratio and relative risk data!')
+    }
+    rr <- rr[, -mergeByCols, with=FALSE]
+    dt <- cbind(or, rr)
+  } else {
+    dt <- merge(or, rr, by = mergeByCols)
+  }
+
+  return(dt)
+}
+
+chiSq <- function(data, collapse = TRUE) {
   tbl <- table(data$x, data$y)
   dt <- as.data.frame.matrix(tbl)
   dt <- data.table::as.data.table(dt)
-  dt[, y := lapply(transpose(.SD), as.vector)]
-  dt$y.label <- list(names(dt)[names(dt) != 'y'])
-  dt$x.label <- rownames(tbl)
-  dt <- dt[, c('y','y.label','x.label'), with=FALSE]
-  dt <- noStatsFacet(dt)
+  dt[, value := lapply(transpose(.SD), as.vector)]
+  dt$yLabel <- list(names(dt)[names(dt) != 'value'])
+  dt$xLabel <- rownames(tbl)
+  dt <- dt[, c('value','yLabel','xLabel'), with=FALSE]
+  if (collapse) {
+    dt <- noStatsFacet(dt)
+  }
   chisq <- chisq.test(tbl)
   dt$chisq <- chisq$statistic
-  dt$p.value <- chisq$p.value
-  dt$degrees.freedom <- chisq$parameter
+  dt$pvalue <- chisq$p.value
+  dt$degreesFreedom <- chisq$parameter
 
   return(dt)
 }

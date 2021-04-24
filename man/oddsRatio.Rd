@@ -4,13 +4,15 @@
 \alias{oddsRatio}
 \title{Odds Ratio}
 \usage{
-oddsRatio(data)
+oddsRatio(data, collapse = TRUE)
 }
 \arguments{
 \item{data}{A data.table with two columns 'x' and 'y'. The two will be combined into a table. The first is the independent variable and can have any number of values. The second is the dependent variable, and should have two unique values.}
+
+\item{collapse}{boolean indicating whether or not to collapse the data.table to have only one row per group. If true, values per group will be represented as lists within the data.table.}
 }
 \value{
-data.table with one row per group
+data.table, optionally with only one row per group
 }
 \description{
 This function calculates odds ratio, confidence intervals and p-values for epidemiologic data
