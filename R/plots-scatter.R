@@ -34,20 +34,20 @@ newScatterPD <- function(.dt = data.table::data.table(),
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
   series <- noStatsFacet(.pd, group, panel)
-  names(series) <- c(group, panel, 'series.y', 'series.x')
+  data.table::setnames(series, c(group, panel, 'series.y', 'series.x'))
 
   if (value == 'smoothedMean') {
     interval <- groupSmoothedMean(.pd, x, y, group, panel)
     interval <- interval[, !c('ymin', 'ymax')]
-    names(interval) <- c('interval.x', 'interval.y', 'interval.se', group, panel)
-    
+
+    data.table::setnames(interval, c('interval.x', 'interval.y', 'interval.se', group, panel))    
     .pd <- interval
 
   } else if (value == 'smoothedMeanWithRaw') {
     
     interval <- groupSmoothedMean(.pd, x, y, group, panel)
     interval <- interval[, !c('ymin', 'ymax')]
-    names(interval) <- c('interval.x', 'interval.y', 'interval.se', group, panel)
+    data.table::setnames(interval, c('interval.x', 'interval.y', 'interval.se', group, panel)
     
     if (!is.null(key(series))) {
       .pd <- merge(series, interval)
@@ -56,8 +56,9 @@ newScatterPD <- function(.dt = data.table::data.table(),
     }
     
   } else if (value == 'density') {
+    
     density <- groupDensity(.pd, x, group, panel)
-    names(density) <- c(group, panel, 'density.x', 'density.y')
+    data.table::setnames(density, c(group, panel, 'density.x', 'density.y'))
     .pd <- density
     
   } else {
@@ -66,7 +67,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   }
   attr$names <- names(.pd)
 
-  attributes(.pd) <- attr
+  setAttrFromList(.pd, attr)
 
   return(.pd)
 }

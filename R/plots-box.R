@@ -53,8 +53,8 @@ newBoxPD <- function(.dt = data.table::data.table(),
     }
   } else if (points == 'all') {
     rawData <- noStatsFacet(.pd, group, panel)
-    names(rawData)[names(rawData) == y] <- 'series.y'
-    names(rawData)[names(rawData) == x] <- 'series.x'
+    data.table::setnames(rawData, x, 'series.x')
+    data.table::setnames(rawData, y, 'series.y')
     if (!is.null(key(rawData))) {
       .pd.base <- merge(.pd.base, rawData)
     } else {
@@ -74,7 +74,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   .pd <- .pd.base
   attr$names <- names(.pd)
 
-  attributes(.pd) <- attr
+  setAttrFromList(.pd, attr)
 
   return(.pd)
 }

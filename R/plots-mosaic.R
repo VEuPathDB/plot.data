@@ -46,7 +46,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   attr$names <- names(.pd)
   attr$statsTable <- statsTable
 
-  attributes(.pd) <- attr
+  setAttrFromList(.pd, attr)
 
   return(.pd)
 }

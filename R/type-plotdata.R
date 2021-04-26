@@ -72,7 +72,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(facet1)) { attr$facetVariable1 <- facetVariable1 }
   if (!is.null(facet2)) { attr$facetVariable2 <- facetVariable2 }
 
-  attributes(.dt) <- attr
+  setAttrFromList(.dt, attr)
   .pd <- validatePlotdata(.dt)
 
   return(.pd)
