@@ -152,7 +152,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     # entity id?
     map <- rbind(map, data.frame('id' = 'value', 'plotRef' = 'yAxisVariable', 'dataType' = 'NUMBER'))
     
-  } ### At this point, the xAxisVar is a _factor_
+  } ### At this point, the xAxisVar is a _factor_ with the appropriate ordering. What happens?
 
   if ('xAxisVariable' %in% map$plotRef) {
     xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')

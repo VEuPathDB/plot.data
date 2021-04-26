@@ -3,12 +3,16 @@ context('box')
 test_that("box.dt() returns an appropriately sized data.table", {
   
   # Ordered box testing
-  map <- data.frame('id' = c('x, y'),
-                    'plotRef' = c('xAxisVariable'),
-                    'dataType' = c('NUMBER, NUMBER'),
+  map <- data.frame('id' = c('y, x', 'group'),
+                    'plotRef' = c('xAxisVariable', 'overlayVariable'),
+                    'dataType' = c('NUMBER, NUMBER', 'STRING'),
                     stringsAsFactors=FALSE)
   df <- data.xy
   dt <- box.dt(df, map, 'none', FALSE, ', ')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt), 4)
+  expect_equal(names(dt),c('group', 'variable', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
+  expect_equal(dt[, variable][[1]], c('x', 'y'))
   
   #using panel for xaxis.. maybe make another test.dt for this?
   map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
