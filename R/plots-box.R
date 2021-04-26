@@ -106,11 +106,12 @@ validateBoxPD <- function(.box) {
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @return data.table plot-ready data
 #' @export
-box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
+box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), independentDelimiter = NULL) {
   points <- match.arg(points)
   if (!mean %in% c(FALSE, TRUE)) { 
     stop('invalid input to argument `mean`.') 
   }
+  
 
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -125,6 +126,33 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   if (!'data.table' %in% class(data)) {
     data <- data.table::as.data.table(data)
   }
+  
+  
+  #### Consider making ordered the actual ordering for the plot in case 
+  # we let the user select non-numeric vars.
+  #### 'ordered' could instead be delimiter --- NULL if no delimiter but something if there is a list.
+  if (!identical(independentDelimiter,NULL)) {
+    
+    #### Check that all vars are numeric and have the same entityid
+    
+    ## Extract variables from list of variables
+    xAxisVars <- list('variableId' = unlist(stringr::str_split(map$id[map$plotRef == 'xAxisVariable'], independentDelimiter)),
+                      'entityId' = unlist(stringr::str_split(map$entityId[map$plotRef == 'xAxisVariable'], independentDelimiter)),
+                      'dataType' = unlist(stringr::str_split(map$dataType[map$plotRef == 'xAxisVariable'], independentDelimiter)))
+    
+    ## Now we have a character vector of x axis variables. Reshape the data so that these are in their own column
+    # Reshape to a long data table
+    data <- data.table::melt(data,
+                                id.vars = c(overlayVariable$variableId, facetVariable1$variableId, facetVariable2$variableId),
+                                measure.vars = xAxisVars$variableId)
+    
+    ## Update map - should have an xAxisVariable but no yAxisVariable. 
+    map$id[map$plotRef == 'xAxisVariable'] = 'variable'
+    map$dataType[map$plotRef == 'xAxisVariable'] = 'STRING'
+    # entity id?
+    map <- rbind(map, data.frame('id' = 'value', 'plotRef' = 'yAxisVariable', 'dataType' = 'NUMBER'))
+    
+  } ### At this point, the xAxisVar is a _factor_
 
   if ('xAxisVariable' %in% map$plotRef) {
     xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
@@ -175,7 +203,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @return character name of json file containing plot-ready data
 #' @export
-box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
+box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), independentDelimiter = NULL) {
   points <- match.arg(points)
   if (!mean %in% c(FALSE, TRUE)) { 
     stop('invalid input to argument `mean`.') 

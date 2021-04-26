@@ -1,6 +1,15 @@
 context('box')
 
 test_that("box.dt() returns an appropriately sized data.table", {
+  
+  # Ordered box testing
+  map <- data.frame('id' = c('x, y'),
+                    'plotRef' = c('xAxisVariable'),
+                    'dataType' = c('NUMBER, NUMBER'),
+                    stringsAsFactors=FALSE)
+  df <- data.xy
+  dt <- box.dt(df, map, 'none', FALSE, ', ')
+  
   #using panel for xaxis.. maybe make another test.dt for this?
   map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
   df <- data.xy
