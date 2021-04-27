@@ -52,9 +52,10 @@ newBoxPD <- function(.dt = data.table::data.table(),
       .pd.base <- cbind(.pd.base, points)
     }
   } else if (points == 'all') {
-    rawData <- noStatsFacet(.pd, group, panel)
+    rawData <- collapseByGroup(.pd, group, panel)
     data.table::setnames(rawData, x, 'series.x')
     data.table::setnames(rawData, y, 'series.y')
+
     if (!is.null(key(rawData))) {
       .pd.base <- merge(.pd.base, rawData)
     } else {
