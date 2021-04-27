@@ -12,6 +12,9 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'panel'))
   statsTable <- statsTable(dt)
   expect_equal(names(statsTable), c(c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'xLabel', 'yLabel', 'panel')))
+  sampleSizeTable <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizeTable),c('panel','var','size'))
+  expect_equal(class(sampleSizeTable$var[[1]]), 'character')
 
   map <- data.frame('id' = c('group', 'var'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'STRING'), stringsAsFactors=FALSE)
 
@@ -24,4 +27,21 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('xLabel', 'yLabel', 'value'))
   statsTable <- statsTable(dt)
   expect_equal(names(statsTable), c(c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'xLabel', 'yLabel')))
+})
+
+test_that("mosaic() returns appropriately formatted json", {
+  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), stringsAsFactors=FALSE)
+  dt <- mosaic.dt(data.binary, map)
+  outJson <- getJSON(dt)
+  jsonList <- jsonlite::fromJSON(outJson)
+
+  expect_equal(names(jsonList),c('mosaic','sampleSizeTable','statsTable'))
+  expect_equal(names(jsonList$mosaic),c('data','config'))
+  expect_equal(names(jsonList$mosaic$data),c('xLabel','yLabel','value','facetVariableDetails'))
+  expect_equal(names(jsonList$mosaic$data$facetVariableDetails),c('variableId','entityId','value'))
+  expect_equal(nrow(jsonList$mosaic$data$facetVariableDetails), 4)
+  expect_equal(names(jsonList$mosaic$config),c('incompleteCases','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','xVariableDetails','size'))
+  expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','xLabel','yLabel','facetVariableDetails'))
 })

@@ -1,6 +1,10 @@
 makeVariableDetails <- function(value, variableId, entityId) {
   if (!is.null(value)) {
-    variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=jsonlite::unbox(value))
+    if (length(value) == 1) {
+      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=jsonlite::unbox(value))
+    } else {
+      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=value)
+    }
   } else {
     variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId))
   }
@@ -46,20 +50,20 @@ getJSON <- function(.pd) {
     statsTable <- statsTable(.pd)
     namedAttrList$statsTable <- NULL
     attr <- attributes(statsTable)
-    setAttrFromList(statsTable, namedAttrList, removeExtraAttrs=F)
+    statsTable <- setAttrFromList(statsTable, namedAttrList, removeExtraAttrs=F)
     statsTable <- addStrataVariableDetails(statsTable)
     attr$names <- names(statsTable)
-    setAttrFromList(statsTable, attr)
+    statsTable <- setAttrFromList(statsTable, attr)
   }
 
   if ('sampleSizeTable' %in% names(namedAttrList)) {
     sampleSizeTable <- sampleSizeTable(.pd)
     namedAttrList$sampleSizeTable <- NULL
     attr <- attributes(sampleSizeTable)
-    setAttrFromList(sampleSizeTable, namedAttrList, removeExtraAttrs=F)
+    sampleSizeTable <- setAttrFromList(sampleSizeTable, namedAttrList, removeExtraAttrs=F)
     sampleSizeTable <- addStrataVariableDetails(sampleSizeTable)
     attr$names <- names(sampleSizeTable)
-    setAttrFromList(sampleSizeTable, attr)
+    sampleSizeTable <- setAttrFromList(sampleSizeTable, attr)
     if ('xAxisVariable' %in% names(namedAttrList)) {
       if (namedAttrList$xAxisVariable$dataType == 'STRING') {
         x <- namedAttrList$xAxisVariable$variableId
