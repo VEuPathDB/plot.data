@@ -51,10 +51,10 @@ newPlotdata <- function(.dt = data.table(),
 
   if (xType == 'STRING') {
     .dt$dummy <- 1
-    sampleSizeTable <- groupSize(.dt, x=x, y="dummy", group, panel)
+    sampleSizeTable <- groupSize(.dt, x=x, y="dummy", group, panel, collapse=F)
     .dt$dummy <- NULL
   } else {
-    sampleSizeTable <- groupSize(.dt, x=NULL, y=x, group, panel)
+    sampleSizeTable <- groupSize(.dt, x=NULL, y=x, group, panel, collapse=F)
   }
   sampleSizeTable$size <- lapply(sampleSizeTable$size, jsonlite::unbox)
 
