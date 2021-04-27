@@ -72,7 +72,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(y)) { attr$yAxisVariable <- yAxisVariable }
   if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
   attr$incompleteCases <- incompleteCases
-  attr$sampleSizeTable <- noStatsFacet(sampleSizeTable, group, panel)
+  attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, group, panel)
   attr$class = c(class, 'plot.data', attr$class)
   if (!is.null(group)) { attr$overlayVariable <- overlayVariable }
   if (!is.null(facet1)) { attr$facetVariable1 <- facetVariable1 }
