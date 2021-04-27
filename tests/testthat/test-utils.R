@@ -78,3 +78,15 @@ test_that("contingencyDT() returns appropriately sized data.table", {
   expect_equal(nrow(dt),data.table::uniqueN(data.binned$x))
   expect_equal(length(dt),data.table::uniqueN(data.binned$y)+1)
 })
+
+test_that("reshapeByListedVars() returns appropriately sized data.table for numeric vars", {
+  listedVars <- list('variableId' = c('x'), 'entityId' = NULL, 'dataType' = c('NUMBER'))
+  dt <- reshapeByListedVars(bigData.xy, listedVars, 'NUMBER')
+  expect_equal(nrow(dt), nrow(bigData.xy))
+  expect_true(all(c('variable','value') %in% names(dt)))
+  
+  listedVars <- list('variableId' = c('y', 'x'), 'entityId' = NULL, 'dataType' = c('NUMBER', 'NUMBER'))
+  dt <- reshapeByListedVars(bigData.xy, listedVars, 'NUMBER')
+  expect_equal(nrow(dt), 2*nrow(bigData.xy))
+  expect_true(all(c('variable','value') %in% names(dt)))
+})
