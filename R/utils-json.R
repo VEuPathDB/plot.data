@@ -43,23 +43,36 @@ getJSON <- function(.pd) {
   class <- attr(.pd, 'class')[1] 
 
   if ('statsTable' %in% names(namedAttrList)) {
-    statsTable <- attr(.pd, 'statsTable')
+    statsTable <- statsTable(.pd)
+    namedAttrList$statsTable <- NULL
+    attr <- attributes(statsTable)
+    attributes(statsTable) <- c(attr, namedAttrList)
+    statsTable <- addStrataVariableDetails(statsTable)
+    attr$names <- names(statsTable)
+    attributes(statsTable) <- attr
   }
 
-  if (any(c('overlayVariable', 'facetVariable1', 'facetVariable2') %in% names(namedAttrList))) {
-    .pd <- addStrataVariableDetails(.pd)
-    namedAttrList$overlayVariable <- NULL
-    namedAttrList$facetVariable1 <- NULL
-    namedAttrList$facetVariable2 <- NULL
-    if ('statsTable' %in% names(namedAttrList)) {
-      if ('overlayVariableDetails' %in% names(.pd)) {
-        statsTable$overlayVariableDetails <- .pd$overlayVariableDetails 
-      }
-      if ('facetVariableDetails' %in% names(.pd)) {
-        statsTable$facetVariableDetails <- .pd$facetVariableDetails
+  if ('sampleSizeTable' %in% names(namedAttrList)) {
+    sampleSizeTable <- sampleSizeTable(.pd)
+    namedAttrList$sampleSizeTable <- NULL
+    attr <- attributes(sampleSizeTable)
+    attributes(sampleSizeTable) <- c(attr, namedAttrList)
+    sampleSizeTable <- addStrataVariableDetails(sampleSizeTable)
+    attr$names <- names(sampleSizeTable)
+    attributes(sampleSizeTable) <- attr
+    if ('xAxisVariable' %in% names(namedAttrList)) {
+      if (namedAttrList$xAxisVariable$dataType == 'STRING') {
+        x <- namedAttrList$xAxisVariable$variableId
+        names(sampleSizeTable)[names(sampleSizeTable) == x] <- 'xVariableDetails'
+        sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, x, namedAttrList$xAxisVariable$entityId)
       }
     }
   }
+
+  .pd <- addStrataVariableDetails(.pd)
+  namedAttrList$overlayVariable <- NULL
+  namedAttrList$facetVariable1 <- NULL
+  namedAttrList$facetVariable2 <- NULL
 
   if ('xAxisVariable' %in% names(namedAttrList)) {
     namedAttrList$xVariableDetails <- makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId)
@@ -75,12 +88,14 @@ getJSON <- function(.pd) {
   }
 
   
-  if ('statsTable' %in% names(namedAttrList)) {
-    namedAttrList$statsTable <- NULL
-    outList <- list(class = list('data'=.pd, 'config'=namedAttrList), 'statsTable'=statsTable)
-  } else {
-    outList <- list(class = list('data'=.pd, 'config'=namedAttrList))
+  outList <- list(class = list('data'=.pd, 'config'=namedAttrList))
+  if (!inherits(sampleSizeTable, 'function')) {
+    outList$sampleSizeTable <- sampleSizeTable
   }
+  if (!inherits(statsTable, 'function')) {
+    outList$statsTable <- statsTable
+  }
+
   names(outList)[1] <- class
   outJson <- jsonlite::toJSON(outList)
 

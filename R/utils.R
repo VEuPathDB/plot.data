@@ -17,11 +17,6 @@ updateType <- function(x, xType) {
 }
 
 getPDAttributes <- function(.pd) {
-  #should write is.plot.data, etc helpers
-  if (!"plot.data" %in% class(.pd)) {
-    stop(".pd must be an object which inherits from class 'plot.data'")
-  }
-
   attr <- attributes(.pd)
   attr$names <- NULL
   attr$class <- NULL

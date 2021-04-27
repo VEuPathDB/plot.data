@@ -49,6 +49,15 @@ newPlotdata <- function(.dt = data.table(),
   incompleteCases <- jsonlite::unbox(nrow(.dt[!complete.cases(.dt),]))
   .dt <- .dt[complete.cases(.dt),]
 
+  if (xType == 'STRING') {
+    .dt$dummy <- 1
+    sampleSizeTable <- groupSize(.dt, x=x, y="dummy", group, panel)
+    .dt$dummy <- NULL
+  } else {
+    sampleSizeTable <- groupSize(.dt, x=NULL, y=x, group, panel)
+  }
+  sampleSizeTable$size <- lapply(sampleSizeTable$size, jsonlite::unbox)
+
   if (is.null(xAxisVariable$dataType)) {
     xIsNum = all(!is.na(as.numeric(.dt[[x]])))
     xAxisVariable$dataType <- 'NUMBER'
@@ -56,10 +65,6 @@ newPlotdata <- function(.dt = data.table(),
     xAxisVariable$dataType <- 'DATE'
     xIsChar = !xIsNum && !xIsDate && all(!is.na(as.character(.dt[[x]])))
     xAxisVariable$dataType <- 'STRING'
-  } else {
-    xIsChar = xAxisVariable$dataType == 'STRING'
-    xIsNum = xAxisVariable$dataType == 'NUMBER'
-    xIsDate = xAxisVariable$dataType == 'DATE'
   } 
 
   attr <- attributes(.dt)
@@ -67,6 +72,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(y)) { attr$yAxisVariable <- yAxisVariable }
   if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
   attr$incompleteCases <- incompleteCases
+  attr$sampleSizeTable <- noStatsFacet(sampleSizeTable, group, panel)
   attr$class = c(class, 'plot.data', attr$class)
   if (!is.null(group)) { attr$overlayVariable <- overlayVariable }
   if (!is.null(facet1)) { attr$facetVariable1 <- facetVariable1 }
@@ -100,3 +106,5 @@ validatePlotdata <- function(.pd) {
 
   return(.pd)
 }
+
+sampleSizeTable <- function(.pd) { attr(.pd, 'sampleSizeTable') }
