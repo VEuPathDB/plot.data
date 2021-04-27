@@ -13,6 +13,14 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),16)
   expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'incompleteCases','sampleSizeTable','facetVariable1', 'facetVariable2', 'summary', 'viewport', 'binSlider', 'binSpec'))
+  expect_equal(class(namedAttrList$incompleteCases),c('scalar', 'integer'))
+  expect_equal(class(namedAttrList$summary$min),c('scalar', 'numeric'))
+  expect_equal(class(namedAttrList$viewport$xMin),c('scalar', 'numeric'))
+  expect_equal(class(namedAttrList$binSlider$min),c('scalar', 'numeric'))
+  expect_equal(class(namedAttrList$binSpec$type),c('scalar', 'character'))
+
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', binReportValue, viewport)
   expect_is(dt, 'data.table')
@@ -76,6 +84,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('binLabel', 'binStart', 'binEnd', 'value'))
 
+
   #this for dates, split into its own test?
   map <- data.frame('id' = c('group', 'date', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'DATE', 'STRING'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.dates)
@@ -89,6 +98,15 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),16)
   expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'incompleteCases','sampleSizeTable','facetVariable1', 'facetVariable2', 'summary', 'viewport', 'binSlider', 'binSpec'))
+  expect_equal(class(namedAttrList$incompleteCases),c('scalar', 'integer'))
+  expect_equal(class(namedAttrList$summary$min),c('scalar', 'summaryDefault', 'table', 'Date'))
+  expect_equal(class(namedAttrList$viewport$xMin),c('scalar', 'Date'))
+  expect_equal(class(namedAttrList$binSlider$min),c('scalar', 'numeric'))
+  expect_equal(class(namedAttrList$binSpec$type),c('scalar', 'character'))
+  expect_equal(class(namedAttrList$binSpec$value),c('scalar', 'numeric'))
+
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', binReportValue, viewport)
   expect_is(dt, 'data.table')

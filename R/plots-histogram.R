@@ -82,6 +82,8 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       if (is.null(binWidth)) {
         binWidth <- findBinWidth(xVP)
       }
+      numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
+      if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
       unit <- trim(gsub("^[[:digit:]].", "", binWidth))
       if (unit %in% c('day', 'days')) {
         binSliderMin <- floor(binSliderMin)
@@ -103,7 +105,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       }
       binSliderMin <- ifelse(binSliderMin == 0, 1, binSliderMin)
       binSliderStep <- 1
-      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth), 'units'=jsonlite::unbox(unit))
+      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
     }
     binSlider <- list('min'=jsonlite::unbox(binSliderMin), 'max'=jsonlite::unbox(binSliderMax), 'step'=jsonlite::unbox(binSliderStep))
   }
