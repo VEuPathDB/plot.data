@@ -104,6 +104,7 @@ validateBoxPD <- function(.box) {
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
+#' @param independentDelimiter string on which to split input variables, if multiple given. Ex. ', ' if xAxisVariable is 'x, y'
 #' @return data.table plot-ready data
 #' @export
 box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), independentDelimiter = NULL) {
@@ -128,31 +129,41 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   }
   
   
-  #### Consider making ordered the actual ordering for the plot in case 
-  # we let the user select non-numeric vars.
-  #### 'ordered' could instead be delimiter --- NULL if no delimiter but something if there is a list.
+  #### Currently using a delimiter to know if there are multiple values. Could instead use list. See p.d. issue #5
   if (!identical(independentDelimiter,NULL)) {
     
-    #### Check that all vars are numeric and have the same entityid
     
     ## Extract variables from list of variables
-    xAxisVars <- list('variableId' = unlist(stringr::str_split(map$id[map$plotRef == 'xAxisVariable'], independentDelimiter)),
+    orderedVars <- list('variableId' = unlist(stringr::str_split(map$id[map$plotRef == 'xAxisVariable'], independentDelimiter)),
                       'entityId' = unlist(stringr::str_split(map$entityId[map$plotRef == 'xAxisVariable'], independentDelimiter)),
                       'dataType' = unlist(stringr::str_split(map$dataType[map$plotRef == 'xAxisVariable'], independentDelimiter)))
     
-    ## Now we have a character vector of x axis variables. Reshape the data so that these are in their own column
-    # Reshape to a long data table
+    # Check that all vars are numeric
+    #### Check that all have the same entity id?
+    #### 'Custom input vars' needs to be changed
+    #### Does this have to be numeric in the general case? For boxplots, yes, for heatmaps, yes. Others?
+    if (!identical(unique(orderedVars$dataType), 'NUMBER')) {
+      stop("Any custom input variables must be of data type NUMBER")
+    }
+
+    if (length(unique(orderedVars$entityId)) > 1) {
+      stop("All custom input variables must have the same entityID")
+    }
+
+    ## Now we have a character vector of x axis variables. Reshape to long form
     data <- data.table::melt(data,
                                 id.vars = c(overlayVariable$variableId, facetVariable1$variableId, facetVariable2$variableId),
-                                measure.vars = xAxisVars$variableId)
+                                measure.vars = orderedVars$variableId)
     
-    ## Update map - should have an xAxisVariable but no yAxisVariable. 
+    # Update xAxisVariable in map
     map$id[map$plotRef == 'xAxisVariable'] = 'variable'
     map$dataType[map$plotRef == 'xAxisVariable'] = 'STRING'
-    # entity id?
+    map$entityId[map$plotRef == 'xAxisVariable'] = unique(orderedVars$entityId)
+
+    # Add yAxisVariable
     map <- rbind(map, data.frame('id' = 'value', 'plotRef' = 'yAxisVariable', 'dataType' = 'NUMBER'))
     
-  } ### At this point, the xAxisVar is a _factor_ with the appropriate ordering. What happens?
+  } #### At this point, the xAxisVar is a _factor_ with the appropriate ordering
 
   if ('xAxisVariable' %in% map$plotRef) {
     xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
