@@ -46,24 +46,24 @@ getJSON <- function(.pd) {
     statsTable <- statsTable(.pd)
     namedAttrList$statsTable <- NULL
     attr <- attributes(statsTable)
-    attributes(statsTable) <- c(attr, namedAttrList)
+    setAttrFromList(statsTable, namedAttrList, removeExtraAttrs=F)
     statsTable <- addStrataVariableDetails(statsTable)
     attr$names <- names(statsTable)
-    attributes(statsTable) <- attr
+    setAttrFromList(statsTable, attr)
   }
 
   if ('sampleSizeTable' %in% names(namedAttrList)) {
     sampleSizeTable <- sampleSizeTable(.pd)
     namedAttrList$sampleSizeTable <- NULL
     attr <- attributes(sampleSizeTable)
-    attributes(sampleSizeTable) <- c(attr, namedAttrList)
+    setAttrFromList(sampleSizeTable, namedAttrList, removeExtraAttrs=F)
     sampleSizeTable <- addStrataVariableDetails(sampleSizeTable)
     attr$names <- names(sampleSizeTable)
-    attributes(sampleSizeTable) <- attr
+    setAttrFromList(sampleSizeTable, attr)
     if ('xAxisVariable' %in% names(namedAttrList)) {
       if (namedAttrList$xAxisVariable$dataType == 'STRING') {
         x <- namedAttrList$xAxisVariable$variableId
-        names(sampleSizeTable)[names(sampleSizeTable) == x] <- 'xVariableDetails'
+        data.table::setnames(sampleSizeTable, x, 'xVariableDetails')
         sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, x, namedAttrList$xAxisVariable$entityId)
       }
     }

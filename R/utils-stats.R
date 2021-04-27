@@ -169,9 +169,9 @@ bothRatios <- function(data, collapse = TRUE) {
   mergeByCols <- c('pvalue', 'yLabel', 'xLabel', 'value')
 
   or <- oddsRatio(data, collapse)
-  data.table::setnames(or, 'oddsratio', 'pvalue', 'xLabel', 'orInterval', 'yLabel', 'value')
+  data.table::setnames(or, c('oddsratio', 'pvalue', 'xLabel', 'orInterval', 'yLabel', 'value'))
   rr <- relativeRisk(data, collapse)
-  data.table::setnames(rr, 'relativerisk', 'pvalue', 'xLabel', 'rrInterval', 'yLabel', 'value')
+  data.table::setnames(rr, c('relativerisk', 'pvalue', 'xLabel', 'rrInterval', 'yLabel', 'value'))
   if (collapse) { 
     if (!identical(or$yLabel, rr$yLabel) |
         !identical(or$xLabel, rr$xLabel) |
