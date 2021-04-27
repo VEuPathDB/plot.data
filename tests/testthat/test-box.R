@@ -12,49 +12,31 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 16)
   expect_equal(names(dt),c('panel', 'group', 'variable', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
-  # expect_equal(dt[, variable][[1]], c('x', 'y')) # Check grouping was successful
-  # expect_equal(dt[, median][[1]], c(10.2469,  0.3497))  # Check computation on groups
-  
+
   dt <- box.dt(df, map, 'none', TRUE, ', ')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 16)
   expect_equal(names(dt),c('panel', 'group', 'variable', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'mean'))
-  # expect_equal(dt[, variable][[1]], c('x', 'y'))
-  # expect_equal(dt[, median][[1]], c(10.2469,  0.3497)) 
-  # expect_equal(dt[, mean][[1]], c(10.1973, 0.3903)) # Check mean calculation
-  # 
+
   dt <- box.dt(df, map, 'outliers', FALSE, ', ')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 16)
   expect_equal(names(dt),c('panel', 'group', 'variable', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'outliers'))
-  # expect_equal(dt[, variable][[1]], c('x', 'y'))
-  # expect_equal(dt[, median][[1]], c(10.2469,  0.3497))
-  
   
   dt <- box.dt(df, map, 'outliers', TRUE, ', ')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 16)
   expect_equal(names(dt),c('panel', 'group', 'variable', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'outliers', 'mean'))
-  # expect_equal(dt[, variable][[1]], c('x', 'y'))
-  # expect_equal(dt[, median][[1]], c(10.2469,  0.3497))
-  # expect_equal(dt[, mean][[1]], c(10.1973, 0.3903))
-  
   
   dt <- box.dt(df, map, 'all', FALSE, ', ')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 16)
   expect_equal(names(dt),c('panel', 'group', 'variable', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'series.x', 'series.y'))
-  # expect_equal(dt[, variable][[1]], c('x', 'y'))
-  # expect_equal(dt[, median][[1]], c(10.2469,  0.3497))
-
   
   dt <- box.dt(df, map, 'all', TRUE, ', ')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 16)
   expect_equal(names(dt),c('panel', 'group', 'variable', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'series.x', 'series.y', 'mean'))
-  # expect_equal(dt[, variable][[1]], c('x', 'y'))
-  # expect_equal(dt[, median][[1]], c(10.2469,  0.3497))
-  # expect_equal(dt[, mean][[1]], c(10.1973, 0.3903))
 
   # Ordered box test using only values for x axis
   map <- data.frame('id' = c('y, x'),
@@ -91,11 +73,6 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 1)
   expect_equal(names(dt),c('variable', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'series.x', 'series.y', 'mean'))
-  
-  
-  
-  
-  
   
   
   

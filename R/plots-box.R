@@ -132,6 +132,11 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   #### Currently using a delimiter to know if there are multiple values. Could instead use list. See p.d. issue #5
   if (!identical(independentDelimiter,NULL)) {
 
+    # Stop if the delimiter is not found. Though the rest of the code may not error, such a delimiter is likely a mistake.
+    if (!grepl(independentDelimiter, map$id[map$plotRef == 'xAxisVariable'])){
+      stop(paste0('Delimiter "',independentDelimiter,'" not found in variable list'))
+    }
+
     # Extract variables from list of variables
     listedVars <- list('variableId' = unlist(stringr::str_split(map$id[map$plotRef == 'xAxisVariable'], independentDelimiter)),
                       'entityId' = unlist(stringr::str_split(map$entityId[map$plotRef == 'xAxisVariable'], independentDelimiter)),
@@ -147,7 +152,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 
     # Add yAxisVariable
     map <- rbind(map, data.frame('id' = 'value', 'plotRef' = 'yAxisVariable', 'dataType' = requiredDataType))
-    
+
   } 
 
   if ('xAxisVariable' %in% map$plotRef) {
