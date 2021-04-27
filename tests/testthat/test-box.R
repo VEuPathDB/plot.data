@@ -2,7 +2,7 @@ context('box')
 
 test_that("box.dt() returns an appropriately sized data.table", {
   
-  # Ordered box testing
+  # Ordered box testing - do group and panel, and just y,x
   map <- data.frame('id' = c('y, x', 'group'),
                     'plotRef' = c('xAxisVariable', 'overlayVariable'),
                     'dataType' = c('NUMBER, NUMBER', 'STRING'),

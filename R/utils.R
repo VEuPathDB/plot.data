@@ -247,35 +247,20 @@ findBinEnd <- function(x) {
 }
 
 
-reshapeByVariableList <- function(data, map, varDelimiter, plotRefInput='xAxisVariable', plotRefOutput='yAxisVariable', requiredDataType='NUMBER') {
+reshapeByListedVars <- function(data, listedVars, requiredDataType='NUMBER') {
     
+  # Check that all vars are of the requiredDataType
+  #### Does this have to be numeric in the general case? For boxplots, yes, for heatmaps, yes. Others?
+  if (!identical(unique(listedVars$dataType), requiredDataType)) {
+    stop(paste0("Any custom input variables must be of data type ",requiredDataType))
+  }
 
+  if (length(unique(listedVars$entityId)) > 1) {
+    stop("All custom input variables must have the same entityID")
+  }
 
-    # Extract variables from list of variables
-    orderedVars <- list('variableId' = unlist(stringr::str_split(map$id[map$plotRef == plotRefInput], varDelimiter)),
-                      'entityId' = unlist(stringr::str_split(map$entityId[map$plotRef == plotRefInput], varDelimiter)),
-                      'dataType' = unlist(stringr::str_split(map$dataType[map$plotRef == plotRefInput], varDelimiter)))
-    
-    # Check that all vars are numeric
-    #### Does this have to be numeric in the general case? For boxplots, yes, for heatmaps, yes. Others?
-    if (!identical(unique(orderedVars$dataType), requiredDataType)) {
-      stop(paste0("Any custom input variables must be of data type ",requiredDataType))
-    }
-
-    if (length(unique(orderedVars$entityId)) > 1) {
-      stop("All custom input variables must have the same entityID")
-    }
-
-    ## Now we have a character vector of x axis variables. Reshape to long form
-    data <- data.table::melt(data, measure.vars = orderedVars$variableId, variable.factor = FALSE)
-    
-    # Update xAxisVariable in map
-    map$id[map$plotRef == plotRefInput] = 'variable'
-    map$dataType[map$plotRef == plotRefInput] = 'STRING'
-    map$entityId[map$plotRef == plotRefInput] = unique(orderedVars$entityId)
-
-    # Add yAxisVariable
-    map <- rbind(map, data.frame('id' = 'value', 'plotRef' = plotRefOutput, 'dataType' = requiredDataType))
-
-    return(list('data'=data, 'map'=map, 'varOrder'=orderedVars$variableId))
+  # Finally reshape to long form
+  data <- data.table::melt(data, measure.vars = listedVars$variableId, variable.factor = FALSE)
+  
+  return(data)
 }

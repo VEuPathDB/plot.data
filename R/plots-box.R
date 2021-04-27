@@ -129,14 +129,27 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     data <- data.table::as.data.table(data)
   }
   
-  
   #### Currently using a delimiter to know if there are multiple values. Could instead use list. See p.d. issue #5
   if (!identical(independentDelimiter,NULL)) {
 
-    mapDataList <- reshapeByVariableList(data,map,independentDelimiter)
-    map <- mapDataList$map
-    data <- mapDataList$data
-    varOrder <- mapDataList$varOrder
+    # Extract variables from list of variables
+    listedVars <- list('variableId' = unlist(stringr::str_split(map$id[map$plotRef == 'xAxisVariable'], independentDelimiter)),
+                      'entityId' = unlist(stringr::str_split(map$entityId[map$plotRef == 'xAxisVariable'], independentDelimiter)),
+                      'dataType' = unlist(stringr::str_split(map$dataType[map$plotRef == 'xAxisVariable'], independentDelimiter)))
+  
+
+    requiredDataType <- "NUMBER"
+    data <- reshapeByListedVars(data,listedVars, requiredDataType=requiredDataType)
+
+    # Update xAxisVariable in map
+    map$id[map$plotRef == 'xAxisVariable'] = 'variable'
+    map$dataType[map$plotRef == 'xAxisVariable'] = 'STRING'
+    map$entityId[map$plotRef == 'xAxisVariable'] = unique(listedVars$entityId)
+
+    # Add yAxisVariable
+    map <- rbind(map, data.frame('id' = 'value', 'plotRef' = 'yAxisVariable', 'dataType' = requiredDataType))
+
+
     
   } 
 
