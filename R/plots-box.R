@@ -136,7 +136,6 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     listedVars <- list('variableId' = unlist(stringr::str_split(map$id[map$plotRef == 'xAxisVariable'], independentDelimiter)),
                       'entityId' = unlist(stringr::str_split(map$entityId[map$plotRef == 'xAxisVariable'], independentDelimiter)),
                       'dataType' = unlist(stringr::str_split(map$dataType[map$plotRef == 'xAxisVariable'], independentDelimiter)))
-  
 
     requiredDataType <- "NUMBER"
     data <- reshapeByListedVars(data,listedVars, requiredDataType=requiredDataType)
@@ -148,8 +147,6 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 
     # Add yAxisVariable
     map <- rbind(map, data.frame('id' = 'value', 'plotRef' = 'yAxisVariable', 'dataType' = requiredDataType))
-
-
     
   } 
 
