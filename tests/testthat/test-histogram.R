@@ -164,7 +164,7 @@ test_that("histogram() returns consistent and appropriately formatted json", {
   outJson <- getJSON(dt)
   expect_equal_to_reference(outJson, 'histogramJson.rds')
   jsonList <- jsonlite::fromJSON(outJson)
-  expect_equal(names(jsonList),'histogram')
+  expect_equal(names(jsonList),c('histogram','sampleSizeTable'))
   expect_equal(names(jsonList$histogram),c('data','config'))
   expect_equal(names(jsonList$histogram$data),c('overlayVariableDetails','facetVariableDetails','binLabel','binStart','binEnd','value'))
   expect_equal(names(jsonList$histogram$data$overlayVariableDetails),c('variableId','entityId','value'))
@@ -173,7 +173,8 @@ test_that("histogram() returns consistent and appropriately formatted json", {
   expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
-
+  expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails', 'size'))
+  
 
   map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
   df <- as.data.frame(bigData)
@@ -184,7 +185,7 @@ test_that("histogram() returns consistent and appropriately formatted json", {
   outJson <- getJSON(dt)
   expect_equal_to_reference(outJson, 'histogramJson.twoFacets.rds')
   jsonList <- jsonlite::fromJSON(outJson)
-  expect_equal(names(jsonList),'histogram')
+  expect_equal(names(jsonList),c('histogram','sampleSizeTable'))
   expect_equal(names(jsonList$histogram),c('data','config'))
   expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','binStart','binEnd','value'))
   expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
@@ -194,4 +195,5 @@ test_that("histogram() returns consistent and appropriately formatted json", {
   expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
+  expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
 })

@@ -7,8 +7,7 @@ groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, FUN = function(x){round(quantile(x),4)}))
   }
 
-  names(dt) <- c(x, group, panel, 'min', 'q1', 'median', 'q3', 'max')
-
+  data.table::setnames(dt, c(x, group, panel, 'min', 'q1', 'median', 'q3', 'max'))
   if(collapse){
     dt <- collapseByGroup(dt, group, panel)
   }
@@ -25,8 +24,7 @@ groupFences <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, fences))
   }
 
-  names(dt) <- c(x, group, panel, 'lowerfence', 'upperfence')
-
+  data.table::setnames(dt, c(x, group, panel, 'lowerfence', 'upperfence'))
   if(collapse) {
     dt <- collapseByGroup(dt, group, panel)
   }
@@ -43,11 +41,11 @@ groupMean <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T)
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, FUN = function(x){round(mean(x),4)}))
   }
 
-  names(dt) <- c(x, group, panel, 'mean')
-
+  data.table::setnames(dt, c(x, group, panel, 'mean'))
   if(collapse) {
     dt <- collapseByGroup(dt, group, panel)
   }
+
 
   return(dt)
 }
@@ -60,8 +58,7 @@ groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
   } else {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, FUN = function(x){round(stats::sd(x),4)}))
   }
-
-  names(dt) <- c(x, group, panel, 'sd')
+  data.table::setnames(dt, c(x, group, panel, 'sd'))
   
   if(collapse){
     dt <- collapseByGroup(dt, group, panel)
@@ -78,7 +75,8 @@ groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T)
   } else {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, length))
   }
-  names(dt) <- c(x, group, panel, 'size')
+  
+  data.table::setnames(dt, c(x, group, panel, 'size'))
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
 
@@ -98,7 +96,8 @@ groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL, collaps
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, outliers))
   }
 
-  names(dt) <- c(x, group, panel, 'outliers')
+
+  data.table::setnames(dt, c(x, group, panel, 'outliers'))
 
   if(collapse){
     dt <- collapseByGroup(dt, group, panel)
@@ -116,7 +115,8 @@ groupDensity <- function(data, col, group = NULL, panel = NULL) {
   } else {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, densityCurve))
   }
-  names(dt) <- c(group, panel, 'x', 'y')
+  
+  data.table::setnames(dt, c(group, panel, 'x', 'y'))
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
   
@@ -125,8 +125,9 @@ groupDensity <- function(data, col, group = NULL, panel = NULL) {
 
 #' @importFrom purrr reduce
 groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
-  names(data)[names(data) == y] <- 'y'
-  names(data)[names(data) == x] <- 'x'
+  
+  data.table::setnames(data, x, 'x')
+  data.table::setnames(data, y, 'y')
   y <- 'y'
   x <- 'x'
   aggStr <- getAggStr(y, c(group, panel))

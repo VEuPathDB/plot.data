@@ -33,11 +33,12 @@ newBarPD <- function(.dt = data.table::data.table(),
   } else if (value == 'count' ) {
     .pd$dummy <- 1
     .pd <- groupSize(.pd, x, 'dummy', group, panel, collapse = T)
-    names(.pd) <- c(group, panel, 'label', 'value')
+    data.table::setnames(.pd, c(group, panel, 'label', 'value'))
+
   }
   attr$names <- names(.pd)
   
-  attributes(.pd) <- attr
+  setAttrFromList(.pd, attr)
 
   return(.pd)
 }

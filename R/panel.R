@@ -1,6 +1,7 @@
 panelOddsRatio <- function(data, x, y, panel = NULL) {
-  names(data)[names(data) == x] <- 'x'
-  names(data)[names(data) == y] <- 'y'
+  
+  data.table::setnames(data, x, "x")
+  data.table::setnames(data, y, "y")
   x <- 'x'
   y <- 'y'
 
@@ -17,8 +18,8 @@ panelOddsRatio <- function(data, x, y, panel = NULL) {
 }
 
 panelRelativeRisk <- function(data, x, y, panel = NULL) {
-  names(data)[names(data) == x] <- 'x'
-  names(data)[names(data) == y] <- 'y'
+  data.table::setnames(data, x, "x")
+  data.table::setnames(data, y, "y")
   x <- 'x'
   y <- 'y'
 
@@ -35,8 +36,8 @@ panelRelativeRisk <- function(data, x, y, panel = NULL) {
 }
 
 panelBothRatios <- function(data, x, y, panel = NULL) {
-  names(data)[names(data) == x] <- 'x'
-  names(data)[names(data) == y] <- 'y'
+  data.table::setnames(data, x, "x")
+  data.table::setnames(data, y, "y")
   x <- 'x'
   y <- 'y'
 
@@ -53,8 +54,8 @@ panelBothRatios <- function(data, x, y, panel = NULL) {
 }
 
 panelChiSq <- function(data, x, y, panel = NULL) {
-  names(data)[names(data) == x] <- 'x'
-  names(data)[names(data) == y] <- 'y'
+  data.table::setnames(data, x, "x")
+  data.table::setnames(data, y, "y")
   x <- 'x'
   y <- 'y'
 
