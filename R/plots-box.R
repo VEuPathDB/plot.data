@@ -123,6 +123,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   facetVariable2 = list('variableId' = NULL,
                         'entityId' = NULL,
                         'dataType' = NULL)
+  varOrder <- NULL
 
   if (!'data.table' %in% class(data)) {
     data <- data.table::as.data.table(data)
@@ -131,39 +132,13 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   
   #### Currently using a delimiter to know if there are multiple values. Could instead use list. See p.d. issue #5
   if (!identical(independentDelimiter,NULL)) {
-    
-    
-    ## Extract variables from list of variables
-    orderedVars <- list('variableId' = unlist(stringr::str_split(map$id[map$plotRef == 'xAxisVariable'], independentDelimiter)),
-                      'entityId' = unlist(stringr::str_split(map$entityId[map$plotRef == 'xAxisVariable'], independentDelimiter)),
-                      'dataType' = unlist(stringr::str_split(map$dataType[map$plotRef == 'xAxisVariable'], independentDelimiter)))
-    
-    # Check that all vars are numeric
-    #### Check that all have the same entity id?
-    #### 'Custom input vars' needs to be changed
-    #### Does this have to be numeric in the general case? For boxplots, yes, for heatmaps, yes. Others?
-    if (!identical(unique(orderedVars$dataType), 'NUMBER')) {
-      stop("Any custom input variables must be of data type NUMBER")
-    }
 
-    if (length(unique(orderedVars$entityId)) > 1) {
-      stop("All custom input variables must have the same entityID")
-    }
-
-    ## Now we have a character vector of x axis variables. Reshape to long form
-    data <- data.table::melt(data,
-                                id.vars = c(overlayVariable$variableId, facetVariable1$variableId, facetVariable2$variableId),
-                                measure.vars = orderedVars$variableId)
+    mapDataList <- reshapeByVariableList(data,map,independentDelimiter)
+    map <- mapDataList$map
+    data <- mapDataList$data
+    varOrder <- mapDataList$varOrder
     
-    # Update xAxisVariable in map
-    map$id[map$plotRef == 'xAxisVariable'] = 'variable'
-    map$dataType[map$plotRef == 'xAxisVariable'] = 'STRING'
-    map$entityId[map$plotRef == 'xAxisVariable'] = unique(orderedVars$entityId)
-
-    # Add yAxisVariable
-    map <- rbind(map, data.frame('id' = 'value', 'plotRef' = 'yAxisVariable', 'dataType' = 'NUMBER'))
-    
-  } #### At this point, the xAxisVar is a _factor_ with the appropriate ordering
+  } 
 
   if ('xAxisVariable' %in% map$plotRef) {
     xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
@@ -192,9 +167,11 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                     facetVariable1 = facetVariable1,
                     facetVariable2 = facetVariable2,
                     points,
-                    mean)
+                    mean) #### pass varOrder here?
 
   .box <- validateBoxPD(.box)
+  
+  #### Set varOrder attr?
 
   return(.box) 
 
