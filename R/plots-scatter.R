@@ -34,7 +34,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
   series <- collapseByGroup(.pd, group, panel)
-  data.table::setnames(series, c(group, panel, 'seriesY', 'seriesX'))
+  data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
 
   if (value == 'smoothedMean') {
     interval <- groupSmoothedMean(.pd, x, y, group, panel)
