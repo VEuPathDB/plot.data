@@ -33,12 +33,12 @@ newBarPD <- function(.dt = data.table::data.table(),
   } else if (value == 'count' ) {
     .pd$dummy <- 1
     .pd <- groupSize(.pd, x, 'dummy', group, panel)
-    names(.pd) <- c('label', group, panel, 'value')
+    data.table::setnames(.pd, c('label', group, panel, 'value'))
     .pd <- noStatsFacet(.pd, group, panel)
   }
   attr$names <- names(.pd)
   
-  attributes(.pd) <- attr
+  setAttrFromList(.pd, attr)
 
   return(.pd)
 }

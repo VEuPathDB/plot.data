@@ -117,9 +117,10 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   } else {
     stop('Unrecognized argument to "value".')
   }
+  
   attr$names <- names(.pd)
 
-  attributes(.pd) <- attr
+  setAttrFromList(.pd, attr)
 
   return(.pd)
 }
