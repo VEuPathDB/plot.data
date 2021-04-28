@@ -91,6 +91,12 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   viewport <- list('xMin'=min(df$date), 'xMax'=max(df$date))
   binReportValue <- 'binWidth'
 
+  dt <- histogram.dt(df, map, binWidth = 'month', value='count', binReportValue, viewport)
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(as.numeric(namedAttrList$binSpec$value),1)
+  expect_equal(as.character(namedAttrList$binSpec$type),'binWidth')
+  expect_equal(as.character(namedAttrList$binSpec$unit),'month')
+
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_is(dt, 'plot.data')
