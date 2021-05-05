@@ -53,8 +53,8 @@ newBoxPD <- function(.dt = data.table::data.table(),
     }
   } else if (points == 'all') {
     rawData <- collapseByGroup(.pd, group, panel)
-    data.table::setnames(rawData, x, 'series.x')
-    data.table::setnames(rawData, y, 'series.y')
+    data.table::setnames(rawData, x, 'seriesX')
+    data.table::setnames(rawData, y, 'seriesY')
 
     if (!is.null(key(rawData))) {
       .pd.base <- merge(.pd.base, rawData)
