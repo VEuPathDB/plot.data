@@ -115,8 +115,9 @@ groupDensity <- function(data, col, group = NULL, panel = NULL) {
   } else {
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, densityCurve))
   }
-  
-  data.table::setnames(dt, c(group, panel, 'x', 'y'))
+ 
+  data.table::setnames(dt, c(group, panel, 'densityX', 'densityY'))
+ 
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
   

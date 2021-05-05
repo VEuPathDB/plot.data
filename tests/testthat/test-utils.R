@@ -4,7 +4,7 @@ test_that("smoothed data is ordered by x", {
   dt <- data.table::data.table(x = c(1, 5, 2, 3, 4), y = 1:5)
   sm <- smoothedMean(dt, 'loess')
 
-  expect_equal(unlist(sm$x), dt$x[order(dt$x)])
+  expect_equal(unlist(sm$smoothedMeanX), dt$x[order(dt$x)])
 })
 
 test_that("smoothedMean() returns a data.table", {

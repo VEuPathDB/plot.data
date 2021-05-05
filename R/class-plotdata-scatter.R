@@ -39,17 +39,11 @@ newScatterPD <- function(.dt = data.table::data.table(),
   if (value == 'smoothedMean') {
 
     smoothedMean <- groupSmoothedMean(.pd, x, y, group, panel)
-    smoothedMean <- smoothedMean[, !c('ymin', 'ymax')]
-
-    data.table::setnames(smoothedMean, c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', group, panel))    
     .pd <- smoothedMean
 
   } else if (value == 'smoothedMeanWithRaw') {
     
     smoothedMean <- groupSmoothedMean(.pd, x, y, group, panel)
-    smoothedMean <- smoothedMean[, !c('ymin', 'ymax')]
-    data.table::setnames(smoothedMean, c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', group, panel))
-    
     if (!is.null(key(series))) {
       .pd <- merge(series, smoothedMean)
     } else {
@@ -59,8 +53,6 @@ newScatterPD <- function(.dt = data.table::data.table(),
   } else if (value == 'bestFitLineWithRaw') {
   
     bestFitLine <- groupBestFitLine(.pd, x, y, group, panel)
-    #TODO move names to their helper functions. rather than renaming here
-
     if (!is.null(key(series))) {
       .pd <- merge(series, bestFitLine)
     } else {
@@ -70,11 +62,9 @@ newScatterPD <- function(.dt = data.table::data.table(),
   } else if (value == 'density') {
     
     density <- groupDensity(.pd, x, group, panel)
-    data.table::setnames(density, c(group, panel, 'densityX', 'densityY'))
     .pd <- density
     
   } else {
-    # Return raw data
     .pd <- series
   }
   attr$names <- names(.pd)

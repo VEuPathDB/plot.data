@@ -43,7 +43,7 @@ outliers <- function(x) {
 densityCurve <- function(x) {
   curve <- stats::density(x)
 
-  return(data.table::data.table("x" = c(curve$x), "y" = c(curve$y)))
+  return(data.table::data.table("densityX" = c(curve$x), "densityY" = c(curve$y)))
 }
 
 # Prediction data frame
@@ -150,7 +150,7 @@ smoothedMean <- function(dt, method) {
 
   smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
 
-  return(data.table::data.table("x" = list(smoothed$x), "y" = list(smoothed$y), "ymin" = list(smoothed$ymin), "ymax" = list(smoothed$ymax), "se" = list(smoothed$se)))
+  return(data.table::data.table("smoothedMeanX" = list(smoothed$x), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se)))
 }
 
 epitabToDT <- function(m, method) {

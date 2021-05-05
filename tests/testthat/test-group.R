@@ -48,44 +48,44 @@ test_that("groupSmoothedMean() returns an appropriately sized data.table", {
   dt <- groupSmoothedMean(data.xy, 'x', 'y')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt), c('x', 'y', 'ymin', 'ymax', 'se'))
+  expect_equal(names(dt), c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE'))
 
   dt <- groupSmoothedMean(data.xy, 'x', 'y', 'group')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('x', 'y', 'ymin', 'ymax', 'se', 'group'))
+  expect_equal(names(dt), c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'group'))
 
   dt <- groupSmoothedMean(data.xy, 'x', 'y', NULL, 'panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('x', 'y', 'ymin', 'ymax', 'se', 'panel'))
+  expect_equal(names(dt), c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'panel'))
 
   dt <- groupSmoothedMean(data.xy, 'x', 'y', 'group', 'panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt), c('x', 'y', 'ymin', 'ymax', 'se', 'group', 'panel'))
+  expect_equal(names(dt), c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'group', 'panel'))
 })
 
 test_that("groupDensity() returns an appropriately sized data.table", {
-  dt <- groupDensity(data.xy, 'y')
+  dt <- groupDensity(data.xy, 'x')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt), c('x', 'y'))
+  expect_equal(names(dt), c('densityX', 'densityY'))
 
   dt <- groupDensity(data.xy, 'y', 'group')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('group', 'x', 'y'))
+  expect_equal(names(dt), c('group', 'densityX', 'densityY'))
 
   dt <- groupDensity(data.xy, 'y', NULL, 'panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('panel', 'x', 'y'))
+  expect_equal(names(dt), c('panel', 'densityX', 'densityY'))
 
   dt <- groupDensity(data.xy, 'y', 'group', 'panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt), c('group', 'panel', 'x', 'y'))
+  expect_equal(names(dt), c('group', 'panel', 'densityX', 'densityY'))
 })
 
 #my canaries
