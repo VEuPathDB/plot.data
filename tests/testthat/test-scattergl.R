@@ -1,6 +1,8 @@
 context('scattergl')
 
 test_that("scattergl.dt() returns an appropriately sized data.table", {
+  #TODO test for best fit lines
+
   map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
   df <- data.xy
 

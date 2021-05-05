@@ -159,6 +159,38 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
   return(dt)
 }
 
+#TODO make collapsing optional for this and smoothed mean ?
+groupBestFitLine <- function(data, x, y, group = NULL, panel = NULL) {
+  
+  data.table::setnames(data, x, 'x')
+  data.table::setnames(data, y, 'y')
+  y <- 'y'
+  x <- 'x'
+  aggStr <- getAggStr(y, c(group, panel))
+
+  if (aggStr == y) {
+    dt <- bestFitLine(data)
+  } else {
+    colsList <- getInteractionColsList(data, group, panel)
+    dt.list <- split(data, colsList)
+    dt.list <- lapply(dt.list, bestFitLine)
+    dt <- purrr::reduce(dt.list, rbind)
+    dt$name <- names(dt.list)
+    if (is.null(group)) {
+      dt[[panel]] <- dt$name
+    } else {
+      dt[[group]] <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
+      panelNames <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
+      if (!all(is.na(panel))) { dt[[panel]] <- panelNames }
+    }
+    dt$name <- NULL
+  }
+  indexCols <- c(panel, group)
+  setkeyv(dt, indexCols)
+  
+  return(dt)
+}
+
 collapseByGroup <- function(data, group = NULL, panel = NULL) {
   if (class(data)[1] != "data.table") {
     data <- data.table::setDT(data)

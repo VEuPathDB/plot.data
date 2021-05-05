@@ -54,6 +54,19 @@ densityCurve <- function(x) {
 # @alias predictdf.loess
 predictdf <- function(model, xseq, se, level) UseMethod("predictdf")
 
+predictdf.default <- function(model, xseq, se = FALSE, level = .95) {
+  pred <- stats::predict(model, newdata = new_data_frame(list(x = xseq)), se.fit = se,
+    level = level, interval = if (se) "confidence" else "none")
+
+  if (se) {
+    fit <- as.data.frame(pred$fit)
+    names(fit) <- c("y", "ymin", "ymax")
+    base::data.frame(x = xseq, fit, se = pred$se.fit)
+  } else {
+    base::data.frame(x = xseq, y = as.vector(pred))
+  }
+}
+
 predictdf.loess <- function(model, xseq, se = TRUE, level = .95) {
   pred <- stats::predict(model, newdata = data_frame(x = xseq), se = se)
 
@@ -86,9 +99,33 @@ predictdf.gam <- function(model, xseq, se = TRUE, level = .95) {
   }
 }
 
+#' Best Fit Line from Linear Regression
+#'
+#' This function returns for the range of x values the line of best
+#' fit and corresponding R-squared measure.
+#' Calculation is performed by the (currently undocumented)
+#' `predictdf()` generic and its methods. `stats::lm` is used to build
+#' the regression model w formula `y~x`.
+#' @param dt data.frame with at least two columns: x) representing the independent variable and y) representing the dependent variable
+#' @return data.table with the follwing columns x, y (best fit line) and r2 (R-squared)
+
+#' @export
+bestFitLine <- function(dt) {
+  xseq <- sort(unique(dt$x))
+  linearModel <- stats::lm(y ~ x, dt)
+
+  bestFitLine <- data.table::as.data.table(predictdf(linearModel, xseq))
+  bestFitLine <- bestFitLine[, lapply(.SD, list)]
+  data.table::setnames(bestFitLine, c('bestFitLineX', 'bestFitLineY'))
+  bestFitLine$r2 <- summary(linearModel)$r.squared
+
+  return(bestFitLine)
+}
+
 #' Smoothed Conditional Mean
 #'
-#' This function returns for every x value the predicted mean, 95% confidence interval and standard error.
+#' This function returns for the range of x values the predicted mean,
+#' 95% confidence interval and standard error.
 #' Calculation is performed by the (currently undocumented)
 #' `predictdf()` generic and its methods. `loess`, uses a t-based 
 #' approximation, and for `gam` the normal confidence interval is 
@@ -212,4 +249,11 @@ chiSq <- function(data, collapse = TRUE) {
 getMode <- function(x) {
    uniq <- unique(x)
    uniq[which.max(tabulate(match(x, uniq)))]
+}
+
+getR2 <- function(model) UseMethod("getR2")
+
+#default assumes model class lm for now, can revisit as needed
+getR2.default <- function(model) {
+  summary(model)$r.squared
 }
