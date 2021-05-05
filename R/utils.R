@@ -1,3 +1,19 @@
+collapseByGroup <- function(data, group = NULL, panel = NULL) {
+  if (class(data)[1] != "data.table") {
+    data <- data.table::setDT(data)
+  }
+
+  if (is.null(group) && is.null(panel)) {
+    dt <- data[, lapply(.SD, list)]
+  } else {
+    dt <- data[, lapply(.SD, list), by=eval(colnames(data)[colnames(data) %in% c(group, panel)])]
+  }
+  indexCols <- c(panel, group)
+  setkeyv(dt, indexCols)
+
+  return(dt)
+}
+
 trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 
 plotRefMapToList <- function(map, plotRef) {

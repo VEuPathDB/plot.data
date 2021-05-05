@@ -191,22 +191,6 @@ groupBestFitLine <- function(data, x, y, group = NULL, panel = NULL) {
   return(dt)
 }
 
-collapseByGroup <- function(data, group = NULL, panel = NULL) {
-  if (class(data)[1] != "data.table") {
-    data <- data.table::setDT(data)
-  }
-
-  if (is.null(group) && is.null(panel)) {
-    dt <- data[, lapply(.SD, list)]
-  } else {   
-    dt <- data[, lapply(.SD, list), by=eval(colnames(data)[colnames(data) %in% c(group, panel)])]
-  }
-  indexCols <- c(panel, group)
-  setkeyv(dt, indexCols)
-  
-  return(dt)
-}
-
 # consider removing group here, if this is only for heatmap
 # think we want table col reformatted to be two cols, 'label' and 'value'. the second will be a list.
 # can we use collapseByGroup for the second task ??
