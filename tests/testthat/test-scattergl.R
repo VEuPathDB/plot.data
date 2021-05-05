@@ -1,8 +1,6 @@
 context('scattergl')
 
 test_that("scattergl.dt() returns an appropriately sized data.table", {
-  #TODO test for best fit lines
-
   map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
   df <- data.xy
 
@@ -21,6 +19,11 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
   expect_equal(names(dt),c('panel', 'group', 'seriesX', 'seriesY', 'intervalX', 'intervalY', 'intervalSE'))
+
+  dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),16)
+  expect_equal(names(dt),c('panel', 'group', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
   
   dt <- scattergl.dt(df, map, 'density')
   expect_is(dt, 'data.table')
@@ -43,7 +46,12 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('intervalX', 'intervalY', 'intervalSE', 'group'))
-  
+ 
+  dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),4)
+  expect_equal(names(dt),c('group', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
+ 
   dt <- scattergl.dt(df, map, 'density')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
@@ -67,6 +75,11 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('intervalX', 'intervalY', 'intervalSE', 'panel'))
   
+  dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),4)
+  expect_equal(names(dt),c('panel', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
+
   dt <- scattergl.dt(df, map, 'density')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
@@ -89,7 +102,12 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('intervalX', 'intervalY', 'intervalSE'))
-  
+    
+  dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt),c('seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
+
   dt <- scattergl.dt(df, map, 'density')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
