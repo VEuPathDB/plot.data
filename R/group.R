@@ -106,17 +106,36 @@ groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL, collaps
   return(dt)
 }
 
-groupDensity <- function(data, col, group = NULL, panel = NULL) {
+groupDensity <- function(data, col, group = NULL, panel = NULL, collapse = TRUE) {
   aggStr <- getAggStr(col, c(group, panel))
 
   if (aggStr == col) {
     dt <- densityCurve(data[[col]])
-    dt <- collapseByGroup(dt)
+    if (collapse) {
+      dt <- collapseByGroup(dt, group, panel)
+    }
   } else {
-    dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, densityCurve))
+    if (collapse) {
+      dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, densityCurve))
+      data.table::setnames(dt, c(group, panel, 'densityX', 'densityY'))
+    } else {
+      colsList <- getInteractionColsList(data, group, panel)
+      dt.list <- split(data, colsList)
+      dt.list <- lapply(dt.list, '[[', col)
+      dt.list <- lapply(dt.list, densityCurve)
+      dt.nrow.list <- lapply(dt.list, nrow)
+      dt <- purrr::reduce(dt.list, rbind)
+      dt$name <- unlist(lapply(names(dt.list), rep, dt.nrow.list[[1]]))
+      if (is.null(group)) {
+        dt[[panel]] <- dt$name
+      } else {
+        dt[[group]] <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
+        panelNames <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
+        if (!all(is.na(panel))) { dt[[panel]] <- panelNames }
+      }
+      dt$name <- NULL
+    }
   }
- 
-  data.table::setnames(dt, c(group, panel, 'densityX', 'densityY'))
  
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
@@ -125,7 +144,7 @@ groupDensity <- function(data, col, group = NULL, panel = NULL) {
 }
 
 #' @importFrom purrr reduce
-groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
+groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL, collapse = TRUE) {
   
   data.table::setnames(data, x, 'x')
   data.table::setnames(data, y, 'y')
@@ -138,13 +157,19 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
   if (maxGroupSize > 1000) { method <- 'gam' }
 
   if (aggStr == y) {
-    dt <- smoothedMean(data, method)
+    dt <- smoothedMean(data, method, collapse)
   } else {
     colsList <- getInteractionColsList(data, group, panel)
     dt.list <- split(data, colsList)
-    dt.list <- lapply(dt.list, smoothedMean, method)
-    dt <- purrr::reduce(dt.list, rbind)
-    dt$name <- names(dt.list)
+    dt.list <- lapply(dt.list, smoothedMean, method, collapse)
+    if (collapse) {
+      dt <- purrr::reduce(dt.list, rbind)
+      dt$name <- names(dt.list)
+    } else {
+      dt.nrow.list <- lapply(dt.list, nrow)
+      dt <- purrr::reduce(dt.list, rbind)
+      dt$name <- unlist(lapply(names(dt.list), rep, dt.nrow.list[[1]]))
+    }
     if (is.null(group)) {
       dt[[panel]] <- dt$name
     } else {
@@ -160,8 +185,7 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL) {
   return(dt)
 }
 
-#TODO make collapsing optional for this and smoothed mean ?
-groupBestFitLine <- function(data, x, y, group = NULL, panel = NULL) {
+groupBestFitLine <- function(data, x, y, group = NULL, panel = NULL, collapse = TRUE) {
   
   data.table::setnames(data, x, 'x')
   data.table::setnames(data, y, 'y')
@@ -170,13 +194,19 @@ groupBestFitLine <- function(data, x, y, group = NULL, panel = NULL) {
   aggStr <- getAggStr(y, c(group, panel))
 
   if (aggStr == y) {
-    dt <- bestFitLine(data)
+    dt <- bestFitLine(data, collapse)
   } else {
     colsList <- getInteractionColsList(data, group, panel)
     dt.list <- split(data, colsList)
-    dt.list <- lapply(dt.list, bestFitLine)
-    dt <- purrr::reduce(dt.list, rbind)
-    dt$name <- names(dt.list)
+    dt.list <- lapply(dt.list, bestFitLine, collapse)
+    if (collapse) {
+      dt <- purrr::reduce(dt.list, rbind)
+      dt$name <- names(dt.list)
+    } else {
+      dt.nrow.list <- lapply(dt.list, nrow)
+      dt <- purrr::reduce(dt.list, rbind)
+      dt$name <- unlist(lapply(names(dt.list), rep, dt.nrow.list[[1]]))
+    }
     if (is.null(group)) {
       dt[[panel]] <- dt$name
     } else {

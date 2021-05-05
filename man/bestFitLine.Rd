@@ -4,7 +4,7 @@
 \alias{bestFitLine}
 \title{Best Fit Line from Linear Regression}
 \usage{
-bestFitLine(dt)
+bestFitLine(dt, collapse = TRUE)
 }
 \arguments{
 \item{dt}{data.frame with at least two columns: x) representing the independent variable and y) representing the dependent variable}

@@ -4,7 +4,7 @@
 \alias{smoothedMean}
 \title{Smoothed Conditional Mean}
 \usage{
-smoothedMean(dt, method)
+smoothedMean(dt, method, collapse = TRUE)
 }
 \arguments{
 \item{dt}{data.frame with at least two columns: x) representing the independent variable and y) representing the dependent variable}

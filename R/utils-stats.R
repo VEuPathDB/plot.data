@@ -42,8 +42,9 @@ outliers <- function(x) {
 #' @import data.table
 densityCurve <- function(x) {
   curve <- stats::density(x)
+  dt <- data.table::data.table("densityX" = c(curve$x), "densityY" = c(curve$y))
 
-  return(data.table::data.table("densityX" = c(curve$x), "densityY" = c(curve$y)))
+  return(dt)
 }
 
 # Prediction data frame
@@ -110,13 +111,18 @@ predictdf.gam <- function(model, xseq, se = TRUE, level = .95) {
 #' @return data.table with the follwing columns x, y (best fit line) and r2 (R-squared)
 
 #' @export
-bestFitLine <- function(dt) {
+bestFitLine <- function(dt, collapse = TRUE) {
   xseq <- sort(unique(dt$x))
   linearModel <- stats::lm(y ~ x, dt)
 
   bestFitLine <- data.table::as.data.table(predictdf(linearModel, xseq))
-  bestFitLine <- bestFitLine[, lapply(.SD, list)]
+  if (collapse) {
+    bestFitLine <- bestFitLine[, lapply(.SD, list)]
+  }
   data.table::setnames(bestFitLine, c('bestFitLineX', 'bestFitLineY'))
+  # if not collapsed, this col will be repetititve
+  # only good way around this is a dedicated class
+  # which probably not worth while considering how this fxn is used
   bestFitLine$r2 <- summary(linearModel)$r.squared
 
   return(bestFitLine)
@@ -137,7 +143,7 @@ bestFitLine <- function(dt) {
 
 #' @export
 #' @importFrom mgcv gam
-smoothedMean <- function(dt, method) {
+smoothedMean <- function(dt, method, collapse = TRUE) {
   xseq <- sort(unique(dt$x))
 
   if (method == 'loess') {
@@ -150,7 +156,13 @@ smoothedMean <- function(dt, method) {
 
   smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
 
-  return(data.table::data.table("smoothedMeanX" = list(smoothed$x), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se)))
+  if (collapse) {
+    dt <- data.table::data.table("smoothedMeanX" = list(smoothed$x), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se))
+  } else {
+    dt <- data.table::data.table("smoothedMeanX" = smoothed$x, "smoothedMeanY" = smoothed$y, "smoothedMeanSE" = smoothed$se)
+  }
+
+  return(dt)
 }
 
 epitabToDT <- function(m, method) {
