@@ -15,7 +15,8 @@ smoothedMean(dt, method)
 data.table with the follwing columns x, y (predicted mean), ymin, ymax (lower and upper bound of confidence interval), se (standard error)
 }
 \description{
-This function returns for every x value the predicted mean, 95% confidence interval and standard error.
+This function returns for the range of x values the predicted mean,
+95% confidence interval and standard error.
 Calculation is performed by the (currently undocumented)
 `predictdf()` generic and its methods. `loess`, uses a t-based 
 approximation, and for `gam` the normal confidence interval is 
