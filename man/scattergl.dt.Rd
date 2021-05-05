@@ -24,11 +24,11 @@ data.table plot-ready data
 \description{
 This function returns a data.table of  
 plot-ready data with one row per group (per panel). Columns 
-'series.x' and 'series.y' contain the raw data for the 
+'seriesX' and 'seriesY' contain the raw data for the 
 scatter plot. Column 'group' and 'panel' specify the group the 
-series data belongs to. Optionally, columns 'interval.x', 
-'interval.y' and 'interval.se' specify the x, y and standard error
- respectively of the smoothed conditional mean for the group. 
- Columns 'density.x' and 'density.y' contain the calculated kernel 
- density estimates.
+series data belongs to. Optionally, columns 'smoothedMeanX', 
+'smoothedMeanY' and 'smoothedMeanSE' specify the x, y and 
+standard error respectively of the smoothed conditional mean 
+for the group. Columns 'densityX' and 'densityY' contain the 
+calculated kernel density estimates.
 }

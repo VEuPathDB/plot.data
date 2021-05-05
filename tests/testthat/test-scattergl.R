@@ -13,12 +13,12 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('intervalX', 'intervalY', 'intervalSE', 'group', 'panel'))
+  expect_equal(names(dt),c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'group', 'panel'))
 
   dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('panel', 'group', 'seriesX', 'seriesY', 'intervalX', 'intervalY', 'intervalSE'))
+  expect_equal(names(dt),c('panel', 'group', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE'))
 
   dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
@@ -40,12 +40,12 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'seriesX', 'seriesY', 'intervalX', 'intervalY', 'intervalSE'))
+  expect_equal(names(dt),c('group', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE'))
   
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('intervalX', 'intervalY', 'intervalSE', 'group'))
+  expect_equal(names(dt),c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'group'))
  
   dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
@@ -68,12 +68,12 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('panel', 'seriesX', 'seriesY', 'intervalX', 'intervalY', 'intervalSE'))
+  expect_equal(names(dt),c('panel', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE'))
   
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('intervalX', 'intervalY', 'intervalSE', 'panel'))
+  expect_equal(names(dt),c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'panel'))
   
   dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
@@ -96,12 +96,12 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('seriesX', 'seriesY', 'intervalX', 'intervalY', 'intervalSE'))
+  expect_equal(names(dt),c('seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE'))
   
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('intervalX', 'intervalY', 'intervalSE'))
+  expect_equal(names(dt),c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE'))
     
   dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
@@ -123,7 +123,7 @@ test_that("scattergl() returns appropriately formatted json", {
 
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
-  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','intervalX','intervalY','intervalSE'))
+  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE'))
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails),c('variableId','entityId','value'))
   expect_equal(nrow(jsonList$scatterplot$data$facetVariableDetails), 16)
   expect_equal(names(jsonList$scatterplot$config),c('incompleteCases','xVariableDetails','yVariableDetails'))

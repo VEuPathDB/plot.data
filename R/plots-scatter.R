@@ -38,22 +38,22 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
   if (value == 'smoothedMean') {
 
-    interval <- groupSmoothedMean(.pd, x, y, group, panel)
-    interval <- interval[, !c('ymin', 'ymax')]
+    smoothedMean <- groupSmoothedMean(.pd, x, y, group, panel)
+    smoothedMean <- smoothedMean[, !c('ymin', 'ymax')]
 
-    data.table::setnames(interval, c('intervalX', 'intervalY', 'intervalSE', group, panel))    
-    .pd <- interval
+    data.table::setnames(smoothedMean, c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', group, panel))    
+    .pd <- smoothedMean
 
   } else if (value == 'smoothedMeanWithRaw') {
     
-    interval <- groupSmoothedMean(.pd, x, y, group, panel)
-    interval <- interval[, !c('ymin', 'ymax')]
-    data.table::setnames(interval, c('intervalX', 'intervalY', 'intervalSE', group, panel))
+    smoothedMean <- groupSmoothedMean(.pd, x, y, group, panel)
+    smoothedMean <- smoothedMean[, !c('ymin', 'ymax')]
+    data.table::setnames(smoothedMean, c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', group, panel))
     
     if (!is.null(key(series))) {
-      .pd <- merge(series, interval)
+      .pd <- merge(series, smoothedMean)
     } else {
-      .pd <- cbind(series, interval)
+      .pd <- cbind(series, smoothedMean)
     }
 
   } else if (value == 'bestFitLineWithRaw') {
@@ -101,13 +101,13 @@ validateScatterPD <- function(.scatter) {
 #'
 #' This function returns a data.table of  
 #' plot-ready data with one row per group (per panel). Columns 
-#' 'series.x' and 'series.y' contain the raw data for the 
+#' 'seriesX' and 'seriesY' contain the raw data for the 
 #' scatter plot. Column 'group' and 'panel' specify the group the 
-#' series data belongs to. Optionally, columns 'interval.x', 
-#' 'interval.y' and 'interval.se' specify the x, y and standard error
-#'  respectively of the smoothed conditional mean for the group. 
-#'  Columns 'density.x' and 'density.y' contain the calculated kernel 
-#'  density estimates.
+#' series data belongs to. Optionally, columns 'smoothedMeanX', 
+#' 'smoothedMeanY' and 'smoothedMeanSE' specify the x, y and 
+#' standard error respectively of the smoothed conditional mean 
+#' for the group. Columns 'densityX' and 'densityY' contain the 
+#' calculated kernel density estimates.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean
@@ -169,13 +169,13 @@ scattergl.dt <- function(data,
 #'
 #' This function returns the name of a json file containing 
 #' plot-ready data with one row per group (per panel). Columns 
-#' 'series.x' and 'series.y' contain the raw data for the 
+#' 'seriesX' and 'seriesY' contain the raw data for the 
 #' scatter plot. Column 'group' and 'panel' specify the group the 
-#' series data belongs to. Optionally, columns 'interval.x', 
-#' 'interval.y' and 'interval.se' specify the x, y and standard error
-#'  respectively of the smoothed conditional mean for the group.
-#'  Columns 'density.x' and 'density.y' contain the calculated kernel 
-#'  density estimates.
+#' series data belongs to. Optionally, columns 'smoothedMeanX', 
+#' 'smoothedMeanY' and 'smoothedMeanSE' specify the x, y and 
+#' standard error respectively of the smoothed conditional mean 
+#' for the group. Columns 'densityX' and 'densityY' contain the 
+#' calculated kernel density estimates.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean
