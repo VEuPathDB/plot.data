@@ -35,25 +35,27 @@ newHistogramPD <- function(.dt = data.table::data.table(),
 
   summary <- as.list(summary(.pd[[x]]))
   names(summary) <- c('min', 'q1', 'median', 'mean', 'q3', 'max')
+  summary <- lapply(summary, as.character)
   summary <- lapply(summary, jsonlite::unbox)
   attr$summary <- summary
 
   if (is.null(viewport)) {
     if (xType == 'NUMBER') {
-      viewport <- list('xMin' = jsonlite::unbox(min(0,min(.pd[[x]]))), 'xMax' = jsonlite::unbox(max(.pd[[x]])))
+      viewport <- list('xMin' = min(0,min(.pd[[x]])), 'xMax' = max(.pd[[x]]))
     } else {
-      viewport <- list('xMin' = jsonlite::unbox(min(.pd[[x]])), 'xMax' = jsonlite::unbox(max(.pd[[x]])))
+      viewport <- list('xMin' = min(.pd[[x]]), 'xMax' = max(.pd[[x]]))
     }
   } else {
     if (xType == 'NUMBER') {
-      viewport$xMin <- jsonlite::unbox(as.numeric(viewport$xMin))
-      viewport$xMax <- jsonlite::unbox(as.numeric(viewport$xMax))
+      viewport$xMin <- as.numeric(viewport$xMin)
+      viewport$xMax <- as.numeric(viewport$xMax)
     } else if (xType == 'DATE') {
-      viewport$xMin <- jsonlite::unbox(as.Date(viewport$xMin, format='%Y-%m-%d'))
-      viewport$xMax <- jsonlite::unbox(as.Date(viewport$xMax, format='%Y-%m-%d'))
+      viewport$xMin <- as.Date(viewport$xMin, format='%Y-%m-%d')
+      viewport$xMax <- as.Date(viewport$xMax, format='%Y-%m-%d')
     }
   }
-  attr$viewport <- viewport
+  attr$viewport <- lapply(viewport, as.character)
+  attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
   xVP <- adjustToViewport(.pd[[x]], viewport)
 
   if (binReportValue == 'binWidth') {
