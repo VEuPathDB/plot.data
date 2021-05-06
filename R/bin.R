@@ -1,6 +1,7 @@
 binSize <- function(data, col, group = NULL, panel = NULL, binWidth = NULL, viewport) {
   aggStr <- getAggStr(col, c('binLabel', 'binStart', 'binEnd', group, panel))
 
+  data <- data[data[[col]] >= viewport$xMin & data[[col]] <= viewport$xMax,]
   data$binLabel <- bin(data[[col]], binWidth, viewport)
   data$binStart <- findBinStart(data$binLabel)
   data$binEnd <- findBinEnd(data$binLabel)
@@ -18,6 +19,7 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL
   aggStr <- getAggStr(col, c('binLabel', 'binStart', 'binEnd', group, panel))
   aggStr2 <- getAggStr(col, c(group, panel))
 
+  data <- data[data[[col]] >= viewport$xMin & data[[col]] <= viewport$xMax,]
   data$binLabel <- bin(data[[col]], binWidth, viewport)
   data$binStart <- findBinStart(data$binLabel)
   data$binEnd <- findBinEnd(data$binLabel)

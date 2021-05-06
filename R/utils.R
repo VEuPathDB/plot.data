@@ -202,6 +202,7 @@ data_frame <- function(...) {
 adjustToViewport <- function(x, viewport) {
   if (is.null(viewport)) { return(x) }  
 
+  # current R/bin.R subsets, and this will only ever have to expand
   if (viewport$xMin < min(x)) {
     x <- c(viewport$xMin, x)
   } else {
@@ -219,7 +220,7 @@ adjustToViewport <- function(x, viewport) {
 pruneViewportAdjustmentFromBins <- function(bins, xVP, x, viewport) {
   if (viewport$xMin < min(x)) {
     bins <- bins[xVP != viewport$xMin]
-    x <- x[x != viewport$xMin]
+    xVP <- xVP[xVP != viewport$xMin]
   }
   if (viewport$xMax > max(x)) {
     bins <- bins[xVP != viewport$xMax]

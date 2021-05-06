@@ -21,6 +21,14 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(class(namedAttrList$binSlider$min),c('scalar', 'numeric'))
   expect_equal(class(namedAttrList$binSpec$type),c('scalar', 'character'))
 
+  viewport <- list('xMin'=-1.5,'xMax'=2.5)
+  dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue, viewport)
+  maxBinStart <- as.numeric(max(unlist(lapply(dt$binStart, max))))
+  expect_true(maxBinStart <= viewport$xMax)
+  minBinEnd <- as.numeric(min(unlist(lapply(dt$binEnd, min))))
+  expect_true(minBinEnd >= viewport$xMin)
+
+  #figure how to test for expanding to viewport, since we dont explicitly return 0 value bins..
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', binReportValue, viewport)
   expect_is(dt, 'data.table')
