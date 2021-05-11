@@ -216,7 +216,6 @@ histogram.dt <- function(data,
   binReportValue <- match.arg(binReportValue)
 
   if (!'data.table' %in% class(data)) {
-    # data <- data.table::as.data.table(data)
     data.table::setDT(data)
   }
 

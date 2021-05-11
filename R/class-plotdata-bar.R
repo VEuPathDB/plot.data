@@ -80,7 +80,6 @@ bar.dt <- function(data, map, value = c('count', 'identity')) {
                         'dataType' = NULL)
 
   if (!'data.table' %in% class(data)) {
-    # data <- data.table::as.data.table(data)
     data.table::setDT(data)
   }
 

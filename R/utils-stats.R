@@ -242,7 +242,7 @@ bothRatios <- function(data, collapse = TRUE) {
 chiSq <- function(data, collapse = TRUE) {
   tbl <- table(data$x, data$y)
   dt <- as.data.frame.matrix(tbl)
-  dt <- data.table::as.data.table(dt)
+  data.table::setDT(dt)
   dt[, value := lapply(transpose(.SD), as.vector)]
   dt$yLabel <- list(names(dt)[names(dt) != 'value'])
   dt$xLabel <- rownames(tbl)
