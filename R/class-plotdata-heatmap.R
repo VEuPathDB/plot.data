@@ -100,7 +100,8 @@ heatmap.dt <- function(data, map, value = c('series', 'collection')) {
                         'dataType' = NULL) 
 
   if (!'data.table' %in% class(data)) {
-    data <- data.table::as.data.table(data)
+    # data <- data.table::as.data.table(data)
+    data.table::setDT(data)
   }
 
   if ('xAxisVariable' %in% map$plotRef) {
