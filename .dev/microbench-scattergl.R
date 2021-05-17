@@ -74,6 +74,6 @@ if (overwrite) {
   
   # Add new results and save
   allResults <- rbind(allResults,results_dt)
-  saveRDS(allResults, "./dev/benchmarks.rds")
+  saveRDS(allResults, "./.dev/benchmarks.rds")
 }
 
