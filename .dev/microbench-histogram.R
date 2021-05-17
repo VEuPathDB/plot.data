@@ -2,19 +2,21 @@
 library(crayon)
 
 ## Histogram
-context <- "histogram"
+context <- "histogram6"
 
 # Boolean to decide if we overwrite old results. Overwrite before
-# merging new feature.
+# merging new feature. Will get overwritten by forceOverwrite if running 
+# from microbenchmark-all.R
 overwrite <- T
+if (exists("allOverwrite")) {
+  overwrite <- allOverwrite
+}
 
 # Prepare dt
 results_dt <- data.table()
 
 # Load in allResults dt
 allResults <- readRDS(file = "./dev/benchmarks.rds")
-
-# if defined allOverwrite, change overwrite to that
 
 # Currently taken from testing scripts
 name <- "basic hist"
@@ -30,14 +32,14 @@ results <- microbenchmark::microbenchmark(
 
 # Print diff from saved result
 previousResult <- allResults[benchmarkContext == context & benchmarkName == name]
-if (NROW(previousResult == 1)) {
+if (NROW(previousResult) == 1) {
   if (results$median < previousResult$median) {
     cat(paste0(context,", ",name, ": ") %+% cyan(results$median - previousResult$median) %+% " milliseconds \n")
   } else {
     cat(paste0(context,", ",name, ": +") %+% red(results$median - previousResult$median) %+% " milliseconds \n")
   }
-} else if(NROW(previousResult == 0)) {
-  cat("No previous results for this test. \n") 
+} else if(NROW(previousResult) == 0) {
+  cat(paste0("No previous results for ", context, ", ", name, ". Median run time ",results$median, " milliseconds \n")) 
 } else {
   cat("Benchmark test name and context not unique!")
 }
@@ -60,17 +62,18 @@ results <- microbenchmark::microbenchmark(
 
 # Print diff from saved result
 previousResult <- allResults[benchmarkContext == context & benchmarkName == name]
-if (NROW(previousResult == 1)) {
+if (NROW(previousResult) == 1) {
   if (results$median < previousResult$median) {
     cat(paste0(context,", ",name, ": ") %+% cyan(results$median - previousResult$median) %+% " milliseconds \n")
   } else {
     cat(paste0(context,", ",name, ": +") %+% red(results$median - previousResult$median) %+% " milliseconds \n")
   }
-} else if(NROW(previousResult == 0)) {
-  cat("No previous results for this test. \n") 
+} else if(NROW(previousResult) == 0) {
+  cat(paste0("No previous results for ", context, ", ", name, ". Median run time ",results$median, " milliseconds \n")) 
 } else {
   cat("Benchmark test name and context not unique!")
 }
+
 results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName'=name, results))
 
 
