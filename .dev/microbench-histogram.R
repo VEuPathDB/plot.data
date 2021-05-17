@@ -1,5 +1,6 @@
 ## Microbenchmarking
 library(crayon)
+source("./.dev/helpers-microbenchmark.R")
 
 ## Histogram
 context <- "histogram6"
@@ -21,29 +22,21 @@ allResults <- readRDS(file = "./dev/benchmarks.rds")
 # Currently taken from testing scripts
 name <- "basic hist"
 
+# Prep
 map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
 df <- as.data.frame(bigData)
 viewport <- list('xMin'=min(bigData$var), 'xMax'=max(bigData$var))
 binReportValue <- 'binWidth'
 
+# Benchmark
 results <- microbenchmark::microbenchmark(
-  histogram.dt(df, map, binWidth = NULL, value='count', binReportValue, viewport)
+  histogram.dt(df, map, binWidth = NULL, value='count', binReportValue, viewport),
+  unit = 'ms'
   ) %>% summary()
 
 # Print diff from saved result
 previousResult <- allResults[benchmarkContext == context & benchmarkName == name]
-if (NROW(previousResult) == 1) {
-  if (results$median < previousResult$median) {
-    cat(paste0(context,", ",name, ": ") %+% cyan(results$median - previousResult$median) %+% " milliseconds \n")
-  } else {
-    cat(paste0(context,", ",name, ": +") %+% red(results$median - previousResult$median) %+% " milliseconds \n")
-  }
-} else if(NROW(previousResult) == 0) {
-  cat(paste0("No previous results for ", context, ", ", name, ". Median run time ",results$median, " milliseconds \n")) 
-} else {
-  cat("Benchmark test name and context not unique!")
-}
-
+compareToPrevious(results, previousResult)
 
 results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName'=name, results))
 
@@ -52,31 +45,29 @@ results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName
 # Dates
 name <- "date hist"
 
+# Prep
 map <- data.frame('id' = c('group', 'date', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'DATE', 'STRING'), stringsAsFactors=FALSE)
 df <- as.data.frame(data.dates)
 viewport <- list('xMin'=min(df$date), 'xMax'=max(df$date))
 binReportValue <- 'binWidth'
+
+# Benchmark
 results <- microbenchmark::microbenchmark(
-  histogram.dt(df, map, binWidth=NULL, value='proportion', binReportValue, viewport)
+  histogram.dt(df, map, binWidth=NULL, value='proportion', binReportValue, viewport),
+  unit = 'ms'
 ) %>% summary()
 
 # Print diff from saved result
 previousResult <- allResults[benchmarkContext == context & benchmarkName == name]
-if (NROW(previousResult) == 1) {
-  if (results$median < previousResult$median) {
-    cat(paste0(context,", ",name, ": ") %+% cyan(results$median - previousResult$median) %+% " milliseconds \n")
-  } else {
-    cat(paste0(context,", ",name, ": +") %+% red(results$median - previousResult$median) %+% " milliseconds \n")
-  }
-} else if(NROW(previousResult) == 0) {
-  cat(paste0("No previous results for ", context, ", ", name, ". Median run time ",results$median, " milliseconds \n")) 
-} else {
-  cat("Benchmark test name and context not unique!")
-}
+compareToPrevious(results, previousResult)
+
 
 results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName'=name, results))
 
 
+
+
+## Updating logged results
 # If overwrite == T, replace saved times
 if (overwrite) {
   
