@@ -2,7 +2,7 @@
 library(crayon)
 source("./.dev/helpers-microbenchmark.R")
 
-## Scatter
+## Context (should match testthat context)
 context <- "box"
 
 # Boolean to decide if we overwrite old results. Overwrite before
@@ -19,7 +19,7 @@ results_dt <- data.table()
 # Load in allResults dt
 allResults <- readRDS(file = "./.dev/benchmarks.rds")
 
-# Currently taken from testing scripts
+## Test 1
 name <- "overlay outliers"
 
 # Prep
@@ -40,7 +40,7 @@ results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName
 
 
 
-# Test 2
+## Test 2
 name <- "overlay all"
 
 # Prep

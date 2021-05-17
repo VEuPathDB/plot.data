@@ -3,7 +3,7 @@ library(crayon)
 source("./.dev/helpers-microbenchmark.R")
 
 ## Context (should match testthat context)
-context <- "scattergl"
+context <- "bin"
 
 # Boolean to decide if we overwrite old results. Overwrite before
 # merging new feature. Will get overwritten by allOverwrite if running 
@@ -20,15 +20,14 @@ results_dt <- data.table()
 allResults <- readRDS(file = "./.dev/benchmarks.rds")
 
 ## Test 1
-name <- "overlay facet1 raw"
+name <- "y"
 
 # Prep
-map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
-df <- bigData.xy
+viewport <- list('xMin'=min(data.xy$y), 'xMax'=max(data.xy$y))
 
 # Benchmark
 results <- microbenchmark::microbenchmark(
-  scattergl.dt(df, map, 'raw'),
+  binProportion(bigData.xy,'y', binWidth=.1, viewport=viewport),
   unit = 'ms'
 ) %>% summary()
 
@@ -41,15 +40,13 @@ results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName
 
 
 ## Test 2
-name <- "overlay facet1 bestFitLineWithRaw"
+name <- "y group panel"
 
 # Prep
-map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
-df <- bigData.xy
 
 # Benchmark
 results <- microbenchmark::microbenchmark(
-  scattergl.dt(df, map, 'bestFitLineWithRaw'),
+  binProportion(data.xy, 'y', 'group', 'panel', binWidth=.1, viewport=viewport),
   unit = 'ms'
 ) %>% summary()
 

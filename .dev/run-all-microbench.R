@@ -12,4 +12,5 @@ for (i in seq_along(benchmarkingFiles)) {
   source(benchmarkingFiles[i], echo=F)
 }
 
+# Examine allResults for more info.
 

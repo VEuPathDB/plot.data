@@ -3,7 +3,7 @@ library(crayon)
 source("./.dev/helpers-microbenchmark.R")
 
 ## Context (should match testthat context)
-context <- "scattergl"
+context <- "group"
 
 # Boolean to decide if we overwrite old results. Overwrite before
 # merging new feature. Will get overwritten by allOverwrite if running 
@@ -20,15 +20,13 @@ results_dt <- data.table()
 allResults <- readRDS(file = "./.dev/benchmarks.rds")
 
 ## Test 1
-name <- "overlay facet1 raw"
+name <- "groupSummary"
 
 # Prep
-map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
-df <- bigData.xy
 
 # Benchmark
 results <- microbenchmark::microbenchmark(
-  scattergl.dt(df, map, 'raw'),
+  groupSummary(bigData.xy, NULL, 'y', 'group', 'panel'),
   unit = 'ms'
 ) %>% summary()
 
@@ -41,15 +39,13 @@ results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName
 
 
 ## Test 2
-name <- "overlay facet1 bestFitLineWithRaw"
+name <- "groupSmoothedMean"
 
 # Prep
-map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
-df <- bigData.xy
 
 # Benchmark
 results <- microbenchmark::microbenchmark(
-  scattergl.dt(df, map, 'bestFitLineWithRaw'),
+  groupSmoothedMean(bigData.xy, 'x', 'y', NULL, 'panel'),
   unit = 'ms'
 ) %>% summary()
 
@@ -60,6 +56,24 @@ compareToPrevious(results, previousResult, context, name)
 
 results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName'=name, results))
 
+
+## Test 3
+name <- "groupDensity"
+
+# Prep
+
+# Benchmark
+results <- microbenchmark::microbenchmark(
+  groupDensity(bigData.xy, 'y', 'group', 'panel'),
+  unit = 'ms'
+) %>% summary()
+
+# Print diff from saved result
+previousResult <- allResults[benchmarkContext == context & benchmarkName == name]
+compareToPrevious(results, previousResult, context, name)
+
+
+results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName'=name, results))
 
 
 

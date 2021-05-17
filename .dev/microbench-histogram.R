@@ -2,7 +2,7 @@
 library(crayon)
 source("./.dev/helpers-microbenchmark.R")
 
-## Histogram
+## Context (should match testthat context)
 context <- "histogram"
 
 # Boolean to decide if we overwrite old results. Overwrite before
@@ -19,8 +19,8 @@ results_dt <- data.table()
 # Load in allResults dt
 allResults <- readRDS(file = "./.dev/benchmarks.rds")
 
-# Currently taken from testing scripts
-name <- "basic hist"
+## Test 1
+name <- "num hist"
 
 # Prep
 map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
@@ -42,7 +42,7 @@ results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName
 
 
 
-# Test 2
+## Test 2
 name <- "date hist"
 
 # Prep
