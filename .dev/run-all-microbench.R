@@ -1,7 +1,7 @@
 ## Run all microbenchmark scripts
 
 # Should we overwrite all data??
-allOverwrite <- T
+allOverwrite <- F
 
 # get all files in .dev directory
 allFiles <- list.files(path="./.dev/", include.dirs = F, recursive =F, full.names=T)

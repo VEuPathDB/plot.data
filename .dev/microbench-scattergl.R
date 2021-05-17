@@ -2,13 +2,13 @@
 library(crayon)
 source("./.dev/helpers-microbenchmark.R")
 
-## Histogram
-context <- "histogram"
+## Scatter
+context <- "scattergl"
 
 # Boolean to decide if we overwrite old results. Overwrite before
 # merging new feature. Will get overwritten by allOverwrite if running 
 # from microbenchmark-all.R
-overwrite <- T
+overwrite <- F
 if (exists("allOverwrite")) {
   overwrite <- allOverwrite
 }
@@ -20,19 +20,17 @@ results_dt <- data.table()
 allResults <- readRDS(file = "./dev/benchmarks.rds")
 
 # Currently taken from testing scripts
-name <- "basic hist"
+name <- "overlay facet1 raw"
 
 # Prep
-map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
-df <- as.data.frame(bigData)
-viewport <- list('xMin'=min(bigData$var), 'xMax'=max(bigData$var))
-binReportValue <- 'binWidth'
+map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
+df <- bigData.xy
 
 # Benchmark
 results <- microbenchmark::microbenchmark(
-  histogram.dt(df, map, binWidth = NULL, value='count', binReportValue, viewport),
+  scattergl.dt(df, map, 'raw'),
   unit = 'ms'
-  ) %>% summary()
+) %>% summary()
 
 # Print diff from saved result
 previousResult <- allResults[benchmarkContext == context & benchmarkName == name]
@@ -43,17 +41,15 @@ results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName
 
 
 # Dates
-name <- "date hist"
+name <- "overlay facet1 bestFitLineWithRaw"
 
 # Prep
-map <- data.frame('id' = c('group', 'date', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'DATE', 'STRING'), stringsAsFactors=FALSE)
-df <- as.data.frame(data.dates)
-viewport <- list('xMin'=min(df$date), 'xMax'=max(df$date))
-binReportValue <- 'binWidth'
+map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
+df <- bigData.xy
 
 # Benchmark
 results <- microbenchmark::microbenchmark(
-  histogram.dt(df, map, binWidth=NULL, value='proportion', binReportValue, viewport),
+  scattergl.dt(df, map, 'bestFitLineWithRaw'),
   unit = 'ms'
 ) %>% summary()
 
@@ -69,8 +65,8 @@ results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName
 
 ## Updating logged results
 # If overwrite == T, replace saved times
-if (overwrite) {
-  
+if (overwrite) {  
+
   cat(magenta("Overwriting previously saved benchmark times... \n \n"))
   
   # Remove all data from current context
