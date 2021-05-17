@@ -1,7 +1,7 @@
 ## Benchmarking helpers
 
 # Print appropriately. In the future should make these more generalizable
-compareToPrevious <- function(currentResult, previousResult) {
+compareToPrevious <- function(currentResult, previousResult, context, name) {
   if (NROW(previousResult) == 1) {
     if (currentResult$median < previousResult$median) {
       cat(paste0(context,", ",name, ": ") %+% cyan(currentResult$median - previousResult$median) %+% " milliseconds \n")

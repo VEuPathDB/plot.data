@@ -34,7 +34,7 @@ results <- microbenchmark::microbenchmark(
 
 # Print diff from saved result
 previousResult <- allResults[benchmarkContext == context & benchmarkName == name]
-compareToPrevious(results, previousResult)
+compareToPrevious(results, previousResult, context, name)
 
 results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName'=name, results))
 
@@ -55,7 +55,7 @@ results <- microbenchmark::microbenchmark(
 
 # Print diff from saved result
 previousResult <- allResults[benchmarkContext == context & benchmarkName == name]
-compareToPrevious(results, previousResult)
+compareToPrevious(results, previousResult, context, name)
 
 
 results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName'=name, results))
