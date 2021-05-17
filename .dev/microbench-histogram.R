@@ -17,7 +17,7 @@ if (exists("allOverwrite")) {
 results_dt <- data.table()
 
 # Load in allResults dt
-allResults <- readRDS(file = "./dev/benchmarks.rds")
+allResults <- readRDS(file = "./.dev/benchmarks.rds")
 
 # Currently taken from testing scripts
 name <- "basic hist"
@@ -42,7 +42,7 @@ results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName
 
 
 
-# Dates
+# Test 2
 name <- "date hist"
 
 # Prep

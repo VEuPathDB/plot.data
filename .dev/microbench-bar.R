@@ -3,7 +3,7 @@ library(crayon)
 source("./.dev/helpers-microbenchmark.R")
 
 ## Scatter
-context <- "scattergl"
+context <- "bar"
 
 # Boolean to decide if we overwrite old results. Overwrite before
 # merging new feature. Will get overwritten by allOverwrite if running 
@@ -20,15 +20,15 @@ results_dt <- data.table()
 allResults <- readRDS(file = "./.dev/benchmarks.rds")
 
 # Currently taken from testing scripts
-name <- "overlay facet1 raw"
+name <- "facet1 facet2 count"
 
 # Prep
-map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
-df <- bigData.xy
+map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), stringsAsFactors=FALSE)
+df <- as.data.frame(data.binned)
 
 # Benchmark
 results <- microbenchmark::microbenchmark(
-  scattergl.dt(df, map, 'raw'),
+  bar.dt(df, map, value='count'),
   unit = 'ms'
 ) %>% summary()
 
@@ -41,15 +41,15 @@ results_dt <- rbind(results_dt, cbind('benchmarkContext'=context, 'benchmarkName
 
 
 # Test 2
-name <- "overlay facet1 bestFitLineWithRaw"
+name <- "overlay count"
 
 # Prep
-map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
-df <- bigData.xy
+map <- data.frame('id' = c('group', 'x'), 'plotRef' = c('overlayVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'STRING'), stringsAsFactors=FALSE)
+
 
 # Benchmark
 results <- microbenchmark::microbenchmark(
-  scattergl.dt(df, map, 'bestFitLineWithRaw'),
+  bar.dt(df, map, value='count'),
   unit = 'ms'
 ) %>% summary()
 
