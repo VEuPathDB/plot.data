@@ -110,7 +110,7 @@ bar.dt <- function(data, map, value = c('count', 'identity', 'proportion')) {
                     facetVariable2 = facetVariable2,
                     value)
 
-  #.bar <- validateBarPD(.bar)
+  .bar <- validateBarPD(.bar)
 
   return(.bar)
 }
