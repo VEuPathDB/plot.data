@@ -19,7 +19,8 @@ trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 plotRefMapToList <- function(map, plotRef) {
   plotRef <- list('variableId' = map$id[map$plotRef == plotRef],
                   'entityId' = map$entityId[map$plotRef == plotRef],
-                  'dataType' = map$dataType[map$plotRef == plotRef])
+                  'dataType' = map$dataType[map$plotRef == plotRef],
+                  'dataShape' = map$dataShape[map$plotRef == plotRef])
 
   return(plotRef)
 }

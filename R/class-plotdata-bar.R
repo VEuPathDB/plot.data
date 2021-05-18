@@ -1,16 +1,20 @@
 newBarPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          overlayVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          facetVariable1 = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          value = character(),
                          ...,
                          class = character()) {
@@ -45,8 +49,26 @@ newBarPD <- function(.dt = data.table::data.table(),
 
 validateBarPD <- function(.bar) {
   xAxisVariable <- attr(.bar, 'xAxisVariable')
-  if (!xAxisVariable$dataType %in% c('STRING')) {
-    stop('The independent axis must be of type string for barplot.')
+  if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+    stop('The independent axis must be binary, ordinal or categorical for barplot.')
+  }
+  overlayVariable <- attr(.bar, 'overlayVariable')
+  if (!is.null(overlayVariable)) {
+    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The overlay variable must be binary, ordinal or categorical.')
+    }
+  }
+  facetVariable1 <- attr(.bar, 'facetVariable1')
+  if (!is.null(facetVariable1)) {
+    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The first facet variable must be binary, ordinal or categorical.')
+    }
+  }
+  facetVariable2 <- attr(.bar, 'facetVariable2')
+  if (!is.null(facetVariable2)) {
+    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The second facet variable must be binary, ordinal or categorical.')
+    }
   }
 
   return(.bar)
@@ -71,13 +93,16 @@ bar.dt <- function(data, map, value = c('count', 'identity')) {
 
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
-                         'dataType' = NULL)
+                         'dataType' = NULL,
+                         'dataShape' = NULL)
   facetVariable1 = list('variableId' = NULL,
                         'entityId' = NULL,
-                        'dataType' = NULL)
+                        'dataType' = NULL,
+                        'dataShape' = NULL)
   facetVariable2 = list('variableId' = NULL,
                         'entityId' = NULL,
-                        'dataType' = NULL)
+                        'dataType' = NULL,
+                        'dataShape' = NULL)
 
   if (!'data.table' %in% class(data)) {
     data <- data.table::as.data.table(data)

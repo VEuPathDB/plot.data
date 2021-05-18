@@ -1,19 +1,24 @@
 newScatterPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          yAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          overlayVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          facetVariable1 = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          value = character(),
                          ...,
                          class = character()) {
@@ -76,12 +81,30 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
 validateScatterPD <- function(.scatter) {
   xAxisVariable <- attr(.scatter, 'xAxisVariable')
-  if (!xAxisVariable$dataType %in% c('NUMBER','DATE')) {
-    stop('The independent axis must be of type number or date for scatterplot.')
+  if (!xAxisVariable$dataShape %in% c('CONTINUOUS','ORDINAL')) {
+    stop('The independent axis must be continuous or ordinal for scatterplot.')
   }
   yAxisVariable <- attr(.scatter, 'yAxisVariable')
-  if (!yAxisVariable$dataType %in% c('NUMBER','DATE')) {
-    stop('The dependent axis must be of type number or date for scatterplot.')
+  if (!yAxisVariable$dataShape %in% c('CONTINUOUS')) {
+    stop('The dependent axis must be continuous for scatterplot.')
+  }
+  overlayVariable <- attr(.scatter, 'overlayVariable')
+  if (!is.null(overlayVariable)) {
+    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The overlay variable must be binary, ordinal or categorical.')
+    }
+  }
+  facetVariable1 <- attr(.scatter, 'facetVariable1')
+  if (!is.null(facetVariable1)) {
+    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The first facet variable must be binary, ordinal or categorical.')
+    }
+  }
+  facetVariable2 <- attr(.scatter, 'facetVariable2')
+  if (!is.null(facetVariable2)) {
+    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The second facet variable must be binary, ordinal or categorical.')
+    }
   }
 
   return(.scatter)
@@ -110,13 +133,16 @@ scattergl.dt <- function(data,
 
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
-                         'dataType' = NULL)
+                         'dataType' = NULL,
+                         'dataShape' = NULL)
   facetVariable1 = list('variableId' = NULL,
                         'entityId' = NULL,
-                        'dataType' = NULL)
+                        'dataType' = NULL,
+                        'dataShape' = NULL)
   facetVariable2 = list('variableId' = NULL,
                         'entityId' = NULL,
-                        'dataType' = NULL)
+                        'dataType' = NULL,
+                        'dataShape' = NULL)
 
   if (!'data.table' %in% class(data)) {
     data <- data.table::as.data.table(data)

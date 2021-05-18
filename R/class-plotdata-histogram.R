@@ -2,16 +2,20 @@
 newHistogramPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          overlayVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          facetVariable1 = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          viewport = list('xMin' = NULL,
                                          'xMax' = NULL),
                          binWidth,
@@ -164,8 +168,26 @@ validateHistogramPD <- function(.histo) {
   viewport <- attr(.histo, 'viewport')
   stopifnot(validateViewport(viewport))
   xAxisVariable <- attr(.histo, 'xAxisVariable')
-  if (!xAxisVariable$dataType %in% c('DATE','NUMBER')) {
-    stop('The independent axis must be either of type date or number for a histogram.')
+  if (!xAxisVariable$dataShape == 'CONTINUOUS') {
+    stop('The independent axis must be continuous for a histogram.')
+  }
+  overlayVariable <- attr(.histo, 'overlayVariable')
+  if (!is.null(overlayVariable)) {
+    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The overlay variable must be binary, ordinal or categorical.')
+    }
+  }
+  facetVariable1 <- attr(.histo, 'facetVariable1')
+  if (!is.null(facetVariable1)) {
+    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The first facet variable must be binary, ordinal or categorical.')
+    }
+  }
+  facetVariable2 <- attr(.histo, 'facetVariable2')
+  if (!is.null(facetVariable2)) {
+    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The second facet variable must be binary, ordinal or categorical.')
+    }
   }
   binWidth <- attr(.histo, 'binWidth')
   if (!is.null(binWidth)) {
@@ -205,13 +227,16 @@ histogram.dt <- function(data,
 
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
-                         'dataType' = NULL)
+                         'dataType' = NULL,
+                         'dataShape' = NULL)
   facetVariable1 = list('variableId' = NULL,
                         'entityId' = NULL,
-                        'dataType' = NULL)
+                        'dataType' = NULL,
+                        'dataShape' = NULL)
   facetVariable2 = list('variableId' = NULL,
                         'entityId' = NULL,
-                        'dataType' = NULL)
+                        'dataType' = NULL,
+                        'dataShape' = NULL)
   value <- match.arg(value)
   binReportValue <- match.arg(binReportValue)
 

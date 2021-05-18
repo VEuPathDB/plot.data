@@ -1,22 +1,28 @@
 newHeatmapPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          yAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          zAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          overlayVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          facetVariable1 = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          value = character(),
                          ...,
                          class = character()) {
@@ -88,16 +94,20 @@ heatmap.dt <- function(data, map, value = c('series', 'collection')) {
 
   zAxisVariable = list('variableId' = NULL,
                          'entityId' = NULL,
-                         'dataType' = NULL)
+                         'dataType' = NULL,
+                         'dataShape' = NULL)
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
-                         'dataType' = NULL)
+                         'dataType' = NULL,
+                         'dataShape' = NULL)
   facetVariable1 = list('variableId' = NULL,
                         'entityId' = NULL,
-                        'dataType' = NULL)
+                        'dataType' = NULL,
+                        'dataShape' = NULL)
   facetVariable2 = list('variableId' = NULL,
                         'entityId' = NULL,
-                        'dataType' = NULL) 
+                        'dataType' = NULL,
+                        'dataShape' = NULL) 
 
   if (!'data.table' %in% class(data)) {
     data <- data.table::as.data.table(data)

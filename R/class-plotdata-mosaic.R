@@ -1,16 +1,20 @@
 newMosaicPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          yAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          facetVariable1 = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          ...,
                          class = character()) {
 
@@ -53,12 +57,24 @@ newMosaicPD <- function(.dt = data.table::data.table(),
 
 validateMosaicPD <- function(.mosaic) {
   xAxisVariable <- attr(.mosaic, 'xAxisVariable')
-  if (!xAxisVariable$dataType %in% c('STRING')) {
-    stop('The independent axis must be of type string for mosaicplot.')
+  if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+    stop('The independent axis must be binary, ordinal or categorical for mosaic.')
   }
   yAxisVariable <- attr(.mosaic, 'yAxisVariable')
-  if (!yAxisVariable$dataType %in% c('STRING')) {
-    stop('The independent axis must be of type string for mosaicplot.')
+  if (!yAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+    stop('The dependent axis must be binary, ordinal or categorical for mosaic.')
+  }
+  facetVariable1 <- attr(.mosaic, 'facetVariable1')
+  if (!is.null(facetVariable1)) {
+    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The first facet variable must be binary, ordinal or categorical.')
+    }
+  }
+  facetVariable2 <- attr(.mosaic, 'facetVariable2')
+  if (!is.null(facetVariable2)) {
+    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The second facet variable must be binary, ordinal or categorical.')
+    }
   }
 
   return(.mosaic)
@@ -80,13 +96,16 @@ statsTable <- function(.mosaic) { attr(.mosaic, 'statsTable') }
 mosaic.dt <- function(data, map) {
   yAxisVariable = list('variableId' = NULL,
                          'entityId' = NULL,
-                         'dataType' = NULL)
+                         'dataType' = NULL,
+                         'dataShape' = NULL)
   facetVariable1 = list('variableId' = NULL,
                         'entityId' = NULL,
-                        'dataType' = NULL)
+                        'dataType' = NULL,
+                        'dataShape' = NULL)
   facetVariable2 = list('variableId' = NULL,
                         'entityId' = NULL,
-                        'dataType' = NULL)
+                        'dataType' = NULL,
+                        'dataShape' = NULL)
 
   if (!'data.table' %in% class(data)) {
     data <- data.table::as.data.table(data)

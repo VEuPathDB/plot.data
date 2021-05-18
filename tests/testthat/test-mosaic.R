@@ -1,7 +1,7 @@
 context('mosaic')
 
 test_that("mosaic.dt() returns an appropriately sized data.table", {
-  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
   dt <- mosaic.dt(data.binary, map)
   expect_is(dt, 'data.table')
@@ -20,7 +20,7 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(names(sampleSizeTable),c('panel','var','size'))
   expect_equal(class(sampleSizeTable$var[[1]]), 'character')
 
-  map <- data.frame('id' = c('group', 'var'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'var'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
   dt <- mosaic.dt(data.binary, map)
   expect_is(dt, 'data.table')
@@ -34,7 +34,7 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
 })
 
 test_that("mosaic() returns appropriately formatted json", {
-  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt <- mosaic.dt(data.binary, map)
   outJson <- getJSON(dt)
   jsonList <- jsonlite::fromJSON(outJson)

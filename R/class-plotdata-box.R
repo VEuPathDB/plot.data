@@ -1,19 +1,24 @@
 newBoxPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          yAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          overlayVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          facetVariable1 = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
-                                              'dataType' = NULL),
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL),
                          points = character(),
                          mean = character(),
                          ...,
@@ -82,12 +87,30 @@ newBoxPD <- function(.dt = data.table::data.table(),
 
 validateBoxPD <- function(.box) {
   xAxisVariable <- attr(.box, 'xAxisVariable')
-  if (!xAxisVariable$dataType %in% c('STRING')) {
-    stop('The independent axis must be of type string for boxplot.')
+  if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+    stop('The independent axis must be binary, ordinal or categorical for boxplot.')
   }
   yAxisVariable <- attr(.box, 'yAxisVariable')
   if (!yAxisVariable$dataType %in% c('NUMBER')) {
     stop('The dependent axis must be of type number for boxplot.')
+  }
+  overlayVariable <- attr(.box, 'overlayVariable')
+  if (!is.null(overlayVariable)) {
+    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The overlay variable must be binary, ordinal or categorical.')
+    }
+  }
+  facetVariable1 <- attr(.box, 'facetVariable1')
+  if (!is.null(facetVariable1)) {
+    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The first facet variable must be binary, ordinal or categorical.')
+    }
+  }
+  facetVariable2 <- attr(.box, 'facetVariable2')
+  if (!is.null(facetVariable2)) {
+    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+      stop('The second facet variable must be binary, ordinal or categorical.')
+    }
   }
 
   return(.box)
@@ -115,13 +138,16 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
-                         'dataType' = NULL)
+                         'dataType' = NULL,
+                         'dataShape' = NULL)
   facetVariable1 = list('variableId' = NULL,
                         'entityId' = NULL,
-                        'dataType' = NULL)
+                        'dataType' = NULL,
+                        'dataShape' = NULL)
   facetVariable2 = list('variableId' = NULL,
                         'entityId' = NULL,
-                        'dataType' = NULL)
+                        'dataType' = NULL,
+                        'dataShape' = NULL)
 
   if (!'data.table' %in% class(data)) {
     data <- data.table::as.data.table(data)

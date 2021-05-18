@@ -1,7 +1,7 @@
 context('histogram')
 
 test_that("histogram.dt() returns an appropriately sized data.table", {
-  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(bigData)
   viewport <- list('xMin'=min(bigData$var), 'xMax'=max(bigData$var))
   binReportValue <- 'binWidth'
@@ -37,7 +37,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
 
 
-  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(bigData)
   viewport <- list('xMin'=min(bigData$var), 'xMax'=max(bigData$var))
   binReportValue <- 'binWidth'
@@ -55,7 +55,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('group', 'panel', 'binLabel', 'binStart', 'binEnd', 'value'))
 
 
-  map <- data.frame('id' = c('group', 'var'), 'plotRef' = c('overlayVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER'), stringsAsFactors = FALSE)
+  map <- data.frame('id' = c('group', 'var'), 'plotRef' = c('overlayVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS'), stringsAsFactors = FALSE)
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', binReportValue, viewport)
   expect_is(dt, 'data.table')
@@ -68,7 +68,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('group', 'binLabel', 'binStart', 'binEnd', 'value'))
 
 
-  map <- data.frame('id' = c('var', 'panel'), 'plotRef' = c('xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'STRING'), stringsAsFactors = FALSE)
+  map <- data.frame('id' = c('var', 'panel'), 'plotRef' = c('xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors = FALSE)
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', binReportValue, viewport)
   expect_is(dt, 'data.table')
@@ -80,7 +80,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
 
-  map <- data.frame('id' = c('var'), 'plotRef' = c('xAxisVariable'), 'dataType' = c('NUMBER'), stringsAsFactors = FALSE)
+  map <- data.frame('id' = c('var'), 'plotRef' = c('xAxisVariable'), 'dataType' = c('NUMBER'), 'dataShape' = c('CONTINUOUS'), stringsAsFactors = FALSE)
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', binReportValue, viewport)
   expect_is(dt, 'data.table')
@@ -94,7 +94,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
 
 
   #this for dates, split into its own test?
-  map <- data.frame('id' = c('group', 'date', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'DATE', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'date', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'DATE', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.dates)
   viewport <- list('xMin'=min(df$date), 'xMax'=max(df$date))
   binReportValue <- 'binWidth'
@@ -129,7 +129,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
 
 
-  map <- data.frame('id' = c('group', 'date', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'DATE', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'date', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'DATE', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.dates)
   viewport <- list('xMin'=min(df$date), 'xMax'=max(df$date))
   binReportValue <- 'binWidth'
@@ -147,7 +147,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('group', 'panel', 'binLabel', 'binStart', 'binEnd', 'value'))
 
 
-  map <- data.frame('id' = c('group', 'date'), 'plotRef' = c('overlayVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'DATE'), stringsAsFactors = FALSE)
+  map <- data.frame('id' = c('group', 'date'), 'plotRef' = c('overlayVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'DATE'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS'), stringsAsFactors = FALSE)
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', binReportValue, viewport)
   expect_is(dt, 'data.table')
@@ -160,7 +160,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('group', 'binLabel', 'binStart', 'binEnd', 'value'))
 
 
-  map <- data.frame('id' = c('date', 'panel'), 'plotRef' = c('xAxisVariable', 'facetVariable1'), 'dataType' = c('DATE', 'STRING'), stringsAsFactors = FALSE)
+  map <- data.frame('id' = c('date', 'panel'), 'plotRef' = c('xAxisVariable', 'facetVariable1'), 'dataType' = c('DATE', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors = FALSE)
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', binReportValue, viewport)
   expect_is(dt, 'data.table')
@@ -172,7 +172,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
 
-  map <- data.frame('id' = c('date'), 'plotRef' = c('xAxisVariable'), 'dataType' = c('DATE'), stringsAsFactors = FALSE)
+  map <- data.frame('id' = c('date'), 'plotRef' = c('xAxisVariable'), 'dataType' = c('DATE'), 'dataShape' = c('CONTINUOUS'), stringsAsFactors = FALSE)
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', binReportValue, viewport)
   expect_is(dt, 'data.table')
@@ -187,7 +187,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
 })
 
 test_that("histogram() returns consistent and appropriately formatted json", {
-  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(bigData)
   viewport <- list('xMin'=min(bigData$var), 'xMax'=max(bigData$var))
   binReportValue <- 'binWidth'
@@ -208,7 +208,7 @@ test_that("histogram() returns consistent and appropriately formatted json", {
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails', 'size'))
   
 
-  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(bigData)
   viewport <- list('xMin'=min(bigData$var), 'xMax'=max(bigData$var))
   binReportValue <- 'binWidth'
