@@ -92,7 +92,7 @@ groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, colla
   aggStr <- getAggStr(y, c(x, group, panel))
   
   if (aggStr == y) {
-    dt <- data.table::as.data.table(t(1)) # Without any grouping, proportion should always be 1
+    dt <- data.table::as.data.table(t(1)) # Without any grouping, proportion should always = 1
   } else {
 
     # Aggregate to get counts of value per group
