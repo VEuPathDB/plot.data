@@ -87,6 +87,44 @@ groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T)
   return(dt)
 }
 
+
+groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
+  aggStr <- getAggStr(y, c(x, group, panel))
+  
+  if (aggStr == y) {
+    # dt <- data.table::as.data.table(t(length(data[[y]])))
+    dt <- data.table::as.data.table(t(1)) #### Without grouping proportion should always be 1
+  } else {
+    dt <- data.table::as.data.table(aggregate(as.formula(aggStr), .pd, length))
+    # dtb <- data.table::as.data.table(aggregate(as.formula(aggStr), .pd, length))
+    neededCols <- c(group, panel)
+    # dtc <- dtb[, sum := sum(dummy), by=neededCols][, prop := dummy/sum]
+    dt[, sum := sum(get(y)), by=neededCols][, prop := get(y)/sum]
+    
+    # Remove unnecessary columns
+    dt[, sum := NULL]
+    dt[, (y) := NULL]
+    
+    # myy <- c(y)
+    # dtb <- dta[, sum := ..myy]
+  }
+  
+  data.table::setnames(dt, c(x, group, panel, 'proportion'))
+  indexCols <- c(panel, group)
+  setkeyv(dt, indexCols)
+  
+  if (collapse) {
+    dt <- collapseByGroup(dt, group, panel)
+  }
+  
+  return(dt)
+}
+
+proportion <- function(x) {
+  sum(x)/length(x)
+}
+
+
 groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
