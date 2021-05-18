@@ -95,14 +95,15 @@ groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, colla
     dt <- data.table::as.data.table(t(1)) # Without any grouping, proportion should always be 1
   } else {
 
+    # Aggregate to get counts of value per group
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, length))
     strataCols <- c(group, panel)
     
     # If there are no strata vars, then we don't need the by term
     if (is.null(strataCols)) {
-      dt[, sum := sum(get(y))][, prop := get(y)/sum]
+      dt[, sum := sum(get(y))][, proportion := get(y)/sum]
     } else {
-      dt[, sum := sum(get(y)), by=strataCols][, prop := get(y)/sum]
+      dt[, sum := sum(get(y)), by=strataCols][, proportion := get(y)/sum]
     }
     
     # Remove unnecessary columns
@@ -120,10 +121,6 @@ groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, colla
   }
   
   return(dt)
-}
-
-proportion <- function(x) {
-  sum(x)/length(x)
 }
 
 
