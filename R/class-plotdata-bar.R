@@ -29,16 +29,16 @@ newBarPD <- function(.dt = data.table::data.table(),
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
   if (value == 'identity') {
-    pd1 <- collapseByGroup(.pd, group, panel)
+    .pd <- collapseByGroup(.pd, group, panel)
   } else if (value == 'count' ) {
     .pd$dummy <- 1
-    pd2 <- groupSize(.pd, x, 'dummy', group, panel, collapse = T)
+    .pd <- groupSize(.pd, x, 'dummy', group, panel, collapse = T)
     data.table::setnames(.pd, c(group, panel, 'label', 'value'))
 
   } else if (value == 'proportion') {
     .pd$dummy <- 1
     .pd <- groupProportion(.pd, x, 'dummy', group, panel, collapse = T)
-    data.table::setnames(.pd, c(group, panel, 'label', 'proportion')) #### Last may be value
+    data.table::setnames(.pd, c(group, panel, 'label', 'value'))
   }
   attr$names <- names(.pd)
   
@@ -70,7 +70,7 @@ validateBarPD <- function(.bar) {
 #' @param value String indicating how to calculate y-values ('identity', 'count')
 #' @return data.table plot-ready data
 #' @export
-bar.dt <- function(data, map, value = c('count', 'identity')) {
+bar.dt <- function(data, map, value = c('count', 'identity', 'proportion')) {
   value <- match.arg(value)
 
   overlayVariable = list('variableId' = NULL,
@@ -128,7 +128,7 @@ bar.dt <- function(data, map, value = c('count', 'identity')) {
 #' @param value String indicating how to calculate y-values ('identity', 'count')
 #' @return character name of json file containing plot-ready data
 #' @export
-bar <- function(data, map, value = c('count', 'identity')) {
+bar <- function(data, map, value = c('count', 'identity', 'proportion')) {
   value <- match.arg(value)
   .bar <- bar.dt(data, map, value)
   outFileName <- writeJSON(.bar, 'barplot')

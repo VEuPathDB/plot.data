@@ -92,21 +92,23 @@ groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, colla
   aggStr <- getAggStr(y, c(x, group, panel))
   
   if (aggStr == y) {
-    # dt <- data.table::as.data.table(t(length(data[[y]])))
-    dt <- data.table::as.data.table(t(1)) #### Without grouping proportion should always be 1
+    dt <- data.table::as.data.table(t(1)) # Without any grouping, proportion should always be 1
   } else {
-    dt <- data.table::as.data.table(aggregate(as.formula(aggStr), .pd, length))
-    # dtb <- data.table::as.data.table(aggregate(as.formula(aggStr), .pd, length))
-    neededCols <- c(group, panel)
-    # dtc <- dtb[, sum := sum(dummy), by=neededCols][, prop := dummy/sum]
-    dt[, sum := sum(get(y)), by=neededCols][, prop := get(y)/sum]
+
+    dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, length))
+    strataCols <- c(group, panel)
+    
+    # If there are no strata vars, then we don't need the by term
+    if (is.null(strataCols)) {
+      dt[, sum := sum(get(y))][, prop := get(y)/sum]
+    } else {
+      dt[, sum := sum(get(y)), by=strataCols][, prop := get(y)/sum]
+    }
     
     # Remove unnecessary columns
     dt[, sum := NULL]
     dt[, (y) := NULL]
     
-    # myy <- c(y)
-    # dtb <- dta[, sum := ..myy]
   }
   
   data.table::setnames(dt, c(x, group, panel, 'proportion'))
