@@ -40,8 +40,12 @@ newMosaicPD <- function(.dt = data.table::data.table(),
     statsTable <- .pd[, statsCols, with=FALSE]
   } else {
     .pd <- panelBothRatios(.pd, x, y, panel)
-    statsCols <- c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'xLabel', 'yLabel', panel)
+    statsCols <- c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', panel)
     statsTable <- .pd[, statsCols, with=FALSE]
+    #this is ugly :(
+    removeFirst <- function(list) { list[[1]][-1] }
+    statsTable <- data.table::as.data.table(as.list(sapply(statsTable, removeFirst)))
+    statsTable <- collapseByGroup(as.data.table(statsTable))
   }
 
   plotCols <- c('xLabel', 'yLabel', 'value', panel)

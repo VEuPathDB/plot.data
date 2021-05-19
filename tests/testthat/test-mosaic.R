@@ -15,7 +15,7 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(length(dt$value[[1]]),2)
   expect_equal(length(dt$value[[1]][[1]]),2)
   statsTable <- statsTable(dt)
-  expect_equal(names(statsTable), c(c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'xLabel', 'yLabel', 'panel')))
+  expect_equal(names(statsTable), c(c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'panel')))
   sampleSizeTable <- sampleSizeTable(dt)
   expect_equal(names(sampleSizeTable),c('panel','var','size'))
   expect_equal(class(sampleSizeTable$var[[1]]), 'character')
@@ -30,7 +30,7 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('xLabel', 'yLabel', 'value'))
   statsTable <- statsTable(dt)
-  expect_equal(names(statsTable), c(c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'xLabel', 'yLabel')))
+  expect_equal(names(statsTable), c(c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue')))
 })
 
 test_that("mosaic() returns appropriately formatted json", {
@@ -47,5 +47,5 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$mosaic$config),c('incompleteCases','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','xVariableDetails','size'))
-  expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','xLabel','yLabel','facetVariableDetails'))
+  expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','facetVariableDetails'))
 })
