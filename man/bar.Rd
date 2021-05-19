@@ -4,14 +4,14 @@
 \alias{bar}
 \title{Bar Plot data file}
 \usage{
-bar(data, map, value = c("count", "identity"))
+bar(data, map, value = c("count", "identity", "proportion"))
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
 
 \item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'}
 
-\item{value}{String indicating how to calculate y-values ('identity', 'count')}
+\item{value}{String indicating how to calculate y-values ('identity', 'count', 'proportion')}
 }
 \value{
 character name of json file containing plot-ready data
@@ -21,7 +21,8 @@ This function returns the name of a json file containing
 plot-ready data with one row per group (per panel). Columns 
 'label' and 'value' contain the raw data for plotting. Column 
 'group' and 'panel' specify the group the series data belongs to.
-There are two options to calculate y-values for plotting.
+There are three options to calculate y-values for plotting.
 1) raw 'identity' of values from data.table input
-2) 'count' occurances of values from data.table input
+2) 'count' occurrences of values from data.table input 
+3) 'proportion' of occurrences of values from data.table input
 }
