@@ -56,10 +56,10 @@ newPlotdata <- function(.dt = data.table(),
   
   # myCols has columns we need
   # We already selected myCols above so we should have only these cols here
-  completeCasesPerVar <- data.table::setDT(lapply(.dt, function(a) {sum(complete.cases(a))}))
-  # We should be aware that completeCasesPerVar influences but does not necessarily have a direct
+  completeCasesTable <- data.table::setDT(lapply(.dt, function(a) {sum(complete.cases(a))}))
+  # We should be aware that completeCasesTable influences but does not necessarily have a direct
   # transformation from incompleteCases, because two vars can have NAs in different, or the same rows.
-  # Only 1 NA is needed to add a row to incomplete cases. So incomplete cases <= sum(completeCasesPerVar).
+  # Only 1 NA is needed to add a row to incomplete cases. So incomplete cases <= sum(completeCasesTable).
   
   .dt <- .dt[complete.cases(.dt),]
 
@@ -86,7 +86,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(y)) { attr$yAxisVariable <- yAxisVariable }
   if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
   attr$incompleteCases <- incompleteCases
-  attr$completeCasesPerVar <- completeCasesPerVar
+  attr$completeCasesTable <- completeCasesTable
   attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, group, panel)
   attr$class = c(class, 'plot.data', attr$class)
   if (!is.null(group)) { attr$overlayVariable <- overlayVariable }
@@ -124,4 +124,4 @@ validatePlotdata <- function(.pd) {
 
 # Additional accessor functions
 sampleSizeTable <- function(.pd) { attr(.pd, 'sampleSizeTable') }
-completeCasesPerVar <- function(.pd) { attr(.pd, 'completeCasesPerVar')}
+completeCasesTable <- function(.pd) { attr(.pd, 'completeCasesTable')}

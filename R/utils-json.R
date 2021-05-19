@@ -73,39 +73,39 @@ getJSON <- function(.pd) {
     }
   }
   
-  if ('completeCasesPerVar' %in% names(namedAttrList)) {
-    completeCasesPerVar <- completeCasesPerVar(.pd)
-    namedAttrList$completeCasesPerVar <- NULL
-    attr <- attributes(completeCasesPerVar)
-    completeCasesPerVar <- setAttrFromList(completeCasesPerVar, namedAttrList, removeExtraAttrs = F)
+  if ('completeCasesTable' %in% names(namedAttrList)) {
+    completeCasesTable <- completeCasesTable(.pd)
+    namedAttrList$completeCasesTable <- NULL
+    attr <- attributes(completeCasesTable)
+    completeCasesTable <- setAttrFromList(completeCasesTable, namedAttrList, removeExtraAttrs = F)
     if ('xAxisVariable' %in% names(namedAttrList)) {
       x <- namedAttrList$xAxisVariable$variableId
-      data.table::setnames(completeCasesPerVar, x, 'xVariableDetails')
-      completeCasesPerVar$xVariableDetails <- lapply(completeCasesPerVar$xVariableDetails, makeVariableDetails, x, namedAttrList$xAxisVariable$entityId)
+      data.table::setnames(completeCasesTable, x, 'xVariableDetails')
+      completeCasesTable$xVariableDetails <- lapply(completeCasesTable$xVariableDetails, makeVariableDetails, x, namedAttrList$xAxisVariable$entityId)
     }
     if ('yAxisVariable' %in% names(namedAttrList)) {
       y <- namedAttrList$yAxisVariable$variableId
-      data.table::setnames(completeCasesPerVar, y, 'yVariableDetails')
-      completeCasesPerVar$yVariableDetails <- lapply(completeCasesPerVar$yVariableDetails, makeVariableDetails, y, namedAttrList$yAxisVariable$entityId)
+      data.table::setnames(completeCasesTable, y, 'yVariableDetails')
+      completeCasesTable$yVariableDetails <- lapply(completeCasesTable$yVariableDetails, makeVariableDetails, y, namedAttrList$yAxisVariable$entityId)
     }
     if ('overlayVariable' %in% names(namedAttrList)) {
       overlay <- namedAttrList$overlayVariable$variableId
-      data.table::setnames(completeCasesPerVar, overlay, 'overlayVariableDetails')
-      completeCasesPerVar$overlayVariableDetails <- lapply(completeCasesPerVar$overlayVariableDetails, makeVariableDetails, overlay, namedAttrList$overlayVariable$entityId)
+      data.table::setnames(completeCasesTable, overlay, 'overlayVariableDetails')
+      completeCasesTable$overlayVariableDetails <- lapply(completeCasesTable$overlayVariableDetails, makeVariableDetails, overlay, namedAttrList$overlayVariable$entityId)
     }
     if ('facetVariable1' %in% names(namedAttrList)) {
       facet1 <- namedAttrList$facetVariable1$variableId
-      data.table::setnames(completeCasesPerVar, facet1, 'facetVariable1Details')
-      completeCasesPerVar$facetVariable1Details <- lapply(completeCasesPerVar$facetVariable1Details, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId)
+      data.table::setnames(completeCasesTable, facet1, 'facetVariable1Details')
+      completeCasesTable$facetVariable1Details <- lapply(completeCasesTable$facetVariable1Details, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId)
     }
     if ('facetVariable2' %in% names(namedAttrList)) {
       facet2 <- namedAttrList$facetVariable2$variableId
-      data.table::setnames(completeCasesPerVar, facet2, 'facetVariable2Details')
-      completeCasesPerVar$facetVariable2Details <- lapply(completeCasesPerVar$facetVariable2Details, makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId)
+      data.table::setnames(completeCasesTable, facet2, 'facetVariable2Details')
+      completeCasesTable$facetVariable2Details <- lapply(completeCasesTable$facetVariable2Details, makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId)
     }
     
-    attr$names <- names(completeCasesPerVar)
-    completeCasesPerVar <- setAttrFromList(completeCasesPerVar, attr)
+    attr$names <- names(completeCasesTable)
+    completeCasesTable <- setAttrFromList(completeCasesTable, attr)
   }
 
   .pd <- addStrataVariableDetails(.pd)
@@ -134,8 +134,8 @@ getJSON <- function(.pd) {
   if (!inherits(statsTable, 'function')) {
     outList$statsTable <- statsTable
   }
-  if (!inherits(completeCasesPerVar, 'function')) {
-    outList$completeCasesPerVar <- completeCasesPerVar
+  if (!inherits(completeCasesTable, 'function')) {
+    outList$completeCasesTable <- completeCasesTable
   }
 
   names(outList)[1] <- class
