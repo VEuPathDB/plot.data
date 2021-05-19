@@ -86,7 +86,7 @@ contingencyDT <- function(data, labels = TRUE) {
     dt$label <- rownames(dt)
   }
 
-  return(data.table::as.data.table(dt))
+  return(data.table::setDT(dt))
 }
 
 findPanelColName <- function(facet1 = NULL, facet2 = NULL) {

@@ -150,7 +150,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                         'dataShape' = NULL)
 
   if (!'data.table' %in% class(data)) {
-    data <- data.table::as.data.table(data)
+    data.table::setDT(data)
   }
 
   if ('xAxisVariable' %in% map$plotRef) {
