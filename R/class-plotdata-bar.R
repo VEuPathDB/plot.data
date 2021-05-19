@@ -39,6 +39,10 @@ newBarPD <- function(.dt = data.table::data.table(),
     .pd <- groupSize(.pd, x, 'dummy', group, panel, collapse = T)
     data.table::setnames(.pd, c(group, panel, 'label', 'value'))
 
+  } else if (value == 'proportion') {
+    .pd$dummy <- 1
+    .pd <- groupProportion(.pd, x, 'dummy', group, panel, collapse = T)
+    data.table::setnames(.pd, c(group, panel, 'label', 'value'))
   }
   attr$names <- names(.pd)
   
@@ -80,15 +84,16 @@ validateBarPD <- function(.bar) {
 #' plot-ready data with one row per group (per panel). Columns 
 #' 'label' and 'value' contain the raw data for plotting. Column 
 #' 'group' and 'panel' specify the group the series data belongs to.
-#' There are two options to calculate y-values for plotting.
+#' There are three options to calculate y-values for plotting.
 #' 1) raw 'identity' of values from data.table input
-#' 2) 'count' occurances of values from data.table input 
+#' 2) 'count' occurrences of values from data.table input 
+#' 3) 'proportion' of occurrences of values from data.table input 
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value String indicating how to calculate y-values ('identity', 'count')
+#' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @return data.table plot-ready data
 #' @export
-bar.dt <- function(data, map, value = c('count', 'identity')) {
+bar.dt <- function(data, map, value = c('count', 'identity', 'proportion')) {
   value <- match.arg(value)
 
   overlayVariable = list('variableId' = NULL,
@@ -130,7 +135,7 @@ bar.dt <- function(data, map, value = c('count', 'identity')) {
                     facetVariable2 = facetVariable2,
                     value)
 
-  #.bar <- validateBarPD(.bar)
+  .bar <- validateBarPD(.bar)
 
   return(.bar)
 }
@@ -141,15 +146,16 @@ bar.dt <- function(data, map, value = c('count', 'identity')) {
 #' plot-ready data with one row per group (per panel). Columns 
 #' 'label' and 'value' contain the raw data for plotting. Column 
 #' 'group' and 'panel' specify the group the series data belongs to.
-#' There are two options to calculate y-values for plotting.
+#' There are three options to calculate y-values for plotting.
 #' 1) raw 'identity' of values from data.table input
-#' 2) 'count' occurances of values from data.table input 
+#' 2) 'count' occurrences of values from data.table input 
+#' 3) 'proportion' of occurrences of values from data.table input 
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value String indicating how to calculate y-values ('identity', 'count')
+#' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @return character name of json file containing plot-ready data
 #' @export
-bar <- function(data, map, value = c('count', 'identity')) {
+bar <- function(data, map, value = c('count', 'identity', 'proportion')) {
   value <- match.arg(value)
   .bar <- bar.dt(data, map, value)
   outFileName <- writeJSON(.bar, 'barplot')

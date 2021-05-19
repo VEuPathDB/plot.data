@@ -118,3 +118,18 @@ test_that("groupDensity() returns consistent results", {
   dt <- groupDensity(data.xy, 'y', 'group', 'panel')
   expect_equal_to_reference(dt,"density.group.panel.rds")
 })
+
+test_that("groupProportion() returns values that sum to 1", {
+  df <- data.frame("labels"=c("a","a","b","b","c"), "counts"=c(1,1, 1, 1, 1), "group"=c("g1","g2","g1","g2","g1"))
+  dt <- groupProportion(df, x="labels", y="counts")
+  expect_equal(sum(dt$proportion[[1]]), 1)
+  dt <- groupProportion(df, x="labels", y="counts", group="group")
+  expect_equal(all(lapply(dt$proportion, sum) == 1), TRUE)
+})
+
+test_that("groupProportion() maps to groupSize() correctly", {
+  df <- data.frame("labels"=c("a","a","b","b","a"), "counts"=c(1,1, 1, 1, 1))
+  dt_size <- groupSize(df, x="labels", y="counts")
+  dt_prop <- groupProportion(df, x="labels", y="counts")
+  expect_equal(dt_size$size[[1]]/sum(dt_size$size[[1]]), dt_prop$proportion[[1]])
+})

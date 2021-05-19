@@ -87,6 +87,43 @@ groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T)
   return(dt)
 }
 
+
+groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
+  aggStr <- getAggStr(y, c(x, group, panel))
+  
+  if (aggStr == y) {
+    dt <- data.table::as.data.table(t(1)) # Without any grouping, proportion should always = 1
+  } else {
+
+    # Aggregate to get counts of value per group
+    dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, length))
+    strataCols <- c(group, panel)
+    
+    # If there are no strata vars, then we don't need the by term
+    if (is.null(strataCols)) {
+      dt[, sum := sum(get(y))][, proportion := get(y)/sum]
+    } else {
+      dt[, sum := sum(get(y)), by=strataCols][, proportion := get(y)/sum]
+    }
+    
+    # Remove unnecessary columns
+    dt[, sum := NULL]
+    dt[, (y) := NULL]
+    
+  }
+  
+  data.table::setnames(dt, c(x, group, panel, 'proportion'))
+  indexCols <- c(panel, group)
+  setkeyv(dt, indexCols)
+  
+  if (collapse) {
+    dt <- collapseByGroup(dt, group, panel)
+  }
+  
+  return(dt)
+}
+
+
 groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
