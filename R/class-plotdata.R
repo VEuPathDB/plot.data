@@ -57,12 +57,6 @@ newPlotdata <- function(.dt = data.table(),
 
   incompleteCases <- jsonlite::unbox(nrow(.dt[!complete.cases(.dt),]))
   
-  # myCols has columns we need
-  # We already selected myCols above so we should have only these cols here
-  # We should be aware that completeCasesTable influences but does not necessarily have a direct
-  # transformation from incompleteCases, because two vars can have NAs in different, or the same rows.
-  # Only 1 NA is needed to add a row to incomplete cases. So incomplete cases <= sum(completeCasesTable).
-  
   .dt <- .dt[complete.cases(.dt),]
 
   if (xType == 'STRING') {
