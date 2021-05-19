@@ -121,7 +121,7 @@ test_that("scattergl() returns appropriately formatted json", {
   outJson <- getJSON(dt)
   jsonList <- jsonlite::fromJSON(outJson)
 
-  expect_equal(names(jsonList),c('scatterplot','sampleSizeTable'))
+  expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
   expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE'))
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails),c('variableId','entityId','value'))
@@ -129,4 +129,27 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$scatterplot$config),c('incompleteCases','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$scatterplot$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','size'))
+  expect_equal(names(jsonList$completeCasesTable),c('xVariableDetails','yVariableDetails','overlayVariableDetails','facetVariable1Details'))
+})
+
+
+
+
+test_that("scattergl.dt() returns correct information about missing data", {
+  map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.xy
+  
+  # Add 10 missing values to each column
+  df$x[sample(1:100, 10, replace=F)] <- NA
+  df$y[sample(1:100, 10, replace=F)] <- NA
+  df$group[sample(1:100, 10, replace=F)] <- NA
+  df$panel[sample(1:100, 10, replace=F)] <- NA
+  
+  dt <- scattergl.dt(df, map, 'raw')
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - 10
+  expect_equal(all(unlist(lapply(completecasestable, function(x) {x == NROW(df)-10}))), TRUE)
+  # number of incompleteCases should be <= sum of incomplete cases within each var
+  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(unlist(lapply(completecasestable, function(x) {NROW(df) - x}), `+`)), TRUE)
+  
 })

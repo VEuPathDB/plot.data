@@ -79,10 +79,10 @@ test_that("bar.dt() returns correct information about missing data", {
   df$group[sample(1:100, 10, replace=F)] <- NA
   df$panel[sample(1:100, 10, replace=F)] <- NA
   dt <- bar.dt(df, map, value='count')
-  completeCasesTable <- completeCasesTable(dt)
+  completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - 10
-  expect_equal(all(lapply(completeCasesTable, function(x) {x == NROW(df)-10})), TRUE)
+  expect_equal(all(unlist(lapply(completecasestable, function(x) {x == NROW(df)-10}))), TRUE)
   # number of incompleteCases should be <= sum of incomplete cases within each var
-  expect_equal(attr(dt, 'incompleteCases')[1] <= purrr::reduce(lapply(completeCasesTable, function(x) {NROW(df) - x}), `+`), TRUE)
+  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(unlist(lapply(completecasestable, function(x) {NROW(df) - x}), `+`)), TRUE)
   
 })

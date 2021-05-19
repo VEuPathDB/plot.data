@@ -39,7 +39,7 @@ test_that("mosaic() returns appropriately formatted json", {
   outJson <- getJSON(dt)
   jsonList <- jsonlite::fromJSON(outJson)
 
-  expect_equal(names(jsonList),c('mosaic','sampleSizeTable','statsTable'))
+  expect_equal(names(jsonList),c('mosaic','sampleSizeTable','statsTable','completeCasesTable'))
   expect_equal(names(jsonList$mosaic),c('data','config'))
   expect_equal(names(jsonList$mosaic$data),c('xLabel','yLabel','value','facetVariableDetails'))
   expect_equal(names(jsonList$mosaic$data$facetVariableDetails),c('variableId','entityId','value'))
@@ -48,4 +48,24 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','xVariableDetails','size'))
   expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','facetVariableDetails'))
+  expect_equal(names(jsonList$completeCasesTable), c('xVariableDetails', 'yVariableDetails', 'facetVariable1Details'))
+})
+
+
+test_that("mosaic.dt() returns correct information about missing data", {
+  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.binary
+  
+  # Add 10 missing values to each column
+  df$var[sample(1:100, 10, replace=F)] <- NA
+  df$group[sample(1:100, 10, replace=F)] <- NA
+  df$panel[sample(1:100, 10, replace=F)] <- NA
+  
+  dt <- mosaic.dt(df, map)
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - 10
+  expect_equal(all(unlist(lapply(completecasestable, function(x) {x == NROW(df)-10}))), TRUE)
+  # number of incompleteCases should be <= sum of incomplete cases within each var
+  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(unlist(lapply(completecasestable, function(x) {NROW(df) - x}), `+`)), TRUE)
+  
 })
