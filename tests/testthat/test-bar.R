@@ -68,3 +68,21 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('label', 'value'))
 })
+
+test_that("bar.dt() returns correct information about missing data", {
+  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- as.data.frame(data.binned)
+  
+  # Add 10 missing values to each column
+  df$x[sample(1:100, 10, replace=F)] <- NA
+  df$y[sample(1:100, 10, replace=F)] <- NA
+  df$group[sample(1:100, 10, replace=F)] <- NA
+  df$panel[sample(1:100, 10, replace=F)] <- NA
+  dt <- bar.dt(df, map, value='count')
+  completeCasesTable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - 10
+  expect_equal(all(lapply(completeCasesTable, function(x) {x == NROW(df)-10})), TRUE)
+  # number of incompleteCases should be <= sum of incomplete cases within each var
+  expect_equal(attr(dt, 'incompleteCases')[1] <= purrr::reduce(lapply(completeCasesTable, function(x) {NROW(df) - x}), `+`), TRUE)
+  
+})

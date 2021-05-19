@@ -46,6 +46,9 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1) }
   if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2) }
 
+  varCols <- c(x, y, z, group, facet1, facet2)
+  completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
+  
   panelData <- makePanels(.dt, facet1, facet2)
   .dt <- data.table::setDT(panelData[[1]])
   panel <- panelData[[2]]
@@ -56,7 +59,6 @@ newPlotdata <- function(.dt = data.table(),
   
   # myCols has columns we need
   # We already selected myCols above so we should have only these cols here
-  completeCasesTable <- data.table::setDT(lapply(.dt, function(a) {sum(complete.cases(a))}))
   # We should be aware that completeCasesTable influences but does not necessarily have a direct
   # transformation from incompleteCases, because two vars can have NAs in different, or the same rows.
   # Only 1 NA is needed to add a row to incomplete cases. So incomplete cases <= sum(completeCasesTable).
