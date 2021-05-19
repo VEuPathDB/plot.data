@@ -122,4 +122,6 @@ validatePlotdata <- function(.pd) {
   return(.pd)
 }
 
+# Additional accessor functions
 sampleSizeTable <- function(.pd) { attr(.pd, 'sampleSizeTable') }
+completeCasesPerVar <- function(.pd) { attr(.pd, 'completeCasesPerVar')}
