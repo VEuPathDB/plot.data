@@ -31,25 +31,15 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   y <- attr$yAxisVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
-  dims <- as.data.frame.matrix(table(.pd[[x]], .pd[[y]]))
-  dims <- c(length(dims), nrow(dims))
+  tbl <- table(.pd[[x]], .pd[[y]])
+  dims <- c(ncol(tbl), nrow(tbl))
 
   if (any(dims > 2)) {
-    .pd <- panelChiSq(.pd, x, y, panel)
-    statsCols <- c('pvalue', 'chiSq', 'degreesFreedom', 'xLabel', 'yLabel', panel)
-    statsTable <- .pd[, statsCols, with=FALSE]
+    statsTable <- panelChiSq(.pd, x, y, panel)
   } else {
-    .pd <- panelBothRatios(.pd, x, y, panel)
-    statsCols <- c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', panel)
-    statsTable <- .pd[, statsCols, with=FALSE]
-    #this is ugly :(
-    removeFirst <- function(list) { list[[1]][-1] }
-    statsTable <- data.table::as.data.table(as.list(sapply(statsTable, removeFirst)))
-    statsTable <- collapseByGroup(as.data.table(statsTable))
+    statsTable <- panelBothRatios(.pd, x, y, panel)
   }
-
-  plotCols <- c('xLabel', 'yLabel', 'value', panel)
-  .pd <- .pd[, plotCols, with=FALSE]
+  .pd <- panelTable(.pd, x, y, panel)
 
   attr$names <- names(.pd)
   attr$statsTable <- statsTable

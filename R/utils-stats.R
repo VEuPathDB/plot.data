@@ -165,35 +165,34 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
   return(dt)
 }
 
-epitabToDT <- function(m, method) {
-  dt <- data.table::as.data.table(m)
-  dt$x.label <- rownames(m)
-  dt <- transform(dt, "interval" = paste(lower, " - ", upper))
-  dt$lower <- NULL
-  dt$upper <- NULL
-  dt$y.label <- list(names(dt)[c(1,3)])
-  data.table::setnames(dt, c('cond1', 'proportion1', 'cond2', 'proportion2', method, 'p.value', 'x', 'interval', 'y.label'))
-  dt[, y := lapply(transpose(.(cond1, cond2)), as.vector)]
-  dt <- dt[, -c(1:4)]
-
-  return(dt)
-}
-
 #' Odds Ratio
 #'
 #' This function calculates odds ratio, confidence intervals and p-values for epidemiologic data 
-#' @param data A data.table with two columns 'x' and 'y'. The two will be combined into a table. The first is the independent variable and can have any number of values. The second is the dependent variable, and should have two unique values.
-#' @param collapse boolean indicating whether or not to collapse the data.table to have only one row per group. If true, values per group will be represented as lists within the data.table.
-#' @return data.table, optionally with only one row per group
+#' @param tbl A frequency table of two binary variables.
+#' @return data.table
 #' @export
-#' @importFrom epitools epitab
-oddsRatio <- function(data, collapse = TRUE) {
-  m <- epitools::epitab(data$x, data$y, method = "oddsratio")$tab
-  dt <- epitabToDT(m, 'oddsratio')
+oddsRatio <- function(tbl) {
+  a <- tbl[1,1]
+  b <- tbl[2,1]
+  c <- tbl[1,2]
+  d <- tbl[2,2]
 
-  if (collapse) {
-    dt <- collapseByGroup(dt)
-  }
+  OR <- (a*d)/(b*c)
+  OR <- round(OR, digits=4)
+  alpha <- 0.05
+  siglog <- sqrt((1/a) + (1/b) + (1/c) + (1/d))
+  zalph <- qnorm(1 - alpha/2)
+  logOR <- log(OR)
+  logloOR <- logOR - zalph * siglog
+  loghiOR <- logOR + zalph * siglog
+  ORlo <- round(exp(logloOR), digits=4)
+  ORhi <- round(exp(loghiOR), digits=4)
+
+  p <- chisq.test(tbl)
+  p <- p$p.value
+  p <- round(p, digits=4)
+ 
+  dt <- data.table::data.table('oddsratio'=jsonlite::unbox(OR), 'orInterval'=jsonlite::unbox(paste0(ORlo, "-", ORhi)), 'pvalue'=jsonlite::unbox(p))
 
   return(dt)
 }
@@ -201,46 +200,71 @@ oddsRatio <- function(data, collapse = TRUE) {
 #' Relative Risk
 #'
 #' This function calculates relative risk, confidence intervals and p-values for epidemiologic data 
-#' @param data A data.table with two columns 'x' and 'y'. The two will be combined into a table. The first is the independent variable and can have any number of values. The second is the dependent variable, and should have two unique values.
-#' @param collapse boolean indicating whether or not to collapse the data.table to have only one row per group. If true, values per group will be represented as lists within the data.table.
-#' @return data.table, optionally with only one row per group
+#' @param tbl A frequency table of two binary variables.
+#' @return data.table
 #' @export
-relativeRisk <- function(data, collapse = TRUE) {
-  m <- epitools::epitab(data$x, data$y, method = "riskratio")$tab
-  dt <- epitabToDT(m, 'relativerisk')
+relativeRisk <- function(data) {
+  a <- tbl[1,1]
+  b <- tbl[2,1]
+  c <- tbl[1,2]
+  d <- tbl[2,2]
 
-  if (collapse) {
-    dt <- collapseByGroup(dt)
-  }
+  RR <- (a/(a+b)) / (c/(c+d))
+  RR <- round(RR, digits=4)
+  alpha <- 0.05
+  siglog <- sqrt((1/a) + (1/b) + (1/c) + (1/d))
+  zalph <- qnorm(1 - alpha/2)
+  logRR <- log(RR)
+  logloRR <- logRR - zalph * siglog
+  loghiRR <- logRR + zalph * siglog
+  RRlo <- round(exp(logloRR), digits=4)
+  RRhi <- round(exp(loghiRR), digits=4)
 
-  return(dt)
-}
+  p <- chisq.test(tbl)
+  p <- p$p.value
+  p <- round(p, digits=4)
 
-bothRatios <- function(data, collapse = TRUE) {
-  mergeByCols <- c('pvalue', 'yLabel', 'xLabel', 'value')
-
-  or <- oddsRatio(data, collapse)
-  data.table::setnames(or, c('oddsratio', 'pvalue', 'xLabel', 'orInterval', 'yLabel', 'value'))
-  rr <- relativeRisk(data, collapse)
-  data.table::setnames(rr, c('relativerisk', 'pvalue', 'xLabel', 'rrInterval', 'yLabel', 'value'))
-  if (collapse) { 
-    if (!identical(or$yLabel, rr$yLabel) |
-        !identical(or$xLabel, rr$xLabel) |
-        !identical(or$pvalue, rr$pvalue) |
-        !identical(or$value, rr$value)) {
-      stop('cannot merge odds ratio and relative risk data!')
-    }
-    rr <- rr[, -mergeByCols, with=FALSE]
-    dt <- cbind(or, rr)
-  } else {
-    dt <- merge(or, rr, by = mergeByCols)
-  }
+  dt <- data.table::data.table('relativerisk'=jsonlite::unbox(RR), 'rrInterval'=jsonlite::unbox(paste0(RRlo, "-", RRhi)), 'pvalue'=jsonlite::unbox(p))
 
   return(dt)
 }
 
-chiSq <- function(data, collapse = TRUE) {
-  tbl <- table(data$x, data$y)
+bothRatios <- function(tbl, collapse = TRUE) {
+  a <- tbl[1,1]
+  b <- tbl[2,1]
+  c <- tbl[1,2]
+  d <- tbl[2,2]
+
+  OR <- (a*d)/(b*c)
+  RR <- (a/(a+b)) / (c/(c+d))
+  OR <- round(OR, digits=4)
+  RR <- round(RR, digits=4)
+
+  alpha <- 0.05
+  siglog <- sqrt((1/a) + (1/b) + (1/c) + (1/d))
+  zalph <- qnorm(1 - alpha/2)
+  logOR <- log(OR)
+  logRR <- log(RR)
+  logloOR <- logOR - zalph * siglog
+  logloRR <- logRR - zalph * siglog
+  loghiOR <- logOR + zalph * siglog
+  loghiRR <- logRR + zalph * siglog
+
+  ORlo <- round(exp(logloOR), digits=4)
+  RRlo <- round(exp(logloRR), digits=4)
+  ORhi <- round(exp(loghiOR), digits=4)
+  RRhi <- round(exp(loghiRR), digits=4)
+
+  p <- chisq.test(tbl)
+  p <- p$p.value
+  p <- round(p, digits=4)
+
+  dt <- data.table::data.table('oddsratio'=jsonlite::unbox(OR), 'relativerisk'=jsonlite::unbox(RR), 'orInterval'=jsonlite::unbox(paste0(ORlo, '-', ORhi)), 'rrInterval'=jsonlite::unbox(paste0(RRlo, '-', RRhi)), 'pvalue'=jsonlite::unbox(p))
+
+  return(dt)
+}
+
+chiSq <- function(tbl, collapse = TRUE) {
   dt <- as.data.frame.matrix(tbl)
   data.table::setDT(dt)
   dt[, value := lapply(transpose(.SD), as.vector)]
@@ -251,9 +275,9 @@ chiSq <- function(data, collapse = TRUE) {
     dt <-  collapseByGroup(dt)
   }
   chisq <- chisq.test(tbl)
-  dt$chisq <- chisq$statistic
-  dt$pvalue <- chisq$p.value
-  dt$degreesFreedom <- chisq$parameter
+  dt$chisq <- jsonlite::unbox(chisq$statistic)
+  dt$pvalue <- jsonlite::unbox(chisq$p.value)
+  dt$degreesFreedom <- jsonlite::unbox(chisq$parameter)
 
   return(dt)
 }

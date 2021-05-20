@@ -20,27 +20,20 @@ test_that("bin() does not return NA", {
   expect_false(any(is.na(bin(rnorm(100,-10),binWidth=.1, viewport=list('xMin'=-15,'xMax'=-5)))))
 })
 
-test_that("epitabToDT() returns appropriately sized data.table", {
-  m <- epitools::epitab(as.factor(rnorm(10)), as.factor(rep(c(1,2),5)))$tab
-  dt <- epitabToDT(m, 'oddsratio')
-
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),10)
-  expect_equal(length(dt),6)
-})
-
 test_that("relativeRisk() returns the right columns", {
   data <- data.table('x' = as.factor(rnorm(10)), 'y' = as.factor(rep(c(1,2),5)))
+  tbl <- tableXY(data)
   dt <- relativeRisk(data)
 
-  expect_equal(names(dt), c('relativerisk', 'p.value', 'x', 'interval', 'y.label', 'y'))
+  expect_equal(names(dt), c('relativerisk', 'rrInterval', 'pvalue'))
 })
 
 test_that("oddsRatio() returns the right columns", {
   data <- data.table('x' = as.factor(rnorm(10)), 'y' = as.factor(rep(c(1,2),5)))
-  dt <- oddsRatio(data)
+  tbl <- tableXY(data)
+  dt <- oddsRatio(tbl)
 
-  expect_equal(names(dt), c('oddsratio', 'p.value', 'x', 'interval', 'y.label', 'y'))
+  expect_equal(names(dt), c('oddsratio', 'orInterval', 'pvalue'))
 })
 
 

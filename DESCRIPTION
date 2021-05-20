@@ -8,7 +8,6 @@ Authors@R:
            email = "dcallan@upenn.edu")
 Imports:
     data.table,
-    epitools,
     jsonlite,
     lubridate,
     magrittr,

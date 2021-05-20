@@ -16,6 +16,7 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(length(dt$value[[1]][[1]]),2)
   statsTable <- statsTable(dt)
   expect_equal(names(statsTable), c(c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'panel')))
+  expect_equal(class(statsTable$relativerisk),c('scalar', 'numeric'))
   sampleSizeTable <- sampleSizeTable(dt)
   expect_equal(names(sampleSizeTable),c('panel','var','size'))
   expect_equal(class(sampleSizeTable$var[[1]]), 'character')

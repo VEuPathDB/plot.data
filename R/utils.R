@@ -1,3 +1,19 @@
+tableXY <- function(data) {
+  table(data$x, data$y)
+}
+
+tableAsDT <- function(data, x, y) {
+  tbl <- table(data[[x]], data[[y]])
+  xLabels <- rownames(tbl)
+  yLabels <- colnames(tbl)
+  rownames(tbl) <- NULL
+  colnames(tbl) <- NULL
+  dt <- data.table::data.table('xLabel'=xLabels,'yLabel'=yLabels,'value'=lapply(apply(tbl,1,list),unlist))
+  dt <- collapseByGroup(dt)
+
+  return(dt)
+}
+
 collapseByGroup <- function(data, group = NULL, panel = NULL) {
   if (class(data)[1] != "data.table") {
     data <- data.table::setDT(data)
