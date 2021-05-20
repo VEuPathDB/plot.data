@@ -12,6 +12,14 @@ makeVariableDetails <- function(value, variableId, entityId) {
   return(variableDetails)
 }
 
+addVariableDetails <- function(.pd, variableId, varDetailsName, entityId) {
+  data.table::setnames(.pd, variableId, varDetailsName)
+  .pd[[varDetailsName]] <- lapply(.pd[[varDetailsName]], makeVariableDetails, variableId, entityId)
+
+  return(.pd)
+}
+# addVariableDetails(completeCasesTable, namedAttrList$yAxisVariable$variableId, 'yVariableDetails', namedAttrList$yAxisVariable$entityId)
+
 addStrataVariableDetails <- function(.pd) {
   namedAttrList <- getPDAttributes(.pd)
   group <- NULL
@@ -78,31 +86,13 @@ getJSON <- function(.pd) {
     namedAttrList$completeCasesTable <- NULL
     attr <- attributes(completeCasesTable)
     completeCasesTable <- setAttrFromList(completeCasesTable, namedAttrList, removeExtraAttrs = F)
-    if ('xAxisVariable' %in% names(namedAttrList)) {
-      x <- namedAttrList$xAxisVariable$variableId
-      data.table::setnames(completeCasesTable, x, 'xVariableDetails')
-      completeCasesTable$xVariableDetails <- lapply(completeCasesTable$xVariableDetails, makeVariableDetails, x, namedAttrList$xAxisVariable$entityId)
-    }
-    if ('yAxisVariable' %in% names(namedAttrList)) {
-      y <- namedAttrList$yAxisVariable$variableId
-      data.table::setnames(completeCasesTable, y, 'yVariableDetails')
-      completeCasesTable$yVariableDetails <- lapply(completeCasesTable$yVariableDetails, makeVariableDetails, y, namedAttrList$yAxisVariable$entityId)
-    }
-    if ('overlayVariable' %in% names(namedAttrList)) {
-      overlay <- namedAttrList$overlayVariable$variableId
-      data.table::setnames(completeCasesTable, overlay, 'overlayVariableDetails')
-      completeCasesTable$overlayVariableDetails <- lapply(completeCasesTable$overlayVariableDetails, makeVariableDetails, overlay, namedAttrList$overlayVariable$entityId)
-    }
-    if ('facetVariable1' %in% names(namedAttrList)) {
-      facet1 <- namedAttrList$facetVariable1$variableId
-      data.table::setnames(completeCasesTable, facet1, 'facetVariable1Details')
-      completeCasesTable$facetVariable1Details <- lapply(completeCasesTable$facetVariable1Details, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId)
-    }
-    if ('facetVariable2' %in% names(namedAttrList)) {
-      facet2 <- namedAttrList$facetVariable2$variableId
-      data.table::setnames(completeCasesTable, facet2, 'facetVariable2Details')
-      completeCasesTable$facetVariable2Details <- lapply(completeCasesTable$facetVariable2Details, makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId)
-    }
+    
+    # Add variable details for any variable in the completeCasesTable
+    if ('xAxisVariable' %in% names(namedAttrList)) completeCasesTable <- addVariableDetails(completeCasesTable, namedAttrList$xAxisVariable$variableId, 'xVariableDetails', namedAttrList$xAxisVariable$entityId)
+    if ('yAxisVariable' %in% names(namedAttrList)) completeCasesTable <- addVariableDetails(completeCasesTable, namedAttrList$yAxisVariable$variableId, 'yVariableDetails', namedAttrList$yAxisVariable$entityId)
+    if ('overlayVariable' %in% names(namedAttrList)) completeCasesTable <- addVariableDetails(completeCasesTable, namedAttrList$overlayVariable$variableId, 'overlayVariableDetails', namedAttrList$overlayVariable$entityId)
+    if ('facetVariable1' %in% names(namedAttrList)) completeCasesTable <- addVariableDetails(completeCasesTable, namedAttrList$facetVariable1$variableId, 'facetVariable1Details', namedAttrList$facetVariable1$entityId)
+    if ('facetVariable2' %in% names(namedAttrList)) completeCasesTable <- addVariableDetails(completeCasesTable, namedAttrList$facetVariable2$variableId, 'facetVariable2Details', namedAttrList$facetVariable2$entityId)
     
     attr$names <- names(completeCasesTable)
     completeCasesTable <- setAttrFromList(completeCasesTable, attr)
