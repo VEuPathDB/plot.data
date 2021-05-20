@@ -18,7 +18,6 @@ addVariableDetails <- function(.pd, variableId, varDetailsName, entityId) {
 
   return(.pd)
 }
-# addVariableDetails(completeCasesTable, namedAttrList$yAxisVariable$variableId, 'yVariableDetails', namedAttrList$yAxisVariable$entityId)
 
 addStrataVariableDetails <- function(.pd) {
   namedAttrList <- getPDAttributes(.pd)
@@ -74,9 +73,7 @@ getJSON <- function(.pd) {
     sampleSizeTable <- setAttrFromList(sampleSizeTable, attr)
     if ('xAxisVariable' %in% names(namedAttrList)) {
       if (namedAttrList$xAxisVariable$dataType == 'STRING') {
-        x <- namedAttrList$xAxisVariable$variableId
-        data.table::setnames(sampleSizeTable, x, 'xVariableDetails')
-        sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, x, namedAttrList$xAxisVariable$entityId)
+        sampleSizeTable <- addVariableDetails(sampleSizeTable, namedAttrList$xAxisVariable$variableId, 'xVariableDetails', namedAttrList$xAxisVariable$entityId)
       }
     }
   }
