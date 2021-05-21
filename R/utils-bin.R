@@ -111,7 +111,7 @@ findBinWidth.Date <- function(x) {
 findNumBins <- function(x) {
   numBins <- NULL
 
-  if (length(x) < 200) {
+  if (length(x) > 200) {
     numBins <- grDevices::nclass.FD(x)
   }
   skewness <- moments::skewness(x)
@@ -120,7 +120,7 @@ findNumBins <- function(x) {
     n <- length(x)
     se <- sqrt(6*(n-2)/((n+1)*(n+3)))
     ke <- log2(1+abs/se)
-    numBins <- ceiling(nclass.Sturges(x)+ke)
+    numBins <- ceiling(grDevices::nclass.Sturges(x)+ke)
   }
   if (is.null(numBins)) {
     numBins <- grDevices::nclass.Sturges(x)
