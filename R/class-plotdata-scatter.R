@@ -40,6 +40,8 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
   series <- collapseByGroup(.pd, group, panel)
   data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
+  series$seriesX <- lapply(series$seriesX, as.character)
+  series$seriesY <- lapply(series$seriesY, as.character)
 
   if (value == 'smoothedMean') {
 
@@ -150,11 +152,17 @@ scattergl.dt <- function(data,
 
   if ('xAxisVariable' %in% map$plotRef) {
     xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+    if (xAxisVariable$dataType != 'NUMBER' & value == 'density') {
+      stop('Density curves can only be provided for numeric independent axes.')
+    }
   } else {
     stop("Must provide xAxisVariable for plot type scatter.")
   }
   if ('yAxisVariable' %in% map$plotRef) {
     yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+    if (yAxisVariable$dataType != 'NUMBER' & value != 'raw') {
+      stop('Trend lines can only be provided for numeric dependent axes.')
+    }
   } else {
     stop("Must provide yAxisVariable for plot type scatter.")
   }

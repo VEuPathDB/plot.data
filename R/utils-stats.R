@@ -144,6 +144,10 @@ bestFitLine <- function(dt, collapse = TRUE) {
 #' @export
 #' @importFrom mgcv gam
 smoothedMean <- function(dt, method, collapse = TRUE) {
+  if (inherits(dt$x, 'Date')) {
+    dateMap <- data.table::data.table('date'=dt$x, 'numeric'=as.numeric(dt$x))
+    dt$x <- as.numeric(dt$x)
+  }
   xseq <- sort(unique(dt$x))
 
   if (method == 'loess') {
@@ -155,6 +159,10 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
   }
 
   smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
+
+  if (exists('dateMap')) {
+    smoothed$x <- dateMap[match(smoothed$x, dateMap$numeric),]$date
+  }
 
   if (collapse) {
     dt <- data.table::data.table("smoothedMeanX" = list(smoothed$x), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se))
@@ -203,7 +211,7 @@ oddsRatio <- function(tbl) {
 #' @param tbl A frequency table of two binary variables.
 #' @return data.table
 #' @export
-relativeRisk <- function(data) {
+relativeRisk <- function(tbl) {
   a <- tbl[1,1]
   b <- tbl[2,1]
   c <- tbl[1,2]

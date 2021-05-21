@@ -4,7 +4,7 @@
 \alias{relativeRisk}
 \title{Relative Risk}
 \usage{
-relativeRisk(data)
+relativeRisk(tbl)
 }
 \arguments{
 \item{tbl}{A frequency table of two binary variables.}

@@ -23,7 +23,7 @@ test_that("bin() does not return NA", {
 test_that("relativeRisk() returns the right columns", {
   data <- data.table('x' = as.factor(rnorm(10)), 'y' = as.factor(rep(c(1,2),5)))
   tbl <- tableXY(data)
-  dt <- relativeRisk(data)
+  dt <- relativeRisk(tbl)
 
   expect_equal(names(dt), c('relativerisk', 'rrInterval', 'pvalue'))
 })

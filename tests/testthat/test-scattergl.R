@@ -1,6 +1,31 @@
 context('scattergl')
 
 test_that("scattergl.dt() returns an appropriately sized data.table", {
+  map <- data.frame('id' = c('group', 'contVar', 'date', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.dates
+
+  dt <- scattergl.dt(df, map, 'raw')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),16)
+  expect_equal(names(dt),c('group', 'panel', 'seriesX', 'seriesY'))
+  expect_equal(as.character(range(df$date)), range(dt$seriesX))
+
+  dt <- scattergl.dt(df, map, 'smoothedMean')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),16)
+  expect_equal(names(dt),c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'group', 'panel'))
+
+  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),16)
+  expect_equal(names(dt),c('panel', 'group', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE'))
+
+  dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),16)
+  expect_equal(names(dt),c('panel', 'group', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
+
+
   map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.xy
 
@@ -8,7 +33,8 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
   expect_equal(names(dt),c('group', 'panel', 'seriesX', 'seriesY'))
-  expect_equal(range(df$x), range(dt$seriesX))
+  numericSeriesX <- lapply(dt$seriesX, as.numeric)
+  expect_equal(range(df$x), range(numericSeriesX))
 
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
