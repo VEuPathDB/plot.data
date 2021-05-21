@@ -87,6 +87,7 @@ getJSON <- function(.pd) {
     # Add variable details for any variable in the completeCasesTable
     if ('xAxisVariable' %in% names(namedAttrList)) completeCasesTable <- addVariableDetails(completeCasesTable, namedAttrList$xAxisVariable$variableId, 'xVariableDetails', namedAttrList$xAxisVariable$entityId)
     if ('yAxisVariable' %in% names(namedAttrList)) completeCasesTable <- addVariableDetails(completeCasesTable, namedAttrList$yAxisVariable$variableId, 'yVariableDetails', namedAttrList$yAxisVariable$entityId)
+    if ('zAxisVariable' %in% names(namedAttrList)) completeCasesTable <- addVariableDetails(completeCasesTable, namedAttrList$zAxisVariable$variableId, 'zVariableDetails', namedAttrList$zAxisVariable$entityId)
     if ('overlayVariable' %in% names(namedAttrList)) completeCasesTable <- addVariableDetails(completeCasesTable, namedAttrList$overlayVariable$variableId, 'overlayVariableDetails', namedAttrList$overlayVariable$entityId)
     if ('facetVariable1' %in% names(namedAttrList)) completeCasesTable <- addVariableDetails(completeCasesTable, namedAttrList$facetVariable1$variableId, 'facetVariable1Details', namedAttrList$facetVariable1$entityId)
     if ('facetVariable2' %in% names(namedAttrList)) completeCasesTable <- addVariableDetails(completeCasesTable, namedAttrList$facetVariable2$variableId, 'facetVariable2Details', namedAttrList$facetVariable2$entityId)
