@@ -48,6 +48,10 @@ newPlotdata <- function(.dt = data.table(),
 
   varCols <- c(x, y, z, group, facet1, facet2)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
+  completeCasesTable <- as.data.frame.matrix(t(completeCasesTable))
+  completeCasesTable$var <- rownames(completeCasesTable)
+  data.table::setnames(completeCasesTable, c('completeCases', 'variableDetails'))
+  setDT(completeCasesTable)  
   
   panelData <- makePanels(.dt, facet1, facet2)
   .dt <- data.table::setDT(panelData[[1]])
