@@ -51,7 +51,7 @@ newPlotdata <- function(.dt = data.table(),
   completeCasesTable <- as.data.frame.matrix(t(completeCasesTable))
   completeCasesTable$var <- rownames(completeCasesTable)
   data.table::setnames(completeCasesTable, c('completeCases', 'variableDetails'))
-  setDT(completeCasesTable)  
+  data.table::setDT(completeCasesTable)  
   
   panelData <- makePanels(.dt, facet1, facet2)
   .dt <- data.table::setDT(panelData[[1]])
