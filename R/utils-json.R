@@ -12,6 +12,21 @@ makeVariableDetails <- function(value, variableId, entityId) {
   return(variableDetails)
 }
 
+#intended for table attrs that dont conform to the one row per group structure, but rather one row per var
+addVariableDetailsToColumn <- function(.pd, variableIdColName) {
+  namedAttrList <- getPDAttributes(.pd)
+   
+  # Add variable details for any variable in the variableIdCol
+  if ('xAxisVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == namedAttrList$xAxisVariable$variableId] <- list(makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId))
+  if ('yAxisVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == namedAttrList$yAxisVariable$variableId] <- list(makeVariableDetails(NULL, namedAttrList$yAxisVariable$variableId, namedAttrList$yAxisVariable$entityId))
+  if ('zAxisVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == namedAttrList$zAxisVariable$variableId] <- list(makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId))
+  if ('overlayVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == namedAttrList$overlayVariable$variableId] <- list(makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId))
+  if ('facetVariable1' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == namedAttrList$facetVariable1$variableId] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId))
+  if ('facetVariable2' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == namedAttrList$facetVariable2$variableId] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId))
+
+  return(.pd)
+}
+
 addStrataVariableDetails <- function(.pd) {
   namedAttrList <- getPDAttributes(.pd)
   group <- NULL
@@ -20,21 +35,23 @@ addStrataVariableDetails <- function(.pd) {
   if ('overlayVariable' %in% names(namedAttrList)) { group <- namedAttrList$overlayVariable$variableId }
   if ('facetVariable1' %in% names(namedAttrList)) { facet1 <- namedAttrList$facetVariable1$variableId }
   if ('facetVariable2' %in% names(namedAttrList)) { facet2 <- namedAttrList$facetVariable2$variableId }
-  
+ 
+  # !!!!! work off a copy while writing json
+  # since we have two exported fxns, dont want calling one changing the result of the other
   if (!is.null(group)) {
-    data.table::setnames(.pd, group, 'overlayVariableDetails')
+    names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
     .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, group, namedAttrList$overlayVariable$entityId)
   }
 
   if (!is.null(facet1) & !is.null(facet2)) {
-    data.table::setnames(.pd, 'panel', 'facetVariableDetails')
+    names(.pd)[names(.pd) == 'panel'] <- 'facetVariableDetails'
     .pd$facetVariableDetails <- Map(list, lapply(strSplit(.pd$facetVariableDetails, '.||.'), makeVariableDetails, facet1, namedAttrList$facetVarialbe1$entityId), lapply(strSplit(.pd$facetVariableDetails, '.||.', index=2), makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId))
   } else {
     if (!is.null(facet1)) {
-      data.table::setnames(.pd, facet1, 'facetVariableDetails')
+      names(.pd)[names(.pd) == facet1] <- 'facetVariableDetails'
       .pd$facetVariableDetails <- lapply(.pd$facetVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId)
     } else if (!is.null(facet2)) {
-      data.table::setnames(.pd, facet2, 'facetVariableDetails')
+      names(.pd)[names(.pd) == facet2] <- 'facetVariableDetails'
       .pd$facetVariableDetails <- lapply(.pd$facetVariableDetails, makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId)
     }
   }
@@ -67,10 +84,21 @@ getJSON <- function(.pd) {
     if ('xAxisVariable' %in% names(namedAttrList)) {
       if (namedAttrList$xAxisVariable$dataType == 'STRING') {
         x <- namedAttrList$xAxisVariable$variableId
-        data.table::setnames(sampleSizeTable, x, 'xVariableDetails')
+        names(sampleSizeTable)[names(sampleSizeTable) == x] <- 'xVariableDetails'
         sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, x, namedAttrList$xAxisVariable$entityId)
+
       }
     }
+  }
+  
+  if ('completeCasesTable' %in% names(namedAttrList)) {
+    completeCasesTable <- completeCasesTable(.pd)
+    namedAttrList$completeCasesTable <- NULL
+    attr <- attributes(completeCasesTable)
+    completeCasesTable <- setAttrFromList(completeCasesTable, namedAttrList, removeExtraAttrs = F)
+    completeCasesTable <- addVariableDetailsToColumn(completeCasesTable, 'variableDetails')
+    attr$names <- names(completeCasesTable)
+    completeCasesTable <- setAttrFromList(completeCasesTable, attr)
   }
 
   .pd <- addStrataVariableDetails(.pd)
@@ -98,6 +126,9 @@ getJSON <- function(.pd) {
   }
   if (!inherits(statsTable, 'function')) {
     outList$statsTable <- statsTable
+  }
+  if (!inherits(completeCasesTable, 'function')) {
+    outList$completeCasesTable <- completeCasesTable
   }
 
   names(outList)[1] <- class

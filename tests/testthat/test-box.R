@@ -68,3 +68,21 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('panel', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'seriesX', 'seriesY', 'mean'))
 })
+
+test_that("box.dt() returns correct information about missing data", {
+  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.xy
+  
+  # Add 10 missing values to each column
+  df$x[sample(1:100, 10, replace=F)] <- NA
+  df$y[sample(1:100, 10, replace=F)] <- NA
+  df$group[sample(1:100, 10, replace=F)] <- NA
+  df$panel[sample(1:100, 10, replace=F)] <- NA
+  dt <- box.dt(df, map, 'none', FALSE)
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - 10
+  expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
+  # number of incompleteCases should be <= sum of incomplete cases within each var
+  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(nrow(df) - completecasestable$completeCases), TRUE)
+  
+})

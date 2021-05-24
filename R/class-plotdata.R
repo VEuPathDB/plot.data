@@ -46,6 +46,11 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1) }
   if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2) }
 
+  varCols <- c(x, y, z, group, facet1, facet2)
+  completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
+  completeCasesTable <- data.table::transpose(completeCasesTable, keep.names = 'variableDetails')
+  data.table::setnames(completeCasesTable, 'V1', 'completeCases')
+  
   panelData <- makePanels(.dt, facet1, facet2)
   .dt <- data.table::setDT(panelData[[1]])
   panel <- panelData[[2]]
@@ -53,6 +58,7 @@ newPlotdata <- function(.dt = data.table(),
   .dt <- .dt[, myCols, with=FALSE]
 
   incompleteCases <- jsonlite::unbox(nrow(.dt[!complete.cases(.dt),]))
+  
   .dt <- .dt[complete.cases(.dt),]
 
   if (xType == 'STRING') {
@@ -78,6 +84,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(y)) { attr$yAxisVariable <- yAxisVariable }
   if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
   attr$incompleteCases <- incompleteCases
+  attr$completeCasesTable <- completeCasesTable
   attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, group, panel)
   attr$class = c(class, 'plot.data', attr$class)
   if (!is.null(group)) { attr$overlayVariable <- overlayVariable }
@@ -113,4 +120,6 @@ validatePlotdata <- function(.pd) {
   return(.pd)
 }
 
+# Additional accessor functions
 sampleSizeTable <- function(.pd) { attr(.pd, 'sampleSizeTable') }
+completeCasesTable <- function(.pd) { attr(.pd, 'completeCasesTable')}

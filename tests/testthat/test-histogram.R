@@ -14,7 +14,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'incompleteCases','sampleSizeTable','facetVariable1', 'facetVariable2', 'summary', 'viewport', 'binSlider', 'binSpec'))
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'incompleteCases','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2', 'summary', 'viewport', 'binSlider', 'binSpec'))
   expect_equal(class(namedAttrList$incompleteCases),c('scalar', 'integer'))
   expect_equal(class(namedAttrList$summary$min),c('scalar', 'character'))
   expect_equal(class(namedAttrList$viewport$xMin),c('scalar', 'character'))
@@ -113,7 +113,7 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'incompleteCases','sampleSizeTable','facetVariable1', 'facetVariable2', 'summary', 'viewport', 'binSlider', 'binSpec'))
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'incompleteCases','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2', 'summary', 'viewport', 'binSlider', 'binSpec'))
   expect_equal(class(namedAttrList$incompleteCases),c('scalar', 'integer'))
   expect_equal(class(namedAttrList$summary$min),c('scalar', 'character'))
   expect_equal(class(namedAttrList$viewport$xMin),c('scalar', 'character'))
@@ -196,7 +196,7 @@ test_that("histogram() returns consistent and appropriately formatted json", {
   outJson <- getJSON(dt)
   expect_equal_to_reference(outJson, 'histogramJson.rds')
   jsonList <- jsonlite::fromJSON(outJson)
-  expect_equal(names(jsonList),c('histogram','sampleSizeTable'))
+  expect_equal(names(jsonList),c('histogram','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$histogram),c('data','config'))
   expect_equal(names(jsonList$histogram$data),c('overlayVariableDetails','facetVariableDetails','binLabel','binStart','binEnd','value'))
   expect_equal(names(jsonList$histogram$data$overlayVariableDetails),c('variableId','entityId','value'))
@@ -206,6 +206,7 @@ test_that("histogram() returns consistent and appropriately formatted json", {
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails', 'size'))
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   
 
   map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -217,7 +218,7 @@ test_that("histogram() returns consistent and appropriately formatted json", {
   outJson <- getJSON(dt)
   expect_equal_to_reference(outJson, 'histogramJson.twoFacets.rds')
   jsonList <- jsonlite::fromJSON(outJson)
-  expect_equal(names(jsonList),c('histogram','sampleSizeTable'))
+  expect_equal(names(jsonList),c('histogram','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$histogram),c('data','config'))
   expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','binStart','binEnd','value'))
   expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
@@ -228,4 +229,24 @@ test_that("histogram() returns consistent and appropriately formatted json", {
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
+})
+
+test_that("histogram.dt() returns correct information about missing data", {
+  map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- as.data.frame(bigData)
+  viewport <- list('xMin'=min(bigData$var), 'xMax'=max(bigData$var))
+  binReportValue <- 'binWidth'
+  
+  # Add 10 missing values to each column
+  df$var[sample(1:100, 10, replace=F)] <- NA
+  df$group[sample(1:100, 10, replace=F)] <- NA
+  df$panel[sample(1:100, 10, replace=F)] <- NA
+  
+  dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue, viewport)
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - 10
+  expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
+  # number of incompleteCases should be <= sum of incomplete cases within each var
+  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(nrow(df) - completecasestable$completeCases), TRUE) 
 })
