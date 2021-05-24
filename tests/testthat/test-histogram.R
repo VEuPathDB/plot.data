@@ -194,7 +194,6 @@ test_that("histogram() returns consistent and appropriately formatted json", {
 
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue, viewport)
   outJson <- getJSON(dt)
-  expect_equal_to_reference(outJson, 'histogramJson.rds')
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList),c('histogram','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$histogram),c('data','config'))
@@ -216,7 +215,6 @@ test_that("histogram() returns consistent and appropriately formatted json", {
 
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue, viewport)
   outJson <- getJSON(dt)
-  expect_equal_to_reference(outJson, 'histogramJson.twoFacets.rds')
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList),c('histogram','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$histogram),c('data','config'))
