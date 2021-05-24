@@ -129,7 +129,7 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$scatterplot$config),c('incompleteCases','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$scatterplot$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','size'))
-  expect_equal(names(jsonList$completeCasesTable),c('xVariableDetails','yVariableDetails','overlayVariableDetails','facetVariable1Details'))
+  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
 })
 
 
@@ -148,8 +148,7 @@ test_that("scattergl.dt() returns correct information about missing data", {
   dt <- scattergl.dt(df, map, 'raw')
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - 10
-  expect_equal(all(unlist(lapply(completecasestable, function(x) {x == NROW(df)-10}))), TRUE)
+  expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
   # number of incompleteCases should be <= sum of incomplete cases within each var
-  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(unlist(lapply(completecasestable, function(x) {NROW(df) - x}), `+`)), TRUE)
-  
+  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(nrow(df) - completecasestable$completeCases), TRUE) 
 })

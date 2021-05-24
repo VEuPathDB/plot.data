@@ -81,8 +81,8 @@ test_that("box.dt() returns correct information about missing data", {
   dt <- box.dt(df, map, 'none', FALSE)
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - 10
-  expect_equal(all(unlist(lapply(completecasestable, function(x) {x == NROW(df)-10}))), TRUE)
+  expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
   # number of incompleteCases should be <= sum of incomplete cases within each var
-  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(unlist(lapply(completecasestable, function(x) {NROW(df) - x}), `+`)), TRUE)
+  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(nrow(df) - completecasestable$completeCases), TRUE)
   
 })

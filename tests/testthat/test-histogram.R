@@ -206,7 +206,7 @@ test_that("histogram() returns consistent and appropriately formatted json", {
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails', 'size'))
-  expect_equal(names(jsonList$completeCasesTable), c('xVariableDetails', 'overlayVariableDetails', 'facetVariable1Details'))
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   
 
   map <- data.frame('id' = c('group', 'var', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -229,7 +229,7 @@ test_that("histogram() returns consistent and appropriately formatted json", {
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
-  expect_equal(names(jsonList$completeCasesTable), c('xVariableDetails', 'facetVariable1Details', 'facetVariable2Details'))
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
 })
 
 test_that("histogram.dt() returns correct information about missing data", {
@@ -246,8 +246,7 @@ test_that("histogram.dt() returns correct information about missing data", {
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue, viewport)
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - 10
-  expect_equal(all(unlist(lapply(completecasestable, function(x) {x == NROW(df)-10}))), TRUE)
+  expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
   # number of incompleteCases should be <= sum of incomplete cases within each var
-  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(unlist(lapply(completecasestable, function(x) {NROW(df) - x}), `+`)), TRUE)
-  
+  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(nrow(df) - completecasestable$completeCases), TRUE) 
 })
