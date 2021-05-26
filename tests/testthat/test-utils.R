@@ -1,10 +1,28 @@
 context('utils')
 
+test_that("smoothedMean returns correct types", {
+  dt <- data.table::data.table(x = c(1, 5, 2, 3, 4), y = 1:5)
+  sm <- smoothedMean(dt, 'loess')
+
+  expect_equal(class(unlist(sm$smoothedMeanX)),'character')
+  expect_equal(class(unlist(sm$smoothedMeanY)),'numeric')
+  expect_equal(class(unlist(sm$smoothedMeanSE)),'numeric')
+})
+
+test_that("bestFitLine returns correct types", {
+  dt <- data.table::data.table(x = c(1, 5, 2, 3, 4), y = 1:5)
+  bfl <- bestFitLine(dt)
+
+  expect_equal(class(unlist(bfl$bestFitLineX)),'character')
+  expect_equal(class(unlist(bfl$bestFitLineY)),'numeric')
+  expect_equal(class(unlist(bfl$r2)),'numeric')
+})
+
 test_that("smoothed data is ordered by x", {
   dt <- data.table::data.table(x = c(1, 5, 2, 3, 4), y = 1:5)
   sm <- smoothedMean(dt, 'loess')
 
-  expect_equal(unlist(sm$smoothedMeanX), dt$x[order(dt$x)])
+  expect_equal(as.numeric(unlist(sm$smoothedMeanX)), dt$x[order(dt$x)])
 })
 
 test_that("smoothedMean() returns a data.table", {

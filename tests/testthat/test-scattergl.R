@@ -9,6 +9,8 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),16)
   expect_equal(names(dt),c('group', 'panel', 'seriesX', 'seriesY'))
   expect_equal(as.character(range(df$date)), range(dt$seriesX))
+  expect_equal(class(unlist(dt$seriesX)),'character')
+  expect_equal(class(unlist(dt$seriesY)),'character')
 
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
@@ -35,6 +37,8 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('group', 'panel', 'seriesX', 'seriesY'))
   numericSeriesX <- lapply(dt$seriesX, as.numeric)
   expect_equal(range(df$x), range(numericSeriesX))
+  expect_equal(class(unlist(dt$seriesX)),'character')
+  expect_equal(class(unlist(dt$seriesY)),'character')
 
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')

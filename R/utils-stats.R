@@ -116,13 +116,11 @@ bestFitLine <- function(dt, collapse = TRUE) {
   linearModel <- stats::lm(y ~ x, dt)
 
   bestFitLine <- data.table::as.data.table(predictdf(linearModel, xseq))
+  bestFitLine$x <- as.character(bestFitLine$x)
   if (collapse) {
     bestFitLine <- bestFitLine[, lapply(.SD, list)]
   }
   data.table::setnames(bestFitLine, c('bestFitLineX', 'bestFitLineY'))
-  # if not collapsed, this col will be repetititve
-  # only good way around this is a dedicated class
-  # which probably not worth while considering how this fxn is used
   bestFitLine$r2 <- summary(linearModel)$r.squared
 
   return(bestFitLine)
@@ -165,9 +163,9 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
   }
 
   if (collapse) {
-    dt <- data.table::data.table("smoothedMeanX" = list(smoothed$x), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se))
+    dt <- data.table::data.table("smoothedMeanX" = list(as.character(smoothed$x)), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se))
   } else {
-    dt <- data.table::data.table("smoothedMeanX" = smoothed$x, "smoothedMeanY" = smoothed$y, "smoothedMeanSE" = smoothed$se)
+    dt <- data.table::data.table("smoothedMeanX" = as.character(smoothed$x), "smoothedMeanY" = smoothed$y, "smoothedMeanSE" = smoothed$se)
   }
 
   return(dt)
