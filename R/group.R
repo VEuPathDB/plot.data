@@ -46,18 +46,23 @@ groupStatistics <- function(data, x, y, group=NULL, panel=NULL, collapse=F) {
 nonparametricComparison <- function(y, g) {
   # y and g should be vectors of the same length. y contains values and g contains groups
   ## Add length check
+  if (!identical(length(xvec), length(yvec))) {
+    result <- NULL
+    print('length of input vectors must match')
+    return(result)
+  }
   
-  # If number of groups in g =2, then use wilcoxon. Otherwise use kruskal-wallis
-  if (uniqueN(g)==2) {
+  # If number of groups in g is 2, then use Wilcoxon rank sum Otherwise use Kruskal–Wallis
+  if (identical(uniqueN(g), 2)) {
     # do something
     print('wilcoxon')
-    result <- wilcox.test(y[g == unique(g)[1]], y[g == unique(g)[2]])
+    result <- wilcox.test(y[g == unique(g)[1]], y[g == unique(g)[2]], conf.level = 0.95, paired=F)
   } else {
     print('kruskal')
     result <- kruskal.test(y, g)
   }
   
-  ## Reformat result before returning?
+  # Reformat result before returning?
   return(result)
 }
 
