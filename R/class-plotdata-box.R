@@ -21,6 +21,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                                               'dataShape' = NULL),
                          points = character(),
                          mean = character(),
+                         computeStats = character(),
                          ...,
                          class = character()) {
 
@@ -42,7 +43,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   summary <- groupSummary(.pd, x, y, group, panel)
   fences <- groupFences(.pd, x, y, group, panel)
   fences <- fences[, -x, with = FALSE]
-  statistics <- groupStatistics(.pd, x, y, group, panel)
+
   if (!is.null(key(summary))) {
     .pd.base <- merge(summary, fences)
   } else {
@@ -78,7 +79,21 @@ newBoxPD <- function(.dt = data.table::data.table(),
       .pd.base <- cbind(.pd.base, mean)
     }
   }
+  
   .pd <- .pd.base
+
+  if (computeStats) {
+    if (is.null(group)) {
+      # If no overlay, then compute across x
+      statsTable <- nonparametricByGroup(data, numericCol=y, levelsCol=x, byCols=panel)
+
+    } else {
+      # compute across overlay values per panel
+      statsTable <- nonparametricByGroup(data, numericCol=y, levelsCol=group, byCols=c(x, panel))
+    }
+    .pd$statsTable <- statsTable
+  }
+  
   attr$names <- names(.pd)
 
   setAttrFromList(.pd, attr)
@@ -131,7 +146,7 @@ validateBoxPD <- function(.box) {
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @return data.table plot-ready data
 #' @export
-box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
+box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats) {
   points <- match.arg(points)
   if (!mean %in% c(FALSE, TRUE)) { 
     stop('invalid input to argument `mean`.') 
@@ -181,7 +196,8 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                     facetVariable1 = facetVariable1,
                     facetVariable2 = facetVariable2,
                     points,
-                    mean)
+                    mean,
+                    computeStats)
 
   .box <- validateBoxPD(.box)
 
