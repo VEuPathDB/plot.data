@@ -305,10 +305,8 @@ getR2.default <- function(model) {
 # Compute appropriate nonparametric test comparing multiple distributions.
 nonparametricComparison <- function(y, g) {
   # y and g should be vectors of the same length. y contains values and g contains groups
-  ## Add length check
   if (!identical(length(y), length(g))) {
     result <- NULL
-    print('length of input vectors must match')
     return(result)
   }
   
@@ -316,15 +314,14 @@ nonparametricComparison <- function(y, g) {
 
   # If number of groups in g is 2, then use Wilcoxon rank sum Otherwise use Kruskal–Wallis
   if (uniqueN(g) == 2) {
-    # do something
-    print('wilcoxon')
+    
     result <- wilcox.test(y[g == unique(g)[1]], y[g == unique(g)[2]], conf.level = 0.95, paired=F)
 
     
     # result <- list(result[c('statistic', 'p.value', 'parameter', 'method')])
     # print(result)
   } else {
-    print('kruskal')
+    
     result <- kruskal.test(y, g)
     # result <- list(result[c('statistic', 'p.value', 'parameter', 'method')])
   }
@@ -350,7 +347,6 @@ nonparametricByGroup <- function(data, numericCol, levelsCol, byCols = NULL) {
   } else {
     # Then run stats across overlay values based on byCols
     statsResults <- data[, .(nonparametricComparison(get(..numericCol), get(..levelsCol))) , by=eval(colnames(data)[colnames(data) %in% byCols])]
-    # data.table::setnames(statsResults, c(panel, x, 'statistics'))
   
   }
   
