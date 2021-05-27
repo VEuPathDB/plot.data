@@ -22,19 +22,20 @@ groupStatistics <- function(data, x, y, group=NULL, panel=NULL, collapse=F) {
   # Statistics will work differently based on if an overlay var is chosen.
   if (is.null(group)) {
     # Then we run stats across x values.
+    
     if (is.null(panel)) {
       # Only one panel to worry about
-      statsResults <- data.table::as.data.table(t((runKruskal(data[[y]], data[[x]]))))
-      data.table::setnames(statsResults, c('chisquared','pvalue'))
+      statsResults <- data.table::as.data.table(t(nonparametricComparison(data[[y]], data[[x]])))
+      data.table::setnames(statsResults, c('statistics'))
     } else {
       # Split by panel
-      statsResults <- data[, .(nonparametricComparison(get(..y), get(..x))$p.value, nonparametricComparison(get(..y), get(..x))$statistic) , by=eval(colnames(data)[colnames(data) %in% c(panel)])]
-      data.table::setnames(statsResults, c(panel, 'pvalue', 'chisquared'))
+      statsResults <- data[, .(nonparametricComparison(get(..y), get(..x))) , by=eval(colnames(data)[colnames(data) %in% c(panel)])]
+      data.table::setnames(statsResults, c(panel, 'statistics'))
     }
   } else {
     # Then run stats across overlay values per x per panel
-    statsResults <- data[, .(nonparametricComparison(get(..y), get(..group))$p.value, nonparametricComparison(get(..y), get(..group))$statistic) , by=eval(colnames(data)[colnames(data) %in% c(x, panel)])]
-    data.table::setnames(statsResults, c(x, panel, 'pvalue', 'chisquared'))
+    statsResults <- data[, .(nonparametricComparison(get(..y), get(..group))) , by=eval(colnames(data)[colnames(data) %in% c(x, panel)])]
+    data.table::setnames(statsResults, c(panel, x, 'statistics'))
   
   }
 
@@ -46,23 +47,36 @@ groupStatistics <- function(data, x, y, group=NULL, panel=NULL, collapse=F) {
 nonparametricComparison <- function(y, g) {
   # y and g should be vectors of the same length. y contains values and g contains groups
   ## Add length check
-  if (!identical(length(xvec), length(yvec))) {
+  if (!identical(length(y), length(g))) {
     result <- NULL
     print('length of input vectors must match')
     return(result)
   }
   
+  ## Any other checks for proper application of the following tests could go here.
+  print(unique(g))
   # If number of groups in g is 2, then use Wilcoxon rank sum Otherwise use Kruskal–Wallis
-  if (identical(uniqueN(g), 2)) {
+  if (uniqueN(g) == 2) {
     # do something
     print('wilcoxon')
     result <- wilcox.test(y[g == unique(g)[1]], y[g == unique(g)[2]], conf.level = 0.95, paired=F)
+
+    # result <- list(c(result$statistic, result$p.value))
+    result <- list(result[c('statistic', 'p.value', 'parameter', 'method')])
+    # print(result)
   } else {
     print('kruskal')
     result <- kruskal.test(y, g)
+    resuresult <- list(result[c('statistic', 'p.value', 'parameter', 'method')])lt <- list(result[c('statistic', 'p.value', 'parameter', 'method')])
   }
   
   # Reformat result before returning?
+  result <- list(result[c('statistic', 'p.value', 'parameter', 'method')])
+  
+  if(collapse) {
+    dt <- collapseByGroup(dt, group, panel)
+  }
+  
   return(result)
 }
 
