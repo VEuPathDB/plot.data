@@ -16,43 +16,48 @@ groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse
 }
 
 groupStatistics <- function(data, x, y, group=NULL, panel=NULL, collapse=F) {
-  # aggStr <- getAggStr(c(y, group), c(x, panel))
+  
+  setDT(data)
   
   # Statistics will work differently based on if an overlay var is chosen.
   if (is.null(group)) {
     # Then we run stats across x values.
     if (is.null(panel)) {
       # Only one panel to worry about
-      statsResults <- data.table::as.data.table(t((runKruskal(.pd[[y]], .pd[[x]]))))
-      data.table::setnames(statsResults, c('chisqrd','pvalue'))
+      statsResults <- data.table::as.data.table(t((runKruskal(data[[y]], data[[x]]))))
+      data.table::setnames(statsResults, c('chisquared','pvalue'))
     } else {
-      # NOT RUN statsResults <- sapply(split(.pd, .pd[[panel]]), function(z) runKruskal(z[[y]], z[[x]])
+      # Split by panel
+      statsResults <- data[, .(nonparametricComparison(get(..y), get(..x))$p.value, nonparametricComparison(get(..y), get(..x))$statistic) , by=eval(colnames(data)[colnames(data) %in% c(panel)])]
+      data.table::setnames(statsResults, c(panel, 'pvalue', 'chisquared'))
     }
   } else {
     # Then run stats across overlay values per x per panel
-    splitCols <- c(x, panel)
-    setDT(data)
-    statsResults <- data.table::as.data.table(t(sapply(
-      split(data, data[, ..splitCols]), 
-      function(v) runKruskal(v[[y]], v[[group]]))), keep.rownames=x)
-    # The above is not awesome because we don't really want those ugly 
-    # concatenated names
-    testCols <- c(y, group)
-    dt1 <- collapseByGroup(data, x, panel)
-    # dt2 <- lapply(dt1[, ..testCols], FUN=function(v) {runKruskal(v[[y]], v[[group]])})
-    dt2 <- dt1[, .(runKruskal(y, group)[1], runKruskal(y, group)[2])]
-    dt3 <- data[, sapply(.SD, function(v) {runKruskal(v[[y]], v[[group]])}), by=eval(colnames(data)[colnames(data) %in% c(group, panel)])]
-    a <- apply(cbind(dt1[[group]], dt1[[y]]), 1,
-               function(v) {runKruskal(v, y, group)})
+    statsResults <- data[, .(nonparametricComparison(get(..y), get(..group))$p.value, nonparametricComparison(get(..y), get(..group))$statistic) , by=eval(colnames(data)[colnames(data) %in% c(x, panel)])]
+    data.table::setnames(statsResults, c(x, panel, 'pvalue', 'chisquared'))
+  
   }
-    #????
-    a <- data[, .(runKruskal(.SD, y, group)[1], runKruskal(y, group)[2]), by=panel]
+
+  return (statsResults)
   
 }
 
-runKruskal <- function(df, y, g) {
-  result <- kruskal.test(df[[y]],df[[g]])
-  result <- c(result$statistic, result$p.value)
+
+nonparametricComparison <- function(y, g) {
+  # y and g should be vectors of the same length. y contains values and g contains groups
+  ## Add length check
+  
+  # If number of groups in g =2, then use wilcoxon. Otherwise use kruskal-wallis
+  if (uniqueN(g)==2) {
+    # do something
+    print('wilcoxon')
+    result <- wilcox.test(y[g == unique(g)[1]], y[g == unique(g)[2]])
+  } else {
+    print('kruskal')
+    result <- kruskal.test(y, g)
+  }
+  
+  ## Reformat result before returning?
   return(result)
 }
 
