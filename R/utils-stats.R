@@ -310,20 +310,15 @@ nonparametricComparison <- function(y, g) {
     return(result)
   }
   
+  ## Check g is character vector and y is numeric
+  
   ## Any other checks for proper application of the following tests could go here.
 
   # If number of groups in g is 2, then use Wilcoxon rank sum Otherwise use Kruskal–Wallis
   if (uniqueN(g) == 2) {
-    
     result <- wilcox.test(y[g == unique(g)[1]], y[g == unique(g)[2]], conf.level = 0.95, paired=F)
-
-    
-    # result <- list(result[c('statistic', 'p.value', 'parameter', 'method')])
-    # print(result)
   } else {
-    
     result <- kruskal.test(y, g)
-    # result <- list(result[c('statistic', 'p.value', 'parameter', 'method')])
   }
   
   # Reformat result before returning?
@@ -336,18 +331,11 @@ nonparametricComparison <- function(y, g) {
 nonparametricByGroup <- function(data, numericCol, levelsCol, byCols = NULL) {
   
   setDT(data)
-  ## Check levelsCol is character vector
   
-  # Statistics will work differently based on if an overlay var is chosen.
   if (is.null(byCols)) {
-
     statsResults <- data.table::as.data.table(t(nonparametricComparison(data[[numericCol]], data[[levelsCol]])))
-    # data.table::setnames(statsResults, c('statistics'))
-
   } else {
-    # Then run stats across overlay values based on byCols
     statsResults <- data[, .(nonparametricComparison(get(..numericCol), get(..levelsCol))) , by=eval(colnames(data)[colnames(data) %in% byCols])]
-  
   }
   
   data.table::setnames(statsResults, 'V1', 'statistics')

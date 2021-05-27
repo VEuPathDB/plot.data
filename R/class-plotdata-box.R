@@ -46,7 +46,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   
   if (computeStats) {
     if (is.null(group)) {
-      # If no overlay, then compute across x
+      # If no overlay, then compute across x per panel
       statsTable <- nonparametricByGroup(.pd, numericCol=y, levelsCol=x, byCols=panel)
       
     } else {
