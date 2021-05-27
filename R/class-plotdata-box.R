@@ -42,6 +42,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   summary <- groupSummary(.pd, x, y, group, panel)
   fences <- groupFences(.pd, x, y, group, panel)
   fences <- fences[, -x, with = FALSE]
+  statistics <- groupStatistics(.pd, x, y, group, panel)
   if (!is.null(key(summary))) {
     .pd.base <- merge(summary, fences)
   } else {

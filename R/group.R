@@ -15,6 +15,47 @@ groupSummary <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse
   return(dt)
 }
 
+groupStatistics <- function(data, x, y, group=NULL, panel=NULL, collapse=F) {
+  # aggStr <- getAggStr(c(y, group), c(x, panel))
+  
+  # Statistics will work differently based on if an overlay var is chosen.
+  if (is.null(group)) {
+    # Then we run stats across x values.
+    if (is.null(panel)) {
+      # Only one panel to worry about
+      statsResults <- data.table::as.data.table(t((runKruskal(.pd[[y]], .pd[[x]]))))
+      data.table::setnames(statsResults, c('chisqrd','pvalue'))
+    } else {
+      # NOT RUN statsResults <- sapply(split(.pd, .pd[[panel]]), function(z) runKruskal(z[[y]], z[[x]])
+    }
+  } else {
+    # Then run stats across overlay values per x per panel
+    splitCols <- c(x, panel)
+    setDT(data)
+    statsResults <- data.table::as.data.table(t(sapply(
+      split(data, data[, ..splitCols]), 
+      function(v) runKruskal(v[[y]], v[[group]]))), keep.rownames=x)
+    # The above is not awesome because we don't really want those ugly 
+    # concatenated names
+    testCols <- c(y, group)
+    dt1 <- collapseByGroup(data, x, panel)
+    # dt2 <- lapply(dt1[, ..testCols], FUN=function(v) {runKruskal(v[[y]], v[[group]])})
+    dt2 <- dt1[, .(runKruskal(y, group)[1], runKruskal(y, group)[2])]
+    dt3 <- data[, sapply(.SD, function(v) {runKruskal(v[[y]], v[[group]])}), by=eval(colnames(data)[colnames(data) %in% c(group, panel)])]
+    a <- apply(cbind(dt1[[group]], dt1[[y]]), 1,
+               function(v) {runKruskal(v, y, group)})
+  }
+    #????
+    a <- data[, .(runKruskal(.SD, y, group)[1], runKruskal(y, group)[2]), by=panel]
+  
+}
+
+runKruskal <- function(df, y, g) {
+  result <- kruskal.test(df[[y]],df[[g]])
+  result <- c(result$statistic, result$p.value)
+  return(result)
+}
+
 groupFences <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
   aggStr <- getAggStr(y, c(x, group, panel))
 
