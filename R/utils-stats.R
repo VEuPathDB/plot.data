@@ -303,7 +303,7 @@ getR2.default <- function(model) {
 }
 
 # Compute appropriate nonparametric test comparing multiple distributions.
-nonparametricComparison <- function(y, g) {
+nonparametricTest <- function(y, g) {
   # y and g should be vectors of the same length. y contains values and g contains groups
   if (!identical(length(y), length(g))) {
     result <- NULL
@@ -333,9 +333,9 @@ nonparametricByGroup <- function(data, numericCol, levelsCol, byCols = NULL) {
   setDT(data)
   
   if (is.null(byCols)) {
-    statsResults <- data.table::as.data.table(t(nonparametricComparison(data[[numericCol]], data[[levelsCol]])))
+    statsResults <- data.table::as.data.table(t(nonparametricTest(data[[numericCol]], data[[levelsCol]])))
   } else {
-    statsResults <- data[, .(nonparametricComparison(get(..numericCol), get(..levelsCol))) , by=eval(colnames(data)[colnames(data) %in% byCols])]
+    statsResults <- data[, .(nonparametricTest(get(..numericCol), get(..levelsCol))) , by=eval(colnames(data)[colnames(data) %in% byCols])]
   }
   
   data.table::setnames(statsResults, 'V1', 'statistics')
