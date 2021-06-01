@@ -158,17 +158,17 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   # Alternatively, could simply read which one is duplicated and work from there.
   # Actually, won't the heatmap need both x and y? That could work weird... Or will it...
   if (any(duplicated(map$plotRef))) {
-    listedVarPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
+    duplicatedVarPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
     # If length(listedVar) > 1, we're gonna have a bad time.
-    
-    # Check that listed var is what we expect.
-    varOrder <- map$id[map$plotRef == listedVarPlotRef]
-    data <- data.table::melt(data, measure.vars = varOrder, variable.factor = FALSE, variable.name='listedVar', value.name='listedValue')
     # now x to become variable and y to become value
     newVarPlotRef <- 'xAxisVariable'
     newValuePlotRef <- 'yAxisVariable'
     
-    map <- remapVariableList(map, listedVarPlotRef, newVarPlotRef, newValuePlotRef)
+    # Check that listed var is what we expect.
+    varOrder <- map$id[map$plotRef == duplicatedVarPlotRef]
+    data <- data.table::melt(data, measure.vars = varOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
+    
+    map <- remapVariableList(map, duplicatedVarPlotRef, newVarPlotRef, newValuePlotRef)
   }
 
   if ('xAxisVariable' %in% map$plotRef) {

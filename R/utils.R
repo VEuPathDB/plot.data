@@ -309,7 +309,7 @@ updateAttrById <- function(attrInd, attr, .dt) {
   return(NULL)
 }
 
-remapVariableList <- function(map, listedVarPlotRef, newVarPlotRef, newValuePlotRef, newVarId = 'variable', newValueId = 'value') {
+remapVariableList <- function(map, listedVarPlotRef, newVarPlotRef, newValuePlotRef, newVarId = 'meltedVariable', newValueId = 'meltedValue') {
   
   # to remap variables, require all those in listedVarPlotRef to be of same shape, type, and entity
   # any final checks?
