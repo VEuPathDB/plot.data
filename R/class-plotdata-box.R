@@ -152,6 +152,24 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
+  
+
+  # Box allows one possible listedVariable. Heatmap may allow two? 
+  # Alternatively, could simply read which one is duplicated and work from there.
+  # Actually, won't the heatmap need both x and y? That could work weird... Or will it...
+  if (any(duplicated(map$plotRef))) {
+    listedVarPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
+    # If length(listedVar) > 1, we're gonna have a bad time.
+    
+    # Check that listed var is what we expect.
+    varOrder <- map$id[map$plotRef == listedVarPlotRef]
+    data <- data.table::melt(data, measure.vars = varOrder, variable.factor = FALSE, variable.name='listedVar', value.name='listedValue')
+    # now x to become variable and y to become value
+    newVarPlotRef <- 'xAxisVariable'
+    newValuePlotRef <- 'yAxisVariable'
+    
+    map <- remapVariableList(map, listedVarPlotRef, newVarPlotRef, newValuePlotRef)
+  }
 
   if ('xAxisVariable' %in% map$plotRef) {
     xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')

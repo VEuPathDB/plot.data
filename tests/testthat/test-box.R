@@ -5,6 +5,9 @@ test_that("box.dt() returns an appropriately sized data.table", {
   map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.xy
 
+  map <- data.frame('id' = c('y', 'x', 'group'), 'plotRef' = c('xAxisVariable', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.xy
+  
   dt <- box.dt(df, map, 'none', FALSE)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)

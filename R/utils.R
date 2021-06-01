@@ -308,3 +308,37 @@ updateAttrById <- function(attrInd, attr, .dt) {
   data.table::setattr(.dt, names(attr)[attrInd], attr[[attrInd]])
   return(NULL)
 }
+
+remapVariableList <- function(map, listedVarPlotRef, newVarPlotRef, newValuePlotRef, newVarId = 'variable', newValueId = 'value') {
+  
+  # to remap variables, require all those in listedVarPlotRef to be of same shape, type, and entity
+  # any final checks?
+  listVarEntity <- unique(map$entityId[map$plotRef == listedVarPlotRef])
+  listVarType <- unique(map$dataType[map$plotRef == listedVarPlotRef])
+  listVarShape <- unique(map$dataShape[map$plotRef == listedVarPlotRef])
+  
+  newVar <- list('id' = newVarId, 'plotRef' = newVarPlotRef)
+  newValue <- list('id' = newValueId, 'plotRef' = newValuePlotRef)
+  if (!is.null(listVarEntity)) {
+    newVar$entityId <- listVarEntity
+    ## Assuming the value and variable are have the same entity!
+    newValue$entityId <- listVarEntity
+  }
+  if (!is.null(listVarType)) {
+    newVar$dataType <- 'STRING'
+    newValue$dataType <- listVarType
+  }
+  if (!is.null(listVarShape)) {
+    newVar$dataShape <- 'CATEGORICAL'
+    newValue$dataShape <- listVarShape
+  }
+  
+  # Remove all variables from the listed variables
+  map <- map[!(map$plotRef == listedVarPlotRef), ]  # Remove old ones
+  
+  # Add new variables
+  map <- rbind(map, newVar)
+  map <- rbind(map, newValue)
+  
+  return(map)
+}
