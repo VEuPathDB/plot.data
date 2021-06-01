@@ -149,23 +149,27 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
   xseq <- sort(unique(dt$x))
 
   if (method == 'loess') {
-    smoothed <- stats::loess(y ~ x, dt)
+    smoothed <- try(stats::loess(y ~ x, dt), silent = TRUE)
   } else if (method == 'gam') {
-    smoothed <- mgcv::gam(y ~ s(x, bs = "cs"), data = dt, method = "REML")
+    smoothed <- try(mgcv::gam(y ~ s(x, bs = "cs"), data = dt, method = "REML"), silent = TRUE)
   } else {
     stop('Unrecognized smoothing method.')
   }
 
-  smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
-
-  if (exists('dateMap')) {
-    smoothed$x <- dateMap[match(smoothed$x, dateMap$numeric),]$date
-  }
-
-  if (collapse) {
-    dt <- data.table::data.table("smoothedMeanX" = list(as.character(smoothed$x)), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se))
+  if (class(smoothed) == 'try-error') {
+    dt <- data.table::data.table("smoothedMeanX" = list(""), "smoothedMeanY" = list(""), "smoothedMeanSE" = list(""), "smoothedMeanError" = jsonlite::unbox(as.character(smoothed[1])))
   } else {
-    dt <- data.table::data.table("smoothedMeanX" = as.character(smoothed$x), "smoothedMeanY" = smoothed$y, "smoothedMeanSE" = smoothed$se)
+    smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
+
+    if (exists('dateMap')) {
+      smoothed$x <- dateMap[match(smoothed$x, dateMap$numeric),]$date
+    }
+
+    if (collapse) {
+      dt <- data.table::data.table("smoothedMeanX" = list(as.character(smoothed$x)), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se), "smoothedMeanError" = list(""))
+    } else {
+      dt <- data.table::data.table("smoothedMeanX" = as.character(smoothed$x), "smoothedMeanY" = smoothed$y, "smoothedMeanSE" = smoothed$se, "smoothedMeanError" = list(""))
+    }
   }
 
   return(dt)

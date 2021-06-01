@@ -1,5 +1,13 @@
 context('utils')
 
+test_that("smoothedMean passes along error messages for method `gam` w few values", {
+  dt <- data.table::data.table(x = c(1, 5, 2, 3, 4), y = 1:5)
+  sm <- smoothedMean(dt, 'gam')
+
+  expect_equal(as.character(sm$smoothedMeanError), "Error in smooth.construct.cr.smooth.spec(object, data, knots) : \n  x has insufficient unique values to support 10 knots: reduce k.\n")
+  expect_equal(class(sm$smoothedMeanError), c('scalar','character'))
+})
+
 test_that("smoothedMean returns correct types", {
   dt <- data.table::data.table(x = c(1, 5, 2, 3, 4), y = 1:5)
   sm <- smoothedMean(dt, 'loess')
