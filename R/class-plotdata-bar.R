@@ -31,6 +31,7 @@ newBarPD <- function(.dt = data.table::data.table(),
   x <- attr$xAxisVariable$variableId
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
+  .pd[[x]] <- as.character(.pd[[x]])
 
   if (value == 'identity') {
     .pd <- collapseByGroup(.pd, group, panel)

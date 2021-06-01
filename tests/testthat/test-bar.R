@@ -12,6 +12,7 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),16)
   expect_equal(names(dt),c('panel', 'label', 'value'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
+  expect_equal(class(unlist(dt$label)),'character')
   
   dt <- bar.dt(df, map, value='proportion')
   expect_is(dt, 'data.table')
