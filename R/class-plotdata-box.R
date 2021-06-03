@@ -173,9 +173,8 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     }
     
     # Check that listed var is what we expect.
-    varOrder <- map$id[map$plotRef == duplicatedVarPlotRef]
-    data <- data.table::melt(data, measure.vars = varOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
-    
+    duplicatedVarOrder <- map$id[map$plotRef == duplicatedVarPlotRef]
+    data <- data.table::melt(data, measure.vars = duplicatedVarOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
     map <- remapVariableList(map, duplicatedVarPlotRef, meltedVarPlotRef, meltedValuePlotRef)
   }
 
