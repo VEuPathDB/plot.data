@@ -166,9 +166,9 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
     }
 
     if (collapse) {
-      dt <- data.table::data.table("smoothedMeanX" = list(as.character(smoothed$x)), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se), "smoothedMeanError" = list(""))
+      dt <- data.table::data.table("smoothedMeanX" = list(as.character(smoothed$x)), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se), "smoothedMeanError" = jsonlite::unbox(""))
     } else {
-      dt <- data.table::data.table("smoothedMeanX" = as.character(smoothed$x), "smoothedMeanY" = smoothed$y, "smoothedMeanSE" = smoothed$se, "smoothedMeanError" = list(""))
+      dt <- data.table::data.table("smoothedMeanX" = as.character(smoothed$x), "smoothedMeanY" = smoothed$y, "smoothedMeanSE" = smoothed$se, "smoothedMeanError" = jsonlite::unbox(""))
     }
   }
 
