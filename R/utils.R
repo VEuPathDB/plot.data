@@ -253,6 +253,7 @@ strSplit <- function(str, pattern, ncol = 2, index = 1, fixed = TRUE) {
 findBinStart <- function(x) {
   if (all(grepl(" - ",x))) {
     x <- strSplit(x, " - ")
+    x <- paste0(x,'T00:00:00')
   } else {
     x <- gsub("\\(|\\[", "", strSplit(as.character(x), ","))
   }
@@ -268,6 +269,7 @@ findBinStart <- function(x) {
 findBinEnd <- function(x) {
   if (all(grepl(" - ",x))) {
     x <- strSplit(x, " - ", index = 2)
+    x <- paste0(x,'T00:00:00')
   } else {
     x <- gsub("\\)|\\]", "", strSplit(as.character(x), ",", index = 2))
   }
