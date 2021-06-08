@@ -68,11 +68,28 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('panel', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'seriesX', 'seriesY', 'mean'))
   
-  
+  ## Case when we input multiple vars as one to x axis
   map <- data.frame('id' = c('y', 'x', 'z', 'group'), 'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.xy
   df[, z := x+y]
   dt <- box.dt(df, map, 'none', FALSE)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt), 4)
+  expect_equal(names(dt),c('group', 'meltedVariable', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
+  expect_equal(unique(dt$meltedVariable)[[1]], c('x','y','z'))
+  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'meltedValue')
+  expect_equal(attr(dt, 'xAxisVariable')$variableId, 'meltedVariable')
+  
+  ## Case when we input multiple vars as one to facet 1
+  map <- data.frame('id' = c('y', 'x', 'z', 'group'), 'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  dt <- box.dt(df, map, 'none', FALSE)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt), 3)
+  expect_equal(names(dt),c('meltedVariable', 'group', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
+  expect_equal(unique(dt$meltedVariable), c('x','y','z'))
+  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'meltedValue')
+  expect_equal(attr(dt, 'facetVariable1')$variableId, 'meltedVariable')
   
 })
 
