@@ -193,6 +193,11 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     # Record variable order
     repeatedVarIdOrder <- map$id[map$plotRef == repeatedPlotRef]
     
+    # Check we do not have too many vars
+    if (length(repeatedVarIdOrder) > 10) {
+      stop("Only 10 or fewer repeated vars allowed.")
+    }
+    
     # Melt data and update the map 
     data <- data.table::melt(data, measure.vars = repeatedVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
     map <- remapVariableList(map, repeatedPlotRef, meltedVarPlotRef, meltedValuePlotRef)

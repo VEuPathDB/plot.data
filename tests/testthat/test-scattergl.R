@@ -147,8 +147,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   # Cases with repeated vars for one plot element
   map <- data.frame('id' = c('y', 'x', 'z', 'w', 'group'), 'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.xy
-  df[, z := x + y]
-  df[, w := x-y]
+  df[, c('z','w') := list(x+y, x-y)]
   
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')
