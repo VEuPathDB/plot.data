@@ -167,7 +167,7 @@ scattergl.dt <- function(data,
     
     # Scatter-specific flows
     #### Currently left un-optimized to ensure we have correct flows. 
-    if (repeatedPlotRef == 'overlayVariable') {
+    if (repeatedPlotRef == 'facetVariable1') {
       meltedVarPlotRef <- 'facetVariable1'
       meltedValuePlotRef <- 'yAxisVariable'
     } else {
