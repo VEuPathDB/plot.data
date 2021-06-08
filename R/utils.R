@@ -311,17 +311,19 @@ updateAttrById <- function(attrInd, attr, .dt) {
 
 remapVariableList <- function(map, listedVarPlotRef, newVarPlotRef, newValuePlotRef, newVarId = 'meltedVariable', newValueId = 'meltedValue') {
   
-  # to remap variables, require all those in listedVarPlotRef to be of same shape, type, and entity
-  # any final checks?
   listVarEntity <- unique(map$entityId[map$plotRef == listedVarPlotRef])
   listVarType <- unique(map$dataType[map$plotRef == listedVarPlotRef])
   listVarShape <- unique(map$dataShape[map$plotRef == listedVarPlotRef])
+  
+  # Require all repeated vars to have the same type, shape, and entity
+  if (length(unique(listVarEntity)) > 1 | length(unique(listVarType)) > 1 | length(unique(listVarShape)) > 1) {
+    stop("Repeated vars must have the same entity id, type, and shape.")
+  }
   
   newVar <- list('id' = newVarId, 'plotRef' = newVarPlotRef)
   newValue <- list('id' = newValueId, 'plotRef' = newValuePlotRef)
   if (!is.null(listVarEntity)) {
     newVar$entityId <- listVarEntity
-    ## Assuming the value and variable are have the same entity!
     newValue$entityId <- listVarEntity
   }
   if (!is.null(listVarType)) {
@@ -333,8 +335,8 @@ remapVariableList <- function(map, listedVarPlotRef, newVarPlotRef, newValuePlot
     newValue$dataShape <- listVarShape
   }
   
-  # Remove all variables from the listed variables
-  map <- map[!(map$plotRef == listedVarPlotRef), ]  # Remove old ones
+  # Remove all repeated variables from map
+  map <- map[!(map$plotRef == listedVarPlotRef), ]
   
   # Add new variables
   map <- rbind(map, newVar)
