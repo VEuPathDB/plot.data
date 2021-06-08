@@ -149,6 +149,44 @@ scattergl.dt <- function(data,
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
+  
+  
+  # Handle repeated plot references
+  if (any(duplicated(map$plotRef))) {
+    repeatedPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
+    
+    # Only allow one plot element to be a list var 
+    if (length(repeatedPlotRef) > 1) {
+      stop("Only one plot element can contain multiple vars.")
+    }
+    
+    # Ensure repeatedPlotRef is numeric
+    if (any(map$dataType[map$plotRef == repeatedPlotRef] != 'NUMBER')) {
+      stop(paste0("All vars in ", repeatedPlotRef, " must be of type NUMBER."))
+    }
+    
+    # Scatter-specific flows
+    #### Currently left un-optimized to ensure we have correct flows. 
+    if (repeatedPlotRef == 'overlayVariable') {
+      meltedVarPlotRef <- 'facetVariable1'
+      meltedValuePlotRef <- 'yAxisVariable'
+    } else {
+      stop("Incompatable repeated variable")
+    }
+    
+    # Check to ensure meltedValuePlotRef is not already defined
+    if (any(map$plotRef == meltedValuePlotRef)) {
+      stop(paste0("Cannot melt data: ", meltedValuePlotRef, " already defined."))
+    }
+    
+    # Record variable order
+    repeatedVarIdOrder <- map$id[map$plotRef == repeatedPlotRef]
+    
+    # Melt data and update the map 
+    data <- data.table::melt(data, measure.vars = repeatedVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
+    map <- remapVariableList(map, repeatedPlotRef, meltedVarPlotRef, meltedValuePlotRef)
+    
+  }
 
   if ('xAxisVariable' %in% map$plotRef) {
     xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
