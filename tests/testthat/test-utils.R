@@ -89,3 +89,17 @@ test_that("contingencyDT() returns appropriately sized data.table", {
   expect_equal(nrow(dt),data.table::uniqueN(data.binned$x))
   expect_equal(length(dt),data.table::uniqueN(data.binned$y)+1)
 })
+
+test_that("remapVariableList appropriately updates map", {
+  
+  map <- data.frame('id' = c('a','b','c'),
+                    'plotRef' = c('xAxisVariable', 'xAxisVariable', 'overlayVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'),
+                    'entityId' = c('e1', 'e1', 'e2'), stringsAsFactors=FALSE)
+  
+  newMap <- remapVariableList(map, 'xAxisVariable', 'xAxisVariable', 'yAxisVariable')
+  expect_equal(newMap$id, c('c', 'meltedVariable','meltedValue'))
+  expect_equal(newMap$plotRef, c('overlayVariable', 'xAxisVariable', 'yAxisVariable'))
+  expect_equal(newMap$dataType, c('STRING', 'STRING', 'NUMBER'))
+})
