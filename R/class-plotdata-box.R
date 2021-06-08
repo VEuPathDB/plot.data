@@ -153,29 +153,47 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     data.table::setDT(data)
   }
   
+  # For future variable order work
+  varOrder <- list('xAxisVariable' = NULL,
+                   'yAxisVariable' = NULL,
+                   'overlayVariable' = NULL,
+                   'facetVariable1' = NULL,
+                   'facetVariable2' = NULL)
+  
 
-  # Box allows one possible duplicatedVarPlotRef that is either xAxis or facet1 (for now)
+  # Box allows one possible duplicatedPlotRef that is either xAxis or facet1.
   if (any(duplicated(map$plotRef))) {
-    duplicatedVarPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
-    # If length(duplicatedVarPlotRef) > 1, we're gonna have a bad time. For now assume only 1
+    repeatedPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
     
-    ## Box-specific flows
-    if (duplicatedVarPlotRef == 'xAxisVariable') {
-      # Check no yAxisVariable exists
-      meltedVarPlotRef <- 'xAxisVariable'
-      meltedValuePlotRef <- 'yAxisVariable'
-    } else if (duplicatedVarPlotRef == 'facetVariable1') {
-      # Check that there are no facets or only one facet. First pass assume no facets and no yAxisVariable
-      meltedVarPlotRef <- 'facetVariable1'
-      meltedVariablePlotRef <- 'yAxisVariable'
-    } else {
-      stop("Incompatable duplicated variable")
+    # Only allow one plot element to be a list var 
+    if (length(repeatedPlotRef) > 1) {
+      stop("Only one plot element can contain multiple vars.")
     }
     
-    # Check that listed var is what we expect.
-    duplicatedVarOrder <- map$id[map$plotRef == duplicatedVarPlotRef]
+    # Box-specific flows
+    #### Currently left un-optimized to ensure we have correct flows. 
+    if (repeatedPlotRef == 'xAxisVariable') {
+      meltedVarPlotRef <- 'xAxisVariable'
+      meltedValuePlotRef <- 'yAxisVariable'
+    } else if (repeatedPlotRef == 'facetVariable1') {
+      meltedVarPlotRef <- 'facetVariable1'
+      meltedValuePlotRef <- 'yAxisVariable'
+    } else {
+      stop("Incompatable repeated variable")
+    }
+    
+    # Check to ensure meltedValuePlotRef is not already defined
+    if (any(map$plotRef == meltedValuePlotRef)) {
+      stop(paste0("Cannot melt data: ", meltedValuePlotRef, " already defined"))
+    }
+    
+    # Record variable order for later
+    varOrder[meltedVarPlotRef] <- map$id[map$plotRef == repeatedPlotRef]
+    
+    # Melt data and update the map 
     data <- data.table::melt(data, measure.vars = duplicatedVarOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
     map <- remapVariableList(map, duplicatedVarPlotRef, meltedVarPlotRef, meltedValuePlotRef)
+    
   }
 
   if ('xAxisVariable' %in% map$plotRef) {
