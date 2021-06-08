@@ -185,6 +185,11 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
       stop(paste0("Cannot melt data: ", meltedValuePlotRef, " already defined."))
     }
     
+    # Check to ensure if repeatedPlotRef is facet that there are no other facet vars.
+    if (repeatedPlotRef == 'facetVariable1' & any(map$plotRef == 'facetVariable2')) {
+      stop("facetVariable2 should be NULL when using repeated var for facetVariable1")
+    }
+    
     # Record variable order
     repeatedVarIdOrder <- map$id[map$plotRef == repeatedPlotRef]
     
