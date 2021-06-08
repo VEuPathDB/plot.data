@@ -153,21 +153,19 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     data.table::setDT(data)
   }
   
-  # For future variable order work
-  varOrder <- list('xAxisVariable' = NULL,
-                   'yAxisVariable' = NULL,
-                   'overlayVariable' = NULL,
-                   'facetVariable1' = NULL,
-                   'facetVariable2' = NULL)
-  
 
-  # Box allows one possible duplicatedPlotRef that is either xAxis or facet1.
+  # Handle repeated plot references
   if (any(duplicated(map$plotRef))) {
     repeatedPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
     
     # Only allow one plot element to be a list var 
     if (length(repeatedPlotRef) > 1) {
       stop("Only one plot element can contain multiple vars.")
+    }
+    
+    # Ensure repeatedPlotRef is numeric
+    if (any(map$dataType[map$plotRef == repeatedPlotRef] != 'NUMBER')) {
+      stop(paste0("All vars in ", repeatedPlotRef, " must be of type NUMBER."))
     }
     
     # Box-specific flows
@@ -184,15 +182,15 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     
     # Check to ensure meltedValuePlotRef is not already defined
     if (any(map$plotRef == meltedValuePlotRef)) {
-      stop(paste0("Cannot melt data: ", meltedValuePlotRef, " already defined"))
+      stop(paste0("Cannot melt data: ", meltedValuePlotRef, " already defined."))
     }
     
-    # Record variable order for later
-    varOrder[meltedVarPlotRef] <- map$id[map$plotRef == repeatedPlotRef]
+    # Record variable order
+    repeatedVarIdOrder <- map$id[map$plotRef == repeatedPlotRef]
     
     # Melt data and update the map 
-    data <- data.table::melt(data, measure.vars = duplicatedVarOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
-    map <- remapVariableList(map, duplicatedVarPlotRef, meltedVarPlotRef, meltedValuePlotRef)
+    data <- data.table::melt(data, measure.vars = repeatedVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
+    map <- remapVariableList(map, repeatedPlotRef, meltedVarPlotRef, meltedValuePlotRef)
     
   }
 

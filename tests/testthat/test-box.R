@@ -4,9 +4,6 @@ test_that("box.dt() returns an appropriately sized data.table", {
   #using panel for xaxis.. maybe make another test.dt for this?
   map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.xy
-
-  map <- data.frame('id' = c('y', 'x', 'group'), 'plotRef' = c('xAxisVariable', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  df <- data.xy
   
   dt <- box.dt(df, map, 'none', FALSE)
   expect_is(dt, 'data.table')
@@ -70,6 +67,13 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('panel', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'seriesX', 'seriesY', 'mean'))
+  
+  
+  map <- data.frame('id' = c('y', 'x', 'z', 'group'), 'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.xy
+  df[, z := x+y]
+  dt <- box.dt(df, map, 'none', FALSE)
+  
 })
 
 test_that("box.dt() returns correct information about missing data", {
