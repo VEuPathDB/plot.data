@@ -156,10 +156,9 @@ scattergl.dt <- function(data,
 
     listVarPlotRef <- getListVar(map)
     
-    # Scatter-specific flows
-    #### Currently left un-optimized to ensure we have correct flows. 
+    # Scatter-specific
     if (listVarPlotRef == 'facetVariable1') {
-      meltedVarPlotRef <- 'facetVariable1'
+      meltedVarPlotRef <- listVarPlotRef
       meltedValuePlotRef <- 'yAxisVariable'
     } else {
       stop("Incompatable repeated variable")

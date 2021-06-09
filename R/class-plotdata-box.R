@@ -159,13 +159,9 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     
     listVarPlotRef <- getListVar(map)
     
-    # Box-specific flows
-    #### Currently left un-optimized to ensure we have correct flows. 
-    if (listVarPlotRef == 'xAxisVariable') {
-      meltedVarPlotRef <- 'xAxisVariable'
-      meltedValuePlotRef <- 'yAxisVariable'
-    } else if (listVarPlotRef == 'facetVariable1') {
-      meltedVarPlotRef <- 'facetVariable1'
+    # Box-specific
+    if (listVarPlotRef == 'xAxisVariable' | listVarPlotRef == 'facetVariable1') {
+      meltedVarPlotRef <- listVarPlotRef
       meltedValuePlotRef <- 'yAxisVariable'
     } else {
       stop("Incompatable repeated variable")
