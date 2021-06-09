@@ -344,3 +344,31 @@ remapVariableList <- function(map, listedVarPlotRef, newVarPlotRef, newValuePlot
   
   return(map)
 }
+
+
+extractListVar <- function(map) {
+
+  repeatedPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
+    
+    # Only allow one plot element to be a list var 
+    if (length(repeatedPlotRef) > 1) {
+      stop("Only one plot element can contain multiple vars.")
+    }
+    
+    # Ensure repeatedPlotRef is numeric
+    if (any(map$dataType[map$plotRef == repeatedPlotRef] != 'NUMBER')) {
+      stop(paste0("All vars in ", repeatedPlotRef, " must be of type NUMBER."))
+    }
+
+    # Check to ensure if repeatedPlotRef is facet that there are no other facet vars.
+    if (repeatedPlotRef == 'facetVariable1' & any(map$plotRef == 'facetVariable2')) {
+      stop("facetVariable2 should be NULL when using repeated var for facetVariable1")
+    }
+
+    # Check we do not have too many vars
+    if (length(map$id[map$plotRef == repeatedPlotRef]) > 10) {
+      stop("Only 10 or fewer repeated vars allowed.")
+    }
+
+    return(repeatedPlotRef)
+}

@@ -153,17 +153,7 @@ scattergl.dt <- function(data,
   
   # Handle repeated plot references
   if (any(duplicated(map$plotRef))) {
-    repeatedPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
-    
-    # Only allow one plot element to be a list var 
-    if (length(repeatedPlotRef) > 1) {
-      stop("Only one plot element can contain multiple vars.")
-    }
-    
-    # Ensure repeatedPlotRef is numeric
-    if (any(map$dataType[map$plotRef == repeatedPlotRef] != 'NUMBER')) {
-      stop(paste0("All vars in ", repeatedPlotRef, " must be of type NUMBER."))
-    }
+    repeatedPlotRef <- extractListVar(map)
     
     # Scatter-specific flows
     #### Currently left un-optimized to ensure we have correct flows. 
@@ -179,18 +169,8 @@ scattergl.dt <- function(data,
       stop(paste0("Cannot melt data: ", meltedValuePlotRef, " already defined."))
     }
     
-    # Check to ensure if repeatedPlotRef is facet that there are no other facet vars.
-    if (repeatedPlotRef == 'facetVariable1' & any(map$plotRef == 'facetVariable2')) {
-      stop("facetVariable2 should be NULL when using repeated var for facetVariable1")
-    }
-    
     # Record variable order
     repeatedVarIdOrder <- map$id[map$plotRef == repeatedPlotRef]
-    
-    # Check we do not have too many vars
-    if (length(repeatedVarIdOrder) > 10) {
-      stop("Only 10 or fewer repeated vars allowed.")
-    }
     
     # Melt data and update the map 
     data <- data.table::melt(data, measure.vars = repeatedVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
