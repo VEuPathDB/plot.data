@@ -153,11 +153,12 @@ scattergl.dt <- function(data,
   
   # Handle repeated plot references
   if (any(duplicated(map$plotRef))) {
-    repeatedPlotRef <- extractListVar(map)
+
+    listVarPlotRef <- getListVar(map)
     
     # Scatter-specific flows
     #### Currently left un-optimized to ensure we have correct flows. 
-    if (repeatedPlotRef == 'facetVariable1') {
+    if (listVarPlotRef == 'facetVariable1') {
       meltedVarPlotRef <- 'facetVariable1'
       meltedValuePlotRef <- 'yAxisVariable'
     } else {
@@ -170,11 +171,11 @@ scattergl.dt <- function(data,
     }
     
     # Record variable order
-    repeatedVarIdOrder <- map$id[map$plotRef == repeatedPlotRef]
+    listVarIdOrder <- map$id[map$plotRef == listVarPlotRef]
     
     # Melt data and update the map 
-    data <- data.table::melt(data, measure.vars = repeatedVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
-    map <- remapVariableList(map, repeatedPlotRef, meltedVarPlotRef, meltedValuePlotRef)
+    data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
+    map <- remapListVar(map, listVarPlotRef, meltedVarPlotRef, meltedValuePlotRef)
     
   } # end handling of repeated plot element references
 

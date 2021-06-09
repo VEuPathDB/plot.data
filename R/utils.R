@@ -309,15 +309,15 @@ updateAttrById <- function(attrInd, attr, .dt) {
   return(NULL)
 }
 
-remapVariableList <- function(map, listedVarPlotRef, newVarPlotRef, newValuePlotRef, newVarId = 'meltedVariable', newValueId = 'meltedValue') {
+remapListVar <- function(map, listVarPlotRef, newVarPlotRef, newValuePlotRef, newVarId = 'meltedVariable', newValueId = 'meltedValue') {
   
-  listVarEntity <- unique(map$entityId[map$plotRef == listedVarPlotRef])
-  listVarType <- unique(map$dataType[map$plotRef == listedVarPlotRef])
-  listVarShape <- unique(map$dataShape[map$plotRef == listedVarPlotRef])
+  listVarEntity <- unique(map$entityId[map$plotRef == listVarPlotRef])
+  listVarType <- unique(map$dataType[map$plotRef == listVarPlotRef])
+  listVarShape <- unique(map$dataShape[map$plotRef == listVarPlotRef])
   
   # Require all repeated vars to have the same type, shape, and entity
-  if (length(unique(listVarEntity)) > 1 | length(unique(listVarType)) > 1 | length(unique(listVarShape)) > 1) {
-    stop("Repeated vars must have the same entity id, type, and shape.")
+  if (uniqueN(listVarEntity) > 1 | uniqueN(listVarType) > 1 | uniqueN(listVarShape) > 1) {
+    stop("All vars in a listVar must have the same entity id, type, and shape.")
   }
   
   newVar <- list('id' = newVarId, 'plotRef' = newVarPlotRef)
@@ -336,7 +336,7 @@ remapVariableList <- function(map, listedVarPlotRef, newVarPlotRef, newValuePlot
   }
   
   # Remove all repeated variables from map
-  map <- map[!(map$plotRef == listedVarPlotRef), ]
+  map <- map[!(map$plotRef == listVarPlotRef), ]
   
   # Add new variables
   map <- rbind(map, newVar)
@@ -346,29 +346,31 @@ remapVariableList <- function(map, listedVarPlotRef, newVarPlotRef, newValuePlot
 }
 
 
-extractListVar <- function(map) {
+getListVar <- function(map) {
 
-  repeatedPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
+  # Identify the list var based on any plotRef that is repeated
+  listVarPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
     
-    # Only allow one plot element to be a list var 
-    if (length(repeatedPlotRef) > 1) {
-      stop("Only one plot element can contain multiple vars.")
-    }
-    
-    # Ensure repeatedPlotRef is numeric
-    if (any(map$dataType[map$plotRef == repeatedPlotRef] != 'NUMBER')) {
-      stop(paste0("All vars in ", repeatedPlotRef, " must be of type NUMBER."))
-    }
+  # Validate repeatedPlotRef
+  # Only allow one plot element to be a list var 
+  if (length(listVarPlotRef) > 1) {
+    stop("Only one plot element can be a listVar.")
+  }
+  
+  # Ensure repeatedPlotRef is numeric
+  if (any(map$dataType[map$plotRef == listVarPlotRef] != 'NUMBER')) {
+    stop(paste0("All vars in ", listVarPlotRef, " must be of type NUMBER."))
+  }
 
-    # Check to ensure if repeatedPlotRef is facet that there are no other facet vars.
-    if (repeatedPlotRef == 'facetVariable1' & any(map$plotRef == 'facetVariable2')) {
-      stop("facetVariable2 should be NULL when using repeated var for facetVariable1")
-    }
+  # Check to ensure if repeatedPlotRef is facet that there are no other facet vars.
+  if (listVarPlotRef == 'facetVariable1' & any(map$plotRef == 'facetVariable2')) {
+    stop("facetVariable2 should be NULL when using listVar for facetVariable1.")
+  }
 
-    # Check we do not have too many vars
-    if (length(map$id[map$plotRef == repeatedPlotRef]) > 10) {
-      stop("Only 10 or fewer repeated vars allowed.")
-    }
+  # Check we do not have too many vars
+  if (length(map$id[map$plotRef == listVarPlotRef]) > 10) {
+    stop("Only 10 or fewer vars allowed in a listVar.")
+  }
 
-    return(repeatedPlotRef)
+  return(listVarPlotRef)
 }

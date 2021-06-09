@@ -157,14 +157,14 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   # Handle repeated plot references
   if (any(duplicated(map$plotRef))) {
     
-    repeatedPlotRef <- extractListVar(map)
+    listVarPlotRef <- getListVar(map)
     
     # Box-specific flows
     #### Currently left un-optimized to ensure we have correct flows. 
-    if (repeatedPlotRef == 'xAxisVariable') {
+    if (listVarPlotRef == 'xAxisVariable') {
       meltedVarPlotRef <- 'xAxisVariable'
       meltedValuePlotRef <- 'yAxisVariable'
-    } else if (repeatedPlotRef == 'facetVariable1') {
+    } else if (listVarPlotRef == 'facetVariable1') {
       meltedVarPlotRef <- 'facetVariable1'
       meltedValuePlotRef <- 'yAxisVariable'
     } else {
@@ -177,11 +177,11 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     }
 
     # Record variable order
-    repeatedVarIdOrder <- map$id[map$plotRef == repeatedPlotRef]
+    listVarIdOrder <- map$id[map$plotRef == listVarPlotRef]
     
     # Melt data and update the map 
-    data <- data.table::melt(data, measure.vars = repeatedVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
-    map <- remapVariableList(map, repeatedPlotRef, meltedVarPlotRef, meltedValuePlotRef)
+    data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
+    map <- remapListVar(map, listVarPlotRef, meltedVarPlotRef, meltedValuePlotRef)
     
   } # end handling of repeated plot element references
 
