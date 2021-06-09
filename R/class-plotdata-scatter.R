@@ -157,7 +157,7 @@ scattergl.dt <- function(data,
     listVarPlotRef <- getListVar(map)
     
     # Scatter-specific
-    if (listVarPlotRef == 'facetVariable1') {
+    if (listVarPlotRef == 'facetVariable1' | listVarPlotRef == 'overlayVariable') {
       meltedVarPlotRef <- listVarPlotRef
       meltedValuePlotRef <- 'yAxisVariable'
     } else {

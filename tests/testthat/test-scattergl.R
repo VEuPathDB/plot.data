@@ -154,6 +154,18 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt), 12)
   expect_equal(names(dt), c('group', 'meltedVariable', 'seriesX', 'seriesY'))
   expect_equal(unique(dt$meltedVariable), c('x', 'y', 'z'))
+  expect_equal(attr(dt, 'facetVariable1')$variableId, 'meltedVariable')
+  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'meltedValue')
+  
+  map <- data.frame('id' = c('y', 'x', 'z', 'w', 'group'), 'plotRef' = c('overlayVariable', 'overlayVariable', 'overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- scattergl.dt(df, map, 'raw')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt), 12)
+  expect_equal(names(dt), c('meltedVariable', 'group', 'seriesX', 'seriesY'))
+  expect_equal(unique(dt$meltedVariable), c('x', 'y', 'z'))
+  expect_equal(attr(dt, 'overlayVariable')$variableId, 'meltedVariable')
+  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'meltedValue')
   
 })
 
