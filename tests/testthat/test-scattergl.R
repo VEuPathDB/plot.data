@@ -157,13 +157,13 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'raw')
   expect_equal(nrow(dt), 16)
   expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'z'))
-  expect_equal(length(dt$z[[1]]), length(dt$serisX[[1]]))
+  expect_equal(length(dt$z[[1]]), length(dt$seriesX[[1]]))
   
   map <- data.frame('id' = c('y', 'x', 'panel', 'z'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
   dt <- scattergl.dt(df, map, 'raw')
   expect_equal(nrow(dt), 4)
   expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'z'))
-  expect_equal(length(dt$z[[1]]), length(dt$serisX[[1]]))
+  expect_equal(length(dt$z[[1]]), length(dt$seriesX[[1]]))
   
   
 })

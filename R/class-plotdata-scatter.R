@@ -38,7 +38,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
-  if (attr$overlayVariable$dataShape == 'CONTINUOUS') {
+  if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
     series <- collapseByGroup(.pd, group = NULL, panel)
     data.table::setnames(series, c(panel, 'seriesX', 'seriesY', group))
   } else {
