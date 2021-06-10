@@ -91,13 +91,10 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   map <- data.frame('id' = c('xcat', 'y'), 'plotRef' = c('xAxisVariable', 'yAxisVariable'), 'dataType' = c('STRING', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.xy)
   df['xcat'] <- sample(c('x1','x2','x3'), 500, replace=T) # Add another categorical var
-  # The following will err for not having enough values in some group once in a blue moon
   
   # No overlay, no facets
   dt <- box.dt(df, map, 'none', FALSE, TRUE)
   statsTable <- attr(dt, 'statsTable')
-  realStats <- kruskal.test(df$y, df$xcat)
-  # expect_equal(statsTable$statistics[[1]]$statistic, realStats$statistic)
   expect_equal(nrow(statsTable), 1)
   expect_equal(ncol(statsTable), 1)
   
@@ -105,8 +102,6 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   map <- data.frame('id' = c('xcat', 'y', 'panel'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt <- box.dt(df, map, 'none', FALSE, TRUE)
   statsTable <- attr(dt, 'statsTable')
-  realStats <- kruskal.test(df[df$panel=='panel1']$y, df[df$panel=='panel1']$xcat)
-  # expect_equal(statsTable$statistics[statsTable$panel == 'panel1'][[1]]$statistic, realStats$statistic)
   expect_equal(nrow(statsTable), uniqueN(df$panel))
   expect_equal(ncol(statsTable), 2)
   
@@ -114,8 +109,6 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   map <- data.frame('id' = c('xcat', 'y', 'group'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt <- box.dt(df, map, 'none', FALSE, TRUE)
   statsTable <- attr(dt, 'statsTable')
-  realStats <- kruskal.test(df[df$xcat == 'x1']$y, df[df$xcat == 'x1']$group)
-  # expect_equal(statsTable$statistics[statsTable$xcat == 'x1'][[1]]$statistic, realStats$statistic)
   expect_equal(nrow(statsTable), uniqueN(df$xcat))
   expect_equal(ncol(statsTable), 2)
   
@@ -123,8 +116,6 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   map <- data.frame('id' = c('xcat', 'y', 'group', 'panel'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt <- box.dt(df, map, 'none', FALSE, TRUE)
   statsTable <- attr(dt, 'statsTable')
-  realStats <- kruskal.test(df[df$xcat == 'x1' & df$panel=='panel1']$y, df[df$xcat == 'x1'& df$panel=='panel1']$group)
-  # expect_equal(statsTable$statistics[statsTable$xcat == 'x1' & statsTable$panel == 'panel1'][[1]]$statistic, realStats$statistic)
   expect_equal(nrow(statsTable), uniqueN(df$xcat)*uniqueN(df$panel))
   expect_equal(ncol(statsTable), 3)
   

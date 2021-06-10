@@ -316,7 +316,7 @@ nonparametricTest <- function(values, groups) {
     stop("values vector should contain numbers.")
   }
 
-  # If number of groups in g is 2, then use Wilcoxon rank sum Otherwise use Kruskal–Wallis
+  # If there are only 2 groups, use Wilcoxon rank sum. Otherwise use Kruskal–Wallis
   if (uniqueN(groups) == 2) {
     testResult <- try(wilcox.test(values[groups == unique(groups)[1]], values[groups == unique(groups)[2]], conf.level = 0.95, paired=F), silent = TRUE)
   } else {
@@ -337,7 +337,7 @@ nonparametricTest <- function(values, groups) {
   return(testResult)
 }
 
-# Compute statistics for values in numericCol based upon levelsCol, grouped by byCols
+# Compute statistics for values in numericCol based on levelsCol, split by byCols
 nonparametricByGroup <- function(data, numericCol, levelsCol, byCols = NULL) {
   
   setDT(data)

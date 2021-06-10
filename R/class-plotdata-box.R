@@ -44,7 +44,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   fences <- groupFences(.pd, x, y, group, panel)
   fences <- fences[, -x, with = FALSE]
 
-  if (isTRUE(computeStats)) {
+  if (computeStats) {
     
     if (is.null(group)) {
       # If no overlay, then compute across x per panel
