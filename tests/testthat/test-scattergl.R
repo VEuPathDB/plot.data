@@ -143,6 +143,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('densityX', 'densityY'))
   
+  # Continuous overlay
   map <- data.frame('id' = c('z', 'y', 'x'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
   df <- data.xy
   df[, z := runif(500)]
@@ -152,8 +153,17 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt), c('seriesX', 'seriesY', 'z'))
   expect_true(identical(dt$z[[1]], df$z))
   
+  map <- data.frame('id' = c('group', 'y', 'x', 'panel', 'z'), 'plotRef' = c('facetVariable2', 'yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
+  dt <- scattergl.dt(df, map, 'raw')
+  expect_equal(nrow(dt), 16)
+  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'z'))
+  expect_equal(length(dt$z[[1]]), length(dt$serisX[[1]]))
   
-  
+  map <- data.frame('id' = c('y', 'x', 'panel', 'z'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
+  dt <- scattergl.dt(df, map, 'raw')
+  expect_equal(nrow(dt), 4)
+  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'z'))
+  expect_equal(length(dt$z[[1]]), length(dt$serisX[[1]]))
   
   
 })
