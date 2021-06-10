@@ -304,15 +304,12 @@ getR2.default <- function(model) {
 
 # Compute appropriate nonparametric test comparing multiple distributions.
 nonparametricTest <- function(y, g) {
-  # y and g should be vectors of the same length. y contains values and g contains groups
+  
+  # y and g should be vectors of the same length
   if (!identical(length(y), length(g))) {
     result <- NULL
     return(result)
   }
-  
-  ## Check g is character vector and y is numeric
-  
-  ## Any other checks for proper application of the following tests could go here.
 
   # If number of groups in g is 2, then use Wilcoxon rank sum Otherwise use Kruskal–Wallis
   if (uniqueN(g) == 2) {
@@ -321,7 +318,6 @@ nonparametricTest <- function(y, g) {
     result <- kruskal.test(y, g)
   }
   
-  # Reformat result before returning?
   result <- list(result[c('statistic', 'p.value', 'parameter', 'method')])
   
   return(result)
