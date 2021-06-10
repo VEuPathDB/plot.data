@@ -315,11 +315,6 @@ remapListVar <- function(map, listVarPlotRef, newVarPlotRef, newValuePlotRef, ne
   listVarType <- unique(map$dataType[map$plotRef == listVarPlotRef])
   listVarShape <- unique(map$dataShape[map$plotRef == listVarPlotRef])
   
-  # Require all repeated vars to have the same type, shape, and entity
-  if (uniqueN(listVarEntity) > 1 | uniqueN(listVarType) > 1 | uniqueN(listVarShape) > 1) {
-    stop("All vars in a listVar must have the same entity id, type, and shape.")
-  }
-  
   newVar <- list('id' = newVarId, 'plotRef' = newVarPlotRef)
   newValue <- list('id' = newValueId, 'plotRef' = newValuePlotRef)
   if (!is.null(listVarEntity)) {
@@ -346,12 +341,8 @@ remapListVar <- function(map, listVarPlotRef, newVarPlotRef, newValuePlotRef, ne
 }
 
 
-getListVar <- function(map) {
-
-  # Identify the list var based on any plotRef that is repeated
-  listVarPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
-    
-  # Validate repeatedPlotRef
+validateListVar <- function(map, listVarPlotRef) {
+  
   # Only allow one plot element to be a list var 
   if (length(listVarPlotRef) > 1) {
     stop("Only one plot element can be a listVar.")
@@ -363,13 +354,18 @@ getListVar <- function(map) {
   }
 
   # Check to ensure if repeatedPlotRef is facet that there are no other facet vars.
-  if (listVarPlotRef == 'facetVariable1' & any(map$plotRef == 'facetVariable2')) {
+  if (listVarPlotRef == 'facetVariable1' & 'facetVariable2' %in% map$plotRef) {
     stop("facetVariable2 should be NULL when using listVar for facetVariable1.")
   }
 
   # Check we do not have too many vars
   if (length(map$id[map$plotRef == listVarPlotRef]) > 10) {
     stop("Only 10 or fewer vars allowed in a listVar.")
+  }
+  
+  # Require all repeated vars to have the same type, shape, and entity
+  if (uniqueN(map$entityId[map$plotRef == listVarPlotRef]) > 1 | uniqueN(map$dataType[map$plotRef == listVarPlotRef]) > 1 | uniqueN(map$dataShape[map$plotRef == listVarPlotRef]) > 1) {
+    stop("All vars in a listVar must have the same entity id, type, and shape.")
   }
 
   return(listVarPlotRef)

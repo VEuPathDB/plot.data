@@ -154,7 +154,9 @@ scattergl.dt <- function(data,
   # Handle repeated plot references
   if (any(duplicated(map$plotRef))) {
 
-    listVarPlotRef <- getListVar(map)
+    # Identify the list var based on any plotRef that is repeated
+    listVarPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
+    listVarPlotRef <- validateListVar(map, listVarPlotRef)
     
     # Scatter-specific
     if (listVarPlotRef == 'facetVariable1' | listVarPlotRef == 'overlayVariable') {

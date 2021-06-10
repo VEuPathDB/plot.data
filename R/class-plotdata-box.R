@@ -157,7 +157,9 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   # Handle repeated plot references
   if (any(duplicated(map$plotRef))) {
     
-    listVarPlotRef <- getListVar(map)
+    # Identify the list var based on any plotRef that is repeated
+    listVarPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
+    listVarPlotRef <- validateListVar(map, listVarPlotRef)
     
     # Box-specific
     if (listVarPlotRef == 'xAxisVariable' | listVarPlotRef == 'facetVariable1') {
