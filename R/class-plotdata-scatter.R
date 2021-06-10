@@ -96,12 +96,12 @@ validateScatterPD <- function(.scatter) {
   if (!yAxisVariable$dataShape %in% c('CONTINUOUS')) {
     stop('The dependent axis must be continuous for scatterplot.')
   }
-  # overlayVariable <- attr(.scatter, 'overlayVariable')
-  # if (!is.null(overlayVariable)) {
-  #   if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-  #     stop('The overlay variable must be binary, ordinal or categorical.')
-  #   }
-  # }
+  overlayVariable <- attr(.scatter, 'overlayVariable')
+  if (!is.null(overlayVariable)) {
+    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL', 'CONTINUOUS')) {
+      stop('The overlay variable must be binary, ordinal, categorical, or continuous.')
+    }
+  }
   facetVariable1 <- attr(.scatter, 'facetVariable1')
   if (!is.null(facetVariable1)) {
     if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
