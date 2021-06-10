@@ -142,6 +142,12 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('densityX', 'densityY'))
+  
+  map <- data.frame('id' = c('z', 'y', 'x'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
+  df <- data.xy
+  df[, z := runif(500)]
+  
+  dt <- scattergl.dt(df, map, 'raw')
 })
 
 test_that("scattergl() returns appropriately formatted json", {

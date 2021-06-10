@@ -90,12 +90,12 @@ validateScatterPD <- function(.scatter) {
   if (!yAxisVariable$dataShape %in% c('CONTINUOUS')) {
     stop('The dependent axis must be continuous for scatterplot.')
   }
-  overlayVariable <- attr(.scatter, 'overlayVariable')
-  if (!is.null(overlayVariable)) {
-    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-      stop('The overlay variable must be binary, ordinal or categorical.')
-    }
-  }
+  # overlayVariable <- attr(.scatter, 'overlayVariable')
+  # if (!is.null(overlayVariable)) {
+  #   if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+  #     stop('The overlay variable must be binary, ordinal or categorical.')
+  #   }
+  # }
   facetVariable1 <- attr(.scatter, 'facetVariable1')
   if (!is.null(facetVariable1)) {
     if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
@@ -168,6 +168,9 @@ scattergl.dt <- function(data,
   }
   if ('overlayVariable' %in% map$plotRef) {
     overlayVariable <- plotRefMapToList(map, 'overlayVariable')
+    if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
+      stop('Continuous overlay variables cannot be used with trend lines.')
+    }
   }
   if ('facetVariable1' %in% map$plotRef) {
     facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
