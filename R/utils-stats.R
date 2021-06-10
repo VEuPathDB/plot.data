@@ -319,10 +319,10 @@ nonparametricTest <- function(values, groups) {
   }
   
   if (class(testResult) == 'try-error'){
-    testResult <- list("statistic" = numeric(),
-      "p.value" = numeric(),
-      "parameter" = numeric(),
-      "method" = character(),
+    testResult <- list("statistic" = list(numeric()),
+      "p.value" = list(numeric()),
+      "parameter" = list(numeric()),
+      "method" = list(character()),
       "statsError" = jsonlite::unbox(as.character(testResult[1])))
     testResult <- list(testResult)
   } else {

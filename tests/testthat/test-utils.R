@@ -82,5 +82,8 @@ test_that("nonparametricTest errs gracefully", {
 test_that("nonparametricTestByGroup errs gracefully", {
   df <- as.data.frame(data.xy)
   df$group[df$panel == 'panel1'] <- 'group1'
-  a <- nonparametricByGroup(df, 'x', 'group', 'panel')
+  result <- nonparametricByGroup(df, 'x', 'group', 'panel')
+  # Expect four rows but only one error
+  expect_equal(nrow(result), 4)
+  expect_equal(sum(rapply(result, function(x) {grepl('Error', x, fixed=TRUE)})), 1)
 })
