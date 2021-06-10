@@ -6,6 +6,7 @@ test_that("smoothedMean passes along error messages for method `gam` w few value
 
   expect_equal(as.character(sm$smoothedMeanError), "Error in smooth.construct.cr.smooth.spec(object, data, knots) : \n  x has insufficient unique values to support 10 knots: reduce k.\n")
   expect_equal(class(sm$smoothedMeanError), c('scalar','character'))
+  expect_equal(class(unlist(sm$smoothedMeanX)), 'numeric')
 })
 
 test_that("smoothedMean returns correct types", {

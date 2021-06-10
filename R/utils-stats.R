@@ -157,7 +157,7 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
   }
 
   if (class(smoothed) == 'try-error') {
-    dt <- data.table::data.table("smoothedMeanX" = list(""), "smoothedMeanY" = list(""), "smoothedMeanSE" = list(""), "smoothedMeanError" = jsonlite::unbox(as.character(smoothed[1])))
+    dt <- data.table::data.table("smoothedMeanX" = list(numeric()), "smoothedMeanY" = list(numeric()), "smoothedMeanSE" = list(numeric()), "smoothedMeanError" = jsonlite::unbox(as.character(smoothed[1])))
   } else {
     smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
 
