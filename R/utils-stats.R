@@ -303,19 +303,19 @@ getR2.default <- function(model) {
 }
 
 # Compute appropriate nonparametric test comparing multiple distributions.
-nonparametricTest <- function(y, g) {
+nonparametricTest <- function(values, groups) {
   
-  # y and g should be vectors of the same length
-  if (!identical(length(y), length(g))) {
+  # y and groups should be vectors of the same length
+  if (!identical(length(values), length(groups))) {
     result <- NULL
     return(result)
   }
 
   # If number of groups in g is 2, then use Wilcoxon rank sum Otherwise use Kruskal–Wallis
-  if (uniqueN(g) == 2) {
-    result <- wilcox.test(y[g == unique(g)[1]], y[g == unique(g)[2]], conf.level = 0.95, paired=F)
+  if (uniqueN(groups) == 2) {
+    result <- wilcox.test(values[groups == unique(groups)[1]], values[groups == unique(groups)[2]], conf.level = 0.95, paired=F)
   } else {
-    result <- kruskal.test(y, g)
+    result <- kruskal.test(values, groups)
   }
   
   result <- list(result[c('statistic', 'p.value', 'parameter', 'method')])
