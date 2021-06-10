@@ -94,7 +94,7 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   # The following will err for not having enough values in some group once in a blue moon
   
   # No overlay, no facets
-  dt <- box.dt(df, map, 'none', FALSE, "TRUE")
+  dt <- box.dt(df, map, 'none', FALSE, TRUE)
   statsTable <- attr(dt, 'statsTable')
   realStats <- kruskal.test(df$y, df$xcat)
   # expect_equal(statsTable$statistics[[1]]$statistic, realStats$statistic)
