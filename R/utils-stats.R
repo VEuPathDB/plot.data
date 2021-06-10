@@ -313,14 +313,23 @@ nonparametricTest <- function(values, groups) {
 
   # If number of groups in g is 2, then use Wilcoxon rank sum Otherwise use Kruskal–Wallis
   if (uniqueN(groups) == 2) {
-    result <- wilcox.test(values[groups == unique(groups)[1]], values[groups == unique(groups)[2]], conf.level = 0.95, paired=F)
+    testResult <- try(wilcox.test(values[groups == unique(groups)[1]], values[groups == unique(groups)[2]], conf.level = 0.95, paired=F), silent = TRUE)
   } else {
-    result <- kruskal.test(values, groups)
+    testResult <- try(kruskal.test(values, groups), silent = TRUE)
   }
   
-  result <- list(result[c('statistic', 'p.value', 'parameter', 'method')])
+  if (class(testResult) == 'try-error'){
+    testResult <- list("statistic" = numeric(),
+      "p.value" = numeric(),
+      "parameter" = numeric(),
+      "method" = character(),
+      "statsError" = jsonlite::unbox(as.character(testResult[1])))
+    testResult <- list(testResult)
+  } else {
+    testResult <- list(c(testResult[c('statistic', 'p.value', 'parameter', 'method')], "statsError" = jsonlite::unbox("")))
+  }
   
-  return(result)
+  return(testResult)
 }
 
 # Compute statistics for values in numericCol based upon levelsCol, grouped by byCols

@@ -154,6 +154,8 @@ validateBoxPD <- function(.box) {
 box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c("TRUE", "FALSE")) {
   points <- match.arg(points)
   computeStats <- match.arg(computeStats)
+  computeStats <- as.logical(computeStats)
+  
   if (!mean %in% c(FALSE, TRUE)) { 
     stop('invalid input to argument `mean`.') 
   }
@@ -228,7 +230,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 #' @export
 box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE)) {
   points <- match.arg(points)
-  computeStats <- match.arg(computeStats)
+  computeStats <- match.arg(as.character(computeStats))
   if (!mean %in% c(FALSE, TRUE)) { 
     stop('invalid input to argument `mean`.') 
   }

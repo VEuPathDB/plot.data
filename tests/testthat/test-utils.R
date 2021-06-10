@@ -71,3 +71,16 @@ test_that("contingencyDT() returns appropriately sized data.table", {
   expect_equal(nrow(dt),data.table::uniqueN(data.binned$x))
   expect_equal(length(dt),data.table::uniqueN(data.binned$y)+1)
 })
+
+test_that("nonparametricTest errs gracefully", {
+  df <- as.data.frame(data.xy)
+  result <- nonparametricTest(df$x[df$group == 'group1'], df$group[df$group == 'group1'])
+  expect_true(grepl( 'Error', result$statsError, fixed = TRUE))
+  
+})
+
+test_that("nonparametricTestByGroup errs gracefully", {
+  df <- as.data.frame(data.xy)
+  df$group[df$panel == 'panel1'] <- 'group1'
+  a <- nonparametricByGroup(df, 'x', 'group', 'panel')
+})
