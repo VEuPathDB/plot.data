@@ -148,6 +148,14 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   df[, z := runif(500)]
   
   dt <- scattergl.dt(df, map, 'raw')
+  expect_equal(nrow(dt), 1)
+  expect_equal(names(dt), c('seriesX', 'seriesY', 'z'))
+  expect_true(identical(dt$z[[1]], df$z))
+  
+  
+  
+  
+  
 })
 
 test_that("scattergl() returns appropriately formatted json", {
