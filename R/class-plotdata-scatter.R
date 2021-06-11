@@ -40,7 +40,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
   if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
     series <- collapseByGroup(.pd, group = NULL, panel)
-    data.table::setnames(series, c(panel, 'seriesX', 'seriesY', group))
+    data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale'))
   } else {
     series <- collapseByGroup(.pd, group, panel)
     data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
