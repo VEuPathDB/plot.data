@@ -163,7 +163,6 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     
     # Box-specific
     if (listVarPlotRef == 'xAxisVariable' | listVarPlotRef == 'facetVariable1') {
-      meltedVarPlotRef <- listVarPlotRef
       meltedValuePlotRef <- 'yAxisVariable'
     } else {
       stop("Incompatable repeated variable")
@@ -179,7 +178,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     
     # Melt data and update the map 
     data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
-    map <- remapListVar(map, listVarPlotRef, meltedVarPlotRef, meltedValuePlotRef)
+    map <- remapListVar(map, listVarPlotRef, listVarPlotRef, meltedValuePlotRef)
     
   } # end handling of repeated plot element references
 

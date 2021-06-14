@@ -160,7 +160,6 @@ scattergl.dt <- function(data,
     
     # Scatter-specific
     if (listVarPlotRef == 'facetVariable1' | listVarPlotRef == 'overlayVariable') {
-      meltedVarPlotRef <- listVarPlotRef
       meltedValuePlotRef <- 'yAxisVariable'
     } else {
       stop("Incompatable repeated variable")
@@ -176,7 +175,7 @@ scattergl.dt <- function(data,
     
     # Melt data and update the map 
     data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
-    map <- remapListVar(map, listVarPlotRef, meltedVarPlotRef, meltedValuePlotRef)
+    map <- remapListVar(map, listVarPlotRef, listVarPlotRef, meltedValuePlotRef)
     
   } # end handling of repeated plot element references
 
