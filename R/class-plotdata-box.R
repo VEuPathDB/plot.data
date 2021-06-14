@@ -203,9 +203,8 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 #' @export
 box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
   points <- matchArg(points)
-  if (!mean %in% c(FALSE, TRUE)) { 
-    stop('invalid input to argument `mean`.') 
-  }
+  mean <- matchArg(mean)
+  
   .box <- box.dt(data, map, points, mean)
   outFileName <- writeJSON(.box, 'boxplot')
 
