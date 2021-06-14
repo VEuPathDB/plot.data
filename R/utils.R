@@ -358,9 +358,14 @@ validateListVar <- function(map, listVarPlotRef) {
     stop("facetVariable2 should be NULL when using listVar for facetVariable1.")
   }
 
-  # Check we do not have too many vars
-  if (length(map$id[map$plotRef == listVarPlotRef]) > 10) {
-    stop("Only 10 or fewer vars allowed in a listVar.")
+  # Check we do not have too many vars -- restricted based on the rules in the data service
+  nVars <- length(map$id[map$plotRef == listVarPlotRef])
+  if (listVarPlotRef == 'xAxisVariable' & nVars > 10) {
+    stop("Too many values specified with listVar: maximum number of x axis values is 10.")
+  } else if (listVarPlotRef == 'overlayVariable' & nVars > 8) {
+    stop("Too many values specified with listVar: maximum number of overlay values is 8.")
+  } else if (listVarPlotRef == 'facetVariable1' & nVars > 25) {
+    stop("Too many values specified with listVar: maximum number of panels allowed is 25.")
   }
   
   # Require all repeated vars to have the same type, shape, and entity
