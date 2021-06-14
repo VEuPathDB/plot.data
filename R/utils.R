@@ -310,3 +310,47 @@ updateAttrById <- function(attrInd, attr, .dt) {
   data.table::setattr(.dt, names(attr)[attrInd], attr[[attrInd]])
   return(NULL)
 }
+
+# Adaptation of match.arg that accept logical vectors.
+matchArg <- function(arg, choices) {
+  
+  # Validate inputs
+  if (missing(choices)) {
+    formal.args <- formals(sys.function(sys.parent()))
+    choices <- eval(formal.args[[as.character(substitute(arg))]])
+  }
+  if(!identical(typeof(arg), typeof(choices))) {
+    stop("'arg' must be of the same type as 'choices'.")
+  }
+  if (is.null(arg)) return(choices[1L])
+  if(identical(arg, choices)) return(arg[1L])
+  if(length(arg) != 1L) stop("'arg' must be of length 1")
+  
+  # Perform argument matching based on type
+  if(is.character(arg)) {
+    ## handle each element of arg separately
+    #### arg is length 1 only.
+    i <- pmatch(arg, choices, nomatch = 0L, duplicates.ok = TRUE)
+    if (all(i == 0L))
+      stop(gettextf("'arg' should be one of %s",
+                    paste(dQuote(choices), collapse = ", ")),
+           domain = NA)
+    i <- i[i > 0L]
+    if (length(i) > 1)
+      stop("there is more than one match in 'match.arg'")
+    
+    return(choices[i])
+    
+  } else if (is.logical(arg)) {
+    # do logical things
+
+    if (arg %in% choices) {
+      return (arg)
+    } else {
+      stop("'arg' does not match any value in 'choices'")
+    }
+  } else {
+    stop("'arg' must be NULL, a character vector, or a logical vector.")
+  }
+  
+}

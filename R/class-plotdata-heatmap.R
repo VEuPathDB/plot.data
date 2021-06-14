@@ -90,7 +90,7 @@ validateHeatmapPD <- function(.heatmap) {
 #' @return data.table plot-ready data
 #' @export
 heatmap.dt <- function(data, map, value = c('series', 'collection')) {
-  value <- match.arg(value)
+  value <- matchArg(value)
 
   zAxisVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -169,7 +169,7 @@ heatmap.dt <- function(data, map, value = c('series', 'collection')) {
 #' @return character name of json file containing plot-ready data
 #' @export
 heatmap <- function(data, map, value = c('series','collection')) {
-  value <- match.arg(value)
+  value <- matchArg(value)
   .heatmap <- heatmap.dt(data, map, value)
   outFileName <- writeJSON(.heatmap, 'heatmap')
 

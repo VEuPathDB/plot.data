@@ -131,10 +131,9 @@ validateBoxPD <- function(.box) {
 #' @return data.table plot-ready data
 #' @export
 box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
-  points <- match.arg(points)
-  if (!mean %in% c(FALSE, TRUE)) { 
-    stop('invalid input to argument `mean`.') 
-  }
+
+  points <- matchArg(points)
+  mean <- matchArg(mean)
 
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -203,7 +202,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 #' @return character name of json file containing plot-ready data
 #' @export
 box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
-  points <- match.arg(points)
+  points <- matchArg(points)
   if (!mean %in% c(FALSE, TRUE)) { 
     stop('invalid input to argument `mean`.') 
   }
