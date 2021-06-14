@@ -309,13 +309,13 @@ updateAttrById <- function(attrInd, attr, .dt) {
   return(NULL)
 }
 
-remapListVar <- function(map, listVarPlotRef, newVarPlotRef, newValuePlotRef, newVarId = 'meltedVariable', newValueId = 'meltedValue') {
+remapListVar <- function(map, listVarPlotRef, newValuePlotRef, newVarId = 'meltedVariable', newValueId = 'meltedValue') {
   
   listVarEntity <- unique(map$entityId[map$plotRef == listVarPlotRef])
   listVarType <- unique(map$dataType[map$plotRef == listVarPlotRef])
   listVarShape <- unique(map$dataShape[map$plotRef == listVarPlotRef])
   
-  newVar <- list('id' = newVarId, 'plotRef' = newVarPlotRef)
+  newVar <- list('id' = newVarId, 'plotRef' = listVarPlotRef)
   newValue <- list('id' = newValueId, 'plotRef' = newValuePlotRef)
   if (!is.null(listVarEntity)) {
     newVar$entityId <- listVarEntity

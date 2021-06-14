@@ -98,7 +98,7 @@ test_that("remapListVar appropriately updates map", {
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'),
                     'entityId' = c('e1', 'e1', 'e2'), stringsAsFactors=FALSE)
   
-  newMap <- remapListVar(map, 'xAxisVariable', 'xAxisVariable', 'yAxisVariable')
+  newMap <- remapListVar(map, 'xAxisVariable', 'yAxisVariable')
   expect_equal(newMap$id, c('c', 'meltedVariable','meltedValue'))
   expect_equal(newMap$plotRef, c('overlayVariable', 'xAxisVariable', 'yAxisVariable'))
   expect_equal(newMap$dataType, c('STRING', 'STRING', 'NUMBER'))
