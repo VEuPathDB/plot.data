@@ -123,3 +123,5 @@ validatePlotdata <- function(.pd) {
 # Additional accessor functions
 sampleSizeTable <- function(.pd) { attr(.pd, 'sampleSizeTable') }
 completeCasesTable <- function(.pd) { attr(.pd, 'completeCasesTable')}
+#these helpers need either validation or to be a dedicated method
+statsTable <- function(.mosaic) { attr(.mosaic, 'statsTable') }
