@@ -90,7 +90,7 @@ test_that("box.dt() returns correct information about missing data", {
 test_that("box.dt() returns an appropriately sized statistics table", {
   map <- data.frame('id' = c('xcat', 'y'), 'plotRef' = c('xAxisVariable', 'yAxisVariable'), 'dataType' = c('STRING', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.xy)
-  df['xcat'] <- sample(c('x1','x2','x3'), 500, replace=T) # Add another categorical var
+  df$xcat <- sample(c('x1','x2','x3'), 500, replace=T) # Add another categorical var
   
   # No overlay, no facets
   dt <- box.dt(df, map, 'none', FALSE, TRUE)
