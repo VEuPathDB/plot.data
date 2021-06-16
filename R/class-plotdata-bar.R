@@ -95,7 +95,7 @@ validateBarPD <- function(.bar) {
 #' @return data.table plot-ready data
 #' @export
 bar.dt <- function(data, map, value = c('count', 'identity', 'proportion')) {
-  value <- match.arg(value)
+  value <- matchArg(value)
 
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -157,7 +157,7 @@ bar.dt <- function(data, map, value = c('count', 'identity', 'proportion')) {
 #' @return character name of json file containing plot-ready data
 #' @export
 bar <- function(data, map, value = c('count', 'identity', 'proportion')) {
-  value <- match.arg(value)
+  value <- matchArg(value)
   .bar <- bar.dt(data, map, value)
   outFileName <- writeJSON(.bar, 'barplot')
 

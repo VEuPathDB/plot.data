@@ -131,8 +131,9 @@ validateScatterPD <- function(.scatter) {
 scattergl.dt <- function(data, 
                          map, 
                          value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw')) {
-  value <- match.arg(value)
-
+  
+  value <- matchArg(value)
+  
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
                          'dataType' = NULL,
@@ -206,7 +207,7 @@ scattergl.dt <- function(data,
 #' @return character name of json file containing plot-ready data
 #' @export
 scattergl <- function(data, map, value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw')) {
-  value <- match.arg(value)
+  value <- matchArg(value)
   .scatter <- scattergl.dt(data, map, value)
   outFileName <- writeJSON(.scatter, 'scattergl')
 
