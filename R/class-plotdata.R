@@ -60,13 +60,16 @@ newPlotdata <- function(.dt = data.table(),
   incompleteCases <- jsonlite::unbox(nrow(.dt[!complete.cases(.dt),]))
   
   .dt <- .dt[complete.cases(.dt),]
+  
+  # If overlay is continuous, it does not contribute to final groups
+  overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
 
   if (xType == 'STRING') {
     .dt$dummy <- 1
-    sampleSizeTable <- groupSize(.dt, x=x, y="dummy", group, panel, collapse=F)
+    sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, collapse=F)
     .dt$dummy <- NULL
   } else {
-    sampleSizeTable <- groupSize(.dt, x=NULL, y=x, group, panel, collapse=F)
+    sampleSizeTable <- groupSize(.dt, x=NULL, y=x, overlayGroup, panel, collapse=F)
   }
   sampleSizeTable$size <- lapply(sampleSizeTable$size, jsonlite::unbox)
 
@@ -85,7 +88,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
   attr$incompleteCases <- incompleteCases
   attr$completeCasesTable <- completeCasesTable
-  attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, group, panel)
+  attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, overlayGroup, panel)
   attr$class = c(class, 'plot.data', attr$class)
   if (!is.null(group)) { attr$overlayVariable <- overlayVariable }
   if (!is.null(facet1)) { attr$facetVariable1 <- facetVariable1 }
@@ -123,3 +126,5 @@ validatePlotdata <- function(.pd) {
 # Additional accessor functions
 sampleSizeTable <- function(.pd) { attr(.pd, 'sampleSizeTable') }
 completeCasesTable <- function(.pd) { attr(.pd, 'completeCasesTable')}
+#these helpers need either validation or to be a dedicated method
+statsTable <- function(.pd) { attr(.pd, 'statsTable') }

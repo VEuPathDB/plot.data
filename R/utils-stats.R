@@ -149,23 +149,27 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
   xseq <- sort(unique(dt$x))
 
   if (method == 'loess') {
-    smoothed <- stats::loess(y ~ x, dt)
+    smoothed <- try(stats::loess(y ~ x, dt), silent = TRUE)
   } else if (method == 'gam') {
-    smoothed <- mgcv::gam(y ~ s(x, bs = "cs"), data = dt, method = "REML")
+    smoothed <- try(mgcv::gam(y ~ s(x, bs = "cs"), data = dt, method = "REML"), silent = TRUE)
   } else {
     stop('Unrecognized smoothing method.')
   }
 
-  smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
-
-  if (exists('dateMap')) {
-    smoothed$x <- dateMap[match(smoothed$x, dateMap$numeric),]$date
-  }
-
-  if (collapse) {
-    dt <- data.table::data.table("smoothedMeanX" = list(as.character(smoothed$x)), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se))
+  if (class(smoothed) == 'try-error') {
+    dt <- data.table::data.table("smoothedMeanX" = list(numeric()), "smoothedMeanY" = list(numeric()), "smoothedMeanSE" = list(numeric()), "smoothedMeanError" = jsonlite::unbox(as.character(smoothed[1])))
   } else {
-    dt <- data.table::data.table("smoothedMeanX" = as.character(smoothed$x), "smoothedMeanY" = smoothed$y, "smoothedMeanSE" = smoothed$se)
+    smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
+
+    if (exists('dateMap')) {
+      smoothed$x <- dateMap[match(smoothed$x, dateMap$numeric),]$date
+    }
+
+    if (collapse) {
+      dt <- data.table::data.table("smoothedMeanX" = list(as.character(smoothed$x)), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se), "smoothedMeanError" = jsonlite::unbox(""))
+    } else {
+      dt <- data.table::data.table("smoothedMeanX" = as.character(smoothed$x), "smoothedMeanY" = smoothed$y, "smoothedMeanSE" = smoothed$se, "smoothedMeanError" = jsonlite::unbox(""))
+    }
   }
 
   return(dt)
@@ -299,3 +303,58 @@ getR2 <- function(model) UseMethod("getR2")
 getR2.default <- function(model) {
   summary(model)$r.squared
 }
+
+# Compute appropriate nonparametric test comparing multiple distributions.
+nonparametricTest <- function(values, groups) {
+  
+  # values and groups should be vectors of the same length
+  if (!identical(length(values), length(groups))) {
+    result <- NULL
+    return(result)
+  }
+
+  # values should be numeric
+  if (!is.numeric(values)) {
+    stop("values vector should contain numbers.")
+  }
+
+  # If there are only 2 groups, use Wilcoxon rank sum. Otherwise use Kruskal–Wallis
+  if (uniqueN(groups) == 2) {
+    testResult <- try(wilcox.test(values[groups == unique(groups)[1]], values[groups == unique(groups)[2]], conf.level = 0.95, paired=F), silent = TRUE)
+  } else {
+    testResult <- try(kruskal.test(values, groups), silent = TRUE)
+  }
+  
+  if (class(testResult) == 'try-error'){
+    testResult <- list("statistic" = numeric(),
+      "p.value" = numeric(),
+      "parameter" = numeric(),
+      "method" = character(),
+      "statsError" = jsonlite::unbox(as.character(testResult[1])))
+    testResult <- list(testResult)
+  } else {
+    testResult$parameter <- as.numeric(testResult$parameter)
+    testResult <- list(c(testResult[c('statistic', 'p.value', 'parameter', 'method')], "statsError" = jsonlite::unbox("")))
+  }
+  
+  return(testResult)
+}
+
+# Compute statistics for values in numericCol based on levelsCol, split by byCols
+nonparametricByGroup <- function(data, numericCol, levelsCol, byCols = NULL) {
+  
+  setDT(data)
+  
+  if (is.null(byCols)) {
+    statsResults <- data.table::as.data.table(t(nonparametricTest(data[[numericCol]], data[[levelsCol]])))
+  } else {
+    statsResults <- data[, .(nonparametricTest(get(..numericCol), get(..levelsCol))) , by=eval(colnames(data)[colnames(data) %in% byCols])]
+  }
+  
+  data.table::setnames(statsResults, 'V1', 'statistics')
+
+  return (statsResults)
+  
+}
+
+

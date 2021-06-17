@@ -1,5 +1,14 @@
 context('utils')
 
+test_that("smoothedMean passes along error messages for method `gam` w few values", {
+  dt <- data.table::data.table(x = c(1, 5, 2, 3, 4), y = 1:5)
+  sm <- smoothedMean(dt, 'gam')
+
+  expect_equal(as.character(sm$smoothedMeanError), "Error in smooth.construct.cr.smooth.spec(object, data, knots) : \n  x has insufficient unique values to support 10 knots: reduce k.\n")
+  expect_equal(class(sm$smoothedMeanError), c('scalar','character'))
+  expect_equal(class(unlist(sm$smoothedMeanX)), 'numeric')
+})
+
 test_that("smoothedMean returns correct types", {
   dt <- data.table::data.table(x = c(1, 5, 2, 3, 4), y = 1:5)
   sm <- smoothedMean(dt, 'loess')
@@ -90,6 +99,7 @@ test_that("contingencyDT() returns appropriately sized data.table", {
   expect_equal(length(dt),data.table::uniqueN(data.binned$y)+1)
 })
 
+
 test_that("remapListVar appropriately updates map", {
   
   map <- data.frame('id' = c('a','b','c'),
@@ -103,3 +113,35 @@ test_that("remapListVar appropriately updates map", {
   expect_equal(newMap$plotRef, c('overlayVariable', 'xAxisVariable', 'yAxisVariable'))
   expect_equal(newMap$dataType, c('STRING', 'STRING', 'NUMBER'))
 })
+
+test_that("nonparametricTest() errs gracefully", {
+  df <- as.data.frame(data.xy)
+  result <- nonparametricTest(df$x[df$group == 'group1'], df$group[df$group == 'group1'])
+  expect_true(grepl( 'Error', result[[1]]$statsError, fixed = TRUE))
+  
+})
+
+test_that("nonparametricTestByGroup() errs gracefully", {
+  df <- as.data.frame(data.xy)
+  df$group[df$panel == 'panel1'] <- 'group1'
+  result <- nonparametricByGroup(df, 'x', 'group', 'panel')
+  # Expect four rows but only one error
+  expect_equal(nrow(result), 4)
+  expect_equal(sum(rapply(result, function(x) {grepl('Error', x, fixed=TRUE)})), 1)
+})
+
+test_that("nonparametricTest() types do not change on error", {
+  df <- as.data.frame(data.xy)
+  result_correct <- nonparametricTest(df$x, df$group)    # kruskal.test
+  result_err <- nonparametricTest(df$x[df$group == 'group1'], df$group[df$group == 'group1'])
+  expect_true(grepl( 'Error', result_err[[1]]$statsError, fixed = TRUE))
+  expect_equal(result_correct[[1]]$statsError, '')
+  expect_equal(lapply(result_correct[[1]], typeof), lapply(result_err[[1]], typeof))
+  
+  df$group[df$group =='group3'] <- 'group1'
+  df$group[df$group == 'group4'] <- 'group2'
+  result_correct <- nonparametricTest(df$x, df$group)    # wilcox.test
+  expect_equal(result_correct[[1]]$statsError, '')
+  expect_equal(lapply(result_correct[[1]], typeof), lapply(result_err[[1]], typeof))
+})
+

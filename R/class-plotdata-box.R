@@ -21,6 +21,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                                               'dataShape' = NULL),
                          points = character(),
                          mean = character(),
+                         computeStats = logical(),
                          ...,
                          class = character()) {
 
@@ -42,6 +43,23 @@ newBoxPD <- function(.dt = data.table::data.table(),
   summary <- groupSummary(.pd, x, y, group, panel)
   fences <- groupFences(.pd, x, y, group, panel)
   fences <- fences[, -x, with = FALSE]
+
+  if (computeStats) {
+    
+    if (is.null(group)) {
+      # If no overlay, then compute across x per panel
+      statsTable <- nonparametricByGroup(.pd, numericCol=y, levelsCol=x, byCols=panel)
+      
+    } else {
+      # compute across overlay values per panel
+      statsTable <- nonparametricByGroup(.pd, numericCol=y, levelsCol=group, byCols=c(x, panel))
+    }
+    
+    attr$statsTable <- statsTable
+    
+  }
+  
+
   if (!is.null(key(summary))) {
     .pd.base <- merge(summary, fences)
   } else {
@@ -77,7 +95,9 @@ newBoxPD <- function(.dt = data.table::data.table(),
       .pd.base <- cbind(.pd.base, mean)
     }
   }
+  
   .pd <- .pd.base
+  
   attr$names <- names(.pd)
 
   setAttrFromList(.pd, attr)
@@ -128,14 +148,20 @@ validateBoxPD <- function(.box) {
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
+#' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
 #' @return data.table plot-ready data
 #' @export
-box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
+box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE)) {
   points <- match.arg(points)
+  
   if (!mean %in% c(FALSE, TRUE)) { 
     stop('invalid input to argument `mean`.') 
   }
 
+  if (!computeStats %in% c(TRUE, FALSE)) {
+    stop('invalid input to argument `computeStats`.') 
+  }
+  
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
                          'dataType' = NULL,
@@ -209,7 +235,8 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                     facetVariable1 = facetVariable1,
                     facetVariable2 = facetVariable2,
                     points,
-                    mean)
+                    mean,
+                    computeStats)
 
   .box <- validateBoxPD(.box)
 
@@ -229,14 +256,19 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
+#' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
 #' @return character name of json file containing plot-ready data
 #' @export
-box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE)) {
+box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE)) {
   points <- match.arg(points)
   if (!mean %in% c(FALSE, TRUE)) { 
     stop('invalid input to argument `mean`.') 
   }
-  .box <- box.dt(data, map, points, mean)
+  if (!computeStats %in% c(TRUE, FALSE)) {
+    stop('invalid input to argument `computeStats`.') 
+  }
+
+  .box <- box.dt(data, map, points, mean, computeStats)
   outFileName <- writeJSON(.box, 'boxplot')
 
   return(outFileName)

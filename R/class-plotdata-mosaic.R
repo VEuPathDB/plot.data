@@ -74,8 +74,6 @@ validateMosaicPD <- function(.mosaic) {
   return(.mosaic)
 }
 
-#these helpers need either validation or to be a dedicated method
-statsTable <- function(.mosaic) { attr(.mosaic, 'statsTable') }
 
 #' Mosaic plot as data.table
 #'

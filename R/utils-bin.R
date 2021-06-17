@@ -13,6 +13,7 @@
 # @alias bin.POSIXct
 bin <- function(x, binWidth, viewport) UseMethod("bin")
 
+#' @export
 bin.numeric <- function(x, binWidth = NULL, viewport) {
   xVP <- adjustToViewport(x, viewport)
 
@@ -34,6 +35,7 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
 #' @importFrom lubridate days
 #' @importFrom lubridate weeks
 #' @importFrom lubridate years
+#' @export
 bin.Date <- function(x, binWidth = NULL, viewport) {
   xVP <- adjustToViewport(x, viewport)
 
@@ -80,6 +82,7 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
 # @alias findBinWidth.POSIXct
 findBinWidth <- function(x) UseMethod("findBinWidth")
 
+#' @export
 findBinWidth.numeric <- function(x) {
   numBins <- findNumBins(x)
   binWidth <- numBinsToBinWidth(x, numBins)
@@ -89,6 +92,7 @@ findBinWidth.numeric <- function(x) {
   return(binWidth)
 }
 
+#' @export
 findBinWidth.Date <- function(x) {
   dateMap <- data.table('date' = x, 'numeric' = as.numeric(x))
   binWidth <- findBinWidth(dateMap$numeric)
