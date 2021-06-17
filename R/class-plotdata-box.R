@@ -178,6 +178,35 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
+  
+
+  # Handle repeated plot references
+  if (any(duplicated(map$plotRef))) {
+    
+    # Identify the list var based on any plotRef that is repeated
+    listVarPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
+    listVarPlotRef <- validateListVar(map, listVarPlotRef)
+    
+    # Box-specific
+    if (listVarPlotRef == 'xAxisVariable' | listVarPlotRef == 'facetVariable1') {
+      meltedValuePlotRef <- 'yAxisVariable'
+    } else {
+      stop("Incompatable repeated variable")
+    }
+    
+    # Check to ensure meltedValuePlotRef is not already defined
+    if (any(map$plotRef == meltedValuePlotRef)) {
+      stop(paste0("Cannot melt data: ", meltedValuePlotRef, " already defined."))
+    }
+
+    # Record variable order
+    listVarIdOrder <- map$id[map$plotRef == listVarPlotRef]
+    
+    # Melt data and update the map 
+    data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
+    map <- remapListVar(map, listVarPlotRef, meltedValuePlotRef)
+    
+  } # end handling of repeated plot element references
 
   if ('xAxisVariable' %in% map$plotRef) {
     xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
