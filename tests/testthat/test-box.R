@@ -86,3 +86,38 @@ test_that("box.dt() returns correct information about missing data", {
   expect_equal(attr(dt, 'incompleteCases')[1] <= sum(nrow(df) - completecasestable$completeCases), TRUE)
   
 })
+
+test_that("box.dt() returns an appropriately sized statistics table", {
+  map <- data.frame('id' = c('xcat', 'y'), 'plotRef' = c('xAxisVariable', 'yAxisVariable'), 'dataType' = c('STRING', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
+  df <- as.data.frame(data.xy)
+  df$xcat <- sample(c('x1','x2','x3'), 500, replace=T) # Add another categorical var
+  
+  # No overlay, no facets
+  dt <- box.dt(df, map, 'none', FALSE, TRUE)
+  statsTable <- attr(dt, 'statsTable')
+  expect_equal(nrow(statsTable), 1)
+  expect_equal(ncol(statsTable), 1)
+  
+  # No overlay, one facet
+  map <- data.frame('id' = c('xcat', 'y', 'panel'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- box.dt(df, map, 'none', FALSE, TRUE)
+  statsTable <- attr(dt, 'statsTable')
+  expect_equal(nrow(statsTable), uniqueN(df$panel))
+  expect_equal(ncol(statsTable), 2)
+  
+  # With overlay, no facets
+  map <- data.frame('id' = c('xcat', 'y', 'group'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- box.dt(df, map, 'none', FALSE, TRUE)
+  statsTable <- attr(dt, 'statsTable')
+  expect_equal(nrow(statsTable), uniqueN(df$xcat))
+  expect_equal(ncol(statsTable), 2)
+  
+  # With overlay and facet
+  map <- data.frame('id' = c('xcat', 'y', 'group', 'panel'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- box.dt(df, map, 'none', FALSE, TRUE)
+  statsTable <- attr(dt, 'statsTable')
+  expect_equal(nrow(statsTable), uniqueN(df$xcat)*uniqueN(df$panel))
+  expect_equal(ncol(statsTable), 3)
+  
+  
+})
