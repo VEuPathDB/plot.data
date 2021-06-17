@@ -67,7 +67,11 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       binWidth <- findBinWidth(xVP)
     }
   } else {
-    numBins <- findNumBins(xVP)
+    if (is.null(binWidth)) {
+      numBins <- findNumBins(xVP)
+    } else {
+      numBins <- binWidthToNumBins(xVP, binWidth)
+    }
   }
 
   if (binReportValue == 'numBins') {
@@ -134,6 +138,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
 }
 
 binSlider <- function(.histo) { attr(.histo, 'binSlider') }
+binSpec <- function(.histo) { attr(.histo, 'binSpec') }
 viewport <- function(.histo) { attr(.histo, 'viewport') }
 binWidth <- function(.histo) { ifelse(attr(.histo, 'binSpec')$type == 'binWidth', attr(.histo, 'binSpec')$value, NULL) }
 numBins <- function(.histo) { ifelse(attr(.histo, 'binSpec')$type == 'numBins', attr(.histo, 'binSpec')$value, NULL) }
