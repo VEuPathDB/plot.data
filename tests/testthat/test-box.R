@@ -1,7 +1,28 @@
 context('box')
 
+test_that("box.dt() returns plot data and config of the appropriate types", {
+  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.xy
+
+  dt <- box.dt(df, map, 'none', FALSE)
+  expect_equal(class(unlist(dt$min)), 'numeric')
+  expect_equal(class(unlist(dt$q1)), 'numeric')
+  expect_equal(class(unlist(dt$median)), 'numeric')
+  expect_equal(class(unlist(dt$q3)), 'numeric')
+  expect_equal(class(unlist(dt$max)), 'numeric')
+  expect_equal(class(unlist(dt$lowerfence)), 'numeric')
+  expect_equal(class(unlist(dt$upperfence)), 'numeric')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(class(namedAttrList$incompleteCases),c('scalar', 'integer'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(class(unlist(completeCases$variableDetails)), 'character')
+  expect_equal(class(unlist(completeCases$completeCases)), 'integer')
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(class(unlist(sampleSizes$panel)), 'character')
+  expect_equal(class(unlist(sampleSizes$size)), 'integer')
+})
+
 test_that("box.dt() returns an appropriately sized data.table", {
-  #using panel for xaxis.. maybe make another test.dt for this?
   map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.xy
 
