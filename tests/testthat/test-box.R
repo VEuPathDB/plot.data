@@ -1,5 +1,23 @@
 context('box')
 
+test_that("box.dt() returns a valid plot.data box object", {
+  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.xy
+
+  dt <- box.dt(df, map, 'none', FALSE)
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'boxplot')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'incompleteCases','completeCasesTable','sampleSizeTable','overlayVariable', 'statsTable'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(names(completeCases), c('variableDetails','completeCases'))
+  expect_equal(nrow(completeCases), 3)
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizes), c('group','panel','size'))
+  expect_equal(nrow(sampleSizes), 4)
+  expect_equal(names(namedAttrList$statsTable), c('panel','statistics'))
+})
+
 test_that("box.dt() returns plot data and config of the appropriate types", {
   map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.xy
