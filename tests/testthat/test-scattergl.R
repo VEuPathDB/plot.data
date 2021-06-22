@@ -1,5 +1,22 @@
 context('scattergl')
 
+test_that("scattergl.dt() returns a valid plot.data scatter object", {
+  map <- data.frame('id' = c('group', 'contVar', 'date', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.dates
+
+  dt <- scattergl.dt(df, map, 'raw')
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'scatterplot')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'incompleteCases','completeCasesTable','sampleSizeTable','overlayVariable', 'facetVariable1'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(names(completeCases), c('variableDetails','completeCases'))
+  expect_equal(nrow(completeCases), 4)
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizes), c('group','panel','size'))
+  expect_equal(nrow(sampleSizes), 16)
+})
+
 test_that("scattergl.dt() returns plot data and config of the appropriate types", {
   map <- data.frame('id' = c('group', 'contVar', 'date', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.dates
