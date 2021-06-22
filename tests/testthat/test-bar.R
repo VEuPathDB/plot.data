@@ -1,5 +1,22 @@
 context('bar')
 
+test_that("bar.dt() returns a valid plot.data barplot object", {
+  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- as.data.frame(data.binned)
+
+  dt <- bar.dt(df, map, value='count')
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'barplot')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'incompleteCases','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(names(completeCases), c('variableDetails','completeCases'))
+  expect_equal(nrow(completeCases), 3)
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizes), c('panel','x','size'))
+  expect_equal(nrow(sampleSizes), 16)
+})
+
 test_that("bar.dt() returns plot data and config of the appropriate types", {
   map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.binned)
