@@ -1,5 +1,42 @@
 context('scattergl')
 
+test_that("scattergl.dt() returns plot data and config of the appropriate types", {
+  map <- data.frame('id' = c('group', 'contVar', 'date', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.dates
+
+  dt <- scattergl.dt(df, map, 'raw')
+  expect_equal(class(unlist(dt$panel)), 'character')
+  expect_equal(class(unlist(dt$group)), 'character')
+  expect_equal(class(unlist(dt$seriesX)), 'character')
+  expect_equal(class(unlist(dt$seriesY)), 'character')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(class(namedAttrList$incompleteCases),c('scalar', 'integer'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(class(unlist(completeCases$variableDetails)), 'character')
+  expect_equal(class(unlist(completeCases$completeCases)), 'integer')
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(class(unlist(sampleSizes$panel)), 'character')
+  expect_equal(class(unlist(sampleSizes$size)), 'integer')
+
+
+  map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.xy
+
+  dt <- scattergl.dt(df, map, 'raw')
+  expect_equal(class(unlist(dt$panel)), 'character')
+  expect_equal(class(unlist(dt$group)), 'character')
+  expect_equal(class(unlist(dt$seriesX)), 'character')
+  expect_equal(class(unlist(dt$seriesY)), 'character')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(class(namedAttrList$incompleteCases),c('scalar', 'integer'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(class(unlist(completeCases$variableDetails)), 'character')
+  expect_equal(class(unlist(completeCases$completeCases)), 'integer')
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(class(unlist(sampleSizes$panel)), 'character')
+  expect_equal(class(unlist(sampleSizes$size)), 'integer')
+})
+
 test_that("scattergl.dt() returns an appropriately sized data.table", {
   map <- data.frame('id' = c('group', 'contVar', 'date', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.dates
@@ -9,8 +46,6 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),16)
   expect_equal(names(dt),c('group', 'panel', 'seriesX', 'seriesY'))
   expect_equal(as.character(range(df$date)), range(dt$seriesX))
-  expect_equal(class(unlist(dt$seriesX)),'character')
-  expect_equal(class(unlist(dt$seriesY)),'character')
 
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
@@ -37,8 +72,6 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('group', 'panel', 'seriesX', 'seriesY'))
   numericSeriesX <- lapply(dt$seriesX, as.numeric)
   expect_equal(range(df$x), range(numericSeriesX))
-  expect_equal(class(unlist(dt$seriesX)),'character')
-  expect_equal(class(unlist(dt$seriesY)),'character')
 
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
