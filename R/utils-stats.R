@@ -327,14 +327,15 @@ nonparametricTest <- function(values, groups) {
   
   if (class(testResult) == 'try-error'){
     testResult <- list("statistic" = numeric(),
-      "p.value" = numeric(),
+      "pvalue" = numeric(),
       "parameter" = numeric(),
       "method" = character(),
       "statsError" = jsonlite::unbox(as.character(testResult[1])))
     testResult <- list(testResult)
   } else {
     testResult$parameter <- as.numeric(testResult$parameter)
-    testResult <- list(c(testResult[c('statistic', 'p.value', 'parameter', 'method')], "statsError" = jsonlite::unbox("")))
+    names(testResult)[names(testResult) == 'p.value'] <- 'pvalue'
+    testResult <- list(c(testResult[c('statistic', 'pvalue', 'parameter', 'method')], "statsError" = jsonlite::unbox("")))
   }
   
   return(testResult)
