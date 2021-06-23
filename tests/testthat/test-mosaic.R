@@ -7,7 +7,7 @@ test_that("mosaic.dt() returns a valid plot.data mosaic object", {
   expect_is(dt, 'plot.data')
   expect_is(dt, 'mosaic')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'incompleteCases','completeCasesTable','sampleSizeTable','facetVariable1', 'statsTable'))
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCases','completeCasesTable','sampleSizeTable','facetVariable1', 'statsTable'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 3)
@@ -26,7 +26,7 @@ test_that("mosaic.dt() returns plot data and config of the appropriate types", {
   expect_equal(class(unlist(dt$panel)), 'character')
   expect_equal(class(unlist(dt$value)), 'integer')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(class(namedAttrList$incompleteCases),c('scalar', 'integer'))
+  expect_equal(class(namedAttrList$completeCases),c('scalar', 'integer'))
   completeCases <- completeCasesTable(dt)
   expect_equal(class(unlist(completeCases$variableDetails)), 'character')
   expect_equal(class(unlist(completeCases$completeCases)), 'integer')
@@ -84,7 +84,7 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$mosaic$data),c('xLabel','yLabel','value','facetVariableDetails'))
   expect_equal(names(jsonList$mosaic$data$facetVariableDetails),c('variableId','entityId','value'))
   expect_equal(nrow(jsonList$mosaic$data$facetVariableDetails), 4)
-  expect_equal(names(jsonList$mosaic$config),c('incompleteCases','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$mosaic$config),c('completeCases','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','xVariableDetails','size'))
   expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','facetVariableDetails'))
@@ -105,6 +105,6 @@ test_that("mosaic.dt() returns correct information about missing data", {
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - 10
   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
-  # number of incompleteCases should be <= sum of incomplete cases within each var
-  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(nrow(df) - completecasestable$completeCases), TRUE) 
+  # number of completeCases should be <= complete cases for each var
+  expect_equal(all(attr(dt, 'completeCases')[1] <= completecasestable$completeCases), TRUE) 
 })

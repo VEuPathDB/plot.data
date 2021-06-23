@@ -8,7 +8,7 @@ test_that("bar.dt() returns a valid plot.data barplot object", {
   expect_is(dt, 'plot.data')
   expect_is(dt, 'barplot')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'incompleteCases','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2'))
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'completeCases','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 3)
@@ -27,7 +27,7 @@ test_that("bar.dt() returns plot data and config of the appropriate types", {
   expect_is(dt$value, 'list')
   expect_equal(class(unlist(dt$value)), 'integer')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(class(namedAttrList$incompleteCases),c('scalar', 'integer'))
+  expect_equal(class(namedAttrList$completeCases),c('scalar', 'integer'))
   completeCases <- completeCasesTable(dt)
   expect_equal(class(unlist(completeCases$variableDetails)), 'character')
   expect_equal(class(unlist(completeCases$completeCases)), 'integer')
@@ -109,7 +109,7 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(names(jsonList), c('barplot','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$barplot), c('data','config'))
   expect_equal(names(jsonList$barplot$data), c('overlayVariableDetails','facetVariableDetails','label','value'))
-  expect_equal(names(jsonList$barplot$config), c('incompleteCases','xVariableDetails'))
+  expect_equal(names(jsonList$barplot$config), c('completeCases','xVariableDetails'))
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','facetVariableDetails','xVariableDetails','size'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
 })
@@ -127,7 +127,7 @@ test_that("bar.dt() returns correct information about missing data", {
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - 10
   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
-  # number of incompleteCases should be <= sum of incomplete cases within each var
-  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(nrow(df) - completecasestable$completeCases), TRUE)
+  # number of completeCases should be <= complete cases for each var
+  expect_equal(all(attr(dt, 'completeCases')[1] <= completecasestable$completeCases), TRUE)
   
 })
