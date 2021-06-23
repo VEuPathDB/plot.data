@@ -57,7 +57,7 @@ newPlotdata <- function(.dt = data.table(),
   myCols <- c(x, y, z, group, panel)
   .dt <- .dt[, myCols, with=FALSE]
 
-  incompleteCases <- jsonlite::unbox(nrow(.dt[!complete.cases(.dt),]))
+  completeCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]))
   
   .dt <- .dt[complete.cases(.dt),]
   
@@ -86,7 +86,7 @@ newPlotdata <- function(.dt = data.table(),
   attr$xAxisVariable <-  xAxisVariable
   if (!is.null(y)) { attr$yAxisVariable <- yAxisVariable }
   if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
-  attr$incompleteCases <- incompleteCases
+  attr$completeCases <- completeCases
   attr$completeCasesTable <- completeCasesTable
   attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, overlayGroup, panel)
   attr$class = c(class, 'plot.data', attr$class)
