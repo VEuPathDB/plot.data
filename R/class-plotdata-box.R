@@ -67,17 +67,18 @@ newBoxPD <- function(.dt = data.table::data.table(),
   }
 
   if (points == 'outliers') {
-    points <- groupOutliers(.pd, x, y, group, panel)
-    points[[x]] <- NULL
-    if (!is.null(key(points))) {
-      .pd.base <- merge(.pd.base, points)
+    outliers <- groupOutliers(.pd, x, y, group, panel)
+    outliers[[x]] <- NULL
+    if (!is.null(key(outliers))) {
+      .pd.base <- merge(.pd.base, outliers)
     } else {
-      .pd.base <- cbind(.pd.base, points)
+      .pd.base <- cbind(.pd.base, outliers)
     }
   } else if (points == 'all') {
-    rawData <- collapseByGroup(.pd, group, panel)
-    data.table::setnames(rawData, x, 'seriesX')
-    data.table::setnames(rawData, y, 'seriesY')
+    rawData <- .pd[, lapply(.SD, list), by=eval(colnames(.pd)[colnames(.pd) %in% c(x, group, panel)])]
+    rawData <- collapseByGroup(rawData, group, panel)
+    rawData[[x]] <- NULL
+    data.table::setnames(rawData, y, 'rawData')
 
     if (!is.null(key(rawData))) {
       .pd.base <- merge(.pd.base, rawData)
