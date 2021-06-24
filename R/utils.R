@@ -8,7 +8,7 @@ tableAsDT <- function(data, x, y) {
   yLabels <- colnames(tbl)
   rownames(tbl) <- NULL
   colnames(tbl) <- NULL
-  dt <- data.table::data.table('xLabel'=xLabels,'yLabel'=yLabels,'value'=lapply(apply(tbl,1,list),unlist))
+  dt <- data.table::data.table('xLabel'=xLabels,'yLabel'=rep(list(yLabels),length(xLabels)),'value'=lapply(apply(tbl,1,list),unlist))
   dt <- collapseByGroup(dt)
 
   return(dt)

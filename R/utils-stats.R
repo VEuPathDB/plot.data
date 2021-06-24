@@ -275,19 +275,8 @@ bothRatios <- function(tbl, collapse = TRUE) {
 }
 
 chiSq <- function(tbl, collapse = TRUE) {
-  dt <- as.data.frame.matrix(tbl)
-  data.table::setDT(dt)
-  dt[, value := lapply(transpose(.SD), as.vector)]
-  dt$yLabel <- list(names(dt)[names(dt) != 'value'])
-  dt$xLabel <- rownames(tbl)
-  dt <- dt[, c('value','yLabel','xLabel'), with=FALSE]
-  if (collapse) {
-    dt <-  collapseByGroup(dt)
-  }
   chisq <- chisq.test(tbl)
-  dt$chisq <- jsonlite::unbox(chisq$statistic)
-  dt$pvalue <- jsonlite::unbox(chisq$p.value)
-  dt$degreesFreedom <- jsonlite::unbox(chisq$parameter)
+  dt <- data.table::data.table('chisq'=jsonlite::unbox(chisq$statistic), 'pvalue'=jsonlite::unbox(chisq$p.value), 'degreesFreedom'=jsonlite::unbox(chisq$parameter))
 
   return(dt)
 }
