@@ -16,7 +16,7 @@ newBarPD <- function(.dt = data.table::data.table(),
                                               'dataType' = NULL,
                                               'dataShape' = NULL),
                          value = character(),
-                         layout = character(),
+                         barmode = character(),
                          ...,
                          class = character()) {
 
@@ -43,10 +43,10 @@ newBarPD <- function(.dt = data.table::data.table(),
 
   } else if (value == 'proportion') {
       .pd$dummy <- 1
-    if (layout == 'stacked') {
-      .pd <- groupProportion(.pd, x, 'dummy', group, panel, 'stacked', collapse = T)
-    } else if (layout == 'grouped') {
-      .pd <- groupProportion(.pd, x, 'dummy', group, panel, 'grouped', collapse = T)
+    if (barmode == 'stack') {
+      .pd <- groupProportion(.pd, x, 'dummy', group, panel, barmode, collapse = T)
+    } else if (barmode == 'group') {
+      .pd <- groupProportion(.pd, x, 'dummy', group, panel, barmode, collapse = T)
     }
     data.table::setnames(.pd, c(group, panel, 'label', 'value'))
   }
@@ -98,12 +98,12 @@ validateBarPD <- function(.bar) {
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
-#' @param layout String indicating if bars should be stacked or grouped ('stacked', 'grouped')
+#' @param barmode String indicating if bars should be stacked or grouped ('stack', 'group')
 #' @return data.table plot-ready data
 #' @export
-bar.dt <- function(data, map, value = c('count', 'identity', 'proportion'), layout = c('stacked', 'grouped')) {
+bar.dt <- function(data, map, value = c('count', 'identity', 'proportion'), barmode = c('stack', 'group')) {
   value <- match.arg(value)
-  layout <- match.arg(layout)
+  barmode <- match.arg(barmode)
 
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -143,7 +143,7 @@ bar.dt <- function(data, map, value = c('count', 'identity', 'proportion'), layo
                     facetVariable1 = facetVariable1,
                     facetVariable2 = facetVariable2,
                     value,
-                    layout)
+                    barmode)
 
   .bar <- validateBarPD(.bar)
 
@@ -163,13 +163,13 @@ bar.dt <- function(data, map, value = c('count', 'identity', 'proportion'), layo
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
-#' @param layout String indicating if bars should be stacked or grouped ('stacked', 'grouped')
+#' @param barmode String indicating if bars should be stacked or grouped ('stack', 'group')
 #' @return character name of json file containing plot-ready data
 #' @export
-bar <- function(data, map, value = c('count', 'identity', 'proportion'), layout = c('stacked', 'grouped')) {
+bar <- function(data, map, value = c('count', 'identity', 'proportion'), barmode = c('stack', 'group')) {
   value <- match.arg(value)
-  layout <- match.arg(layout)
-  .bar <- bar.dt(data, map, value, layout)
+  barmode <- match.arg(barmode)
+  .bar <- bar.dt(data, map, value, barmode)
   outFileName <- writeJSON(.bar, 'barplot')
 
   return(outFileName)
