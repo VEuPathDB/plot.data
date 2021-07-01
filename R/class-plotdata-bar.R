@@ -42,12 +42,8 @@ newBarPD <- function(.dt = data.table::data.table(),
     data.table::setnames(.pd, c(group, panel, 'label', 'value'))
 
   } else if (value == 'proportion') {
-      .pd$dummy <- 1
-    if (barmode == 'stack') {
-      .pd <- groupProportion(.pd, x, 'dummy', group, panel, barmode, collapse = T)
-    } else if (barmode == 'group') {
-      .pd <- groupProportion(.pd, x, 'dummy', group, panel, barmode, collapse = T)
-    }
+    .pd$dummy <- 1
+    .pd <- groupProportion(.pd, x, 'dummy', group, panel, barmode, collapse = T)
     data.table::setnames(.pd, c(group, panel, 'label', 'value'))
   }
   

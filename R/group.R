@@ -88,7 +88,7 @@ groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T)
 }
 
 
-groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, barmode, collapse=T) {
+groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, barmode = 'group', collapse=T) {
 
   
   aggStr <- getAggStr(y, c(x, group, panel))
@@ -101,7 +101,8 @@ groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, barmo
     # Aggregate to get counts of value per group
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, length))
     
-    if (barmode == 'grouped') {
+    # byCols determine the denominator of the proportion calculation
+    if (barmode == 'group') {
       byCols <- c(group, panel)
     } else {
       byCols <- c(x)
