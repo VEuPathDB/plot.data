@@ -44,14 +44,13 @@ newBarPD <- function(.dt = data.table::data.table(),
   } else if (value == 'proportion') {
       .pd$dummy <- 1
     if (layout == 'stacked') {
-      .pd <- groupProportion(.pd, x, 'dummy', group, panel, collapse = T)
-      data.table::setnames(.pd, c(group, panel, 'label', 'value'))
+      .pd <- groupProportion(.pd, x, 'dummy', group, panel, 'stacked', collapse = T)
     } else if (layout == 'grouped') {
-      .pd <- groupProportion(.pd, x, 'dummy', group, panel, collapse = T)
-      data.table::setnames(.pd, c(group, panel, 'label', 'value'))
+      .pd <- groupProportion(.pd, x, 'dummy', group, panel, 'grouped', collapse = T)
     }
-
+    data.table::setnames(.pd, c(group, panel, 'label', 'value'))
   }
+  
   attr$names <- names(.pd)
   
   setAttrFromList(.pd, attr)
