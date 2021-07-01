@@ -94,10 +94,10 @@ validateBarPD <- function(.bar) {
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
-#' @param barmode String indicating if bars should be stacked or grouped ('stack', 'group')
+#' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
 #' @return data.table plot-ready data
 #' @export
-bar.dt <- function(data, map, value = c('count', 'identity', 'proportion'), barmode = c('stack', 'group')) {
+bar.dt <- function(data, map, value = c('count', 'identity', 'proportion'), barmode = c('group', 'stack')) {
   value <- match.arg(value)
   barmode <- match.arg(barmode)
 
@@ -159,10 +159,10 @@ bar.dt <- function(data, map, value = c('count', 'identity', 'proportion'), barm
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
-#' @param barmode String indicating if bars should be stacked or grouped ('stack', 'group')
+#' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
 #' @return character name of json file containing plot-ready data
 #' @export
-bar <- function(data, map, value = c('count', 'identity', 'proportion'), barmode = c('stack', 'group')) {
+bar <- function(data, map, value = c('count', 'identity', 'proportion'), barmode = c('group', 'stack')) {
   value <- match.arg(value)
   barmode <- match.arg(barmode)
   .bar <- bar.dt(data, map, value, barmode)
