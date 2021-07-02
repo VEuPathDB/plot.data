@@ -105,7 +105,7 @@ groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, barmo
     if (barmode == 'group') {
       byCols <- c(group, panel)
     } else {
-      byCols <- c(x)
+      byCols <- c(x, panel)
     }
     
     # If there are no strata vars, then we don't need the by term

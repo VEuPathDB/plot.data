@@ -62,8 +62,9 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),16)
   expect_equal(names(dt),c('panel', 'label', 'value'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
-  # sum of x counts should sum to 1
-  expect_equal(sum(unlist(lapply(seq_along(dt$label), function(v, dt) {dt$value[[v]][which(dt$label[[v]] == df$x[1])]}, dt))),1)
+  # sum of x counts should sum to 1 for each panel. Checking panel1.||.group2
+  expect_equal(sum(unlist(lapply(seq_along(dt[dt$panel == 'panel1.||.group2']$label), function(v, dt) {dt[dt$panel=='panel1.||.group2']$value[[v]][which(dt[dt$panel == 'panel1.||.group2']$label[[v]] == df$x[1])]}, dt))),1)
+  
 
   map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.binned)
@@ -91,8 +92,8 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_is(dt$value, 'list')
   expect_equal(nrow(dt),16)
   expect_equal(names(dt),c('group', 'panel', 'label', 'value'))
-  # sum of x counts should sum to 1
-  expect_equal(sum(unlist(lapply(seq_along(dt$label), function(v, dt) {dt$value[[v]][which(dt$label[[v]] == df$x[1])]}, dt))),1)
+  # sum of x counts should sum to 1 for each panel. Checking panel 1
+  expect_equal(sum(unlist(lapply(seq_along(dt[dt$panel == 'panel1']$label), function(v, dt) {dt[dt$panel=='panel1']$value[[v]][which(dt[dt$panel == 'panel1']$label[[v]] == df$x[1])]}, dt))),1)
   
 
   map <- data.frame('id' = c('group', 'x'), 'plotRef' = c('overlayVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
