@@ -50,9 +50,10 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL
         
         aggStr2 <- getAggStr(col, c(panel))
         dt2 <- aggregate(as.formula(aggStr2), data, length)
-        data.table::setnames(dt2, c(group, panel, 'denom'))
-        mergeByCols <- c(group, panel)
+        data.table::setnames(dt2, c(panel, 'denom'))
+        mergeByCols <- c(panel)
         dt <- merge(dt, dt2, by = mergeByCols)
+        data.table::setcolorder(dt, c(group, colnames(dt)[!(colnames(dt) %in% c(group))]))
         
       }
     } else {

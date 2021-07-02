@@ -7,21 +7,49 @@ test_that("binProportion() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt), c('binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(sum(dt$value[[1]]), 1)
+  
+  dt <- binProportion(data.xy,'y', binWidth=.1, barmode='stack', viewport=viewport)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt), c('binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(sum(dt$value[[1]]), 1)
 
   dt <- binProportion(data.xy, 'y','group', binWidth=.1, barmode='overlay', viewport=viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt), c('group', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(all(unlist(lapply(dt$value, sum)) == 1), TRUE)
+  
+  dt <- binProportion(data.xy, 'y','group', binWidth=.1, barmode='stack', viewport=viewport)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),4)
+  expect_equal(names(dt), c('group', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(sum(unlist(lapply(dt$value, sum))), 1)
 
   dt <- binProportion(data.xy, 'y', NULL, 'panel', binWidth=.1, barmode = 'overlay', viewport=viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt), c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(all(unlist(lapply(dt$value, sum)) == 1), TRUE)
+  
+  dt <- binProportion(data.xy, 'y', NULL, 'panel', binWidth=.1, barmode = 'stack', viewport=viewport)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),4)
+  expect_equal(names(dt), c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(all(unlist(lapply(dt$value, sum)) == 1), TRUE)
 
   dt <- binProportion(data.xy, 'y', 'group', 'panel', binWidth=.1, barmode = 'overlay', viewport=viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
   expect_equal(names(dt), c('group', 'panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(all(unlist(lapply(dt[dt$panel == 'panel1']$value, sum)) == 1), TRUE)
+  
+  dt <- binProportion(data.xy, 'y', 'group', 'panel', binWidth=.1, barmode = 'stack', viewport=viewport)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),16)
+  expect_equal(names(dt), c('group', 'panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(sum(unlist(lapply(dt[dt$panel == 'panel1']$value, sum))), 1)
 
 })
 
