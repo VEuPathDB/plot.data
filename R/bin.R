@@ -32,26 +32,33 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL
     dt <- data.table::data.table('binLabel' = list(dt$binLabel), 'binStart' = list(dt$binStart), 'binEnd' = list(dt$binEnd), 'value' = list(dt[[col]]/dt$denom))
   } else {
     
-    
-    if (barmode == 'stack') {
+    if (barmode == 'overlay') {
+      
       aggStr2 <- getAggStr(col, c(group, panel))
       dt2 <- aggregate(as.formula(aggStr2), data, length)
       data.table::setnames(dt2, c(group, panel, 'denom'))
       mergeByCols <- c(group, panel)
       dt <- merge(dt, dt2, by = mergeByCols)
-    } else if (barmode == 'overlay') {
+      
+    } else if (barmode == 'stack') {
+      
       if (is.null(panel)) {
+        
         dt$denom <- length(data[[col]])
+        
       } else {
+        
         aggStr2 <- getAggStr(col, c(panel))
         dt2 <- aggregate(as.formula(aggStr2), data, length)
         data.table::setnames(dt2, c(group, panel, 'denom'))
         mergeByCols <- c(group, panel)
         dt <- merge(dt, dt2, by = mergeByCols)
+        
       }
     } else {
       stop('Options for barmode are "stack" or "overlay".')
     }
+    
     dt[[col]] <- dt[[col]]/dt$denom
     dt$denom <- NULL
     dt <- collapseByGroup(dt, group, panel)
