@@ -88,8 +88,11 @@ groupSize <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T)
 }
 
 
-groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
+groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, barmode = 'group', collapse=T) {
+
+  
   aggStr <- getAggStr(y, c(x, group, panel))
+
   
   if (aggStr == y) {
     dt <- data.table::as.data.table(t(1)) # Without any grouping, proportion should always = 1
@@ -97,13 +100,19 @@ groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, colla
 
     # Aggregate to get counts of value per group
     dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, length))
-    strataCols <- c(group, panel)
+    
+    # byCols determine the denominator of the proportion calculation
+    if (barmode == 'group') {
+      byCols <- c(group, panel)
+    } else {
+      byCols <- c(x, panel)
+    }
     
     # If there are no strata vars, then we don't need the by term
-    if (is.null(strataCols)) {
+    if (is.null(byCols)) {
       dt[, sum := sum(get(y))][, proportion := get(y)/sum]
     } else {
-      dt[, sum := sum(get(y)), by=strataCols][, proportion := get(y)/sum]
+      dt[, sum := sum(get(y)), by=byCols][, proportion := get(y)/sum]
     }
     
     # Remove unnecessary columns

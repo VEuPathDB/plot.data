@@ -21,6 +21,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          binWidth,
                          binReportValue = character(),
                          value = character(),
+                         barmode = character(),
                          ...,
                          class = character()) {
 
@@ -125,7 +126,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   if (value == 'count') {
     .pd <- binSize(.pd, x, group, panel, binWidth, viewport)
   } else if (value == 'proportion' ) {
-    .pd <- binProportion(.pd, x, group, panel, binWidth, viewport)
+    .pd <- binProportion(.pd, x, group, panel, binWidth, barmode, viewport)
   } else {
     stop('Unrecognized argument to "value".')
   }
@@ -218,6 +219,7 @@ validateHistogramPD <- function(.histo) {
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
 #' @param value String indicating how to calculate y-values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
+#' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
 #' @return data.table plot-ready data
 #' @importFrom stringr str_count
@@ -227,7 +229,8 @@ histogram.dt <- function(data,
                          map, 
                          binWidth = NULL, 
                          value = c('count', 'proportion'), 
-                         binReportValue = c('binWidth', 'numBins'), 
+                         binReportValue = c('binWidth', 'numBins'),
+                         barmode = c('stack', 'overlay'),
                          viewport = NULL) {
 
   overlayVariable = list('variableId' = NULL,
@@ -243,6 +246,7 @@ histogram.dt <- function(data,
                         'dataType' = NULL,
                         'dataShape' = NULL)
   value <- match.arg(value)
+  barmode <- match.arg(barmode)
   binReportValue <- match.arg(binReportValue)
 
   if (!'data.table' %in% class(data)) {
@@ -278,7 +282,8 @@ histogram.dt <- function(data,
                            viewport = viewport,
                            binWidth = binWidth,
                            binReportValue = binReportValue,
-                           value = value)
+                           value = value,
+                           barmode = barmode)
 
   .histo <- validateHistogramPD(.histo)
 
@@ -297,6 +302,7 @@ histogram.dt <- function(data,
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
 #' @param value String indicating how to calculate y-values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
+#' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
 #' @return character name of json file containing plot-ready data
 #' @importFrom jsonlite unbox
@@ -306,12 +312,14 @@ histogram <- function(data,
                       binWidth = NULL, 
                       value = c('count', 'proportion'), 
                       binReportValue = c('binWidth', 'numBins'), 
+                      barmode = c('stack', 'overlay'),
                       viewport = NULL) {
 
   value <- match.arg(value)
+  barmode <- match.arg(barmode)
   binReportValue <- match.arg(binReportValue)
 
-  .histo <- histogram.dt(data, map, binWidth, value, binReportValue, viewport)
+  .histo <- histogram.dt(data, map, binWidth, value, binReportValue, barmode, viewport)
   outFileName <- writeJSON(.histo, 'histogram')
 
   return(outFileName)
