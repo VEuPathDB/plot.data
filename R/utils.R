@@ -33,8 +33,11 @@ collapseByGroup <- function(data, group = NULL, panel = NULL) {
 trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 
 plotRefMapToList <- function(map, plotRef) {
-  plotRef <- list('variableId' = map$id[map$plotRef == plotRef],
-                  'entityId' = map$entityId[map$plotRef == plotRef],
+  variableId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 2)
+  entityId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 1)
+
+  plotRef <- list('variableId' = variableId,
+                  'entityId' = entityId,
                   'dataType' = map$dataType[map$plotRef == plotRef],
                   'dataShape' = map$dataShape[map$plotRef == plotRef])
 
