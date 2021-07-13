@@ -16,6 +16,21 @@ test_that("box.dt() returns a valid plot.data box object", {
   expect_equal(names(sampleSizes), c('group','panel','size'))
   expect_equal(nrow(sampleSizes), 4)
   expect_equal(names(namedAttrList$statsTable), c('panel','statistics'))
+  
+  dt <- box.dt(df, map, 'all', FALSE)
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'boxplot')
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCases','completeCasesTable','sampleSizeTable','overlayVariable', 'statsTable'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(names(completeCases), c('variableDetails','completeCases'))
+  expect_equal(nrow(completeCases), 3)
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizes), c('group','panel','size'))
+  expect_equal(nrow(sampleSizes), 4)
+  expect_equal(names(namedAttrList$statsTable), c('panel','statistics'))
+  expect_equal(dt$group[[1]], 'group1')
+  expect_equal(dt$panel[[1]], c('panel1','panel2','panel3','panel4'))
+  expect_equal(unlist(lapply(dt$rawData[[1]], length)), c(25,50,25,25))
 })
 
 test_that("box.dt() returns plot data and config of the appropriate types", {

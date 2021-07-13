@@ -75,7 +75,8 @@ newBoxPD <- function(.dt = data.table::data.table(),
       .pd.base <- cbind(.pd.base, outliers)
     }
   } else if (points == 'all') {
-    rawData <- .pd[, lapply(.SD, list), by=eval(colnames(.pd)[colnames(.pd) %in% c(x, group, panel)])]
+    aggStr <- getAggStr(y, c(x, group, panel))
+    rawData <- data.table::as.data.table(aggregate(as.formula(aggStr), .pd, list))
     rawData <- collapseByGroup(rawData, group, panel)
     rawData[[x]] <- NULL
     data.table::setnames(rawData, y, 'rawData')
