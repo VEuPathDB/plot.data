@@ -120,11 +120,8 @@ bar.dt <- function(data, map, value = c('count', 'identity', 'proportion'), evil
                         'dataType' = NULL,
                         'dataShape' = NULL)
 
-  value <- match.arg(value)
-  evilMode <- evilMode[1]
-  if (!evilMode %in% c(FALSE, TRUE)) {
-    stop('invalid input to argument `evilMode`.')
-  }
+  value <- matchArg(value)
+  evilMode <- matchArg(evilMode)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -183,11 +180,10 @@ bar.dt <- function(data, map, value = c('count', 'identity', 'proportion'), evil
 #' @return character name of json file containing plot-ready data
 #' @export
 bar <- function(data, map, value = c('count', 'identity', 'proportion'), evilMode = c(FALSE, TRUE)) {
-  value <- match.arg(value)
-  evilMode <- evilMode[1]
-  if (!evilMode %in% c(FALSE, TRUE)) {
-    stop('invalid input to argument `evilMode`.')
-  }
+
+  value <- matchArg(value)
+  evilMode <- matchArg(evilMode)  
+
   .bar <- bar.dt(data, map, value, evilMode)
   outFileName <- writeJSON(.bar, evilMode, 'barplot')
 

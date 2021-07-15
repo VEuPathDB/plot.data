@@ -259,8 +259,8 @@ histogram.dt <- function(data,
                         'entityId' = NULL,
                         'dataType' = NULL,
                         'dataShape' = NULL)
-  value <- match.arg(value)
-  binReportValue <- match.arg(binReportValue)
+  value <- matchArg(value)
+  binReportValue <- matchArg(binReportValue)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -336,12 +336,9 @@ histogram <- function(data,
                       viewport = NULL,
                       evilMode = c(FALSE, TRUE)) {
 
-  value <- match.arg(value)
-  binReportValue <- match.arg(binReportValue)
-  evilMode <- evilMode[1]
-  if (!evilMode %in% c(FALSE, TRUE)) {
-    stop('invalid input to argument `evilMode`.')
-  }
+  value <- matchArg(value)
+  binReportValue <- matchArg(binReportValue)
+  evilMode <- matchArg(evilMode)
 
   .histo <- histogram.dt(data, map, binWidth, value, binReportValue, viewport, evilMode)
   outFileName <- writeJSON(.histo, evilMode, 'histogram')

@@ -101,10 +101,9 @@ validateHeatmapPD <- function(.heatmap) {
 #' @return data.table plot-ready data
 #' @export
 heatmap.dt <- function(data, map, value = c('series', 'collection'), evilMode = c(FALSE, TRUE)) {
-  value <- match.arg(value)
-  if (!evilMode %in% c(FALSE, TRUE)) {
-    stop('invalid input to argument `evilMode`.')
-  }
+
+  value <- matchArg(value)
+  evilMode <- matchArg(evilMode)
 
   zAxisVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -193,10 +192,8 @@ heatmap.dt <- function(data, map, value = c('series', 'collection'), evilMode = 
 #' @return character name of json file containing plot-ready data
 #' @export
 heatmap <- function(data, map, value = c('series','collection'), evilMode = c(FALSE, TRUE)) {
-  value <- match.arg(value)
-  if (!evilMode %in% c(FALSE, TRUE)) {
-    stop('invalid input to argument `evilMode`.')
-  }
+  value <- matchArg(value)
+  evilMode <- matchArg(evilMode)
 
   .heatmap <- heatmap.dt(data, map, value, evilMode)
   outFileName <- writeJSON(.heatmap, evilMode, 'heatmap')

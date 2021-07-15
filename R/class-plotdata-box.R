@@ -165,22 +165,11 @@ validateBoxPD <- function(.box) {
 #' @return data.table plot-ready data
 #' @export
 box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE), evilMode = c(FALSE, TRUE)) {
-  points <- match.arg(points)
-  
-  mean <- mean[1]
-  if (!mean %in% c(FALSE, TRUE)) { 
-    stop('invalid input to argument `mean`.') 
-  }
 
-  computeStats <- computeStats[1]
-  if (!computeStats %in% c(TRUE, FALSE)) {
-    stop('invalid input to argument `computeStats`.') 
-  }
-  
-  evilMode <- evilMode[1]
-  if (!evilMode %in% c(FALSE, TRUE)) {
-    stop('invalid input to argument `evilMode`.')
-  }
+  points <- matchArg(points)
+  mean <- matchArg(mean)
+  computeStats <- matchArg(computeStats)
+  evilMode <- matchArg(evilMode)
 
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -290,21 +279,11 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 #' @return character name of json file containing plot-ready data
 #' @export
 box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE), evilMode = c(FALSE, TRUE)) {
-  points <- match.arg(points)
-  mean <- mean[1]
-  if (!mean %in% c(FALSE, TRUE)) { 
-    stop('invalid input to argument `mean`.') 
-  }
 
-  computeStats <- computeStats[1]
-  if (!computeStats %in% c(TRUE, FALSE)) {
-    stop('invalid input to argument `computeStats`.') 
-  }
-
-  evilMode <- evilMode[1]
-  if (!evilMode %in% c(FALSE, TRUE)) {
-    stop('invalid input to argument `evilMode`.')
-  }  
+  points <- matchArg(points)
+  mean <- matchArg(mean)
+  computeStats <- matchArg(computeStats)
+  evilMode <- matchArg(evilMode)
 
   .box <- box.dt(data, map, points, mean, computeStats, evilMode)
   outFileName <- writeJSON(.box, evilMode, 'boxplot')

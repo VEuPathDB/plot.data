@@ -151,12 +151,10 @@ scattergl.dt <- function(data,
                          map, 
                          value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
                          evilMode = c(FALSE, TRUE)) {
-  value <- match.arg(value)
-  evilMode <- evilMode[1]
-  if (!evilMode %in% c(FALSE, TRUE)) {
-    stop('invalid input to argument `evilMode`.')
-  }
 
+  value <- matchArg(value)
+  evilMode <- matchArg(evilMode) 
+  
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
                          'dataType' = NULL,
@@ -274,11 +272,9 @@ scattergl.dt <- function(data,
 #' @return character name of json file containing plot-ready data
 #' @export
 scattergl <- function(data, map, value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'), evilMode = c(FALSE, TRUE)) {
-  value <- match.arg(value)
-  evilMode <- evilMode[1]
-  if (!evilMode %in% c(FALSE, TRUE)) {
-    stop('invalid input to argument `evilMode`.')
-  }
+
+  value <- matchArg(value)
+  evilMode <- matchArg(evilMode)
 
   .scatter <- scattergl.dt(data, map, value, evilMode)
   outFileName <- writeJSON(.scatter, evilMode, 'scattergl')
