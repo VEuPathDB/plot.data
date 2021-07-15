@@ -152,16 +152,12 @@ validateBoxPD <- function(.box) {
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
 #' @return data.table plot-ready data
 #' @export
-box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE)) {
-  points <- match.arg(points)
-  
-  if (!mean %in% c(FALSE, TRUE)) { 
-    stop('invalid input to argument `mean`.') 
-  }
 
-  if (!computeStats %in% c(TRUE, FALSE)) {
-    stop('invalid input to argument `computeStats`.') 
-  }
+box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE)) {
+
+  points <- matchArg(points)
+  mean <- matchArg(mean)
+  computeStats <- matchArg(computeStats)
   
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -260,16 +256,14 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
 #' @return character name of json file containing plot-ready data
 #' @export
+
 box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE)) {
-  points <- match.arg(points)
-  if (!mean %in% c(FALSE, TRUE)) { 
-    stop('invalid input to argument `mean`.') 
-  }
-  if (!computeStats %in% c(TRUE, FALSE)) {
-    stop('invalid input to argument `computeStats`.') 
-  }
+  points <- matchArg(points)
+  mean <- matchArg(mean)
+  computeStats <- matchArg(computeStats)
 
   .box <- box.dt(data, map, points, mean, computeStats)
+
   outFileName <- writeJSON(.box, 'boxplot')
 
   return(outFileName)

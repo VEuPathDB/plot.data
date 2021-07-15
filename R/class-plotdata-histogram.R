@@ -242,8 +242,8 @@ histogram.dt <- function(data,
                         'entityId' = NULL,
                         'dataType' = NULL,
                         'dataShape' = NULL)
-  value <- match.arg(value)
-  binReportValue <- match.arg(binReportValue)
+  value <- matchArg(value)
+  binReportValue <- matchArg(binReportValue)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -308,8 +308,8 @@ histogram <- function(data,
                       binReportValue = c('binWidth', 'numBins'), 
                       viewport = NULL) {
 
-  value <- match.arg(value)
-  binReportValue <- match.arg(binReportValue)
+  value <- matchArg(value)
+  binReportValue <- matchArg(binReportValue)
 
   .histo <- histogram.dt(data, map, binWidth, value, binReportValue, viewport)
   outFileName <- writeJSON(.histo, 'histogram')

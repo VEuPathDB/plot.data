@@ -311,6 +311,49 @@ updateAttrById <- function(attrInd, attr, .dt) {
   return(NULL)
 }
 
+
+# Adaptation of match.arg that accept logical vectors.
+matchArg <- function(arg, choices) {
+  
+  # If choices is not supplied, extract from function definition
+  if (missing(choices)) {
+    formal.args <- formals(sys.function(sys.parent()))
+    choices <- eval(formal.args[[as.character(substitute(arg))]])
+  }
+
+  # Return first value as default
+  if (is.null(arg)) return(choices[1L])
+  if (identical(arg, choices)) return(arg[1L])
+
+  # Validate inputs
+  if (!identical(typeof(arg), typeof(choices))) {
+    stop("'arg' must be of the same type as 'choices'.")
+  }
+  if (length(arg) != 1L) stop("'arg' must be of length 1")
+  if (!is.character(arg) && !is.logical(arg)) {
+     stop("'arg' must be NULL, a character vector, or a logical vector.")
+  }
+  
+  # Perform argument matching based on type
+  if (is.character(arg)) {
+
+    # If arg does not match any values in choices, err. Otherwise, arg must have matched.
+    if (!any(stringi::stri_detect_regex(choices, paste0('^', arg, '$')))) {
+      stop(gettextf("'arg' should be one of %s", paste(dQuote(choices), collapse = ", ")), domain = NA)
+    }
+    
+  } else if (is.logical(arg)) {
+
+    # If arg does not match any values in choices, err. Otherwise, arg must have matched.
+    if (!(arg %in% choices)) {
+      stop("'arg' does not match any value in 'choices'")
+    }
+  }
+
+  return (arg)
+}
+  
+
 remapListVar <- function(map, listVarPlotRef, newValuePlotRef, newVarId = 'meltedVariable', newValueId = 'meltedValue') {
   
   listVarEntity <- unique(map$entityId[map$plotRef == listVarPlotRef])
