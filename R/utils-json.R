@@ -51,21 +51,21 @@ addStrataVariableDetails <- function(.pd) {
   } else {
     if (!is.null(facet1)) {
       names(.pd)[names(.pd) == facet1] <- 'facetVariableDetails'
-      .pd$facetVariableDetails <- lapply(.pd$facetVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId)
+      .pd$facetVariableDetails <- lapply(lapply(.pd$facetVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId), list)
     } else if (!is.null(facet2)) {
       names(.pd)[names(.pd) == facet2] <- 'facetVariableDetails'
-      .pd$facetVariableDetails <- lapply(.pd$facetVariableDetails, makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId)
+      .pd$facetVariableDetails <- lapply(lapply(.pd$facetVariableDetails, makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId), list)
     }
   }
 
   return(.pd)
 }
 
-getJSON <- function(.pd) {
+getJSON <- function(.pd, evilMode) {
   namedAttrList <- getPDAttributes(.pd)
   class <- attr(.pd, 'class')[1] 
 
-  if ('statsTable' %in% names(namedAttrList)) {
+  if (!evilMode && 'statsTable' %in% names(namedAttrList)) {
     statsTable <- statsTable(.pd)
     namedAttrList$statsTable <- NULL
     attr <- attributes(statsTable)
@@ -156,8 +156,8 @@ getJSON <- function(.pd) {
 #' @importFrom jsonlite toJSON
 #' @importFrom jsonlite prettify
 #' @export
-writeJSON <- function(.pd, pattern = NULL) {
-  outJson <- getJSON(.pd)
+writeJSON <- function(.pd, evilMode, pattern = NULL) {
+  outJson <- getJSON(.pd, evilMode)
   if (is.null(pattern)) { 
     pattern <- attr(.pd, 'class')[1]
     if (is.null(pattern)) {

@@ -8,7 +8,7 @@ test_that("bar.dt() returns a valid plot.data barplot object", {
   expect_is(dt, 'plot.data')
   expect_is(dt, 'barplot')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'completeCases','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2'))
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'completeCases','plottedIncompleteCases','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 3)
@@ -135,12 +135,12 @@ test_that("bar() returns appropriately formatted json", {
   df <- as.data.frame(data.binned)
 
   dt <- bar.dt(df, map, value='count')
-  outJson <- getJSON(dt)
+  outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('barplot','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$barplot), c('data','config'))
   expect_equal(names(jsonList$barplot$data), c('overlayVariableDetails','facetVariableDetails','label','value'))
-  expect_equal(names(jsonList$barplot$config), c('completeCases','xVariableDetails'))
+  expect_equal(names(jsonList$barplot$config), c('completeCases','plottedIncompleteCases','xVariableDetails'))
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','facetVariableDetails','xVariableDetails','size'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
 })
@@ -160,5 +160,7 @@ test_that("bar.dt() returns correct information about missing data", {
   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCases')[1] <= completecasestable$completeCases), TRUE)
-  
+  expect_equal(attr(dt, 'plottedIncompleteCases')[1], 0)
+  dt <- bar.dt(df, map, value='count', evilMode = TRUE)
+  expect_equal(attr(dt, 'plottedIncompleteCases')[1], sum((is.na(df$group) | is.na(df$panel)) & !is.na(df$x))) 
 })

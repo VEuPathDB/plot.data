@@ -4,7 +4,12 @@
 \alias{heatmap}
 \title{Heatmap data file}
 \usage{
-heatmap(data, map, value = c("series", "collection"))
+heatmap(
+  data,
+  map,
+  value = c("series", "collection"),
+  evilMode = c(FALSE, TRUE)
+)
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
@@ -12,6 +17,8 @@ heatmap(data, map, value = c("series", "collection"))
 \item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'}
 
 \item{value}{String indicating which of the three methods to use to calculate z-values ('collection', 'series')}
+
+\item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
 }
 \value{
 character name of json file containing plot-ready data
@@ -23,8 +30,18 @@ plot-ready data with one row per group (per panel). Column 'table'
 table has a column for each x-axis entry and a row for each 
 y-axis entry. Columns 'group' and 'panel' specify the group the 
 series data belongs to. 
-There are two ways to calculate z-values for the heatmap.
-1) 'collection' of numeric variables vs single categorical
+There are two ways to calculate z-values for the heatmap. \cr
+1) 'collection' of numeric variables vs single categorical \cr
 2) single numeric vs single categorical on a 'series' of dates
 where yAxisVariable = categorical, xAxisVariable = date and zaxis = numeric
 }
+\section{Evil Mode}{
+
+An `evilMode` exists. It will do the following: \cr
+- return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+- not return statsTables \cr
+- allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+- return a total count of plotted incomplete cases \cr
+- represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+}
+

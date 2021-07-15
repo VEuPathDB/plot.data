@@ -4,7 +4,12 @@
 \alias{bar.dt}
 \title{Bar Plot as data.table}
 \usage{
-bar.dt(data, map, value = c("count", "identity", "proportion"))
+bar.dt(
+  data,
+  map,
+  value = c("count", "identity", "proportion"),
+  evilMode = c(FALSE, TRUE)
+)
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
@@ -12,6 +17,8 @@ bar.dt(data, map, value = c("count", "identity", "proportion"))
 \item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'}
 
 \item{value}{String indicating how to calculate y-values ('identity', 'count', 'proportion')}
+
+\item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
 }
 \value{
 data.table plot-ready data
@@ -21,8 +28,18 @@ This function returns a data.table of
 plot-ready data with one row per group (per panel). Columns 
 'label' and 'value' contain the raw data for plotting. Column 
 'group' and 'panel' specify the group the series data belongs to.
-There are three options to calculate y-values for plotting.
-1) raw 'identity' of values from data.table input
-2) 'count' occurrences of values from data.table input 
-3) 'proportion' of occurrences of values from data.table input
+There are three options to calculate y-values for plotting. \cr
+1) raw 'identity' of values from data.table input \cr
+2) 'count' occurrences of values from data.table input \cr 
+3) 'proportion' of occurrences of values from data.table input \cr
 }
+\section{Evil Mode}{
+
+An `evilMode` exists. It will do the following: \cr
+- return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+- not return statsTables \cr
+- allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+- return a total count of plotted incomplete cases \cr
+- represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+}
+
