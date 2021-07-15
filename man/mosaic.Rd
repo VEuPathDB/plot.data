@@ -4,12 +4,16 @@
 \alias{mosaic}
 \title{Mosaic data file}
 \usage{
-mosaic(data, map)
+mosaic(data, map, statistic = NULL, evilMode = c(FALSE, TRUE))
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
 
 \item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'}
+
+\item{statistic}{String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.}
+
+\item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
 }
 \value{
 character name of json file containing plot-ready data
@@ -20,3 +24,13 @@ plot-ready data with one row per panel. Columns
 'x' and 'y' contain the raw data for plotting. Column 'panel' 
 specifies the panel the data belongs to.
 }
+\section{Evil Mode}{
+
+An `evilMode` exists. It will do the following: \cr
+- return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+- not return statsTables \cr
+- allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+- return a total count of plotted incomplete cases \cr
+- represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+}
+

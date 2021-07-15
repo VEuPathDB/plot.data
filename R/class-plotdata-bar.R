@@ -16,6 +16,7 @@ newBarPD <- function(.dt = data.table::data.table(),
                                               'dataType' = NULL,
                                               'dataShape' = NULL),
                          value = character(),
+                         evilMode = logical(),
                          ...,
                          class = character()) {
 
@@ -24,6 +25,7 @@ newBarPD <- function(.dt = data.table::data.table(),
                      overlayVariable = overlayVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
+                     evilMode = evilMode,
                      class = "barplot")
 
   attr <- attributes(.pd)
@@ -85,17 +87,25 @@ validateBarPD <- function(.bar) {
 #' plot-ready data with one row per group (per panel). Columns 
 #' 'label' and 'value' contain the raw data for plotting. Column 
 #' 'group' and 'panel' specify the group the series data belongs to.
-#' There are three options to calculate y-values for plotting.
-#' 1) raw 'identity' of values from data.table input
-#' 2) 'count' occurrences of values from data.table input 
-#' 3) 'proportion' of occurrences of values from data.table input 
+#' There are three options to calculate y-values for plotting. \cr
+#' 1) raw 'identity' of values from data.table input \cr
+#' 2) 'count' occurrences of values from data.table input \cr 
+#' 3) 'proportion' of occurrences of values from data.table input \cr 
+#' 
+#' @section Evil Mode:
+#' An `evilMode` exists. It will do the following: \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - not return statsTables \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - return a total count of plotted incomplete cases \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
 #' @export
-bar.dt <- function(data, map, value = c('count', 'identity', 'proportion')) {
-  value <- match.arg(value)
+bar.dt <- function(data, map, value = c('count', 'identity', 'proportion'), evilMode = c(FALSE, TRUE)) {
 
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -109,6 +119,12 @@ bar.dt <- function(data, map, value = c('count', 'identity', 'proportion')) {
                         'entityId' = NULL,
                         'dataType' = NULL,
                         'dataShape' = NULL)
+
+  value <- match.arg(value)
+  evilMode <- evilMode[1]
+  if (!evilMode %in% c(FALSE, TRUE)) {
+    stop('invalid input to argument `evilMode`.')
+  }
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -134,7 +150,8 @@ bar.dt <- function(data, map, value = c('count', 'identity', 'proportion')) {
                     overlayVariable = overlayVariable,
                     facetVariable1 = facetVariable1,
                     facetVariable2 = facetVariable2,
-                    value)
+                    value = value,
+                    evilMode = evilMode)
 
   .bar <- validateBarPD(.bar)
 
@@ -147,19 +164,32 @@ bar.dt <- function(data, map, value = c('count', 'identity', 'proportion')) {
 #' plot-ready data with one row per group (per panel). Columns 
 #' 'label' and 'value' contain the raw data for plotting. Column 
 #' 'group' and 'panel' specify the group the series data belongs to.
-#' There are three options to calculate y-values for plotting.
-#' 1) raw 'identity' of values from data.table input
-#' 2) 'count' occurrences of values from data.table input 
-#' 3) 'proportion' of occurrences of values from data.table input 
+#' There are three options to calculate y-values for plotting. \cr
+#' 1) raw 'identity' of values from data.table input \cr
+#' 2) 'count' occurrences of values from data.table input \cr 
+#' 3) 'proportion' of occurrences of values from data.table input \cr
+#' 
+#' @section Evil Mode:
+#' An `evilMode` exists. It will do the following: \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - not return statsTables \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - return a total count of plotted incomplete cases \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
-bar <- function(data, map, value = c('count', 'identity', 'proportion')) {
+bar <- function(data, map, value = c('count', 'identity', 'proportion'), evilMode = c(FALSE, TRUE)) {
   value <- match.arg(value)
-  .bar <- bar.dt(data, map, value)
-  outFileName <- writeJSON(.bar, 'barplot')
+  evilMode <- evilMode[1]
+  if (!evilMode %in% c(FALSE, TRUE)) {
+    stop('invalid input to argument `evilMode`.')
+  }
+  .bar <- bar.dt(data, map, value, evilMode)
+  outFileName <- writeJSON(.bar, evilMode, 'barplot')
 
   return(outFileName)
 }

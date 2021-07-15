@@ -61,11 +61,11 @@ addStrataVariableDetails <- function(.pd) {
   return(.pd)
 }
 
-getJSON <- function(.pd) {
+getJSON <- function(.pd, evilMode) {
   namedAttrList <- getPDAttributes(.pd)
   class <- attr(.pd, 'class')[1] 
 
-  if ('statsTable' %in% names(namedAttrList)) {
+  if (!evilMode && 'statsTable' %in% names(namedAttrList)) {
     statsTable <- statsTable(.pd)
     namedAttrList$statsTable <- NULL
     attr <- attributes(statsTable)
@@ -156,8 +156,8 @@ getJSON <- function(.pd) {
 #' @importFrom jsonlite toJSON
 #' @importFrom jsonlite prettify
 #' @export
-writeJSON <- function(.pd, pattern = NULL) {
-  outJson <- getJSON(.pd)
+writeJSON <- function(.pd, evilMode, pattern = NULL) {
+  outJson <- getJSON(.pd, evilMode)
   if (is.null(pattern)) { 
     pattern <- attr(.pd, 'class')[1]
     if (is.null(pattern)) {

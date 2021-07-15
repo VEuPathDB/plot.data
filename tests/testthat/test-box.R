@@ -8,7 +8,7 @@ test_that("box.dt() returns a valid plot.data box object", {
   expect_is(dt, 'plot.data')
   expect_is(dt, 'boxplot')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCases','completeCasesTable','sampleSizeTable','overlayVariable', 'statsTable'))
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCases','plottedIncompleteCases','completeCasesTable','sampleSizeTable','overlayVariable', 'statsTable'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 3)
@@ -20,7 +20,7 @@ test_that("box.dt() returns a valid plot.data box object", {
   dt <- box.dt(df, map, 'all', FALSE)
   expect_is(dt, 'plot.data')
   expect_is(dt, 'boxplot')
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCases','completeCasesTable','sampleSizeTable','overlayVariable', 'statsTable'))
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCases','plottedIncompleteCases','completeCasesTable','sampleSizeTable','overlayVariable', 'statsTable'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 3)
@@ -153,12 +153,12 @@ test_that("box() returns appropriately formatted json", {
   df <- data.xy
 
   dt <- box.dt(df, map, 'none', FALSE)
-  outJson <- getJSON(dt)
+  outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('boxplot','sampleSizeTable','statsTable','completeCasesTable'))
   expect_equal(names(jsonList$boxplot), c('data','config'))
   expect_equal(names(jsonList$boxplot$data), c('overlayVariableDetails','panel','min','q1','median','q3','max','lowerfence','upperfence'))
-  expect_equal(names(jsonList$boxplot$config), c('completeCases','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$boxplot$config), c('completeCases','plottedIncompleteCases','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$statsTable), c('panel','statistics','overlayVariableDetails'))
@@ -179,7 +179,9 @@ test_that("box.dt() returns correct information about missing data", {
   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCases')[1] <= completecasestable$completeCases), TRUE)
-  
+  expect_equal(attr(dt, 'plottedIncompleteCases')[1], 0)
+  dt <- box.dt(df, map, points = 'none', mean = FALSE, computeStats = TRUE, evilMode = TRUE)
+  expect_equal(attr(dt, 'plottedIncompleteCases')[1], sum(is.na(df$group) & !is.na(df$y) & !is.na(df$panel))) 
 })
 
 test_that("box.dt() returns an appropriately sized statistics table", {

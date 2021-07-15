@@ -21,6 +21,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          binWidth,
                          binReportValue = character(),
                          value = character(),
+                         evilMode = logical(),
                          ...,
                          class = character()) {
 
@@ -29,6 +30,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                      overlayVariable = overlayVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
+                     evilMode = evilMode,
                      class = "histogram")
 
   attr <- attributes(.pd)
@@ -212,13 +214,22 @@ validateHistogramPD <- function(.histo) {
 #' plot-ready data with one row per group (per panel). Columns 
 #' 'x' and 'y' contain the bin label and count respectively. 
 #' Column 'group' and 'panel' specify the group the series data 
-#' belongs to. 
+#' belongs to. It is possible to plot missingness in the stratification variables as an explicit 'No data' value using `evilMode`.
+#' 
+#' @section Evil Mode:
+#' An `evilMode` exists. It will do the following: \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - not return statsTables \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - return a total count of plotted incomplete cases \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
 #' @param value String indicating how to calculate y-values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param viewport List of min and max values to consider as the range of data
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
 #' @importFrom stringr str_count
 #' @importFrom jsonlite unbox
@@ -228,7 +239,13 @@ histogram.dt <- function(data,
                          binWidth = NULL, 
                          value = c('count', 'proportion'), 
                          binReportValue = c('binWidth', 'numBins'), 
-                         viewport = NULL) {
+                         viewport = NULL,
+                         evilMode = c(FALSE, TRUE)) {
+
+  evilMode <- evilMode[1]
+  if (!evilMode %in% c(FALSE, TRUE)) {
+    stop('invalid input to argument `evilMode`.')
+  }
 
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -278,7 +295,8 @@ histogram.dt <- function(data,
                            viewport = viewport,
                            binWidth = binWidth,
                            binReportValue = binReportValue,
-                           value = value)
+                           value = value,
+                           evilMode = evilMode)
 
   .histo <- validateHistogramPD(.histo)
 
@@ -292,12 +310,21 @@ histogram.dt <- function(data,
 #' 'x' and 'y' contain the bin label and count respectively. 
 #' Column 'group' and 'panel' specify the group the series data 
 #' belongs to. 
+#' 
+#' @section Evil Mode:
+#' An `evilMode` exists. It will do the following: \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - not return statsTables \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - return a total count of plotted incomplete cases \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
 #' @param value String indicating how to calculate y-values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param viewport List of min and max values to consider as the range of data
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @importFrom jsonlite unbox
 #' @export
@@ -306,13 +333,18 @@ histogram <- function(data,
                       binWidth = NULL, 
                       value = c('count', 'proportion'), 
                       binReportValue = c('binWidth', 'numBins'), 
-                      viewport = NULL) {
+                      viewport = NULL,
+                      evilMode = c(FALSE, TRUE)) {
 
   value <- match.arg(value)
   binReportValue <- match.arg(binReportValue)
+  evilMode <- evilMode[1]
+  if (!evilMode %in% c(FALSE, TRUE)) {
+    stop('invalid input to argument `evilMode`.')
+  }
 
-  .histo <- histogram.dt(data, map, binWidth, value, binReportValue, viewport)
-  outFileName <- writeJSON(.histo, 'histogram')
+  .histo <- histogram.dt(data, map, binWidth, value, binReportValue, viewport, evilMode)
+  outFileName <- writeJSON(.histo, evilMode, 'histogram')
 
   return(outFileName)
 }

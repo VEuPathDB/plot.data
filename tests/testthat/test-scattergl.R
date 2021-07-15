@@ -8,7 +8,7 @@ test_that("scattergl.dt() returns a valid plot.data scatter object", {
   expect_is(dt, 'plot.data')
   expect_is(dt, 'scatterplot')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCases','completeCasesTable','sampleSizeTable','overlayVariable', 'facetVariable1'))
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCases','plottedIncompleteCases','completeCasesTable','sampleSizeTable','overlayVariable', 'facetVariable1'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 4)
@@ -246,7 +246,7 @@ test_that("scattergl() returns appropriately formatted json", {
   map <- data.frame('id' = c('group', 'y', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.xy
   dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
-  outJson <- getJSON(dt)
+  outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
 
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
@@ -254,21 +254,21 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE','smoothedMeanError'))
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 16)
-  expect_equal(names(jsonList$scatterplot$config),c('completeCases','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$scatterplot$config),c('completeCases','plottedIncompleteCases','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$scatterplot$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','size'))
   expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
   
   
   dt <- scattergl.dt(df, map, 'raw')
-  outJson <- getJSON(dt)
+  outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
   
   map <- data.frame('id' = c('y', 'x', 'panel', 'z'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
   df[, z := runif(500)]
   dt <- scattergl.dt(df, map, 'raw')
-  outJson <- getJSON(dt)
+  outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
@@ -276,7 +276,7 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY','seriesGradientColorscale'))
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 4)
-  expect_equal(names(jsonList$scatterplot$config),c('completeCases','xVariableDetails','yVariableDetails','overlayVariableDetails'))
+  expect_equal(names(jsonList$scatterplot$config),c('completeCases','plottedIncompleteCases','xVariableDetails','yVariableDetails','overlayVariableDetails'))
   expect_equal(names(jsonList$scatterplot$config$overlayVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
   expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
@@ -302,4 +302,8 @@ test_that("scattergl.dt() returns correct information about missing data", {
   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCases')[1] <= completecasestable$completeCases), TRUE) 
+  expect_equal(attr(dt, 'plottedIncompleteCases')[1], 0)
+  dt <- scattergl.dt(df, map, value = 'raw', evilMode=TRUE)
+  expect_equal(attr(dt, 'plottedIncompleteCases')[1], sum((is.na(df$group) | is.na(df$panel)) & !is.na(df$x) & !is.na(df$y)))
+  expect_equal(sum(attr(dt, 'plottedIncompleteCases')[1], attr(dt, 'completeCases')[1]), length(unlist(dt$seriesX)))
 })

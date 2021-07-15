@@ -24,6 +24,7 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
                                               'dataType' = NULL,
                                               'dataShape' = NULL),
                          value = character(),
+                         evilMode = logical(),
                          ...,
                          class = character()) {
 
@@ -32,6 +33,7 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
                      overlayVariable = overlayVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
+                     evilMode = evilMode,
                      class = "heatmapplot")
 
   attr <- attributes(.pd)
@@ -80,17 +82,29 @@ validateHeatmapPD <- function(.heatmap) {
 #' table has a column for each x-axis entry and a row for each 
 #' y-axis entry. Columns 'group' and 'panel' specify the group the 
 #' series data belongs to. 
-#' There are two ways to calculate z-values for the heatmap.
-#' 1) 'collection' of numeric variables vs single categorical
+#' There are two ways to calculate z-values for the heatmap. \cr
+#' 1) 'collection' of numeric variables vs single categorical \cr
 #' 2) single numeric vs single categorical on a 'series' of dates
 #' where yAxisVariable = categorical, xAxisVariable = date and zaxis = numeric
+#' 
+#' @section Evil Mode:
+#' An `evilMode` exists. It will do the following: \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - not return statsTables \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - return a total count of plotted incomplete cases \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
 #' @export
-heatmap.dt <- function(data, map, value = c('series', 'collection')) {
+heatmap.dt <- function(data, map, value = c('series', 'collection'), evilMode = c(FALSE, TRUE)) {
   value <- match.arg(value)
+  if (!evilMode %in% c(FALSE, TRUE)) {
+    stop('invalid input to argument `evilMode`.')
+  }
 
   zAxisVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -143,7 +157,8 @@ heatmap.dt <- function(data, map, value = c('series', 'collection')) {
                             overlayVariable = overlayVariable,
                             facetVariable1 = facetVariable1,
                             facetVariable2 = facetVariable2,
-                            value)
+                            value = value,
+                            evilMode = evilMode)
 
   .heatmap <- validateHeatmapPD(.heatmap)
 
@@ -159,19 +174,32 @@ heatmap.dt <- function(data, map, value = c('series', 'collection')) {
 #' table has a column for each x-axis entry and a row for each 
 #' y-axis entry. Columns 'group' and 'panel' specify the group the 
 #' series data belongs to. 
-#' There are two ways to calculate z-values for the heatmap.
-#' 1) 'collection' of numeric variables vs single categorical
+#' There are two ways to calculate z-values for the heatmap. \cr
+#' 1) 'collection' of numeric variables vs single categorical \cr
 #' 2) single numeric vs single categorical on a 'series' of dates
 #' where yAxisVariable = categorical, xAxisVariable = date and zaxis = numeric
+#' 
+#' @section Evil Mode:
+#' An `evilMode` exists. It will do the following: \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - not return statsTables \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - return a total count of plotted incomplete cases \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
-heatmap <- function(data, map, value = c('series','collection')) {
+heatmap <- function(data, map, value = c('series','collection'), evilMode = c(FALSE, TRUE)) {
   value <- match.arg(value)
-  .heatmap <- heatmap.dt(data, map, value)
-  outFileName <- writeJSON(.heatmap, 'heatmap')
+  if (!evilMode %in% c(FALSE, TRUE)) {
+    stop('invalid input to argument `evilMode`.')
+  }
+
+  .heatmap <- heatmap.dt(data, map, value, evilMode)
+  outFileName <- writeJSON(.heatmap, evilMode, 'heatmap')
 
   return(outFileName)
 }
