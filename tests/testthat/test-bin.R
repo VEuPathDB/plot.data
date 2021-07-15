@@ -25,7 +25,8 @@ test_that("binProportion() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt), c('group', 'binLabel', 'binStart', 'binEnd', 'value'))
-  expect_equal(sum(unlist(lapply(dt$value, sum))), 1)
+  dt_inter <- data.table('binLabel'=unlist(dt$binLabel), 'value'=unlist(dt$value))
+  expect_true(all(dt_inter[, sum(value), by='binLabel'][['V1']] == 1))
 
   dt <- binProportion(data.xy, 'y', NULL, 'panel', binWidth=.1, barmode = 'overlay', viewport=viewport)
   expect_is(dt, 'data.table')
@@ -37,7 +38,8 @@ test_that("binProportion() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt), c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
-  expect_equal(all(unlist(lapply(dt$value, sum)) == 1), TRUE)
+  dt_inter <- data.table('binLabel'=unlist(dt[dt$panel == 'panel1']$binLabel), 'value'=unlist(dt[dt$panel == 'panel1']$value))
+  expect_true(all(dt_inter[, sum(value), by=c('binLabel')][['V1']] == 1))
 
   dt <- binProportion(data.xy, 'y', 'group', 'panel', binWidth=.1, barmode = 'overlay', viewport=viewport)
   expect_is(dt, 'data.table')
@@ -49,7 +51,9 @@ test_that("binProportion() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
   expect_equal(names(dt), c('group', 'panel', 'binLabel', 'binStart', 'binEnd', 'value'))
-  expect_equal(sum(unlist(lapply(dt[dt$panel == 'panel1']$value, sum))), 1)
+  dt_inter <- data.table('binLabel'=unlist(dt[dt$panel == 'panel1']$binLabel), 'value'=unlist(dt[dt$panel == 'panel1']$value))
+  expect_true(all(dt_inter[, sum(value), by=c('binLabel')][['V1']] == 1))
+  
 
 })
 
