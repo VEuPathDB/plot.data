@@ -34,8 +34,6 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL
     
     if (barmode == 'overlay') {
       
-      # byCols <- c(group, panel)
-      
       aggStr2 <- getAggStr(col, c(group, panel))
       dt2 <- aggregate(as.formula(aggStr2), data, length)
       data.table::setnames(dt2, c(group, panel, 'denom'))
@@ -43,14 +41,6 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL
       dt <- merge(dt, dt2, by = mergeByCols)
       
     } else if (barmode == 'stack') {
-      byCols <- c('binLabel', panel)
-    
-      # if (is.null(panel)) {
-      #   
-      #   dt$denom <- length(data[[col]])
-      #   
-      # } else {
-        # binLabels act as x values
     
       aggStr2 <- getAggStr(col, c('binLabel', panel))
       dt2 <- aggregate(as.formula(aggStr2), data, length)
@@ -59,17 +49,10 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL
       dt <- merge(dt, dt2, by = mergeByCols)
       data.table::setcolorder(dt, c(group, colnames(dt)[!(colnames(dt) %in% c(group))]))
         
-      # }
     } else {
       stop('Options for barmode are "stack" or "overlay".')
     }
-    # dt <- data.table::as.data.table(dt)
-    # dt[, sum := sum(get(col)), by=byCols][, value := get(col)/sum]
-    # 
-    # # Remove unnecessary columns
-    # dt[, sum := NULL]
-    # dt[, (col) := NULL]
-    # data.table::setcolorder(dt, c(group, colnames(dt)[!(colnames(dt) %in% c(group))]))
+
     dt[[col]] <- dt[[col]]/dt$denom
     dt$denom <- NULL
     dt <- collapseByGroup(dt, group, panel)
