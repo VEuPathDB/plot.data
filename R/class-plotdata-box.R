@@ -20,8 +20,9 @@ newBoxPD <- function(.dt = data.table::data.table(),
                                               'dataType' = NULL,
                                               'dataShape' = NULL),
                          points = character(),
-                         mean = character(),
+                         mean = logical(),
                          computeStats = logical(),
+                         evilMode = logical(),
                          ...,
                          class = character()) {
 
@@ -31,6 +32,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                      overlayVariable = overlayVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
+                     evilMode = evilMode,
                      class = "boxplot")
 
   attr <- attributes(.pd)
@@ -75,7 +77,8 @@ newBoxPD <- function(.dt = data.table::data.table(),
       .pd.base <- cbind(.pd.base, outliers)
     }
   } else if (points == 'all') {
-    rawData <- .pd[, lapply(.SD, list), by=eval(colnames(.pd)[colnames(.pd) %in% c(x, group, panel)])]
+    aggStr <- getAggStr(y, c(x, group, panel))
+    rawData <- data.table::as.data.table(aggregate(as.formula(aggStr), .pd, list))
     rawData <- collapseByGroup(rawData, group, panel)
     rawData[[x]] <- NULL
     data.table::setnames(rawData, y, 'rawData')
@@ -145,24 +148,29 @@ validateBoxPD <- function(.box) {
 #' pre-computed values per group. Columns 'group' and 'panel' specify
 #' the group the data belong to. 
 #' Optionally, can return columns 'outliers' and 'mean' as well.
+#' 
+#' @section Evil Mode:
+#' An `evilMode` exists. It will do the following: \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - not return statsTables \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - return a total count of plotted incomplete cases \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
 #' @export
-box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE)) {
-  points <- match.arg(points)
-  
-  if (!mean %in% c(FALSE, TRUE)) { 
-    stop('invalid input to argument `mean`.') 
-  }
+box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE), evilMode = c(FALSE, TRUE)) {
 
-  if (!computeStats %in% c(TRUE, FALSE)) {
-    stop('invalid input to argument `computeStats`.') 
-  }
-  
+  points <- matchArg(points)
+  mean <- matchArg(mean)
+  computeStats <- matchArg(computeStats)
+  evilMode <- matchArg(evilMode)
+
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
                          'dataType' = NULL,
@@ -235,9 +243,10 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                     overlayVariable = overlayVariable,
                     facetVariable1 = facetVariable1,
                     facetVariable2 = facetVariable2,
-                    points,
-                    mean,
-                    computeStats)
+                    points = points,
+                    mean = mean,
+                    computeStats = computeStats,
+                    evilMode = evilMode)
 
   .box <- validateBoxPD(.box)
 
@@ -253,24 +262,31 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 #' pre-computed values per group. Columns 'group' and 'panel' specify
 #' the group the data belong to. 
 #' Optionally, can return columns 'outliers' and 'mean' as well.
+#' 
+#' @section Evil Mode:
+#' An `evilMode` exists. It will do the following: \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - not return statsTables \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - return a total count of plotted incomplete cases \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
-box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE)) {
-  points <- match.arg(points)
-  if (!mean %in% c(FALSE, TRUE)) { 
-    stop('invalid input to argument `mean`.') 
-  }
-  if (!computeStats %in% c(TRUE, FALSE)) {
-    stop('invalid input to argument `computeStats`.') 
-  }
+box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE), evilMode = c(FALSE, TRUE)) {
 
-  .box <- box.dt(data, map, points, mean, computeStats)
-  outFileName <- writeJSON(.box, 'boxplot')
+  points <- matchArg(points)
+  mean <- matchArg(mean)
+  computeStats <- matchArg(computeStats)
+  evilMode <- matchArg(evilMode)
+
+  .box <- box.dt(data, map, points, mean, computeStats, evilMode)
+  outFileName <- writeJSON(.box, evilMode, 'boxplot')
 
   return(outFileName)
 }

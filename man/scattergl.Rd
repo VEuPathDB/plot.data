@@ -8,7 +8,8 @@ scattergl(
   data,
   map,
   value = c("smoothedMean", "smoothedMeanWithRaw", "bestFitLineWithRaw", "density",
-    "raw")
+    "raw"),
+  evilMode = c(FALSE, TRUE)
 )
 }
 \arguments{
@@ -17,6 +18,8 @@ scattergl(
 \item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'}
 
 \item{value}{character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.}
+
+\item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
 }
 \value{
 character name of json file containing plot-ready data
@@ -30,6 +33,17 @@ series data belongs to. Optionally, columns 'smoothedMeanX',
 'smoothedMeanY' and 'smoothedMeanSE' specify the x, y and 
 standard error respectively of the smoothed conditional mean 
 for the group. Columns 'densityX' and 'densityY' contain the 
-calculated kernel density estimates. Column 'seriesGradientColorscale'
-contains values to be used with a gradient colorscale when plotting.
+calculated kernel density estimates. Column 
+'seriesGradientColorscale' contains values to be used with a 
+gradient colorscale when plotting.
 }
+\section{Evil Mode}{
+
+An `evilMode` exists. It will do the following: \cr
+- return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+- not return statsTables \cr
+- allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+- return a total count of plotted incomplete cases \cr
+- represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+}
+

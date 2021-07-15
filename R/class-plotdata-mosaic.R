@@ -16,6 +16,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                                               'dataType' = NULL,
                                               'dataShape' = NULL),
                          statistic = character(),
+                         evilMode = logical(),
                          ...,
                          class = character()) {
 
@@ -24,6 +25,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                      yAxisVariable = yAxisVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
+                     evilMode = evilMode,
                      class = "mosaic")
 
   attr <- attributes(.pd)
@@ -78,13 +80,27 @@ validateMosaicPD <- function(.mosaic) {
 #' This function returns a data.table of 
 #' plot-ready data with one row per panel. Columns 
 #' 'x' and 'y' contain the raw data for plotting. Column 'panel' 
-#' specifies the panel the data belongs to. 
+#' specifies the panel the data belongs to.
+#' 
+#' @section Evil Mode:
+#' An `evilMode` exists. It will do the following: \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - not return statsTables \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - return a total count of plotted incomplete cases \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
 #' @export
-mosaic.dt <- function(data, map, statistic = NULL) {
+mosaic.dt <- function(data, map, statistic = NULL, evilMode = c(FALSE, TRUE)) {
+  evilMode <- evilMode[1]
+  if (!evilMode %in% c(FALSE, TRUE)) {
+    stop('invalid input to argument `evilMode`.')
+  }
+
   yAxisVariable = list('variableId' = NULL,
                          'entityId' = NULL,
                          'dataType' = NULL,
@@ -140,7 +156,8 @@ mosaic.dt <- function(data, map, statistic = NULL) {
                             yAxisVariable = yAxisVariable,
                             facetVariable1 = facetVariable1,
                             facetVariable2 = facetVariable2,
-                            statistic)
+                            statistic = statistic,
+                            evilMode = evilMode)
 
   .mosaic <- validateMosaicPD(.mosaic)
 
@@ -153,15 +170,29 @@ mosaic.dt <- function(data, map, statistic = NULL) {
 #' plot-ready data with one row per panel. Columns 
 #' 'x' and 'y' contain the raw data for plotting. Column 'panel' 
 #' specifies the panel the data belongs to. 
+#' 
+#' @section Evil Mode:
+#' An `evilMode` exists. It will do the following: \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - not return statsTables \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - return a total count of plotted incomplete cases \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
-mosaic <- function(data, map, statistic = NULL) {
-  .mosaic <- mosaic.dt(data, map, statistic)
+mosaic <- function(data, map, statistic = NULL, evilMode = c(FALSE, TRUE)) {
+  evilMode <- evilMode[1]
+  if (!evilMode %in% c(FALSE, TRUE)) {
+    stop('invalid input to argument `evilMode`.')
+  }
 
-  outFileName <- writeJSON(.mosaic, 'mosaic')
+  .mosaic <- mosaic.dt(data, map, statistic, evilMode)
+
+  outFileName <- writeJSON(.mosaic, evilMode, 'mosaic')
 
   return(outFileName)
 }

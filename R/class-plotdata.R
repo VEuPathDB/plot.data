@@ -1,3 +1,10 @@
+### evilMode will do the following:
+###   - return 'no data' as a regular value for strata vars but will discard such cases for the axes vars
+###   - not return statsTables
+###   - allow smoothed means and agg values etc over axes values where we have no data for the strata vars
+###   - return a total count of plotted incomplete cases
+###   - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul
+
 newPlotdata <- function(.dt = data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
@@ -23,6 +30,7 @@ newPlotdata <- function(.dt = data.table(),
                                               'entityId' = NULL,
                                               'dataType' = NULL,
                                               'dataShape' = NULL),
+                         evilMode = logical(),
                          ...,
                          class = character()) {
 
@@ -58,9 +66,18 @@ newPlotdata <- function(.dt = data.table(),
   .dt <- .dt[, myCols, with=FALSE]
 
   completeCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]))
-  
-  .dt <- .dt[complete.cases(.dt),]
-  
+  if (evilMode) {
+    if (!is.null(group)) { .dt[[group]][is.na(.dt[[group]])] <- 'No data' }
+    if (!is.null(panel)) { .dt[[panel]][is.na(.dt[[panel]])] <- 'No data' }
+    #TODO need a test for this
+    axesCols <- c(x, y, z)
+    axesDT <- .dt[, axesCols, with = FALSE]
+    .dt <- .dt[complete.cases(axesDT)]
+  } else { 
+    .dt <- .dt[complete.cases(.dt),]
+  }
+  plottedIncompleteCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]) - completeCases)
+
   # If overlay is continuous, it does not contribute to final groups
   overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
 
@@ -87,6 +104,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(y)) { attr$yAxisVariable <- yAxisVariable }
   if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
   attr$completeCases <- completeCases
+  attr$plottedIncompleteCases <- plottedIncompleteCases
   attr$completeCasesTable <- completeCasesTable
   attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, overlayGroup, panel)
   attr$class = c(class, 'plot.data', attr$class)

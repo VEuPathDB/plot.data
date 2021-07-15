@@ -20,6 +20,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                                               'dataType' = NULL,
                                               'dataShape' = NULL),
                          value = character(),
+                         evilMode = logical(),
                          ...,
                          class = character()) {
 
@@ -29,6 +30,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                      overlayVariable = overlayVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
+                     evilMode = evilMode,
                      class = "scatterplot")
 
   attr <- attributes(.pd)
@@ -128,18 +130,31 @@ validateScatterPD <- function(.scatter) {
 #' 'smoothedMeanY' and 'smoothedMeanSE' specify the x, y and 
 #' standard error respectively of the smoothed conditional mean 
 #' for the group. Columns 'densityX' and 'densityY' contain the 
-#' calculated kernel density estimates. Column 'seriesGradientColorscale'
-#' contains values to be used with a gradient colorscale when plotting.
+#' calculated kernel density estimates. Column 
+#' 'seriesGradientColorscale' contains values to be used with a 
+#' gradient colorscale when plotting.
+#' 
+#' @section Evil Mode:
+#' An `evilMode` exists. It will do the following: \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - not return statsTables \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - return a total count of plotted incomplete cases \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
 #' @export
 scattergl.dt <- function(data, 
                          map, 
-                         value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw')) {
-  value <- match.arg(value)
+                         value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
+                         evilMode = c(FALSE, TRUE)) {
 
+  value <- matchArg(value)
+  evilMode <- matchArg(evilMode) 
+  
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
                          'dataType' = NULL,
@@ -221,7 +236,8 @@ scattergl.dt <- function(data,
                             overlayVariable = overlayVariable,
                             facetVariable1 = facetVariable1,
                             facetVariable2 = facetVariable2,
-                            value)
+                            value = value,
+                            evilMode = evilMode)
 
   .scatter <- validateScatterPD(.scatter)
 
@@ -238,17 +254,30 @@ scattergl.dt <- function(data,
 #' 'smoothedMeanY' and 'smoothedMeanSE' specify the x, y and 
 #' standard error respectively of the smoothed conditional mean 
 #' for the group. Columns 'densityX' and 'densityY' contain the 
-#' calculated kernel density estimates. Column 'seriesGradientColorscale'
-#' contains values to be used with a gradient colorscale when plotting.
+#' calculated kernel density estimates. Column 
+#' 'seriesGradientColorscale' contains values to be used with a 
+#' gradient colorscale when plotting.
+#' 
+#' @section Evil Mode:
+#' An `evilMode` exists. It will do the following: \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - not return statsTables \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - return a total count of plotted incomplete cases \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
-scattergl <- function(data, map, value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw')) {
-  value <- match.arg(value)
-  .scatter <- scattergl.dt(data, map, value)
-  outFileName <- writeJSON(.scatter, 'scattergl')
+scattergl <- function(data, map, value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'), evilMode = c(FALSE, TRUE)) {
+
+  value <- matchArg(value)
+  evilMode <- matchArg(evilMode)
+
+  .scatter <- scattergl.dt(data, map, value, evilMode)
+  outFileName <- writeJSON(.scatter, evilMode, 'scattergl')
 
   return(outFileName)
 }
