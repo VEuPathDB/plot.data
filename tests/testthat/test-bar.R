@@ -1,5 +1,41 @@
 context('bar')
 
+test_that("bar.dt() returns a valid plot.data barplot object", {
+  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- as.data.frame(data.binned)
+
+  dt <- bar.dt(df, map, value='count')
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'barplot')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'completeCases','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(names(completeCases), c('variableDetails','completeCases'))
+  expect_equal(nrow(completeCases), 3)
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizes), c('panel','x','size'))
+  expect_equal(nrow(sampleSizes), 16)
+})
+
+test_that("bar.dt() returns plot data and config of the appropriate types", {
+  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- as.data.frame(data.binned)
+
+  dt <- bar.dt(df, map, value='count')
+  expect_is(dt$label, 'list')
+  expect_equal(class(unlist(dt$label)), 'character')
+  expect_is(dt$value, 'list')
+  expect_equal(class(unlist(dt$value)), 'integer')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(class(namedAttrList$completeCases),c('scalar', 'integer'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(class(unlist(completeCases$variableDetails)), 'character')
+  expect_equal(class(unlist(completeCases$completeCases)), 'integer')
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(class(unlist(sampleSizes$panel)), 'character')
+  expect_equal(class(unlist(sampleSizes$size)), 'integer')
+})
+
 test_that("bar.dt() returns an appropriately sized data.table", {
   map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.binned)
@@ -7,18 +43,13 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   dt <- bar.dt(df, map, value='count')
   expect_is(dt, 'data.table')
   expect_is(dt, 'barplot')
-  expect_is(dt$label, 'list')
-  expect_is(dt$value, 'list')
   expect_equal(nrow(dt),16)
   expect_equal(names(dt),c('panel', 'label', 'value'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
-  expect_equal(class(unlist(dt$label)),'character')
   
   dt <- bar.dt(df, map, value='proportion')
   expect_is(dt, 'data.table')
   expect_is(dt, 'barplot')
-  expect_is(dt$label, 'list')
-  expect_is(dt$value, 'list')
   expect_equal(nrow(dt),16)
   expect_equal(names(dt),c('panel', 'label', 'value'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
@@ -30,8 +61,6 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   dt <- bar.dt(df, map, value='count')
   expect_is(dt, 'data.table')
   expect_is(dt, 'barplot')
-  expect_is(dt$label, 'list')
-  expect_is(dt$value, 'list')
   expect_equal(nrow(dt),16)
   expect_equal(names(dt),c('group', 'panel', 'label', 'value'))
   
@@ -70,6 +99,21 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('label', 'value'))
 })
 
+test_that("bar() returns appropriately formatted json", {
+  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- as.data.frame(data.binned)
+
+  dt <- bar.dt(df, map, value='count')
+  outJson <- getJSON(dt)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList), c('barplot','sampleSizeTable','completeCasesTable'))
+  expect_equal(names(jsonList$barplot), c('data','config'))
+  expect_equal(names(jsonList$barplot$data), c('overlayVariableDetails','facetVariableDetails','label','value'))
+  expect_equal(names(jsonList$barplot$config), c('completeCases','xVariableDetails'))
+  expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','facetVariableDetails','xVariableDetails','size'))
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
+})
+
 test_that("bar.dt() returns correct information about missing data", {
   map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.binned)
@@ -83,7 +127,7 @@ test_that("bar.dt() returns correct information about missing data", {
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - 10
   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
-  # number of incompleteCases should be <= sum of incomplete cases within each var
-  expect_equal(attr(dt, 'incompleteCases')[1] <= sum(nrow(df) - completecasestable$completeCases), TRUE)
+  # number of completeCases should be <= complete cases for each var
+  expect_equal(all(attr(dt, 'completeCases')[1] <= completecasestable$completeCases), TRUE)
   
 })

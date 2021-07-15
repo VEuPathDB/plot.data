@@ -4,7 +4,13 @@
 \alias{box}
 \title{Box Plot data file}
 \usage{
-box(data, map, points = c("outliers", "all", "none"), mean = c(FALSE, TRUE))
+box(
+  data,
+  map,
+  points = c("outliers", "all", "none"),
+  mean = c(FALSE, TRUE),
+  computeStats = c(TRUE, FALSE)
+)
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
@@ -14,6 +20,8 @@ box(data, map, points = c("outliers", "all", "none"), mean = c(FALSE, TRUE))
 \item{points}{character vector indicating which points to return 'outliers' or 'all'}
 
 \item{mean}{boolean indicating whether to return mean value per group (per panel)}
+
+\item{computeStats}{boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)}
 }
 \value{
 character name of json file containing plot-ready data

@@ -38,8 +38,14 @@ newScatterPD <- function(.dt = data.table::data.table(),
   group <- attr$overlayVariable$variableId
   panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
 
-  series <- collapseByGroup(.pd, group, panel)
-  data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
+  if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
+    series <- collapseByGroup(.pd, group = NULL, panel)
+    data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale'))
+  } else {
+    series <- collapseByGroup(.pd, group, panel)
+    data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
+  }
+  
   series$seriesX <- lapply(series$seriesX, as.character)
   series$seriesY <- lapply(series$seriesY, as.character)
 
@@ -92,8 +98,8 @@ validateScatterPD <- function(.scatter) {
   }
   overlayVariable <- attr(.scatter, 'overlayVariable')
   if (!is.null(overlayVariable)) {
-    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-      stop('The overlay variable must be binary, ordinal or categorical.')
+    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL', 'CONTINUOUS')) {
+      stop('The overlay variable must be binary, ordinal, categorical, or continuous.')
     }
   }
   facetVariable1 <- attr(.scatter, 'facetVariable1')
@@ -122,10 +128,11 @@ validateScatterPD <- function(.scatter) {
 #' 'smoothedMeanY' and 'smoothedMeanSE' specify the x, y and 
 #' standard error respectively of the smoothed conditional mean 
 #' for the group. Columns 'densityX' and 'densityY' contain the 
-#' calculated kernel density estimates.
+#' calculated kernel density estimates. Column 'seriesGradientColorscale'
+#' contains values to be used with a gradient colorscale when plotting.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean
+#' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
 #' @return data.table plot-ready data
 #' @export
 scattergl.dt <- function(data, 
@@ -150,6 +157,35 @@ scattergl.dt <- function(data,
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
+  
+  
+  # Handle repeated plot references
+  if (any(duplicated(map$plotRef))) {
+
+    # Identify the list var based on any plotRef that is repeated
+    listVarPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
+    listVarPlotRef <- validateListVar(map, listVarPlotRef)
+    
+    # Scatter-specific
+    if (listVarPlotRef == 'facetVariable1' | listVarPlotRef == 'overlayVariable') {
+      meltedValuePlotRef <- 'yAxisVariable'
+    } else {
+      stop("Incompatable repeated variable")
+    }
+    
+    # Check to ensure meltedValuePlotRef is not already defined
+    if (any(map$plotRef == meltedValuePlotRef)) {
+      stop(paste0("Cannot melt data: ", meltedValuePlotRef, " already defined."))
+    }
+    
+    # Record variable order
+    listVarIdOrder <- map$id[map$plotRef == listVarPlotRef]
+    
+    # Melt data and update the map 
+    data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
+    map <- remapListVar(map, listVarPlotRef, meltedValuePlotRef)
+    
+  } # end handling of repeated plot element references
 
   if ('xAxisVariable' %in% map$plotRef) {
     xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
@@ -169,6 +205,9 @@ scattergl.dt <- function(data,
   }
   if ('overlayVariable' %in% map$plotRef) {
     overlayVariable <- plotRefMapToList(map, 'overlayVariable')
+    if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
+      stop('Continuous overlay variables cannot be used with trend lines.')
+    }
   }
   if ('facetVariable1' %in% map$plotRef) {
     facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
@@ -200,10 +239,11 @@ scattergl.dt <- function(data,
 #' 'smoothedMeanY' and 'smoothedMeanSE' specify the x, y and 
 #' standard error respectively of the smoothed conditional mean 
 #' for the group. Columns 'densityX' and 'densityY' contain the 
-#' calculated kernel density estimates.
+#' calculated kernel density estimates. Column 'seriesGradientColorscale'
+#' contains values to be used with a gradient colorscale when plotting.
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean
+#' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
 #' @return character name of json file containing plot-ready data
 #' @export
 scattergl <- function(data, map, value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw')) {

@@ -39,8 +39,10 @@ addStrataVariableDetails <- function(.pd) {
   # !!!!! work off a copy while writing json
   # since we have two exported fxns, dont want calling one changing the result of the other
   if (!is.null(group)) {
-    names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
-    .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, group, namedAttrList$overlayVariable$entityId)
+    if (!identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS')) {
+      names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
+      .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, group, namedAttrList$overlayVariable$entityId)
+    }
   }
 
   if (!is.null(facet1) & !is.null(facet2)) {
@@ -101,11 +103,6 @@ getJSON <- function(.pd) {
     completeCasesTable <- setAttrFromList(completeCasesTable, attr)
   }
 
-  .pd <- addStrataVariableDetails(.pd)
-  namedAttrList$overlayVariable <- NULL
-  namedAttrList$facetVariable1 <- NULL
-  namedAttrList$facetVariable2 <- NULL
-
   if ('xAxisVariable' %in% names(namedAttrList)) {
     namedAttrList$xVariableDetails <- makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId)
     namedAttrList$xAxisVariable <- NULL
@@ -118,6 +115,18 @@ getJSON <- function(.pd) {
     namedAttrList$zVariableDetails <- makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId)
     namedAttrList$zAxisVariable <- NULL
   }
+  
+  .pd <- addStrataVariableDetails(.pd)
+  # If overlay is continuous, handle similarly to x, y, z vars.
+  if ('overlayVariable' %in% names(namedAttrList) & identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS')) {
+    namedAttrList$overlayVariableDetails <- makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId)
+  }
+  
+  namedAttrList$facetVariable1 <- NULL
+  namedAttrList$facetVariable2 <- NULL
+  namedAttrList$overlayVariable <- NULL
+
+  
 
   
   outList <- list(class = list('data'=.pd, 'config'=namedAttrList))

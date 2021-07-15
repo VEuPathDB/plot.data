@@ -275,19 +275,8 @@ bothRatios <- function(tbl, collapse = TRUE) {
 }
 
 chiSq <- function(tbl, collapse = TRUE) {
-  dt <- as.data.frame.matrix(tbl)
-  data.table::setDT(dt)
-  dt[, value := lapply(transpose(.SD), as.vector)]
-  dt$yLabel <- list(names(dt)[names(dt) != 'value'])
-  dt$xLabel <- rownames(tbl)
-  dt <- dt[, c('value','yLabel','xLabel'), with=FALSE]
-  if (collapse) {
-    dt <-  collapseByGroup(dt)
-  }
   chisq <- chisq.test(tbl)
-  dt$chisq <- jsonlite::unbox(chisq$statistic)
-  dt$pvalue <- jsonlite::unbox(chisq$p.value)
-  dt$degreesFreedom <- jsonlite::unbox(chisq$parameter)
+  dt <- data.table::data.table('chisq'=jsonlite::unbox(chisq$statistic), 'pvalue'=jsonlite::unbox(chisq$p.value), 'degreesFreedom'=jsonlite::unbox(chisq$parameter))
 
   return(dt)
 }
@@ -303,3 +292,59 @@ getR2 <- function(model) UseMethod("getR2")
 getR2.default <- function(model) {
   summary(model)$r.squared
 }
+
+# Compute appropriate nonparametric test comparing multiple distributions.
+nonparametricTest <- function(values, groups) {
+  
+  # values and groups should be vectors of the same length
+  if (!identical(length(values), length(groups))) {
+    result <- NULL
+    return(result)
+  }
+
+  # values should be numeric
+  if (!is.numeric(values)) {
+    stop("values vector should contain numbers.")
+  }
+
+  # If there are only 2 groups, use Wilcoxon rank sum. Otherwise use Kruskal–Wallis
+  if (uniqueN(groups) == 2) {
+    testResult <- try(wilcox.test(values[groups == unique(groups)[1]], values[groups == unique(groups)[2]], conf.level = 0.95, paired=F), silent = TRUE)
+  } else {
+    testResult <- try(kruskal.test(values, groups), silent = TRUE)
+  }
+  
+  if (class(testResult) == 'try-error'){
+    testResult <- list("statistic" = numeric(),
+      "pvalue" = numeric(),
+      "parameter" = numeric(),
+      "method" = character(),
+      "statsError" = jsonlite::unbox(as.character(testResult[1])))
+    testResult <- list(testResult)
+  } else {
+    testResult$parameter <- as.numeric(testResult$parameter)
+    names(testResult)[names(testResult) == 'p.value'] <- 'pvalue'
+    testResult <- list(c(testResult[c('statistic', 'pvalue', 'parameter', 'method')], "statsError" = jsonlite::unbox("")))
+  }
+  
+  return(testResult)
+}
+
+# Compute statistics for values in numericCol based on levelsCol, split by byCols
+nonparametricByGroup <- function(data, numericCol, levelsCol, byCols = NULL) {
+  
+  setDT(data)
+  
+  if (is.null(byCols)) {
+    statsResults <- data.table::as.data.table(t(nonparametricTest(data[[numericCol]], data[[levelsCol]])))
+  } else {
+    statsResults <- data[, .(nonparametricTest(get(..numericCol), get(..levelsCol))) , by=eval(colnames(data)[colnames(data) %in% byCols])]
+  }
+  
+  data.table::setnames(statsResults, 'V1', 'statistics')
+
+  return (statsResults)
+  
+}
+
+
