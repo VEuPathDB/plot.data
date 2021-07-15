@@ -315,7 +315,22 @@ updateAttrById <- function(attrInd, attr, .dt) {
 }
 
 
-# Adaptation of match.arg that accept logical vectors.
+#' Character and Logical Argument Verification
+#'
+#' `matchArg` matches `arg` against a table of candidates values as
+#' specified by `choices`, where `NULL` means to take the first one.
+#'
+#' In the one-argument form `matchArg(arg)`, the choices are
+#' obtained from a default setting for the formal argument `arg` of
+#' the function from which `matchArg` was called.  (Since default
+#' argument matching will set `arg` to `choices`, this is allowed as
+#' an exception to the "length one unless `several.ok` is `TRUE`"
+#' rule, and returns the first element.)
+#' @param arg a character vector of length one
+#' @param choices a character vector of candidate values
+#' @return The unabbreviated version of the exact match
+#' @importFrom  stringi stri_detect_regex
+#' @export
 matchArg <- function(arg, choices) {
   
   # If choices is not supplied, extract from function definition
