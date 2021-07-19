@@ -21,6 +21,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          binWidth,
                          binReportValue = character(),
                          value = character(),
+                         barmode = character(),
                          evilMode = logical(),
                          ...,
                          class = character()) {
@@ -127,7 +128,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   if (value == 'count') {
     .pd <- binSize(.pd, x, group, panel, binWidth, viewport)
   } else if (value == 'proportion' ) {
-    .pd <- binProportion(.pd, x, group, panel, binWidth, viewport)
+    .pd <- binProportion(.pd, x, group, panel, binWidth, barmode, viewport)
   } else {
     stop('Unrecognized argument to "value".')
   }
@@ -228,6 +229,7 @@ validateHistogramPD <- function(.histo) {
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
 #' @param value String indicating how to calculate y-values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
+#' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
@@ -238,14 +240,10 @@ histogram.dt <- function(data,
                          map, 
                          binWidth = NULL, 
                          value = c('count', 'proportion'), 
-                         binReportValue = c('binWidth', 'numBins'), 
-                         viewport = NULL,
+                         binReportValue = c('binWidth', 'numBins'),
+                         barmode = c('stack', 'overlay'),
+                         viewport = NULL) {
                          evilMode = c(FALSE, TRUE)) {
-
-  evilMode <- evilMode[1]
-  if (!evilMode %in% c(FALSE, TRUE)) {
-    stop('invalid input to argument `evilMode`.')
-  }
 
   overlayVariable = list('variableId' = NULL,
                          'entityId' = NULL,
@@ -259,8 +257,11 @@ histogram.dt <- function(data,
                         'entityId' = NULL,
                         'dataType' = NULL,
                         'dataShape' = NULL)
+                           
   value <- matchArg(value)
+  barmode <- matchArg(barmode)
   binReportValue <- matchArg(binReportValue)
+  evilMode <- matchArg(evilMode)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -296,6 +297,7 @@ histogram.dt <- function(data,
                            binWidth = binWidth,
                            binReportValue = binReportValue,
                            value = value,
+                           barmode = barmode,
                            evilMode = evilMode)
 
   .histo <- validateHistogramPD(.histo)
@@ -323,6 +325,7 @@ histogram.dt <- function(data,
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
 #' @param value String indicating how to calculate y-values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
+#' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
@@ -333,14 +336,16 @@ histogram <- function(data,
                       binWidth = NULL, 
                       value = c('count', 'proportion'), 
                       binReportValue = c('binWidth', 'numBins'), 
+                      barmode = c('stack', 'overlay'),
                       viewport = NULL,
                       evilMode = c(FALSE, TRUE)) {
 
   value <- matchArg(value)
+  barmode <- matchArg(barmode)
   binReportValue <- matchArg(binReportValue)
   evilMode <- matchArg(evilMode)
 
-  .histo <- histogram.dt(data, map, binWidth, value, binReportValue, viewport, evilMode)
+  .histo <- histogram.dt(data, map, binWidth, value, binReportValue, barmode, viewport, evilMode)
   outFileName <- writeJSON(.histo, evilMode, 'histogram')
 
   return(outFileName)
