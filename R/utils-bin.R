@@ -51,22 +51,26 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
     unit <- trim(gsub("^[[:digit:]]*", "", binWidth))
     numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
     if (unit %in% c('day','days')) {
-      binEnd <- as.Date(binStart + lubridate::days(numericBinWidth)-1)
+      binEnd <- as.Date(binStart + lubridate::days(numericBinWidth))
     } else if (unit %in% c('week', 'weeks')) {
-      binEnd <- as.Date(binStart + lubridate::weeks(numericBinWidth)-1)
+      binEnd <- as.Date(binStart + lubridate::weeks(numericBinWidth))
     } else if (unit %in% c('month', 'months')) {
-      binEnd <- as.Date(binStart + months(numericBinWidth)-1)
+      binEnd <- as.Date(binStart + months(numericBinWidth))
     } else if (unit %in% c('year', 'years')) {
-      binEnd <- as.Date(binStart + lubridate::years(numericBinWidth)-1)
+      binEnd <- as.Date(binStart + lubridate::years(numericBinWidth))
     } else {
       stop("Unrecognized units for binning date histogram.")
     }   
-
   } else {
-    binEnd <- lubridate::ceiling_date(binStart, binWidth) -1
+    #for some reason week doesnt do whats expected..
+    if (binWidth %in% c('week', 'weeks', '1 week')) {
+      binEnd <- as.Date(binStart + lubridate::days(7))
+    } else {
+      binEnd <- lubridate::ceiling_date(binStart, binWidth)
+    }
   }
 
-  bins <- stringi::stri_c(binStart, " - ", binEnd)
+  bins <- stringi::stri_c("[", binStart, " - ", binEnd, ")")
 
   return(bins)
 }

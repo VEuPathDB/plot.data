@@ -47,6 +47,35 @@ test_that("bin() does not return NA", {
   expect_false(any(is.na(bin(rnorm(100,-10),binWidth=.1, viewport=list('xMin'=-15,'xMax'=-5)))))
 })
 
+test_that("bin() returns appropriate bins for dates", {
+  viewport <- list('xMin'=min(data.dates$date), 'xMax'=max(data.dates$date))
+  dt <- data.dates
+
+  dt$dateBin <- bin(as.Date(data.dates$date), 'day', viewport)
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-12-01 - 1999-12-02)")
+
+  dt$dateBin <- bin(as.Date(data.dates$date), '4 day', viewport)
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-11-29 - 1999-12-03)")
+
+  dt$dateBin <- bin(as.Date(data.dates$date), 'week', viewport)
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-11-29 - 1999-12-06)")
+
+  dt$dateBin <- bin(as.Date(data.dates$date), '2 week', viewport)
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-11-29 - 1999-12-13)")
+
+  dt$dateBin <- bin(as.Date(data.dates$date), 'month', viewport)
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-12-01 - 2000-01-01)")
+
+  dt$dateBin <- bin(as.Date(data.dates$date), '2 month', viewport)
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-11-01 - 2000-01-01)")   
+
+  dt$dateBin <- bin(as.Date(data.dates$date), 'year', viewport)
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-01-01 - 2000-01-01)")
+
+  dt$dateBin <- bin(as.Date(data.dates$date), '2 year', viewport)
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-01-01 - 2001-01-01)")
+})
+
 test_that("relativeRisk() returns the right columns", {
   data <- data.table('x' = as.factor(rnorm(10)), 'y' = as.factor(rep(c(1,2),5)))
   tbl <- tableXY(data)
