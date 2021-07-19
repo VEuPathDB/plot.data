@@ -69,7 +69,6 @@ newPlotdata <- function(.dt = data.table(),
   if (evilMode) {
     if (!is.null(group)) { .dt[[group]][is.na(.dt[[group]])] <- 'No data' }
     if (!is.null(panel)) { .dt[[panel]][is.na(.dt[[panel]])] <- 'No data' }
-    #TODO need a test for this
     axesCols <- c(x, y, z)
     axesDT <- .dt[, axesCols, with = FALSE]
     .dt <- .dt[complete.cases(axesDT)]

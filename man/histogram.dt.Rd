@@ -10,6 +10,7 @@ histogram.dt(
   binWidth = NULL,
   value = c("count", "proportion"),
   binReportValue = c("binWidth", "numBins"),
+  barmode = c("stack", "overlay"),
   viewport = NULL,
   evilMode = c(FALSE, TRUE)
 )
@@ -24,6 +25,8 @@ histogram.dt(
 \item{value}{String indicating how to calculate y-values ('count, 'proportion')}
 
 \item{binReportValue}{String indicating if number of bins or bin width used should be returned}
+
+\item{barmode}{String indicating if bars should be stacked or overlaid ('stack', 'overlay')}
 
 \item{viewport}{List of min and max values to consider as the range of data}
 

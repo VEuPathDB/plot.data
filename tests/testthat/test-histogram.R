@@ -456,7 +456,7 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','binStart','binEnd','value'))
   expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(nrow(jsonList$histogram$data$facetVariableDetails[[1]]), 2)
-  expect_equal(names(jsonList$histogram$config),c('completeCases','summary','viewport','binSlider','binSpec','xVariableDetails'))
+  expect_equal(names(jsonList$histogram$config),c('completeCases','plottedIncompleteCases','summary','viewport','binSlider','binSpec','xVariableDetails'))
   expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))

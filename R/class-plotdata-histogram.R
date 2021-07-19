@@ -242,7 +242,7 @@ histogram.dt <- function(data,
                          value = c('count', 'proportion'), 
                          binReportValue = c('binWidth', 'numBins'),
                          barmode = c('stack', 'overlay'),
-                         viewport = NULL) {
+                         viewport = NULL,
                          evilMode = c(FALSE, TRUE)) {
 
   overlayVariable = list('variableId' = NULL,

@@ -8,6 +8,7 @@ bar(
   data,
   map,
   value = c("count", "identity", "proportion"),
+  barmode = c("group", "stack"),
   evilMode = c(FALSE, TRUE)
 )
 }
@@ -17,6 +18,8 @@ bar(
 \item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'}
 
 \item{value}{String indicating how to calculate y-values ('identity', 'count', 'proportion')}
+
+\item{barmode}{String indicating if bars should be grouped or stacked ('group', 'stack')}
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
 }
