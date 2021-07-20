@@ -101,9 +101,8 @@ newBoxPD <- function(.dt = data.table::data.table(),
   }
   
   .pd <- .pd.base
-  
+  data.table::setnames(.pd, x, 'label')
   attr$names <- names(.pd)
-
   setAttrFromList(.pd, attr)
 
   return(.pd)
