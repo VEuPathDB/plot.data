@@ -23,6 +23,8 @@ newBoxPD <- function(.dt = data.table::data.table(),
                          mean = logical(),
                          computeStats = logical(),
                          evilMode = logical(),
+                         listVar = list('listVarPlotRef' = NULL,
+                                        'listVarIdOrder' = NULL),
                          ...,
                          class = character()) {
 
@@ -97,6 +99,19 @@ newBoxPD <- function(.dt = data.table::data.table(),
       .pd.base <- merge(.pd.base, mean)
     } else {
       .pd.base <- cbind(.pd.base, mean)
+    }
+  }
+  
+  
+  # Handle listVar
+  listVarPlotRef <- emptyStringToNull(as.character(listVar$listVarPlotRef))
+
+  if (!is.null(listVarPlotRef)) {
+    # Set var ids
+    attr[[listVarPlotRef]]$variableId <- listVar$listVarIdOrder
+    # Set entityIds
+    if (!is.null(attr[[listVarPlotRef]]$entityId)) {
+      attr[[listVarPlotRef]]$entityId <- rep(attr[[listVarPlotRef]]$entityId, length.out = length(listVar$listVarIdOrder))
     }
   }
   
@@ -214,6 +229,8 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
     map <- remapListVar(map, listVarPlotRef, meltedValuePlotRef)
     
+    listVar <- list("listVarPlotRef" = listVarPlotRef, "listVarIdOrder" = listVarIdOrder)
+    
   } # end handling of repeated plot element references
 
   if ('xAxisVariable' %in% map$plotRef) {
@@ -245,7 +262,8 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                     points = points,
                     mean = mean,
                     computeStats = computeStats,
-                    evilMode = evilMode)
+                    evilMode = evilMode,
+                    listVar = listVar)
 
   .box <- validateBoxPD(.box)
 
