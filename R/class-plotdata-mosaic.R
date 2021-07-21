@@ -30,9 +30,9 @@ newMosaicPD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
 
-  x <- attr$xAxisVariable$variableId
-  y <- attr$yAxisVariable$variableId
-  panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
+  x <- toColNameOrNull(attr$xAxisVariable)
+  y <- toColNameOrNull(attr$yAxisVariable)
+  panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
   if (statistic == 'chiSq') {
     statsTable <- panelChiSq(.pd, x, y, panel)

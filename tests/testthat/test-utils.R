@@ -1,5 +1,49 @@
 context('utils')
 
+test_that("plotRefMapToList returns NULL for entityId when there isnt one", {
+  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
+  
+  expect_equal(is.null(xVariableDetails$entityId),TRUE)
+
+  map <- data.frame('id' = c('.group', '.y', '.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
+  
+  expect_equal(is.null(xVariableDetails$entityId),TRUE)
+
+  map <- data.frame('id' = c('a.group', 'b.y', 'c.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
+  
+  expect_equal(is.null(xVariableDetails$entityId),FALSE)
+  expect_equal(xVariableDetails$entityId,'c')
+})
+
+test_that("toColNameOrNull works", {
+  varDetailsList <- list('variableId' = 'var',
+                         'entityId' = 'entity',
+                         'dataType' = NULL,
+                         'dataShape' = NULL)
+  colName <- toColNameOrNull(varDetailsList)
+
+  expect_equal(colName, 'entity.var')
+
+  varDetailsList <- list('variableId' = 'var',
+                         'entityId' = NULL,
+                         'dataType' = NULL,
+                         'dataShape' = NULL)
+  colName <- toColNameOrNull(varDetailsList)
+
+  expect_equal(colName, 'var')
+
+  varDetailsList <- list('variableId' = NULL,
+                         'entityId' = NULL,
+                         'dataType' = NULL,
+                         'dataShape' = NULL)
+  colName <- toColNameOrNull(varDetailsList)
+
+  expect_equal(is.null(colName), TRUE)
+})
+
 test_that("smoothedMean passes along error messages for method `gam` w few values", {
   dt <- data.table::data.table(x = c(1, 5, 2, 3, 4), y = 1:5)
   sm <- smoothedMean(dt, 'gam')

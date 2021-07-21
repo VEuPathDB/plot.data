@@ -35,10 +35,10 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
 
-  x <- attr$xAxisVariable$variableId
-  y <- attr$yAxisVariable$variableId
-  group <- attr$overlayVariable$variableId
-  panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
+  x <- toColNameOrNull(attr$xAxisVariable)
+  y <- toColNameOrNull(attr$yAxisVariable)
+  group <- toColNameOrNull(attr$overlayVariable)
+  panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
   if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
     series <- collapseByGroup(.pd, group = NULL, panel)

@@ -36,10 +36,17 @@ plotRefMapToList <- function(map, plotRef) {
   variableId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 2)
   entityId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 1)
 
+  if (variableId == entityId) { entityId <- NULL }
+
+  variableId <- emptyStringToNull(variableId)
+  entityId <- emptyStringToNull(entityId)
+  dataType <- emptyStringToNull(map$dataType[map$plotRef == plotRef])
+  dataShape <- emptyStringToNull(map$dataShape[map$plotRef == plotRef])
+
   plotRef <- list('variableId' = variableId,
                   'entityId' = entityId,
-                  'dataType' = map$dataType[map$plotRef == plotRef],
-                  'dataShape' = map$dataShape[map$plotRef == plotRef])
+                  'dataType' = dataType,
+                  'dataShape' = dataShape)
 
   return(plotRef)
 }
@@ -109,12 +116,12 @@ contingencyDT <- function(data, labels = TRUE) {
 }
 
 findPanelColName <- function(facet1 = NULL, facet2 = NULL) {
-  if (!is.null(facet1) & !is.null(facet2)) {
+  if (!is.null(facet1$variableId) & !is.null(facet2$variableId)) {
     panel <- 'panel'
   } else if (!is.null(facet1)) {
-    panel <- facet1
+    panel <- toColNameOrNull(facet1)
   } else if (!is.null(facet2)) {
-    panel <- facet2
+    panel <- toColNameOrNull(facet2)
   } else {
     panel <- NULL
   }
@@ -167,10 +174,23 @@ emptyStringToPoint <- function(x) {
 #' @return non-empty character vector or NULL
 #' @export
 emptyStringToNull <- function(x) {
+  if (is.null(x)) { return(NULL) }
   if (length(x) == 0) { return(NULL) }
   if (x == "") { return(NULL) }
 
-  return(x)
+  return(as.character(x))
+}
+
+toColNameOrNull <- function(varDetailsList) {
+  if (is.null(varDetailsList$variableId)) {
+    return(NULL)
+  }
+
+  if (is.null(varDetailsList$entityId)) {
+    return(varDetailsList$variableId)
+  }
+
+  return(paste0(varDetailsList$entityId, ".", varDetailsList$variableId))
 }
 
 getAggStr <- function(numericVars, groupingVars) {

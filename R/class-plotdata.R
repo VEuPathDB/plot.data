@@ -34,17 +34,17 @@ newPlotdata <- function(.dt = data.table(),
                          ...,
                          class = character()) {
 
-  x <- emptyStringToNull(as.character(xAxisVariable$variableId))
+  x <- toColNameOrNull(xAxisVariable)
   xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
-  y <- emptyStringToNull(as.character(yAxisVariable$variableId))
+  y <- toColNameOrNull(yAxisVariable)
   yType <- emptyStringToNull(as.character(yAxisVariable$dataType))
-  z <- emptyStringToNull(as.character(zAxisVariable$variableId))
+  z <- toColNameOrNull(zAxisVariable)
   zType <- emptyStringToNull(as.character(zAxisVariable$dataType))
-  group <- emptyStringToNull(as.character(overlayVariable$variableId))
+  group <- toColNameOrNull(overlayVariable)
   groupType <- emptyStringToNull(as.character(overlayVariable$dataType))
-  facet1 <- emptyStringToNull(as.character(facetVariable1$variableId))
+  facet1 <- toColNameOrNull(facetVariable1)
   facetType1 <- emptyStringToNull(as.character(facetVariable1$dataType))
-  facet2 <- emptyStringToNull(as.character(facetVariable2$variableId))
+  facet2 <- toColNameOrNull(facetVariable2)
   facetType2 <- emptyStringToNull(as.character(facetVariable2$dataType))
 
   .dt[[x]] <- updateType(.dt[[x]], xType)

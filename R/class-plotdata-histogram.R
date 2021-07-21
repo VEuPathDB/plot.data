@@ -35,10 +35,10 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                      class = "histogram")
 
   attr <- attributes(.pd)
-  x <- attr$xAxisVariable$variableId
+  x <- toColNameOrNull(attr$xAxisVariable)
   xType <- attr$xAxisVariable$dataType
-  group <- attr$overlayVariable$variableId
-  panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
+  group <- toColNameOrNull(attr$overlayVariable)
+  panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
   summary <- as.list(summary(.pd[[x]]))
   names(summary) <- c('min', 'q1', 'median', 'mean', 'q3', 'max')

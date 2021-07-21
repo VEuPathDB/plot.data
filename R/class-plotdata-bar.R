@@ -31,9 +31,9 @@ newBarPD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
 
-  x <- attr$xAxisVariable$variableId
-  group <- attr$overlayVariable$variableId
-  panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
+  x <- toColNameOrNull(attr$xAxisVariable)
+  group <- toColNameOrNull(attr$overlayVariable)
+  panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
   .pd[[x]] <- as.character(.pd[[x]])
 
   if (value == 'identity') {

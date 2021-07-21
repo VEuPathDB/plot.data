@@ -41,12 +41,12 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
   attr$zAxisVariable <- zAxisVariable
 
   #NOTE: one or the other of these could be a list for 'collection'
-  x <- attr$xAxisVariable$variableId
-  y <- attr$yAxisVariable$variableId
+  x <- toColNameOrNull(attr$xAxisVariable)
+  y <- toColNameOrNull(attr$yAxisVariable)
   #NOTE: this for the case of 'series'
-  z <- attr$zAxisVariable$variableId
-  group <- attr$overlayVariable$variableId
-  panel <- findPanelColName(attr$facetVariable1$variableId, attr$facetVariable2$variableId)
+  z <- toColNameOrNull(attr$zAxisVariable)
+  group <- toColNameOrNull(attr$overlayVariable)
+  panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
   if (value == 'collection') {
     data <- groupSplit(data, x, y, NULL, NULL, panel)
