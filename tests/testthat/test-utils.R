@@ -42,6 +42,12 @@ test_that("toColNameOrNull works", {
   colName <- toColNameOrNull(varDetailsList)
 
   expect_equal(is.null(colName), TRUE)
+
+  varDetailsList <- list('variableId' = '',
+                         'entityId' = '',
+                         'dataType' = NULL,
+                         'dataShape' = NULL)
+  expect_equal(is.null(colName), TRUE)
 })
 
 test_that("smoothedMean passes along error messages for method `gam` w few values", {

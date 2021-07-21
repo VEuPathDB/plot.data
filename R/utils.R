@@ -36,12 +36,14 @@ plotRefMapToList <- function(map, plotRef) {
   variableId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 2)
   entityId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 1)
 
-  if (variableId == entityId) { entityId <- NULL }
-
   variableId <- emptyStringToNull(variableId)
   entityId <- emptyStringToNull(entityId)
   dataType <- emptyStringToNull(map$dataType[map$plotRef == plotRef])
   dataShape <- emptyStringToNull(map$dataShape[map$plotRef == plotRef])
+
+  if (!is.null(variableId) & !is.null(entityId)) {
+    if (variableId == entityId) { entityId <- NULL }
+  }
 
   plotRef <- list('variableId' = variableId,
                   'entityId' = entityId,
