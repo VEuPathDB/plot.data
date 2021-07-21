@@ -133,7 +133,7 @@ validatePlotdata <- function(.pd) {
   .dt <- unclass(.pd)
   xAxisVariable <- attr(.pd, 'xAxisVariable')
   stopifnot(validateVariableAttr(xAxisVariable))
-  stopifnot(xAxisVariable$variableId %in% names(.dt))
+  stopifnot(toColNameOrNull(xAxisVariable) %in% names(.dt))
   class <- attr(.pd, 'class')
   stopifnot(is.character(class))
 
