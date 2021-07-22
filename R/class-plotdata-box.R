@@ -182,7 +182,6 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                         'entityId' = NULL,
                         'dataType' = NULL,
                         'dataShape' = NULL)
-  listVarPlotRef <- NULL
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -209,12 +208,12 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 
     # Record variable order
     listVarIdOrder <- map$id[map$plotRef == listVarPlotRef]
+    ## Sep cannot include . (see plotRefMapToList)
+    meltedVariableName <- as.character(purrr::reduce(listVarIdOrder, function(x,y,sep="__") {paste(x,y,sep=sep)}))
     
     # Melt data and update the map 
-    data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
-    map <- remapListVar(map, listVarPlotRef, meltedValuePlotRef)
-    
-    listVar <- list("listVarPlotRef" = listVarPlotRef, "listVarIdOrder" = listVarIdOrder)
+    data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name= meltedVariableName, value.name='meltedValue')
+    map <- remapListVar(map, listVarPlotRef, meltedValuePlotRef, newVarId = meltedVariableName)
     
   } # end handling of repeated plot element references
 
@@ -250,24 +249,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                     evilMode = evilMode)
 
   
-  #### List var handling could also go here. Should list vars go into newBoxPD at all?
-  ### Maybe no because they're not about the box itself. 
-  ### after validation? It would fail validation if not.
-  #### alternatively, maybe better, do list var things and then validate
-  ### First get working, then validatae
   .box <- validateBoxPD(.box)
-  
-  # Handle listVar.
-  # Also could be handled in the json, but that would mean the varId is a vector for a while.
-  if (!is.null(listVarPlotRef)) {
-    
-    listVarEntityId <- attr(.box, listVarPlotRef)$entityId
-    listVarDataType <- attr(.box, listVarPlotRef)$dataType
-    listVarDataShape <- attr(.box, listVarPlotRef)$dataShape
-    listVarDetails <- lapply(listVarIdOrder, makeVariable, listVarEntityId, listVarDataType, listVarDataShape)
-    attr(.box, listVarPlotRef) <- listVarDetails
-    
-  }
 
   return(.box) 
 

@@ -202,6 +202,7 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   map <- data.frame('id' = c('xcat', 'y'), 'plotRef' = c('xAxisVariable', 'yAxisVariable'), 'dataType' = c('STRING', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.xy)
   df$xcat <- sample(c('x1','x2','x3'), 500, replace=T) # Add another categorical var
+  df$zcat <- sample(c('z1','z2','z3'), 500, replace=T) # Add another categorical var
   
   # No overlay, no facets
   dt <- box.dt(df, map, 'none', FALSE, TRUE)
@@ -225,6 +226,13 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   
   # With overlay and facet
   map <- data.frame('id' = c('xcat', 'y', 'group', 'panel'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- box.dt(df, map, 'none', FALSE, TRUE)
+  statsTable <- attr(dt, 'statsTable')
+  expect_equal(nrow(statsTable), uniqueN(df$xcat)*uniqueN(df$panel))
+  expect_equal(ncol(statsTable), 3)
+  
+  # With overlay and two facets
+  map <- data.frame('id' = c('xcat', 'y', 'group', 'panel', 'zcat'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'), 'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt <- box.dt(df, map, 'none', FALSE, TRUE)
   statsTable <- attr(dt, 'statsTable')
   expect_equal(nrow(statsTable), uniqueN(df$xcat)*uniqueN(df$panel))
