@@ -460,3 +460,14 @@ validateListVar <- function(map, listVarPlotRef) {
 
   return(listVarPlotRef)
 }
+
+
+
+makeVariable <- function(variableId = NULL, entityId = NULL, dataType = NULL, dataShape = NULL) {
+  varList <- list("variableId" = variableId,
+                  "entityId" = entityId,
+                  "dataType" = dataType,
+                  "dataShape" = dataShape)
+  return (varList)
+}
+

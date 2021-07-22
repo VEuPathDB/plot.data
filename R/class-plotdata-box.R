@@ -23,8 +23,6 @@ newBoxPD <- function(.dt = data.table::data.table(),
                          mean = logical(),
                          computeStats = logical(),
                          evilMode = logical(),
-                         listVar = list('listVarPlotRef' = NULL,
-                                        'listVarIdOrder' = NULL),
                          ...,
                          class = character()) {
 
@@ -99,19 +97,6 @@ newBoxPD <- function(.dt = data.table::data.table(),
       .pd.base <- merge(.pd.base, mean)
     } else {
       .pd.base <- cbind(.pd.base, mean)
-    }
-  }
-  
-  
-  # Handle listVar
-  listVarPlotRef <- emptyStringToNull(as.character(listVar$listVarPlotRef))
-
-  if (!is.null(listVarPlotRef)) {
-    # Set var ids
-    attr[[listVarPlotRef]]$variableId <- listVar$listVarIdOrder
-    # Set entityIds
-    if (!is.null(attr[[listVarPlotRef]]$entityId)) {
-      attr[[listVarPlotRef]]$entityId <- rep(attr[[listVarPlotRef]]$entityId, length.out = length(listVar$listVarIdOrder))
     }
   }
   
@@ -197,11 +182,11 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                         'entityId' = NULL,
                         'dataType' = NULL,
                         'dataShape' = NULL)
+  listVarPlotRef <- NULL
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
-  
 
   # Handle repeated plot references
   if (any(duplicated(map$plotRef))) {
@@ -262,10 +247,27 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                     points = points,
                     mean = mean,
                     computeStats = computeStats,
-                    evilMode = evilMode,
-                    listVar = listVar)
+                    evilMode = evilMode)
 
+  
+  #### List var handling could also go here. Should list vars go into newBoxPD at all?
+  ### Maybe no because they're not about the box itself. 
+  ### after validation? It would fail validation if not.
+  #### alternatively, maybe better, do list var things and then validate
+  ### First get working, then validatae
   .box <- validateBoxPD(.box)
+  
+  # Handle listVar.
+  # Also could be handled in the json, but that would mean the varId is a vector for a while.
+  if (!is.null(listVarPlotRef)) {
+    
+    listVarEntityId <- attr(.box, listVarPlotRef)$entityId
+    listVarDataType <- attr(.box, listVarPlotRef)$dataType
+    listVarDataShape <- attr(.box, listVarPlotRef)$dataShape
+    listVarDetails <- lapply(listVarIdOrder, makeVariable, listVarEntityId, listVarDataType, listVarDataShape)
+    attr(.box, listVarPlotRef) <- listVarDetails
+    
+  }
 
   return(.box) 
 

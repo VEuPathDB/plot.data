@@ -146,6 +146,20 @@ test_that("box.dt() accepts listVars for both x axis and facet vars", {
   expect_equal(unique(dt$meltedVariable), c('x','y','z'))
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'meltedValue')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'meltedVariable')
+  
+  # testing json
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  
+  # lapply(lapply(dt$xVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId), list)
+  namedAttrList <- getPDAttributes(dt)
+  facet1 <- namedAttrList$facetVariable1$variableId
+  names(dt)[names(dt) == facet1] <- 'facetVariableDetails'
+  dt$facetVariableDetails <- lapply(lapply(dt$facetVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId), list)
+  
+  names(dt)[names(dt) == 'group'] <- 'overlayVariableDetails'
+  ovd <- lapply(dt$overlayVariableDetails, makeVariableDetails, group, namedAttrList$overlayVariable$entityId)
+  
 })
 
 test_that("box() returns appropriately formatted json", {
