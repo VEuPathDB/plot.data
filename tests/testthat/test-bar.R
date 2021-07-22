@@ -143,6 +143,7 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(names(jsonList$barplot$config), c('completeCases','plottedIncompleteCases','xVariableDetails'))
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','facetVariableDetails','xVariableDetails','size'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
 })
 
 test_that("bar.dt() returns correct information about missing data", {

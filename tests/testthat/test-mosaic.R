@@ -237,6 +237,7 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','xVariableDetails','size'))
   expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','facetVariableDetails'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
 })
 
 
