@@ -102,28 +102,28 @@ test_that("bin() returns appropriate bins for dates", {
   dt <- data.dates
 
   dt$dateBin <- bin(as.Date(data.dates$date), 'day', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-12-01 - 1999-12-02)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-12-01 - 1999-12-02")
 
   dt$dateBin <- bin(as.Date(data.dates$date), '4 day', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-11-29 - 1999-12-03)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-11-29 - 1999-12-03")
 
   dt$dateBin <- bin(as.Date(data.dates$date), 'week', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-11-29 - 1999-12-06)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-11-29 - 1999-12-06")
 
   dt$dateBin <- bin(as.Date(data.dates$date), '2 week', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-11-29 - 1999-12-13)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-11-29 - 1999-12-13")
 
   dt$dateBin <- bin(as.Date(data.dates$date), 'month', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-12-01 - 2000-01-01)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-12-01 - 2000-01-01")
 
   dt$dateBin <- bin(as.Date(data.dates$date), '2 month', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-11-01 - 2000-01-01)")   
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-11-01 - 2000-01-01")   
 
   dt$dateBin <- bin(as.Date(data.dates$date), 'year', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-01-01 - 2000-01-01)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-01-01 - 2000-01-01")
 
   dt$dateBin <- bin(as.Date(data.dates$date), '2 year', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-01-01 - 2001-01-01)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-01-01 - 2001-01-01")
 })
 
 test_that("relativeRisk() returns the right columns", {

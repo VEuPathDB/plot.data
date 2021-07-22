@@ -70,7 +70,7 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
     }
   }
 
-  bins <- stringi::stri_c("[", binStart, " - ", binEnd, ")")
+  bins <- stringi::stri_c(binStart, " - ", binEnd)
 
   return(bins)
 }
