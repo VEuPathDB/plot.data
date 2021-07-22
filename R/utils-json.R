@@ -1,4 +1,5 @@
 makeVariableDetails <- function(value, variableId, entityId) {
+
   if (!is.null(value)) {
     if (length(value) == 1) {
       variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=jsonlite::unbox(value))
@@ -104,9 +105,17 @@ getJSON <- function(.pd, evilMode) {
   }
 
   if ('xAxisVariable' %in% names(namedAttrList)) {
-    namedAttrList$xVariableDetails <- makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId)
-    namedAttrList$xAxisVariable <- NULL
+    if (length(strSplit(namedAttrList$xAxisVariable$variableId, "__", ncol=1)) == 1){
+      namedAttrList$xVariableDetails <- makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId)
+      namedAttrList$xAxisVariable <- NULL
+    } else {
+      # Then it is a listvar
+      listVarIds <- strSplit(namedAttrList$xAxisVariable$variableId, "__", ncol=1)
+      namedAttrList$xVariableDetails <- lapply(lapply(listVarIds, makeVariableDetails, value = NULL, entityId = namedAttrList$xAxisVariable$entityId), list)
+      namedAttrList$xAxisVariable <- NULL
+    }
   }
+
   if ('yAxisVariable' %in% names(namedAttrList)) {
     namedAttrList$yVariableDetails <- makeVariableDetails(NULL, namedAttrList$yAxisVariable$variableId, namedAttrList$yAxisVariable$entityId)
     namedAttrList$yAxisVariable <- NULL

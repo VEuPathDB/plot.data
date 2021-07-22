@@ -208,7 +208,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 
     # Record variable order
     listVarIdOrder <- map$id[map$plotRef == listVarPlotRef]
-    ## Sep cannot include . (see plotRefMapToList)
+    #### Sep cannot include . (see plotRefMapToList)
     meltedVariableName <- as.character(purrr::reduce(listVarIdOrder, function(x,y,sep="__") {paste(x,y,sep=sep)}))
     
     # Melt data and update the map 
@@ -217,6 +217,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     
   } # end handling of repeated plot element references
 
+  
   if ('xAxisVariable' %in% map$plotRef) {
     xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   } else {
@@ -248,6 +249,9 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                     computeStats = computeStats,
                     evilMode = evilMode)
 
+  
+  #### Mess with complete cases table here?
+  
   
   .box <- validateBoxPD(.box)
 

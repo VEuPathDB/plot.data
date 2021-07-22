@@ -125,16 +125,27 @@ test_that("box.dt() returns an appropriately sized data.table", {
 })
 test_that("box.dt() accepts listVars for both x axis and facet vars", {  
   ## Case when we input multiple vars as one to x axis
-  map <- data.frame('id' = c('y', 'x', 'z', 'group'), 'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('y', 'x', 'z', 'group','cat2','cat3'), 'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING', 'STRING', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.xy
   df[, z := x+y]
-  dt <- box.dt(df, map, 'none', FALSE)
+  df$cat2 <- sample(c('z1','z2','z3'), 500, replace=T) # Add another categorical var
+  df$cat3 <- sample(c('a','b','c','d'), 500, replace=T) # Add another categorical var
+  
+  dt <- box.dt(df, map, 'none', FALSE, computeStats = T)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 4)
   expect_equal(names(dt),c('group', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
   expect_equal(unique(dt$label)[[1]], c('x','y','z'))
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'meltedValue')
   expect_equal(attr(dt, 'xAxisVariable')$variableId, 'meltedVariable')
+  
+  # testing json
+  attrs <- attributes(dt)
+  cct <- attr(dt, 'completeCasesTable')
+  sst <- attr(dt, 'sampleSizeTable')
+  st <- attr(dt, 'statsTable')
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
   
   ## Case when we input multiple vars as one to facet 1
   map <- data.frame('id' = c('y', 'x', 'z', 'group'), 'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
