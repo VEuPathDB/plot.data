@@ -33,6 +33,13 @@ collapseByGroup <- function(data, group = NULL, panel = NULL) {
 trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 
 plotRefMapToList <- function(map, plotRef) {
+  if (!plotRef %in% map$plotRef) {
+    return(list('variableId' = NULL,
+                'entityId' = NULL,
+                'dataType' = NULL,
+                'dataShape' = NULL))
+  }
+
   variableId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 2)
   entityId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 1)
 
@@ -184,6 +191,10 @@ emptyStringToNull <- function(x) {
 }
 
 toColNameOrNull <- function(varDetailsList) {
+  if (is.null(varDetailsList)) {
+    return(NULL)
+  }
+
   if (is.null(varDetailsList$variableId)) {
     return(NULL)
   }

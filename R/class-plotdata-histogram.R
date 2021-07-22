@@ -245,19 +245,6 @@ histogram.dt <- function(data,
                          viewport = NULL,
                          evilMode = c(FALSE, TRUE)) {
 
-  overlayVariable = list('variableId' = NULL,
-                         'entityId' = NULL,
-                         'dataType' = NULL,
-                         'dataShape' = NULL)
-  facetVariable1 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-  facetVariable2 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-                           
   value <- matchArg(value)
   barmode <- matchArg(barmode)
   binReportValue <- matchArg(binReportValue)
@@ -267,26 +254,20 @@ histogram.dt <- function(data,
     data.table::setDT(data)
   }
 
-  if ('xAxisVariable' %in% map$plotRef) {
     xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  if (is.null(xAxisVariable$variableId)) {
+    stop("Must provide xAxisVariable for plot type histogram.")
+  } else {
     if (xAxisVariable$dataType == 'NUMBER' & !is.null(binWidth)) {
       binWidth <- suppressWarnings(as.numeric(binWidth))
       if (is.na(binWidth)) {
         stop("binWidth must be numeric for histograms of numeric values.")
       }
     }
-  } else {
-    stop("Must provide xAxisVariable for plot type histogram.")
   }
-  if ('overlayVariable' %in% map$plotRef) {
-    overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  }
-  if ('facetVariable1' %in% map$plotRef) {
-    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  }
-  if ('facetVariable2' %in% map$plotRef) {
-    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
-  }
+  overlayVariable <- plotRefMapToList(map, 'overlayVariable')
+  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
+  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
   .histo <- newHistogramPD(.dt = data,
                            xAxisVariable = xAxisVariable,

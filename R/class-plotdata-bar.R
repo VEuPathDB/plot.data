@@ -114,19 +114,6 @@ bar.dt <- function(data,
                    barmode = c('group', 'stack'), 
                    evilMode = c(FALSE, TRUE)) {
 
-  overlayVariable = list('variableId' = NULL,
-                         'entityId' = NULL,
-                         'dataType' = NULL,
-                         'dataShape' = NULL)
-  facetVariable1 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-  facetVariable2 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-
   value <- matchArg(value)
   barmode <- matchArg(barmode)
   evilMode <- matchArg(evilMode)
@@ -135,20 +122,13 @@ bar.dt <- function(data,
     data.table::setDT(data)
   }
 
-  if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
-  } else {
+  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type bar.")
   }
-  if ('overlayVariable' %in% map$plotRef) {
-    overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  }
-  if ('facetVariable1' %in% map$plotRef) {
-    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  }
-  if ('facetVariable2' %in% map$plotRef) {
-    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
-  }
+  overlayVariable <- plotRefMapToList(map, 'overlayVariable')
+  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
+  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
   .bar <- newBarPD(.dt = data,
                     xAxisVariable = xAxisVariable,

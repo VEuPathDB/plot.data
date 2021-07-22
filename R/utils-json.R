@@ -29,32 +29,29 @@ addVariableDetailsToColumn <- function(.pd, variableIdColName) {
 
 addStrataVariableDetails <- function(.pd) {
   namedAttrList <- getPDAttributes(.pd)
-  group <- NULL
-  facet1 <- NULL
-  facet2 <- NULL
-  if ('overlayVariable' %in% names(namedAttrList)) { group <- namedAttrList$overlayVariable$variableId }
-  if ('facetVariable1' %in% names(namedAttrList)) { facet1 <- namedAttrList$facetVariable1$variableId }
-  if ('facetVariable2' %in% names(namedAttrList)) { facet2 <- namedAttrList$facetVariable2$variableId }
+  group <- toColNameOrNull(namedAttrList$overlayVariable)
+  facet1 <- toColNameOrNull(namedAttrList$facetVariable1)
+  facet2 <- toColNameOrNull(namedAttrList$facetVariable2)
  
   # !!!!! work off a copy while writing json
   # since we have two exported fxns, dont want calling one changing the result of the other
   if (!is.null(group)) {
     if (!identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS')) {
       names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
-      .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, group, namedAttrList$overlayVariable$entityId)
+      .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId)
     }
   }
 
   if (!is.null(facet1) & !is.null(facet2)) {
     names(.pd)[names(.pd) == 'panel'] <- 'facetVariableDetails'
-    .pd$facetVariableDetails <- Map(list, lapply(strSplit(.pd$facetVariableDetails, '.||.'), makeVariableDetails, facet1, namedAttrList$facetVarialbe1$entityId), lapply(strSplit(.pd$facetVariableDetails, '.||.', index=2), makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId))
+    .pd$facetVariableDetails <- Map(list, lapply(strSplit(.pd$facetVariableDetails, '.||.'), makeVariableDetails, namedAttrList$facetVariable1$variableId, namedAttrList$facetVarialbe1$entityId), lapply(strSplit(.pd$facetVariableDetails, '.||.', index=2), makeVariableDetails, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId))
   } else {
     if (!is.null(facet1)) {
       names(.pd)[names(.pd) == facet1] <- 'facetVariableDetails'
-      .pd$facetVariableDetails <- lapply(lapply(.pd$facetVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId), list)
+      .pd$facetVariableDetails <- lapply(lapply(.pd$facetVariableDetails, makeVariableDetails, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId), list)
     } else if (!is.null(facet2)) {
       names(.pd)[names(.pd) == facet2] <- 'facetVariableDetails'
-      .pd$facetVariableDetails <- lapply(lapply(.pd$facetVariableDetails, makeVariableDetails, facet2, namedAttrList$facetVariable2$entityId), list)
+      .pd$facetVariableDetails <- lapply(lapply(.pd$facetVariableDetails, makeVariableDetails, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId), list)
     }
   }
 

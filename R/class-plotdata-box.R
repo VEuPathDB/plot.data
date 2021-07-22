@@ -170,23 +170,9 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   computeStats <- matchArg(computeStats)
   evilMode <- matchArg(evilMode)
 
-  overlayVariable = list('variableId' = NULL,
-                         'entityId' = NULL,
-                         'dataType' = NULL,
-                         'dataShape' = NULL)
-  facetVariable1 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-  facetVariable2 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
-  
 
   # Handle repeated plot references
   if (any(duplicated(map$plotRef))) {
@@ -216,25 +202,17 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     
   } # end handling of repeated plot element references
 
-  if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
-  } else {
+  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type box.")
   }
-  if ('yAxisVariable' %in% map$plotRef) {
-    yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  } else {
+  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+  if (is.null(yAxisVariable$variableId)) {
     stop("Must provide yAxisVariable for plot type box.")
   }
-  if ('overlayVariable' %in% map$plotRef) {
-    overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  }
-  if ('facetVariable1' %in% map$plotRef) {
-    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  }
-  if ('facetVariable2' %in% map$plotRef) {
-    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
-  }
+  overlayVariable <- plotRefMapToList(map, 'overlayVariable')
+  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
+  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
   .box <- newBoxPD(.dt = data,
                     xAxisVariable = xAxisVariable,

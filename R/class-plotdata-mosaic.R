@@ -101,31 +101,16 @@ mosaic.dt <- function(data, map, statistic = NULL, evilMode = c(FALSE, TRUE)) {
     stop('invalid input to argument `evilMode`.')
   }
 
-  yAxisVariable = list('variableId' = NULL,
-                         'entityId' = NULL,
-                         'dataType' = NULL,
-                         'dataShape' = NULL)
-  facetVariable1 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-  facetVariable2 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
 
-  if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
-  } else {
+  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type mosaic.")
   }
-  if ('yAxisVariable' %in% map$plotRef) {
-    yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  } else {
+  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+  if (is.null(yAxisVariable$variableId)) {
     stop("Must provide yAxisVariable for plot type mosaic.")
   }
 
@@ -144,12 +129,8 @@ mosaic.dt <- function(data, map, statistic = NULL, evilMode = c(FALSE, TRUE)) {
     }
   }
   
-  if ('facetVariable1' %in% map$plotRef) {
-    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  }
-  if ('facetVariable2' %in% map$plotRef) {
-    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
-  }
+  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
+  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
   .mosaic <- newMosaicPD(.dt = data,
                             xAxisVariable = xAxisVariable,
