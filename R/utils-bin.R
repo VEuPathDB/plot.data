@@ -90,15 +90,14 @@ findBinWidth <- function(x) UseMethod("findBinWidth")
 findBinWidth.numeric <- function(x) {
   numBins <- findNumBins(x)
   binWidth <- numBinsToBinWidth(x, numBins)
-  avgDigits <- floor(mean(stringr::str_count(as.character(x), "[[:digit:]]")))
-
   if (all(x %% 1 == 0)) {
     # Then x only contains integers, so the binWidth should also be an integer
-    binWidth <- ceiling(binWidth)
+    avgDigits <- 0
   } else {
     # Then x contains data with non-zero decimals, so the binWidth can be any float
-    binWidth <- round(binWidth, avgDigits)
+    avgDigits <- floor(mean(stringr::str_count(as.character(x), "[[:digit:]]")))
   }
+  binWidth <- round(binWidth, avgDigits)
 
   return(binWidth)
 }
