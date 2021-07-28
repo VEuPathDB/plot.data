@@ -224,3 +224,27 @@ test_that("nonparametricTest() types do not change on error", {
   expect_equal(lapply(result_correct[[1]], typeof), lapply(result_err[[1]], typeof))
 })
 
+test_that("findBinWidth returns appropriate bin types for numeric inputs", {
+  # Integers should return integer bin width
+  x <- c(1.0, 4.0, 2.0, 9.0, 4.0, 1.0, 8.0, 11.0, 34.0, 23.0, 19.0)
+  binWidth <- findBinWidth(x)
+  expect_true(is.numeric(binWidth))
+  expect_equal(binWidth%%1, 0)
+  
+  x <- c(1.0, -4.0, 2.0, 9.0, 4.0, -1.0, 8.0, -11.0, 34.0, 23.0, -19.0)
+  binWidth <- findBinWidth(x)
+  expect_true(is.numeric(binWidth))
+  expect_equal(binWidth%%1, 0)
+  
+  x <- sample(-100:100, 100, replace=T)
+  binWidth <- findBinWidth(x)
+  expect_true(is.numeric(binWidth))
+  expect_equal(binWidth%%1, 0)
+  
+  # Values with non-zero decimals should return numeric
+  x <- runif(100, min=-1, max=1)
+  binWidth <- findBinWidth(x)
+  expect_true(is.numeric(binWidth))
+  
+})
+
