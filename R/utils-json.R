@@ -42,13 +42,13 @@ addStrataVariableDetails <- function(.pd) {
   if (!is.null(group)) {
     if (!identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS')) {
       names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
-      .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId)
+      .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
     }
   }
 
   if (!is.null(facet1) & !is.null(facet2)) {
     names(.pd)[names(.pd) == 'panel'] <- 'facetVariableDetails'
-    .pd$facetVariableDetails <- Map(list, lapply(strSplit(.pd$facetVariableDetails, '.||.'), makeVariableDetails, namedAttrList$facetVariable1$variableId, namedAttrList$facetVarialbe1$entityId, namedAttrList$facetVarialbe1$displayLabel), lapply(strSplit(.pd$facetVariableDetails, '.||.', index=2), makeVariableDetails, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel))
+    .pd$facetVariableDetails <- Map(list, lapply(strSplit(.pd$facetVariableDetails, '.||.'), makeVariableDetails, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId, namedAttrList$facetVariable1$displayLabel), lapply(strSplit(.pd$facetVariableDetails, '.||.', index=2), makeVariableDetails, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel))
   } else {
     if (!is.null(facet1)) {
       names(.pd)[names(.pd) == facet1] <- 'facetVariableDetails'

@@ -481,6 +481,44 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId'))
+
+
+  map <- data.frame('id' = c('group', 'var', 'panel'), 
+                    'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'),
+                    'displayLabel' = c('facet2Label','xLabel','facet1Label'),
+                    stringsAsFactors=FALSE)
+  dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'stack', binReportValue, viewport)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList),c('histogram','sampleSizeTable','completeCasesTable'))
+  expect_equal(names(jsonList$histogram),c('data','config'))
+  expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','binStart','binEnd','value'))
+  expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value', 'displayLabel'))
+  expect_equal(nrow(jsonList$histogram$data$facetVariableDetails[[1]]), 2)
+  expect_equal(names(jsonList$histogram$config),c('completeCases','plottedIncompleteCases','summary','viewport','binSlider','binSpec','xVariableDetails'))
+  expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId','displayLabel'))
+  expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
+  expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
+  expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
+  expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId', 'displayLabel'))
+
+  map <- data.frame('id' = c('group', 'var', 'panel'), 
+                    'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'),
+                    'displayLabel' = c('','','facet1Label'),
+                    stringsAsFactors=FALSE)
+  dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'stack', binReportValue, viewport)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value', 'displayLabel'))
+  expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId', 'displayLabel'))
+
 })
 
 test_that("histogram.dt() returns correct information about missing data", {

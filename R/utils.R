@@ -431,8 +431,8 @@ remapListVar <- function(map, listVarPlotRef, newValuePlotRef, newVarId = 'melte
 
   # Add displayLabels
   if (!is.null(map$displayLabel)) {
-    newVar$displayLabel <- if(!is.null(newVarDisplayLabel)) {newVarDisplayLabel} else {list(NULL)}
-    newValue$displayLabel <- if(!is.null(newValueDisplayLabel)) {newValueDisplayLabel} else {list(NULL)}
+    newVar$displayLabel <- if(!is.null(newVarDisplayLabel)) {newVarDisplayLabel} else {''}
+    newValue$displayLabel <- if(!is.null(newValueDisplayLabel)) {newValueDisplayLabel} else {''}
   }
   
   # Remove all repeated variables from map
