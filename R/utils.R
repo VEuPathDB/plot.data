@@ -471,3 +471,36 @@ validateListVar <- function(map, listVarPlotRef) {
 
   return(listVarPlotRef)
 }
+
+
+
+#### Should be simplified later -- write and make tests with easy-to-debug version then refactor later
+getUpsetIntersections <- function(set, data, mode) {
+  
+  if (!'data.table' %in% class(data)) {
+    data.table::setDT(data)
+  }
+  
+  if (type == 'intersection') {
+    
+    subsetDf <- df[, ..set]
+    
+  } else if (mode=='distinctIntersection') {
+    
+    # Remove all rows which are missing data in any column not in the set
+    notset <- setdiff(colnames(df), set)
+    if (length(notset) > 0){
+      # subsetDf <- df[rowSums(!is.na(df[, ..notset])) == length(notset), ..set]
+      subsetDf <- df[complete.cases(df[, ..notset]), ..set]
+    } else {
+      subsetDf <- df
+    }
+    
+  }
+  
+  # Now want number of all missing
+  nMissing <- nrow(subsetDf[rowSums(is.na(subsetDf[, ..set])) == length(set), ])
+  
+  return (list("sets" = set
+               , "cardinality" = nMissing))
+} # End function

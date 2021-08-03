@@ -259,4 +259,4 @@ test_that("mosaic.dt() returns correct information about missing data", {
   expect_equal(attr(dt, 'plottedIncompleteCases')[1], 0)
   dt <- mosaic.dt(df, map, evilMode = TRUE)
   expect_equal(attr(dt, 'plottedIncompleteCases')[1], sum(is.na(df$panel) & !is.na(df$group) & !is.na(df$var)))
-})
+x})

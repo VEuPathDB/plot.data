@@ -1,130 +1,111 @@
-newUpsetPD <- function(.dt = data.table::data.table(),
-                     xAxisVariable = list('variableId' = NULL,
-                                          'entityId' = NULL,
-                                          'dataType' = NULL,
-                                          'dataShape' = NULL),
-                     mode = character(),
+## What is the abstract thing that is an upset plot?
+# Sets and intersections. Could be based on what upset.js does?
+# An upset plot is a thing that has sets and intersections
+# it has a type describing what these sets mean (mode - ex distinctIntersections)
+# Does it include highlighting? (queries)
+# .dt is the data table
+# vars is a list of var names (for making VariableSpecs)
+# mode tells us instersection | distinctIntersection | unions
+# Assuming calculating missingness, not the completeness plot
+# Goal is to get queries to also filter through this function
+# no idea what 'queries' does yet. I'd like something that says type='upset' and it calculates missingness.
+# In other situations we might need to calculate completeness
+# Didn't implement union yet
+
+newSetSets <- function(.dt = data.table::data.table(),
+                    #  vars = list(), # I only care about varId and entity
+                     relation = character(),
+                     queries = character(), 
                      ...,
                      class = character()) {
-  
-  .pd <- newPlotdata(.dt = .dt,
-                     xAxisVariable = xAxisVariable,
-                     evilMode = F
-                     class = "upsetplot")
-  
-  attr <- attributes(.pd)
-  
-  x <- toColNameOrNull(attr$xAxisVariable)
-  group <- toColNameOrNull(attr$overlayVariable)
-  panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
-  .pd[[x]] <- as.character(.pd[[x]])
-  
-  if (value == 'identity') {
-    .pd <- collapseByGroup(.pd, group, panel)
-  } else if (value == 'count' ) {
-    .pd$dummy <- 1
-    .pd <- groupSize(.pd, x, 'dummy', group, panel, collapse = T)
-    data.table::setnames(.pd, c(group, panel, 'label', 'value'))
-    
-  } else if (value == 'proportion') {
-    .pd$dummy <- 1
-    .pd <- groupProportion(.pd, x, 'dummy', group, panel, barmode, collapse = T)
-    data.table::setnames(.pd, c(group, panel, 'label', 'value'))
+
+  attr <- attributes(.dt)
+
+
+  # Need validation that all vars varIds are columns in .dt
+
+  # First get colnames from vars. For now just use .dt column names
+  # Calculate power set of vars
+  varNames <- colnames(df)
+
+  # Calculate the powerset of variables we care about. This line will get slowww with many vars
+  pSet <- rje::powerSet(varNames)
+
+  # Remove empty set
+  pSet <- pSet[lapply(pSet, length) > 0]
+
+  # Find intersections
+  if (queries == 'missingness') {
+    .sets <- lapply(pSet, getUpsetIntersections, data=.dt, mode=relation)  ## Needs to return a data table
   }
+  # else if queries filters the data or something do something ele
+
+  # Set to data table (for now)
+  #### pls help
+  .sets <- data.table::as.data.table(t(data.table::as.data.table(.sets)))
+
+  data.table::setnames(.sets, c('sets', 'cardinality'))
   
-  attr$names <- names(.pd)
+  attr$names <- names(.sets) # Should we keep this?
+  attr$mode <- relation
+
+  setAttrFromList(.sets, attr)
   
-  setAttrFromList(.pd, attr)
-  
-  return(.pd)
+  return(.sets)
 }
 
-validateBarPD <- function(.bar) {
-  xAxisVariable <- attr(.bar, 'xAxisVariable')
-  if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-    stop('The independent axis must be binary, ordinal or categorical for barplot.')
-  }
-  overlayVariable <- attr(.bar, 'overlayVariable')
-  if (!is.null(overlayVariable)) {
-    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-      stop('The overlay variable must be binary, ordinal or categorical.')
-    }
-  }
-  facetVariable1 <- attr(.bar, 'facetVariable1')
-  if (!is.null(facetVariable1)) {
-    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-      stop('The first facet variable must be binary, ordinal or categorical.')
-    }
-  }
-  facetVariable2 <- attr(.bar, 'facetVariable2')
-  if (!is.null(facetVariable2)) {
-    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-      stop('The second facet variable must be binary, ordinal or categorical.')
-    }
-  }
-  
-  return(.bar)
+
+
+validateSetSets <- function(.sets) {
+
+  # Check we have sets and names?
+  return(.sets)
 }
 
-#' Bar Plot as data.table
+#' setSets Plot as data.table
 #'
 #' This function returns a data.table of 
-#' plot-ready data with one row per group (per panel). Columns 
-#' 'label' and 'value' contain the raw data for plotting. Column 
-#' 'group' and 'panel' specify the group the series data belongs to.
-#' There are three options to calculate y-values for plotting. \cr
-#' 1) raw 'identity' of values from data.table input \cr
+#' plot-ready data with one row per set. Columns 
+#' 'sets' and 'cardinality' contain the raw data for plotting.
+#' There are three options for calculating set relation cardinality. \cr
+#' 1) 'intersection' finds the number of elements  \cr
 #' 2) 'count' occurrences of values from data.table input \cr 
 #' 3) 'proportion' of occurrences of values from data.table input \cr 
-#' 
-#' @section Evil Mode:
-#' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
-#' - not return statsTables \cr
-#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
-#' - return a total count of plotted incomplete cases \cr
-#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
-#' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param relation String indicating type of set relations to return ('intersection', 'distinctIntersection', 'union')
+#' @param queries Object that somehow describes how to filter data??
 #' @return data.table plot-ready data
 #' @export
-bar.dt <- function(data, 
+setSets.dt <- function(data, 
                    map, 
-                   value = c('count', 'identity', 'proportion'), 
-                   barmode = c('group', 'stack'), 
-                   evilMode = c(FALSE, TRUE)) {
+                   relation = c('intersection','distinctIntersection'), 
+                   queries = c('missingness')) {
   
-  value <- matchArg(value)
-  barmode <- matchArg(barmode)
-  evilMode <- matchArg(evilMode)
+  relation <- matchArg(relation)
+  queries <- matchArg(queries)
   
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
   
-  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
-  if (is.null(xAxisVariable$variableId)) {
-    stop("Must provide xAxisVariable for plot type bar.")
-  }
-  overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
+  # xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  # if (is.null(xAxisVariable$variableId)) {
+  #   stop("Must provide xAxisVariable for plot type bar.")
+  # }
+  # overlayVariable <- plotRefMapToList(map, 'overlayVariable')
+  # facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
+  # facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
+
+
   
-  .bar <- newBarPD(.dt = data,
-                   xAxisVariable = xAxisVariable,
-                   overlayVariable = overlayVariable,
-                   facetVariable1 = facetVariable1,
-                   facetVariable2 = facetVariable2,
-                   value = value,
-                   barmode = barmode,
-                   evilMode = evilMode)
+  .setSets <- newSetSets(.dt = data,
+                   relation = relation,
+                   queries = queries)
   
-  .bar <- validateBarPD(.bar)
+  .setSets <- validateBarPD(.setSets)
   
-  return(.bar)
+  return(.setSets)
 }
 
 #' Bar Plot data file
@@ -152,18 +133,18 @@ bar.dt <- function(data,
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
-bar <- function(data, 
-                map, 
-                value = c('count', 'identity', 'proportion'), 
-                barmode = c('group', 'stack'), 
-                evilMode = c(FALSE, TRUE)) {
+setSets <- function(data, 
+                   map, 
+                   relation = c('intersection','distinctIntersection'), 
+                   queries = c('missingness')) {
   
-  value <- matchArg(value)
-  barmode <- matchArg(barmode)
-  evilMode <- matchArg(evilMode)  
+  relation <- matchArg(relation)
+  queries <- matchArg(queries)
   
-  .bar <- bar.dt(data, map, value, barmode, evilMode)
-  outFileName <- writeJSON(.bar, evilMode, 'barplot')
+  .setSets <- setSets.dt(data, map, relation, queries)
+
+  ## NEED A NEW WAY TO WRITE JSON!
+  # outFileName <- writeJSON(.setSets, evilMode, 'barplot')
   
   return(outFileName)
 }
