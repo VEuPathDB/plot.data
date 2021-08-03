@@ -481,7 +481,7 @@ getUpsetIntersections <- function(set, data, mode) {
     data.table::setDT(data)
   }
   
-  if (type == 'intersection') {
+  if (mode == 'intersection') {
     
     subsetDf <- df[, ..set]
     

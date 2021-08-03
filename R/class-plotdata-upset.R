@@ -103,7 +103,7 @@ setSets.dt <- function(data,
                    relation = relation,
                    queries = queries)
   
-  .setSets <- validateBarPD(.setSets)
+  .setSets <- validateSetSets(.setSets)
   
   return(.setSets)
 }
@@ -145,6 +145,10 @@ setSets <- function(data,
 
   ## NEED A NEW WAY TO WRITE JSON!
   # outFileName <- writeJSON(.setSets, evilMode, 'barplot')
+  
+  # For now
+  outJson <- jsonlite::toJSON(.setSets)
+  write(outJson, 'setSetsTest')
   
   return(outFileName)
 }
