@@ -500,17 +500,17 @@ getUpsetIntersections <- function(set, data, mode) {
   
   if (mode == 'intersection') {
     
-    subsetDf <- df[, ..set]
+    subsetDf <- data[, ..set]
     
   } else if (mode=='distinctIntersection') {
     
     # Remove all rows which are missing data in any column not in the set
-    notset <- setdiff(colnames(df), set)
+    notset <- setdiff(colnames(data), set)
     if (length(notset) > 0){
       # subsetDf <- df[rowSums(!is.na(df[, ..notset])) == length(notset), ..set]
-      subsetDf <- df[complete.cases(df[, ..notset]), ..set]
+      subsetDf <- data[complete.cases(data[, ..notset]), ..set]
     } else {
-      subsetDf <- df
+      subsetDf <- data
     }
     
   }

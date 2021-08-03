@@ -12,7 +12,7 @@
 # In other situations we might need to calculate completeness
 # Didn't implement union yet
 
-newSetSets <- function(.dt = data.table::data.table(),
+newPoSet <- function(.dt = data.table::data.table(),
                      vars = data.frame(), 
                      relation = character(),
                      queries = character(), 
@@ -50,6 +50,7 @@ newSetSets <- function(.dt = data.table::data.table(),
   
   attr$names <- names(.sets) # Should we keep this?
   attr$mode <- relation
+  attr$vars <- vars
 
   setAttrFromList(.sets, attr)
   
@@ -58,13 +59,13 @@ newSetSets <- function(.dt = data.table::data.table(),
 
 
 
-validateSetSets <- function(.sets) {
+validatePoSet <- function(.sets) {
 
   # Check we have sets and names?
   return(.sets)
 }
 
-#' setSets Plot as data.table
+#' poSet Plot as data.table
 #'
 #' This function returns a data.table of 
 #' plot-ready data with one row per set. Columns 
@@ -79,7 +80,7 @@ validateSetSets <- function(.sets) {
 #' @param queries Object that somehow describes how to filter data??
 #' @return data.table plot-ready data
 #' @export
-setSets.dt <- function(data, 
+poSet.dt <- function(data, 
                    map, 
                    relation = c('intersection','distinctIntersection'), 
                    queries = c('missingness')) {
@@ -97,29 +98,24 @@ setSets.dt <- function(data,
   variableIds <- lapply(map$id[map$plotRef == plotRef], strSplit, ".", 4, 2)
   entityIds <- lapply(map$id[map$plotRef == plotRef], strSplit, ".", 4, 1)
   
-  vars <- data.frame('variableId' = unlist(variableIds), 'entityIds' = unlist(entityIds))
+  vars <- data.frame('variableId' = unlist(variableIds), 'entityId' = unlist(entityIds))
   
   # xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   # if (is.null(xAxisVariable$variableId)) {
   #   stop("Must provide xAxisVariable for plot type bar.")
   # }
-  # overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  # facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  # facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
-
-
   
-  .setSets <- newSetSets(.dt = data,
+  .poSet <- newPoSet(.dt = data,
                          vars = vars,
                          relation = relation,
                          queries = queries)
   
-  .setSets <- validateSetSets(.setSets)
+  .poSet <- validatePoSet(.poSet)
   
-  return(.setSets)
+  return(.poSet)
 }
 
-#' Bar Plot data file
+#' Upset Plot data file
 #'
 #' This function returns the name of a json file containing 
 #' plot-ready data with one row per group (per panel). Columns 
@@ -144,7 +140,7 @@ setSets.dt <- function(data,
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
-setSets <- function(data, 
+poSet <- function(data, 
                    map, 
                    relation = c('intersection','distinctIntersection'), 
                    queries = c('missingness')) {
@@ -152,14 +148,16 @@ setSets <- function(data,
   relation <- matchArg(relation)
   queries <- matchArg(queries)
   
-  .setSets <- setSets.dt(data, map, relation, queries)
+  .poSet <- poSet.dt(data, map, relation, queries)
 
   ## NEED A NEW WAY TO WRITE JSON!
-  # outFileName <- writeJSON(.setSets, evilMode, 'barplot')
+  # outFileName <- writeJSON(.poSet, evilMode, 'barplot')
   
   # For now
-  outJson <- jsonlite::toJSON(.setSets)
-  write(outJson, 'setSetsTest')
+  outList <- list(class = list('data'=.poSet, 'config'=attr(.poSet, 'vars')))
+  outList$mode <- attr(.poSet, 'mode')
+  outJson <- jsonlite::toJSON(outList)
+  write(outJson, 'poSetTest.json')
   
   return(outFileName)
 }
