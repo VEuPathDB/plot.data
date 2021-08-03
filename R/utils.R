@@ -60,6 +60,23 @@ plotRefMapToList <- function(map, plotRef) {
   return(plotRef)
 }
 
+
+plotRefsMapToList <- function(map, plotRef) {
+  if (!plotRef %in% map$plotRef) {
+    return(list('variableId' = NULL,
+                'entityId' = NULL,
+                'dataType' = NULL,
+                'dataShape' = NULL))
+  }
+  variableIds <- lapply(map$id[map$plotRef == plotRef], strSplit, ".", 4, 2)
+  entityIds <- lapply(map$id[map$plotRef == plotRef], strSplit, ".", 4, 1)
+
+  plotRefs <- list('variableId' = variableIds,
+                  'entityId' = entityIds)
+
+  return(plotRefs)
+}
+
 updateType <- function(x, xType) {
   if (xType == 'NUMBER') { x <- as.numeric(x) }
   if (xType == 'DATE') { x <- as.Date(x) }

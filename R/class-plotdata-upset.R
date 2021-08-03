@@ -13,7 +13,7 @@
 # Didn't implement union yet
 
 newSetSets <- function(.dt = data.table::data.table(),
-                    #  vars = list(), # I only care about varId and entity
+                     vars = data.frame(), 
                      relation = character(),
                      queries = character(), 
                      ...,
@@ -23,10 +23,12 @@ newSetSets <- function(.dt = data.table::data.table(),
 
 
   # Need validation that all vars varIds are columns in .dt
-
-  # First get colnames from vars. For now just use .dt column names
   # Calculate power set of vars
-  varNames <- colnames(df)
+  
+  varNames <- vars$variableId
+  
+  # Restrict the .dt to only those in varNames
+  .dt <- .dt[, ..varNames]
 
   # Calculate the powerset of variables we care about. This line will get slowww with many vars
   pSet <- rje::powerSet(varNames)
@@ -89,6 +91,14 @@ setSets.dt <- function(data,
     data.table::setDT(data)
   }
   
+  aVariable <- plotRefsMapToList(map, 'aVariable')
+  
+  plotRef <- 'aVariable'
+  variableIds <- lapply(map$id[map$plotRef == plotRef], strSplit, ".", 4, 2)
+  entityIds <- lapply(map$id[map$plotRef == plotRef], strSplit, ".", 4, 1)
+  
+  vars <- data.frame('variableId' = unlist(variableIds), 'entityIds' = unlist(entityIds))
+  
   # xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   # if (is.null(xAxisVariable$variableId)) {
   #   stop("Must provide xAxisVariable for plot type bar.")
@@ -100,8 +110,9 @@ setSets.dt <- function(data,
 
   
   .setSets <- newSetSets(.dt = data,
-                   relation = relation,
-                   queries = queries)
+                         vars = vars,
+                         relation = relation,
+                         queries = queries)
   
   .setSets <- validateSetSets(.setSets)
   
