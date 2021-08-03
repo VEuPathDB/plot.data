@@ -1,10 +1,14 @@
 ## Upset plot calculations dev
 
-# install.packages('rje')
+install.packages('rje')
 library(rje)
 load_all()
 
-df <- data.xy
+nPoints <- 10000000
+df <- data.frame('x' = runif(nPoints), 'y' = runif(nPoints), 'z' = runif(nPoints),
+                 'group' = sample(c('g1','g2','g3','g4'), nPoints, replace=T),
+                 'panel' = sample(c('p1','p2','p3'), nPoints, replace=T))
+df <- as.data.table(df)
 
 # Add 200 missing values to each column
 df$x[sample(1:500, 200, replace=F)] <- NA
@@ -19,6 +23,10 @@ df$panel[sample(1:500, 200, replace=F)] <- NA
 
 ## Assume we implement missingness intersections, not completeness
 getUpsetIntersections <- function(set, df, type) {
+  
+  if (!'data.table' %in% class(data)) {
+    data.table::setDT(data)
+  }
   
   if (type == 'intersection') {
     
@@ -79,3 +87,9 @@ pSet_distinctIntersection <- lapply(pSet, getUpsetIntersections, df=df, type='di
 print(pSet_distinctIntersection[[9]]$cardinality == 50) # group n x
 print(pSet_distinctIntersection[[2]]$cardinality == 0) # panel
 print(pSet_distinctIntersection[[11]]$cardinality == 50) # group n panel n x
+
+
+## What would we want to happen?
+# df <- data.xy
+# dt <- upset.dt(df, mode)
+
