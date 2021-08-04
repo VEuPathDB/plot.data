@@ -492,17 +492,19 @@ validateListVar <- function(map, listVarPlotRef) {
 
 
 #### Should be simplified later -- write and make tests with easy-to-debug version then refactor later
-getUpsetIntersections <- function(set, data, mode) {
+### could be getSetIntersections but we may eventually wan relation = 'union'.
+### should be somewhat general - perhaps either works on missingness or completeness? So have a fourth param useMissingness = c(T, F). Upset would always have it be T. A rando venn diagram would have useMissingness=F.
+getSetOverlap <- function(set, data, relation) {
   
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
   
-  if (mode == 'intersection') {
+  if (relation == 'intersection') {
     
     subsetDf <- data[, ..set]
     
-  } else if (mode=='distinctIntersection') {
+  } else if (relation=='distinctIntersection') {
     
     # Remove all rows which are missing data in any column not in the set
     notset <- setdiff(colnames(data), set)

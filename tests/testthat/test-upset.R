@@ -12,9 +12,9 @@ test_that("upset.dt() returns an appropriately sized data.table", {
   df$group[sample(1:500, 200, replace=F)] <- NA
   df$panel[sample(1:500, 200, replace=F)] <- NA
   
-  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('aVariable','aVariable','aVariable'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('plotVariable','plotVariable','plotVariable'), stringsAsFactors=FALSE)
   df <- as.data.table(df)
-  dt <- poSet.dt(df, map, relation = 'intersection', queries = 'missingness')
+  dt <- poSet.dt(df, map, relation = 'intersection', queries = 'none')
 
   # expect_is(dt, 'plot.data')
   # expect_is(dt, 'barplot')
@@ -22,7 +22,7 @@ test_that("upset.dt() returns an appropriately sized data.table", {
   expect_equal(colnames(dt), c('sets','cardinality'))
   
   
-  dt <- poSet.dt(df, map, relation = 'distinctIntersection', queries = 'missingness')
+  dt <- poSet.dt(df, map, relation = 'distinctIntersection', queries = 'none')
   expect_equal(nrow(dt), 7)
   expect_equal(colnames(dt), c('sets','cardinality'))
 
@@ -41,13 +41,13 @@ test_that("upset.dt() returns properly formatted json", {
   df$group[sample(1:500, 200, replace=F)] <- NA
   df$panel[sample(1:500, 200, replace=F)] <- NA
   
-  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('aVariable','aVariable','aVariable'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('plotVariable','plotVariable','plotVariable'), stringsAsFactors=FALSE)
   df <- as.data.table(df)
   # Run 
-  dt <- poSet.dt(df, map, relation = 'intersection', queries = 'missingness')
+  dt <- poSet.dt(df, map, relation = 'intersection', queries = 'none')
   
   # Later -- replace with special write json functions
-  outList <- list('upset' = list('data'=dt, config=attr(dt, 'vars')))
+  outList <- list('upset' = list('data'=dt, config=attr(dt, 'plotVariable')))
   outJson <- jsonlite::toJSON(outList)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList),c('upset'))
