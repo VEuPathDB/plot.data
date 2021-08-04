@@ -155,7 +155,6 @@ poSet <- function(data,
   
   # For now
   outList <- list(class = list('data'=.poSet, 'config'=attr(.poSet, 'vars')))
-  outList$mode <- attr(.poSet, 'mode')
   outJson <- jsonlite::toJSON(outList)
   write(outJson, 'poSetTest.json')
   

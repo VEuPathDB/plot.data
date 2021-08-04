@@ -48,10 +48,9 @@ test_that("upset.dt() returns properly formatted json", {
   
   # Later -- replace with special write json functions
   outList <- list('upset' = list('data'=dt, config=attr(dt, 'vars')))
-  outList$mode <- attr(dt, 'mode')
   outJson <- jsonlite::toJSON(outList)
   jsonList <- jsonlite::fromJSON(outJson)
-  expect_equal(names(jsonList),c('upset','mode'))
+  expect_equal(names(jsonList),c('upset'))
   expect_equal(names(jsonList$upset),c('data','config'))
   expect_equal(names(jsonList$upset$data),c('sets','cardinality'))
   expect_equal(names(jsonList$upset$config),c('variableId','entityId'))
