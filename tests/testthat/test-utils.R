@@ -18,6 +18,31 @@ test_that("plotRefMapToList returns NULL for entityId when there isnt one", {
   expect_equal(xVariableDetails$entityId,'c')
 })
 
+test_that("plotRefMapToList returns displayLabel only when defined", {
+  # Without a displayLabel for any var
+  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
+  
+  expect_equal(is.null(xVariableDetails$displayLabel), TRUE)
+  
+  # With a displayLabel for all vars
+  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('var1','var2','var3'), stringsAsFactors=FALSE)
+  xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
+  
+  expect_equal(is.null(xVariableDetails$displayLabel), FALSE)
+  expect_equal(xVariableDetails$displayLabel, 'var3')
+  
+  # With a displayLabel for some vars
+  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('var1','','var3'), stringsAsFactors=FALSE)
+  xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
+  yVariableDetails <- plotRefMapToList(map, 'yAxisVariable')
+  
+  expect_equal(is.null(xVariableDetails$displayLabel), FALSE)
+  expect_equal(xVariableDetails$displayLabel, 'var3')
+  expect_equal(is.null(yVariableDetails$displayLabel), TRUE)
+ 
+})
+
 test_that("toColNameOrNull works", {
   varDetailsList <- list('variableId' = 'var',
                          'entityId' = 'entity',
@@ -191,6 +216,26 @@ test_that("remapListVar appropriately updates map", {
   expect_equal(newMap$id, c('c', 'meltedVariable','meltedValue'))
   expect_equal(newMap$plotRef, c('overlayVariable', 'xAxisVariable', 'yAxisVariable'))
   expect_equal(newMap$dataType, c('STRING', 'STRING', 'NUMBER'))
+  expect_true(is.null(newMap$displayLabel))
+  
+  map <- data.frame('id' = c('a','b','c'),
+                    'plotRef' = c('xAxisVariable', 'xAxisVariable', 'overlayVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'),
+                    'entityId' = c('e1', 'e1', 'e2'),
+                    'displayLabel' = c('label1', '', 'label3'), stringsAsFactors=FALSE)
+  
+  newMap <- remapListVar(map, 'xAxisVariable', 'yAxisVariable')
+  expect_equal(newMap$id, c('c', 'meltedVariable','meltedValue'))
+  expect_equal(newMap$plotRef, c('overlayVariable', 'xAxisVariable', 'yAxisVariable'))
+  expect_equal(newMap$dataType, c('STRING', 'STRING', 'NUMBER'))
+  expect_equal(newMap$displayLabel, c('label3', '', ''))
+  
+  newMap <- remapListVar(map, 'xAxisVariable', 'yAxisVariable', 'id1', 'id2', 'displayLabel1', 'displayLabel2')
+  expect_equal(newMap$id, c('c', 'id1','id2'))
+  expect_equal(newMap$plotRef, c('overlayVariable', 'xAxisVariable', 'yAxisVariable'))
+  expect_equal(newMap$dataType, c('STRING', 'STRING', 'NUMBER'))
+  expect_equal(newMap$displayLabel, c('label3', 'displayLabel1', 'displayLabel2'))
 })
 
 test_that("nonparametricTest() errs gracefully", {
