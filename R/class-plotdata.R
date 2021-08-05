@@ -42,6 +42,7 @@ newPlotdata <- function(.dt = data.table(),
 
   x <- toColNameOrNull(xAxisVariable)
   xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
+  xShape <- emptyStringToNull(as.character(xAxisVariable$dataShape))
   y <- toColNameOrNull(yAxisVariable)
   yType <- emptyStringToNull(as.character(yAxisVariable$dataType))
   z <- toColNameOrNull(zAxisVariable)
@@ -86,7 +87,7 @@ newPlotdata <- function(.dt = data.table(),
   # If overlay is continuous, it does not contribute to final groups
   overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
 
-  if (xType == 'STRING') {
+  if (xShape == 'CATEGORICAL') {
     .dt$dummy <- 1
     sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, collapse=F)
     .dt$dummy <- NULL
