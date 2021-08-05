@@ -85,7 +85,7 @@ getJSON <- function(.pd, evilMode) {
     attr$names <- names(sampleSizeTable)
     sampleSizeTable <- setAttrFromList(sampleSizeTable, attr)
     if ('xAxisVariable' %in% names(namedAttrList)) {
-      if (namedAttrList$xAxisVariable$dataShape == 'CATEGORICAL') {
+      if (namedAttrList$xAxisVariable$dataShape != 'CONTINUOUS') {
         x <- namedAttrList$xAxisVariable$variableId
         names(sampleSizeTable)[names(sampleSizeTable) == x] <- 'xVariableDetails'
         sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, x, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
