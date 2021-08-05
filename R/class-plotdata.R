@@ -87,7 +87,7 @@ newPlotdata <- function(.dt = data.table(),
   # If overlay is continuous, it does not contribute to final groups
   overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
 
-  if (xType == 'STRING' || xShape == 'CATEGORICAL') {
+  if (xShape != 'CONTINUOUS') {
     .dt$dummy <- 1
     sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, collapse=F)
     .dt$dummy <- NULL
