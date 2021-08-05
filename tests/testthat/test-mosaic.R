@@ -226,7 +226,7 @@ test_that("mosaic() returns appropriately formatted json", {
   dt <- mosaic.dt(data.binary, map)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
-
+  
   expect_equal(names(jsonList),c('mosaic','sampleSizeTable','statsTable','completeCasesTable'))
   expect_equal(names(jsonList$mosaic),c('data','config'))
   expect_equal(names(jsonList$mosaic$data),c('xLabel','yLabel','value','facetVariableDetails'))
