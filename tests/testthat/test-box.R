@@ -122,6 +122,40 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'rawData', 'mean'))
 
+  
+  df <- as.data.frame(data.numcat)
+  map <- data.frame('id' = c('numcat2', 'cont1', 'numcat1'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- box.dt(df, map, 'none', FALSE)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),5)
+  expect_equal(names(dt),c('numcat2', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
+  
+  dt <- box.dt(df, map, 'none', TRUE)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),5)
+  expect_equal(names(dt),c('numcat2', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'mean'))
+  
+  dt <- box.dt(df, map, 'outliers', FALSE)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),5)
+  expect_equal(names(dt),c('numcat2', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'outliers'))
+  
+  dt <- box.dt(df, map, 'outliers', TRUE)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),5)
+  expect_equal(names(dt),c('numcat2', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'outliers', 'mean'))
+  
+  dt <- box.dt(df, map, 'all', FALSE)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),5)
+  expect_equal(names(dt),c('numcat2', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'rawData'))
+  
+  dt <- box.dt(df, map, 'all', TRUE)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),5)
+  expect_equal(names(dt),c('numcat2', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'rawData', 'mean'))
+  
 })
 test_that("box.dt() accepts listVars for both x axis and facet vars", {  
   ## Case when we input multiple vars as one to x axis
@@ -194,13 +228,7 @@ test_that("box() returns appropriately formatted json", {
 
 test_that("box.dt() returns same shaped outputs for string cats and num cats.", {
   
-  npoints <- 500
-  df <- data.frame('strcat1' = sample(c('cat1','cat2','cat3'), npoints, T),
-                   'strcat2' = sample(c('color1','color2','color3','color4','color5'), npoints, T),
-                   'numcat1' = sample(1:3, npoints, T),
-                   'numcat2' = sample(1:5, npoints, T),
-                   'cont1' = runif(npoints),
-                   'myoverlay' = sample(c('group1','group2'), npoints, T))
+  df <- data.numcat
   
   map_string <- data.frame('id' = c('cont1', 'strcat2', 'myoverlay'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'STRING', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt_string <- box.dt(df, map_string)

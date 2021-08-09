@@ -219,6 +219,26 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   sampleSizeTable <- sampleSizeTable(dt)
   expect_equal(names(sampleSizeTable),c('x','size'))
   expect_equal(class(sampleSizeTable$x[[1]]), 'character')
+  
+  
+  df <- as.data.frame(data.numcat)
+  map <- data.frame('id' = c('numcat2', 'numcat1', 'strcat1'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- mosaic.dt(df, map)
+  expect_is(dt, 'data.table')
+  expect_is(dt$value, 'list')
+  expect_is(dt$value[[1]], 'list')
+  expect_equal(nrow(dt),3)
+  expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'panel'))
+  expect_equal(dt$xLabel[[1]],c('1','2','3'))
+  expect_equal(dt$yLabel[[1]][[1]],c('1','2','3','4','5'))
+  expect_equal(length(dt$value[[1]]),3)
+  expect_equal(length(dt$value[[1]][[1]]),5)
+  statsTable <- statsTable(dt)
+  expect_equal(names(statsTable), c(c('chisq', 'pvalue', 'degreesFreedom', 'panel')))
+  sampleSizeTable <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizeTable),c('strcat1','numcat1','size'))
+  expect_equal(class(sampleSizeTable$numcat1[[1]]), 'character') #### ERRS
 })
 
 test_that("mosaic() returns appropriately formatted json", {
@@ -275,12 +295,7 @@ test_that("mosaic() returns appropriately formatted json", {
 
 test_that("mosaic.dt() returns same shaped outputs for string cats and num cats.", {
   
-  npoints <- 500
-  df <- data.frame('strcat1' = sample(c('cat1','cat2','cat3'), npoints, T),
-                   'strcat2' = sample(c('color1','color2','color3','color4','color5'), npoints, T),
-                   'numcat1' = sample(1:3, npoints, T),
-                   'numcat2' = sample(1:5, npoints, T),
-                   'myoverlay' = sample(c('group1','group2'), npoints, T))
+  df <- data.numcat
   
   map_string <- data.frame('id' = c('strcat1', 'strcat2', 'myoverlay'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt_string <- mosaic.dt(df, map_string)

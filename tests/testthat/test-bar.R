@@ -128,6 +128,37 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('label', 'value'))
+  
+  
+  map <- data.frame('id' = c('strcat1', 'numcat1', 'numcat2'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- as.data.frame(data.numcat)
+  
+  dt <- bar.dt(df, map, value='count')
+  expect_is(dt, 'data.table')
+  expect_is(dt, 'barplot')
+  expect_equal(nrow(dt),15)
+  expect_equal(names(dt),c('strcat1', 'numcat2', 'label', 'value'))
+  
+  dt <- bar.dt(df, map, value='proportion', barmode='group')
+  expect_is(dt, 'data.table')
+  expect_is(dt, 'barplot')
+  expect_is(dt$label, 'list')
+  expect_is(dt$value, 'list')
+  expect_equal(nrow(dt),15)
+  expect_equal(names(dt),c('strcat1', 'numcat2', 'label', 'value'))
+  # sum of x counts within a group should sum to 1
+  expect_equal(all(lapply(dt$value, sum) == 1), TRUE)
+  
+  dt <- bar.dt(df, map, value='proportion', barmode='stack')
+  expect_is(dt, 'data.table')
+  expect_is(dt, 'barplot')
+  expect_is(dt$label, 'list')
+  expect_is(dt$value, 'list')
+  expect_equal(nrow(dt),15)
+  expect_equal(names(dt),c('strcat1', 'numcat2', 'label', 'value'))
+  # sum of x counts should sum to 1 for each panel. Checking panel 1
+  expect_equal(sum(unlist(lapply(seq_along(dt[dt$numcat2 == '1']$label), function(v, dt) {dt[dt$numcat2=='1']$value[[v]][which(dt[dt$numcat2 == '1']$label[[v]] == df$numcat1[1])]}, dt))),1)
+  
 })
 
 test_that("bar() returns appropriately formatted json", {
@@ -175,12 +206,7 @@ test_that("bar() returns appropriately formatted json", {
 
 test_that("bar.dt() returns same shaped outputs for string cats and num cats.", {
   
-  npoints <- 500
-  df <- data.frame('strcat1' = sample(c('cat1','cat2','cat3'), npoints, T),
-                   'strcat2' = sample(c('color1','color2','color3','color4','color5'), npoints, T),
-                   'numcat1' = sample(1:3, npoints, T),
-                   'numcat2' = sample(1:5, npoints, T),
-                   'myoverlay' = sample(c('group1','group2'), npoints, T))
+  df <- data.numcat
   
   map_string <- data.frame('id' = c('strcat1', 'strcat2', 'myoverlay'), 'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt_string <- bar.dt(df, map_string)
