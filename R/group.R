@@ -111,20 +111,18 @@ groupProportion <- function(data, x = NULL, y, group = NULL, panel = NULL, barmo
 
 
 groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
-  aggStr <- getAggStr(y, c(x, group, panel))
+  byCols <- colnames(data)[colnames(data) %in% c(x, group, panel)]
+  dt <- data[, lapply(.SD, outliers), keyby=eval(byCols)][, list(outliers=lapply(.SD, as.vector)), keyby=byCols]
 
-  if (aggStr == y) {
-    dt <- data.table::as.data.table(t(outliers(data[[col]])))
-  } else {
-    dt <- data.table::as.data.table(aggregate(as.formula(aggStr), data, outliers))
+  if (length(byCols)) {
+    byColValues <- unique(data[, byCols, with=FALSE])
+    dt <- merge(dt, byColValues, by=byCols, all=TRUE)
   }
 
-  data.table::setnames(dt, c(x, group, panel, 'outliers'))
-
-  if(collapse){
+  if (collapse) {
     dt <- collapseByGroup(dt, group, panel)
   }
-
+  
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
 

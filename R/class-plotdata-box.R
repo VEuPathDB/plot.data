@@ -77,11 +77,18 @@ newBoxPD <- function(.dt = data.table::data.table(),
       .pd.base <- cbind(.pd.base, outliers)
     }
   } else if (points == 'all') {
-    aggStr <- getAggStr(y, c(x, group, panel))
-    rawData <- data.table::as.data.table(aggregate(as.formula(aggStr), .pd, list))
+    byCols <- colnames(.pd)[colnames(.pd) %in% c(x, group, panel)]
+    rawData <- .pd[, list(rawData=lapply(.SD, as.vector)), keyby=byCols]
+
+    if (length(byCols)) {
+      byColValues <- unique(.pd[, byCols, with=FALSE])
+      rawData <- merge(rawData, byColValues, by=byCols, all=TRUE)
+    }
+
     rawData <- collapseByGroup(rawData, group, panel)
     rawData[[x]] <- NULL
-    data.table::setnames(rawData, y, 'rawData')
+    indexCols <- c(panel, group)
+    setkeyv(rawData, indexCols)
 
     if (!is.null(key(rawData))) {
       .pd.base <- merge(.pd.base, rawData)
