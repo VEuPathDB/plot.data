@@ -61,9 +61,10 @@ plotRefMapToList <- function(map, plotRef) {
 }
 
 #' @importFrom lubridate is.Date
+#' @importFrom lubridate as_date
 updateType <- function(x, xType) {
   if (xType == 'NUMBER' & !is.numeric(x)) { x <- as.numeric(x) }
-  if (xType == 'DATE' & !lubridate::is.Date(x)) { x <- as.Date(x) }
+  if (xType == 'DATE' & !lubridate::is.Date(x)) { x <- lubridate::as_date(x) }
   if (xType == 'STRING' & !is.character(x)) { x <- as.character(x) }
 
   return(x)

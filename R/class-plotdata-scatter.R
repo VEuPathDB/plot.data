@@ -47,9 +47,17 @@ newScatterPD <- function(.dt = data.table::data.table(),
     series <- collapseByGroup(.pd, group, panel)
     data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
   }
-  
-  series$seriesX <- lapply(series$seriesX, as.character)
-  series$seriesY <- lapply(series$seriesY, as.character)
+ 
+  if (attr$xAxisVariable$dataType == 'DATE') {
+    series$seriesX <- lapply(series$seriesX, format, '%Y-%m-%d')
+  } else { 
+    series$seriesX <- lapply(series$seriesX, as.character)
+  }
+  if (attr$yAxisVariable$dataType == 'DATE') {
+    series$seriesY <- lapply(series$seriesY, format, '%Y-%m-%d')
+  } else {
+    series$seriesY <- lapply(series$seriesY, as.character)
+  }
 
   if (value == 'smoothedMean') {
 
