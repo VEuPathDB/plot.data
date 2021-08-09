@@ -190,6 +190,41 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId','displayLabel'))
 })
 
+
+
+test_that("box.dt() returns same shaped outputs for string cats and num cats.", {
+  
+  npoints <- 500
+  df <- data.frame('strcat1' = sample(c('cat1','cat2','cat3'), npoints, T),
+                   'strcat2' = sample(c('color1','color2','color3','color4','color5'), npoints, T),
+                   'numcat1' = sample(1:3, npoints, T),
+                   'numcat2' = sample(1:5, npoints, T),
+                   'cont1' = runif(npoints),
+                   'myoverlay' = sample(c('group1','group2'), npoints, T))
+  
+  map_string <- data.frame('id' = c('cont1', 'strcat2', 'myoverlay'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'STRING', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt_string <- box.dt(df, map_string)
+  
+  map_num <- data.frame('id' = c('cont1', 'numcat2', 'myoverlay'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt_num <- box.dt(df, map_num)
+  
+  expect_equal(nrow(dt_string), nrow(dt_num))
+  expect_equal(names(dt_string), names(dt_num))
+  expect_equal(lapply(dt_string, function(x) {length(x[[1]])}), lapply(dt_num, function(x) {length(x[[1]])}))
+  
+  map_string <- data.frame('id' = c('cont1', 'strcat2', 'myoverlay'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'STRING', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt_string <- box.dt(df, map_string)
+  
+  map_num <- data.frame('id' = c('cont1', 'numcat2', 'myoverlay'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt_num <- box.dt(df, map_num)
+  
+  expect_equal(nrow(dt_string), nrow(dt_num))
+  expect_equal(names(dt_string), names(dt_num))
+  expect_equal(lapply(dt_string, function(x) {length(x[[1]])}), lapply(dt_num, function(x) {length(x[[1]])}))
+  
+})
+
+
 test_that("box.dt() returns correct information about missing data", {
   map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.xy

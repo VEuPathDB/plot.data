@@ -172,6 +172,31 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId','displayLabel'))
 })
 
+
+test_that("bar.dt() returns same shaped outputs for string cats and num cats.", {
+  
+  npoints <- 500
+  df <- data.frame('strcat1' = sample(c('cat1','cat2','cat3'), npoints, T),
+                   'strcat2' = sample(c('color1','color2','color3','color4','color5'), npoints, T),
+                   'numcat1' = sample(1:3, npoints, T),
+                   'numcat2' = sample(1:5, npoints, T),
+                   'myoverlay' = sample(c('group1','group2'), npoints, T))
+  
+  map_string <- data.frame('id' = c('strcat1', 'strcat2', 'myoverlay'), 'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt_string <- bar.dt(df, map_string)
+  
+  map_num <- data.frame('id' = c('numcat1', 'numcat2', 'myoverlay'), 'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt_num <- bar.dt(df, map_num)
+  
+  expect_equal(dim(dt_string), dim(dt_num))
+  expect_equal(names(dt_string), c('myoverlay', 'strcat1', 'label', 'value'))
+  expect_equal(names(dt_num), c('myoverlay', 'numcat1', 'label', 'value'))
+  expect_equal(dt_string$myoverlay, dt_num$myoverlay)
+  expect_equal(length(dt_string$label[[1]]), length(dt_num$label[[1]]))
+  expect_equal(length(dt_string$value[[1]]), length(dt_num$value[[1]]))
+  
+})
+
 test_that("bar.dt() returns correct information about missing data", {
   map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.binned)

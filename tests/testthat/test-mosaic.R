@@ -267,6 +267,34 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId', 'displayLabel'))
   expect_equal(names(jsonList$mosaic$config$yVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId', 'displayLabel'))
+  #### ADD SST CHECK HERE
+  
+  #### ADD NUMCAT HERE
+})
+
+
+test_that("mosaic.dt() returns same shaped outputs for string cats and num cats.", {
+  
+  npoints <- 500
+  df <- data.frame('strcat1' = sample(c('cat1','cat2','cat3'), npoints, T),
+                   'strcat2' = sample(c('color1','color2','color3','color4','color5'), npoints, T),
+                   'numcat1' = sample(1:3, npoints, T),
+                   'numcat2' = sample(1:5, npoints, T),
+                   'myoverlay' = sample(c('group1','group2'), npoints, T))
+  
+  map_string <- data.frame('id' = c('strcat1', 'strcat2', 'myoverlay'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt_string <- mosaic.dt(df, map_string)
+  
+  map_num <- data.frame('id' = c('numcat1', 'numcat2', 'myoverlay'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt_num <- mosaic.dt(df, map_num)
+  
+  expect_equal(nrow(dt_string), nrow(dt_num))
+  expect_equal(names(dt_string), names(dt_num))
+  expect_equal(length(dt_string$xLabel[[1]]), length(dt_num$xLabel[[1]]))
+  expect_equal(length(dt_string$yLabel[[1]]), length(dt_num$yLabel[[1]]))
+  expect_equal(length(dt_string$value[[1]]), length(dt_num$value[[1]]))
+  expect_equal(dt_string$panel, dt_num$panel)
+  
 })
 
 
