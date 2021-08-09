@@ -76,7 +76,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
   } else if (value == 'density') {
     
-    density <- groupDensity(.pd, x, group, panel)
+    density <- groupDensity(.pd, NULL, x, group, panel)
     .pd <- density
     
   } else {

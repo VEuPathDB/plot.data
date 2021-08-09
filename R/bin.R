@@ -1,63 +1,50 @@
 binSize <- function(data, col, group = NULL, panel = NULL, binWidth = NULL, viewport) {
-  aggStr <- getAggStr(col, c('binLabel', 'binStart', 'binEnd', group, panel))
-
   data <- data[data[[col]] >= viewport$xMin & data[[col]] <= viewport$xMax,]
   data$binLabel <- bin(data[[col]], binWidth, viewport)
+
+  byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
+  data <- data[, list(value=length(get(..col))), by=eval(byCols)]
+
   data$binStart <- findBinStart(data$binLabel)
   data$binEnd <- findBinEnd(data$binLabel)
+  data <- data[order(data$binStart),]
+  data$binStart <- as.character(data$binStart)
 
-  dt <- aggregate(as.formula(aggStr), data, length)
-  dt <- dt[order(dt$binStart),]
-  dt$binStart <- as.character(dt$binStart)
-  dt <- collapseByGroup(dt, group, panel)
-  data.table::setnames(dt, c(group, panel, 'binLabel', 'binStart', 'binEnd', 'value'))
+  data <- collapseByGroup(data, group, panel)
 
-  return(dt)
+  return(data)
 }
 
 binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL, barmode = 'stack', viewport) {
-  aggStr <- getAggStr(col, c('binLabel', 'binStart', 'binEnd', group, panel))
-
-
   data <- data[data[[col]] >= viewport$xMin & data[[col]] <= viewport$xMax,]
   data$binLabel <- bin(data[[col]], binWidth, viewport)
-  data$binStart <- findBinStart(data$binLabel)
-  data$binEnd <- findBinEnd(data$binLabel)
+#possible if stacked w no group or panel, we work like overlay?
 
-  dt <- aggregate(as.formula(aggStr), data, length)
-  dt <- dt[order(dt$binStart),]
-  dt$binStart <- as.character(dt$binStart)
-  if (is.null(group) && is.null(panel)) {
-    dt$denom <- length(data[[col]])
-    dt <- data.table::data.table('binLabel' = list(dt$binLabel), 'binStart' = list(dt$binStart), 'binEnd' = list(dt$binEnd), 'value' = list(dt[[col]]/dt$denom))
+  # byCols determine the denominator of the proportion calculation
+  numCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
+  if (barmode == 'overlay' || all(is.null(c(group,panel)))) {
+    denomCols <- colnames(data)[colnames(data) %in% c(group, panel)]
+  } else if (barmode == 'stack') {
+    denomCols <- colnames(data)[colnames(data) %in% c('binLabel', panel)]
   } else {
-    
-    if (barmode == 'overlay') {
-      
-      aggStr2 <- getAggStr(col, c(group, panel))
-      dt2 <- aggregate(as.formula(aggStr2), data, length)
-      data.table::setnames(dt2, c(group, panel, 'denom'))
-      mergeByCols <- c(group, panel)
-      dt <- merge(dt, dt2, by = mergeByCols)
-      
-    } else if (barmode == 'stack') {
-    
-      aggStr2 <- getAggStr(col, c('binLabel', panel))
-      dt2 <- aggregate(as.formula(aggStr2), data, length)
-      data.table::setnames(dt2, c('binLabel', panel, 'denom'))
-      mergeByCols <- c('binLabel', panel)
-      dt <- merge(dt, dt2, by = mergeByCols)
-      data.table::setcolorder(dt, c(group, colnames(dt)[!(colnames(dt) %in% c(group))]))
-        
-    } else {
-      stop('Options for barmode are "stack" or "overlay".')
-    }
-
-    dt[[col]] <- dt[[col]]/dt$denom
-    dt$denom <- NULL
-    dt <- collapseByGroup(dt, group, panel)
-    data.table::setnames(dt, c(group, panel, 'binLabel', 'binStart', 'binEnd', 'value'))
+    stop('Options for barmode are "stack" or "overlay".')
   }
 
-  return(dt)
+  denom <- data[, list(sum=length(get(..col))), by=eval(denomCols)]
+  if (!length(denomCols)) {
+    data$sum <- denom$sum
+  } else {
+    data <- merge(denom, data, by=eval(denomCols))
+  }
+  data <- data[, list(value=length(get(..col))/sum), by=eval(numCols)]
+
+  data$binStart <- findBinStart(data$binLabel)
+  data$binEnd <- findBinEnd(data$binLabel)
+  data <- data[order(data$binStart),]
+  data$binStart <- as.character(data$binStart)
+
+  data <- unique(data)
+  data <- collapseByGroup(data, group, panel)
+
+  return(data)
 }

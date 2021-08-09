@@ -254,7 +254,7 @@ histogram.dt <- function(data,
     data.table::setDT(data)
   }
 
-    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type histogram.")
   } else {
