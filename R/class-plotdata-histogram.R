@@ -84,7 +84,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     binSliderMax <- as.numeric((max(xVP) - min(xVP)) / 2)
     binSliderMin <- as.numeric((max(xVP) - min(xVP)) / 1000)
     if (xType == 'NUMBER') {
-      avgDigits <- floor(mean(stringr::str_count(as.character(xVP), "[[:digit:]]")))
+      avgDigits <- floor(mean(stringi::stri_count_regex(as.character(xVP), "[[:digit:]]")))
       binSliderMax <- round(binSliderMax, avgDigits)
       binSliderMin <- round(binSliderMin, avgDigits)
       binSliderStep <- round(((binSliderMax - binSliderMin) / 1000), avgDigits)
@@ -233,7 +233,7 @@ validateHistogramPD <- function(.histo) {
 #' @param viewport List of min and max values to consider as the range of data
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
-#' @importFrom stringr str_count
+#' @importFrom stringi stri_count_regex
 #' @importFrom jsonlite unbox
 #' @export
 histogram.dt <- function(data, 
