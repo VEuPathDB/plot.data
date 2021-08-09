@@ -238,7 +238,7 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(names(statsTable), c(c('chisq', 'pvalue', 'degreesFreedom', 'panel')))
   sampleSizeTable <- sampleSizeTable(dt)
   expect_equal(names(sampleSizeTable),c('strcat1','numcat1','size'))
-  expect_equal(class(sampleSizeTable$numcat1[[1]]), 'character') #### ERRS
+  expect_equal(class(sampleSizeTable$numcat1[[1]]), 'numeric')
 })
 
 test_that("mosaic() returns appropriately formatted json", {
