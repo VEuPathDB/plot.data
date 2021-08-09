@@ -289,7 +289,27 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId', 'displayLabel'))
   #### ADD SST CHECK HERE
   
-  #### ADD NUMCAT HERE
+  df <- data.frame(
+    "numcat1" = sample(c(1,2), 100, replace=T),
+    "numcat2" = sample(c(3, 4), 100, replace=T),
+    "strcat1" = sample(c('a','b','c','d'))
+  )
+  map <- data.frame('id' = c('numcat2', 'numcat1'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- mosaic.dt(df, map)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  
+  expect_equal(names(jsonList),c('mosaic','sampleSizeTable','statsTable','completeCasesTable'))
+  expect_equal(names(jsonList$mosaic),c('data','config'))
+  expect_equal(names(jsonList$mosaic$data),c('xLabel','yLabel','value'))
+  expect_equal(names(jsonList$mosaic$config),c('completeCases','plottedIncompleteCases','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(names(jsonList$sampleSizeTable),c('xVariableDetails','size'))
+  expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue'))
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  
 })
 
 
