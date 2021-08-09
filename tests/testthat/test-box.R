@@ -194,6 +194,8 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$boxplot$data), c('overlayVariableDetails','label','min','q1','median','q3','max','lowerfence','upperfence'))
   expect_equal(names(jsonList$boxplot$config), c('completeCases','plottedIncompleteCases','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$statsTable), c('panel','statistics','overlayVariableDetails'))
@@ -209,6 +211,8 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$boxplot$config), c('completeCases','plottedIncompleteCases','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId','displayLabel'))
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId','displayLabel'))
   expect_equal(names(jsonList$statsTable), c('panel','statistics','overlayVariableDetails'))
@@ -222,6 +226,8 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$boxplot$data$overlayVariableDetails), c('variableId','entityId','value'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId','displayLabel'))
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   
   
   df <- as.data.frame(data.numcat)
@@ -234,11 +240,12 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$boxplot$data), c('overlayVariableDetails','label','min','q1','median','q3','max','lowerfence','upperfence'))
   expect_equal(names(jsonList$boxplot$config), c('completeCases','plottedIncompleteCases','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId'))
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$statsTable), c('numcat1','statistics','overlayVariableDetails'))
-  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   # expect_equal(class(jsonList$boxplot$data$label), 'character') #### NOT TRUE YET
 })
 

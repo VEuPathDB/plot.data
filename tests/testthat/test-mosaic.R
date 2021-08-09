@@ -255,6 +255,8 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$mosaic$config),c('completeCases','plottedIncompleteCases','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','facetVariableDetails'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
@@ -273,6 +275,8 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId', 'displayLabel'))
   expect_equal(names(jsonList$mosaic$config$yVariableDetails),c('variableId','entityId', 'displayLabel'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','facetVariableDetails'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId', 'displayLabel'))
@@ -287,7 +291,8 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId', 'displayLabel'))
   expect_equal(names(jsonList$mosaic$config$yVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId', 'displayLabel'))
-  #### ADD SST CHECK HERE
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   
   df <- data.frame(
     "numcat1" = sample(c(1,2), 100, replace=T),
@@ -305,10 +310,10 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$mosaic$config),c('completeCases','plottedIncompleteCases','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$sampleSizeTable),c('xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
-  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   
 })
 

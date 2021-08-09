@@ -174,6 +174,9 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(names(jsonList$barplot$config), c('completeCases','plottedIncompleteCases','xVariableDetails'))
   expect_equal(names(jsonList$barplot$config$xVariableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','facetVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
 
@@ -189,6 +192,9 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(names(jsonList$barplot$config), c('completeCases','plottedIncompleteCases','xVariableDetails'))
   expect_equal(names(jsonList$barplot$config$xVariableDetails), c('variableId','entityId','displayLabel'))
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','facetVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId','displayLabel'))
 
@@ -201,6 +207,9 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(names(jsonList$barplot$data$facetVariableDetails[[1]]), c('variableId','entityId','value','displayLabel'))
   expect_equal(names(jsonList$barplot$config$xVariableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId','displayLabel'))
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   
   
   df <- as.data.frame(data.numcat)
@@ -215,9 +224,12 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(names(jsonList$barplot$config), c('completeCases','plottedIncompleteCases','xVariableDetails'))
   expect_equal(names(jsonList$barplot$config$xVariableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','facetVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
-  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+
 })
 
 

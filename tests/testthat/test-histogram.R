@@ -436,6 +436,8 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails', 'size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId')) 
 
@@ -462,6 +464,7 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId')) 
  
@@ -479,6 +482,7 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId'))
 
@@ -503,6 +507,7 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId', 'displayLabel'))
 
@@ -518,7 +523,8 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value', 'displayLabel'))
   expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId', 'displayLabel'))
-
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  
 })
 
 test_that("histogram.dt() returns correct information about missing data", {
