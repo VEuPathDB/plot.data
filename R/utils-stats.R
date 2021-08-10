@@ -166,7 +166,7 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
     stop('Unrecognized smoothing method.')
   }
 
-  if (class(smoothed) == 'try-error') {
+  if (any(class(smoothed) == 'try-error')) {
     dt <- data.table::data.table("smoothedMeanX" = list(numeric()), "smoothedMeanY" = list(numeric()), "smoothedMeanSE" = list(numeric()), "smoothedMeanError" = jsonlite::unbox(as.character(smoothed[1])))
   } else {
     smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))

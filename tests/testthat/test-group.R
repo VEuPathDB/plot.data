@@ -53,17 +53,17 @@ test_that("groupSmoothedMean() returns an appropriately sized data.table", {
   dt <- groupSmoothedMean(data.xy, 'x', 'y', 'group')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'group'))
+  expect_equal(names(dt), c('group', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
 
   dt <- groupSmoothedMean(data.xy, 'x', 'y', NULL, 'panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'panel'))
+  expect_equal(names(dt), c('panel', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
 
   dt <- groupSmoothedMean(data.xy, 'x', 'y', 'group', 'panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt), c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'group', 'panel'))
+  expect_equal(names(dt), c('group', 'panel', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
 })
 
 test_that("groupDensity() returns an appropriately sized data.table", {

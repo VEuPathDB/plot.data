@@ -153,35 +153,27 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL, collapse =
   data.table::setnames(data, y, 'y')
   y <- 'y'
   x <- 'x'
-  aggStr <- getAggStr(y, c(group, panel))
 
   maxGroupSize <- max(groupSize(data, NULL, y, group, panel, collapse=F)$size)
   method <- 'loess'
-  if (maxGroupSize > 1000) { method <- 'gam' }
+  if (maxGroupSize > 1000) method <- 'gam'
 
-  if (aggStr == y) {
-    dt <- smoothedMean(data, method, collapse)
+  byCols <- colnames(data)[colnames(data) %in% c(group, panel)]
+  if (all(is.null(c(group,panel)))) {
+    dt <- data[, {smoothed <- smoothedMean(.SD, method, collapse);
+                  list(smoothedMeanX = smoothed[[1]],
+                       smoothedMeanY = smoothed[[2]],
+                       smoothedMeanSE = smoothed[[3]],
+                       smoothedMeanError = smoothed[[4]])}]
   } else {
-    colsList <- getInteractionColsList(data, group, panel)
-    dt.list <- split(data, colsList)
-    dt.list <- lapply(dt.list, smoothedMean, method, collapse)
-    if (collapse) {
-      dt <- purrr::reduce(dt.list, rbind)
-      dt$name <- names(dt.list)
-    } else {
-      dt.nrow.list <- lapply(dt.list, nrow)
-      dt <- purrr::reduce(dt.list, rbind)
-      dt$name <- unlist(lapply(names(dt.list), rep, dt.nrow.list[[1]]))
-    }
-    if (is.null(group)) {
-      dt[[panel]] <- dt$name
-    } else {
-      dt[[group]] <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
-      panelNames <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
-      if (!all(is.na(panel))) { dt[[panel]] <- panelNames }
-    }
-    dt$name <- NULL
+    dt <- data[, {smoothed <- smoothedMean(.SD, method, collapse);
+                  list(smoothedMeanX = smoothed[[1]],
+                       smoothedMeanY = smoothed[[2]],
+                       smoothedMeanSE = smoothed[[3]],
+                       smoothedMeanError = smoothed[[4]])},
+                  keyby=eval(byCols)]
   }
+
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
   
@@ -194,31 +186,21 @@ groupBestFitLine <- function(data, x, y, group = NULL, panel = NULL, collapse = 
   data.table::setnames(data, y, 'y')
   y <- 'y'
   x <- 'x'
-  aggStr <- getAggStr(y, c(group, panel))
-
-  if (aggStr == y) {
-    dt <- bestFitLine(data, collapse)
+  
+  byCols <- colnames(data)[colnames(data) %in% c(group, panel)]
+  if (all(is.null(c(group,panel)))) {
+    dt <- data[, {bestFitLine <- bestFitLine(.SD, collapse);
+                  list(bestFitLineX = bestFitLine[[1]],
+                       bestFitLineY = bestFitLine[[2]],
+                       r2 = bestFitLine[[3]])}]
   } else {
-    colsList <- getInteractionColsList(data, group, panel)
-    dt.list <- split(data, colsList)
-    dt.list <- lapply(dt.list, bestFitLine, collapse)
-    if (collapse) {
-      dt <- purrr::reduce(dt.list, rbind)
-      dt$name <- names(dt.list)
-    } else {
-      dt.nrow.list <- lapply(dt.list, nrow)
-      dt <- purrr::reduce(dt.list, rbind)
-      dt$name <- unlist(lapply(names(dt.list), rep, dt.nrow.list[[1]]))
-    }
-    if (is.null(group)) {
-      dt[[panel]] <- dt$name
-    } else {
-      dt[[group]] <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 1))
-      panelNames <- unlist(lapply(strsplit(dt$name, ".", fixed=T), "[", 2))
-      if (!all(is.na(panel))) { dt[[panel]] <- panelNames }
-    }
-    dt$name <- NULL
+    dt <- data[, {bestFitLine <- bestFitLine(.SD, collapse);
+                  list(bestFitLineX = bestFitLine[[1]],
+                       bestFitLineY = bestFitLine[[2]],
+                       r2 = bestFitLine[[3]])},
+                  keyby=eval(byCols)]
   }
+
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
   
