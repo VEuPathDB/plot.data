@@ -246,7 +246,7 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$statsTable), c('numcat1','statistics','overlayVariableDetails'))
-  # expect_equal(class(jsonList$boxplot$data$label), 'character') #### NOT TRUE YET
+  expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
 })
 
 

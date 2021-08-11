@@ -63,11 +63,12 @@ plotRefMapToList <- function(map, plotRef) {
   return(plotRef)
 }
 
-updateType <- function(x, xType) {
-  if (xType == 'NUMBER') { x <- as.numeric(x) }
+updateType <- function(x, xType, xShape='') {
   if (xType == 'DATE') { x <- as.Date(x) }
   if (xType == 'STRING') { x <- as.character(x) }
-
+  if (xType == 'NUMBER' & xShape != 'CATEGORICAL') { x <- as.numeric(x) }
+  if (xType == 'NUMBER' & xShape == 'CATEGORICAL') { x <- as.character(x) }
+  
   return(x)
 }
 
