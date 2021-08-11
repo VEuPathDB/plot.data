@@ -1,7 +1,7 @@
 context('bar')
 
 test_that("bar.dt() returns a valid plot.data barplot object", {
-  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.group', 'entity.x', 'entity.panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.binned)
 
   dt <- bar.dt(df, map, value='count')
@@ -13,12 +13,12 @@ test_that("bar.dt() returns a valid plot.data barplot object", {
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 3)
   sampleSizes <- sampleSizeTable(dt)
-  expect_equal(names(sampleSizes), c('panel','x','size'))
+  expect_equal(names(sampleSizes), c('panel','entity.x','size'))
   expect_equal(nrow(sampleSizes), 16)
 })
 
 test_that("bar.dt() returns plot data and config of the appropriate types", {
-  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.group', 'entity.x', 'entity.panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.binned)
 
   dt <- bar.dt(df, map, value='count')
@@ -37,7 +37,7 @@ test_that("bar.dt() returns plot data and config of the appropriate types", {
 })
 
 test_that("bar.dt() returns an appropriately sized data.table", {
-  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.group', 'entity.x', 'entity.panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.binned)
 
   dt <- bar.dt(df, map, value='count')
@@ -63,17 +63,17 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('panel', 'label', 'value'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
   # sum of x counts should sum to 1 for each panel. Checking panel1.||.group2
-  expect_equal(sum(unlist(lapply(seq_along(dt[dt$panel == 'panel1.||.group2']$label), function(v, dt) {dt[dt$panel=='panel1.||.group2']$value[[v]][which(dt[dt$panel == 'panel1.||.group2']$label[[v]] == df$x[1])]}, dt))),1)
+  expect_equal(sum(unlist(lapply(seq_along(dt[dt$panel == 'panel1.||.group2']$label), function(v, dt) {dt[dt$panel=='panel1.||.group2']$value[[v]][which(dt[dt$panel == 'panel1.||.group2']$label[[v]] == df$entity.x[1])]}, dt))),1)
   
 
-  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.group', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.binned)
 
   dt <- bar.dt(df, map, value='count')
   expect_is(dt, 'data.table')
   expect_is(dt, 'barplot')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('group', 'panel', 'label', 'value'))
+  expect_equal(names(dt),c('entity.group', 'entity.panel', 'label', 'value'))
   
   dt <- bar.dt(df, map, value='proportion', barmode='group')
   expect_is(dt, 'data.table')
@@ -81,7 +81,7 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_is(dt$label, 'list')
   expect_is(dt$value, 'list')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('group', 'panel', 'label', 'value'))
+  expect_equal(names(dt),c('entity.group', 'entity.panel', 'label', 'value'))
   # sum of x counts within a group should sum to 1
   expect_equal(all(lapply(dt$value, sum) == 1), TRUE)
   
@@ -91,33 +91,33 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_is(dt$label, 'list')
   expect_is(dt$value, 'list')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('group', 'panel', 'label', 'value'))
+  expect_equal(names(dt),c('entity.group', 'entity.panel', 'label', 'value'))
   # sum of x counts should sum to 1 for each panel. Checking panel 1
-  expect_equal(sum(unlist(lapply(seq_along(dt[dt$panel == 'panel1']$label), function(v, dt) {dt[dt$panel=='panel1']$value[[v]][which(dt[dt$panel == 'panel1']$label[[v]] == df$x[1])]}, dt))),1)
+  expect_equal(sum(unlist(lapply(seq_along(dt[dt$entity.panel == 'panel1']$label), function(v, dt) {dt[dt$entity.panel=='panel1']$value[[v]][which(dt[dt$entity.panel == 'panel1']$label[[v]] == df$entity.x[1])]}, dt))),1)
   
 
-  map <- data.frame('id' = c('group', 'x'), 'plotRef' = c('overlayVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.group', 'entity.x'), 'plotRef' = c('overlayVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
   dt <- bar.dt(df, map, value='count')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'label', 'value'))
+  expect_equal(names(dt),c('entity.group', 'label', 'value'))
   
   dt <- bar.dt(df, map, value='proportion', barmode='group')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'label', 'value'))
+  expect_equal(names(dt),c('entity.group', 'label', 'value'))
   # sum of x counts should sum to 1
   expect_equal(all(lapply(dt$value, sum) == 1), TRUE)
   
   dt <- bar.dt(df, map, value='proportion', barmode='stack')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('group', 'label', 'value'))
+  expect_equal(names(dt),c('entity.group', 'label', 'value'))
   # sum of x counts should sum to 1
-  expect_equal(sum(unlist(lapply(seq_along(dt$label), function(v, dt) {dt$value[[v]][which(dt$label[[v]] == df$x[1])]}, dt))),1)
+  expect_equal(sum(unlist(lapply(seq_along(dt$label), function(v, dt) {dt$value[[v]][which(dt$label[[v]] == df$entity.x[1])]}, dt))),1)
 
-  map <- data.frame('id' = c('x'), 'plotRef' = c('xAxisVariable'), 'dataType' = c('STRING'), 'dataShape' = c('CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.x'), 'plotRef' = c('xAxisVariable'), 'dataType' = c('STRING'), 'dataShape' = c('CATEGORICAL'), stringsAsFactors=FALSE)
 
   dt <- bar.dt(df, map, value='count')
   expect_is(dt, 'data.table')
@@ -130,14 +130,14 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('label', 'value'))
   
   
-  map <- data.frame('id' = c('strcat1', 'numcat1', 'numcat2'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.strcat1', 'entity.numcat1', 'entity.numcat2'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.numcat)
   
   dt <- bar.dt(df, map, value='count')
   expect_is(dt, 'data.table')
   expect_is(dt, 'barplot')
   expect_equal(nrow(dt),15)
-  expect_equal(names(dt),c('strcat1', 'numcat2', 'label', 'value'))
+  expect_equal(names(dt),c('entity.strcat1', 'entity.numcat2', 'label', 'value'))
   
   dt <- bar.dt(df, map, value='proportion', barmode='group')
   expect_is(dt, 'data.table')
@@ -145,7 +145,7 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_is(dt$label, 'list')
   expect_is(dt$value, 'list')
   expect_equal(nrow(dt),15)
-  expect_equal(names(dt),c('strcat1', 'numcat2', 'label', 'value'))
+  expect_equal(names(dt),c('entity.strcat1', 'entity.numcat2', 'label', 'value'))
   # sum of x counts within a group should sum to 1
   expect_equal(all(lapply(dt$value, sum) == 1), TRUE)
   
@@ -155,14 +155,14 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_is(dt$label, 'list')
   expect_is(dt$value, 'list')
   expect_equal(nrow(dt),15)
-  expect_equal(names(dt),c('strcat1', 'numcat2', 'label', 'value'))
+  expect_equal(names(dt),c('entity.strcat1', 'entity.numcat2', 'label', 'value'))
   # sum of x counts should sum to 1 for each panel. Checking panel 1
-  expect_equal(sum(unlist(lapply(seq_along(dt[dt$numcat2 == '1']$label), function(v, dt) {dt[dt$numcat2=='1']$value[[v]][which(dt[dt$numcat2 == '1']$label[[v]] == df$numcat1[1])]}, dt))),1)
+  expect_equal(sum(unlist(lapply(seq_along(dt[dt$entity.numcat2 == '1']$label), function(v, dt) {dt[dt$entity.numcat2=='1']$value[[v]][which(dt[dt$entity.numcat2 == '1']$label[[v]] == df$entity.numcat1[1])]}, dt))),1)
   
 })
 
 test_that("bar() returns appropriately formatted json", {
-  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.group', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.binned)
 
   dt <- bar.dt(df, map, value='count')
@@ -180,7 +180,7 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
 
-  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), 'displayLabel' = c('groupLabel','xLabel','panelLabel'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.group', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), 'displayLabel' = c('groupLabel','xLabel','panelLabel'), stringsAsFactors=FALSE)
 
   dt <- bar.dt(df, map, value='count')
   outJson <- getJSON(dt, FALSE)
@@ -198,7 +198,7 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId','displayLabel'))
 
-  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), 'displayLabel' = c('groupLabel','','panelLabel'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.group', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), 'displayLabel' = c('groupLabel','','panelLabel'), stringsAsFactors=FALSE)
   dt <- bar.dt(df, map, value='count')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
@@ -213,7 +213,7 @@ test_that("bar() returns appropriately formatted json", {
   
   
   df <- as.data.frame(data.numcat)
-  map <- data.frame('id' = c('numcat2', 'numcat1', 'strcat1'), 'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.numcat2', 'entity.numcat1', 'entity.strcat1'), 'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
   dt <- bar.dt(df, map, value='count')
   outJson <- getJSON(dt, FALSE)
@@ -237,30 +237,30 @@ test_that("bar.dt() returns same shaped outputs for string cats and num cats.", 
   
   df <- data.numcat
   
-  map_string <- data.frame('id' = c('strcat1', 'strcat2', 'myoverlay'), 'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map_string <- data.frame('id' = c('entity.strcat1', 'entity.strcat2', 'entity.myoverlay'), 'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt_string <- bar.dt(df, map_string)
   
-  map_num <- data.frame('id' = c('numcat1', 'numcat2', 'myoverlay'), 'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map_num <- data.frame('id' = c('entity.numcat1', 'entity.numcat2', 'entity.myoverlay'), 'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt_num <- bar.dt(df, map_num)
   
   expect_equal(dim(dt_string), dim(dt_num))
-  expect_equal(names(dt_string), c('myoverlay', 'strcat1', 'label', 'value'))
-  expect_equal(names(dt_num), c('myoverlay', 'numcat1', 'label', 'value'))
-  expect_equal(dt_string$myoverlay, dt_num$myoverlay)
+  expect_equal(names(dt_string), c('entity.myoverlay', 'entity.strcat1', 'label', 'value'))
+  expect_equal(names(dt_num), c('entity.myoverlay', 'entity.numcat1', 'label', 'value'))
+  expect_equal(dt_string$entity.myoverlay, dt_num$entity.myoverlay)
   expect_equal(length(dt_string$label[[1]]), length(dt_num$label[[1]]))
   expect_equal(length(dt_string$value[[1]]), length(dt_num$value[[1]]))
   
 })
 
 test_that("bar.dt() returns correct information about missing data", {
-  map <- data.frame('id' = c('group', 'x', 'panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.group', 'entity.x', 'entity.panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- as.data.frame(data.binned)
   
   # Add 10 missing values to each column
-  df$x[sample(1:100, 10, replace=F)] <- NA
-  df$y[sample(1:100, 10, replace=F)] <- NA
-  df$group[sample(1:100, 10, replace=F)] <- NA
-  df$panel[sample(1:100, 10, replace=F)] <- NA
+  df$entity.x[sample(1:100, 10, replace=F)] <- NA
+  df$entity.y[sample(1:100, 10, replace=F)] <- NA
+  df$entity.group[sample(1:100, 10, replace=F)] <- NA
+  df$entity.panel[sample(1:100, 10, replace=F)] <- NA
   dt <- bar.dt(df, map, value='count')
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - 10
@@ -269,5 +269,5 @@ test_that("bar.dt() returns correct information about missing data", {
   expect_equal(all(attr(dt, 'completeCases')[1] <= completecasestable$completeCases), TRUE)
   expect_equal(attr(dt, 'plottedIncompleteCases')[1], 0)
   dt <- bar.dt(df, map, value='count', evilMode = TRUE)
-  expect_equal(attr(dt, 'plottedIncompleteCases')[1], sum((is.na(df$group) | is.na(df$panel)) & !is.na(df$x))) 
+  expect_equal(attr(dt, 'plottedIncompleteCases')[1], sum((is.na(df$entity.group) | is.na(df$entity.panel)) & !is.na(df$entity.x))) 
 })

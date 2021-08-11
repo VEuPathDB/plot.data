@@ -123,32 +123,32 @@ test_that("bin() does not return NA", {
 })
 
 test_that("bin() returns appropriate bins for dates", {
-  viewport <- list('xMin'=min(data.dates$date), 'xMax'=max(data.dates$date))
+  viewport <- list('xMin'=min(data.dates$entity.date), 'xMax'=max(data.dates$entity.date))
   dt <- data.dates
 
-  dt$dateBin <- bin(as.Date(data.dates$date), 'day', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-12-01 - 1999-12-02")
+  dt$dateBin <- bin(as.Date(data.dates$entity.date), 'day', viewport)
+  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-12-01 - 1999-12-02")
 
-  dt$dateBin <- bin(as.Date(data.dates$date), '4 day', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-11-29 - 1999-12-03")
+  dt$dateBin <- bin(as.Date(data.dates$entity.date), '4 day', viewport)
+  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-11-29 - 1999-12-03")
 
-  dt$dateBin <- bin(as.Date(data.dates$date), 'week', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-11-29 - 1999-12-06")
+  dt$dateBin <- bin(as.Date(data.dates$entity.date), 'week', viewport)
+  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-11-29 - 1999-12-06")
 
-  dt$dateBin <- bin(as.Date(data.dates$date), '2 week', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-11-29 - 1999-12-13")
+  dt$dateBin <- bin(as.Date(data.dates$entity.date), '2 week', viewport)
+  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-11-29 - 1999-12-13")
 
-  dt$dateBin <- bin(as.Date(data.dates$date), 'month', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-12-01 - 2000-01-01")
+  dt$dateBin <- bin(as.Date(data.dates$entity.date), 'month', viewport)
+  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-12-01 - 2000-01-01")
 
-  dt$dateBin <- bin(as.Date(data.dates$date), '2 month', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-11-01 - 2000-01-01")   
+  dt$dateBin <- bin(as.Date(data.dates$entity.date), '2 month', viewport)
+  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-11-01 - 2000-01-01")   
 
-  dt$dateBin <- bin(as.Date(data.dates$date), 'year', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-01-01 - 2000-01-01")
+  dt$dateBin <- bin(as.Date(data.dates$entity.date), 'year', viewport)
+  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-01-01 - 2000-01-01")
 
-  dt$dateBin <- bin(as.Date(data.dates$date), '2 year', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-01-01 - 2001-01-01")
+  dt$dateBin <- bin(as.Date(data.dates$entity.date), '2 year', viewport)
+  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-01-01 - 2001-01-01")
 })
 
 test_that("relativeRisk() returns the right columns", {
@@ -240,15 +240,15 @@ test_that("remapListVar appropriately updates map", {
 
 test_that("nonparametricTest() errs gracefully", {
   df <- as.data.frame(data.xy)
-  result <- nonparametricTest(df$x[df$group == 'group1'], df$group[df$group == 'group1'])
+  result <- nonparametricTest(df$entity.x[df$entity.group == 'group1'], df$entity.group[df$entity.group == 'group1'])
   expect_true(grepl( 'Error', result[[1]]$statsError, fixed = TRUE))
   
 })
 
 test_that("nonparametricTestByGroup() errs gracefully", {
   df <- as.data.frame(data.xy)
-  df$group[df$panel == 'panel1'] <- 'group1'
-  result <- nonparametricByGroup(df, 'x', 'group', 'panel')
+  df$entity.group[df$entity.panel == 'panel1'] <- 'group1'
+  result <- nonparametricByGroup(df, 'entity.x', 'entity.group', 'entity.panel')
   # Expect four rows but only one error
   expect_equal(nrow(result), 4)
   expect_equal(sum(rapply(result, function(x) {grepl('Error', x, fixed=TRUE)})), 1)
@@ -256,15 +256,15 @@ test_that("nonparametricTestByGroup() errs gracefully", {
 
 test_that("nonparametricTest() types do not change on error", {
   df <- as.data.frame(data.xy)
-  result_correct <- nonparametricTest(df$x, df$group)    # kruskal.test
-  result_err <- nonparametricTest(df$x[df$group == 'group1'], df$group[df$group == 'group1'])
+  result_correct <- nonparametricTest(df$entity.x, df$entity.group)    # kruskal.test
+  result_err <- nonparametricTest(df$entity.x[df$entity.group == 'group1'], df$entity.group[df$entity.group == 'group1'])
   expect_true(grepl( 'Error', result_err[[1]]$statsError, fixed = TRUE))
   expect_equal(result_correct[[1]]$statsError, '')
   expect_equal(lapply(result_correct[[1]], typeof), lapply(result_err[[1]], typeof))
   
-  df$group[df$group =='group3'] <- 'group1'
-  df$group[df$group == 'group4'] <- 'group2'
-  result_correct <- nonparametricTest(df$x, df$group)    # wilcox.test
+  df$entity.group[df$entity.group =='group3'] <- 'group1'
+  df$entity.group[df$entity.group == 'group4'] <- 'group2'
+  result_correct <- nonparametricTest(df$entity.x, df$entity.group)    # wilcox.test
   expect_equal(result_correct[[1]]$statsError, '')
   expect_equal(lapply(result_correct[[1]], typeof), lapply(result_err[[1]], typeof))
 })
