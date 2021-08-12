@@ -53,12 +53,14 @@ newPlotdata <- function(.dt = data.table(),
   facet2 <- toColNameOrNull(facetVariable2)
   facetType2 <- emptyStringToNull(as.character(facetVariable2$dataType))
 
-  .dt[[x]] <- updateType(.dt[[x]], xType)
-  if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType) }
-  if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType) }
-  if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
-  if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1) }
-  if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2) }
+  # .dt[[x]] <- updateType(.dt[[x]], xType)
+  # # .dt[, ..x] <- lapply(.dt[, ..x], updateType, xType[1])
+  # # b <- .dt[, {lapply(.dt[, ..x], updateType, xType[1])}]
+  # if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType) }
+  # if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType) }
+  # if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
+  # if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1) }
+  # if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2) }
 
   varCols <- c(x, y, z, group, facet1, facet2)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
@@ -94,7 +96,36 @@ newPlotdata <- function(.dt = data.table(),
     sampleSizeTable <- groupSize(.dt, x=NULL, y=x, overlayGroup, panel, collapse=F)
   }
   sampleSizeTable$size <- lapply(sampleSizeTable$size, jsonlite::unbox)
+  
+  
 
+  #### Handle listvar
+  if (length(x) > 1) {
+    # Numeric x becomes y
+    listEntityId <- xAxisVariable$entityId[[1]]
+    .dt <- data.table::melt(.dt, measure.vars = x,
+                            variable.factor = FALSE,
+                            variable.name= paste(listEntityId,'xAxisVariable', sep='.'),
+                            value.name=paste(listEntityId,'value', sep='.'))
+    
+    # Replace x, y axis variable
+    listVariable <- xAxisVariable
+    # x is now categorical (string or numeric we don't know. Use cases are string so far)
+    xAxisVariable <- list('variableId' = 'xAxisVariable',
+                          'entityId' = unique(listVariable$entityId),
+                          'dataType' = 'STRING',
+                          'dataShape' = 'CATEGORICAL',
+                          'displayLabel' = unique(listVariable$displayLabel))
+    
+    # y is numeric continuous, we assume
+    yAxisVariable <- list('variableId' = 'value',
+                          'entityId' = unique(listVariable$entityId),
+                          'dataType' = 'NUMBER',
+                          'dataShape' = 'CONTINUOUS',
+                          'displayLabel' = '')
+  }
+
+  
   if (is.null(xAxisVariable$dataType)) {
     xIsNum = all(!is.na(as.numeric(.dt[[x]])))
     xAxisVariable$dataType <- 'NUMBER'

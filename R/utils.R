@@ -41,12 +41,13 @@ plotRefMapToList <- function(map, plotRef) {
                 'displayLabel' = NULL))
   }
 
-  variableId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 2)
-  entityId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 1)
+  variableId <- lapply(map$id[map$plotRef == plotRef], strSplit, ".", 4, 2)
+  entityId <- lapply(map$id[map$plotRef == plotRef], strSplit, ".", 4, 1)
 
+  # If there are no variable
   variableId <- emptyStringToNull(variableId)
   entityId <- emptyStringToNull(entityId)
-  dataType <- emptyStringToNull(map$dataType[map$plotRef == plotRef])
+  dataType <- emptyStringToNull(map$dataType[map$plotRef == plotRef]) #### Warnings okay - maybe alter so doesnt warn
   dataShape <- emptyStringToNull(map$dataShape[map$plotRef == plotRef])
   displayLabel <- emptyStringToNull(map$displayLabel[map$plotRef == plotRef])
 
@@ -190,7 +191,7 @@ emptyStringToPoint <- function(x) {
 emptyStringToNull <- function(x) {
   if (is.null(x)) { return(NULL) }
   if (length(x) == 0) { return(NULL) }
-  if (x == "") { return(NULL) }
+  if (all(x == "")) { return(NULL) }
 
   return(as.character(x))
 }

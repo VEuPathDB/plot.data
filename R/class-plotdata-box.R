@@ -183,41 +183,15 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     data.table::setDT(data)
   }
 
-  # Handle repeated plot references
-  if (any(duplicated(map$plotRef))) {
-    
-    # Identify the list var based on any plotRef that is repeated
-    listVarPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
-    listVarPlotRef <- validateListVar(map, listVarPlotRef)
-    
-    # Box-specific
-    if (listVarPlotRef == 'xAxisVariable' | listVarPlotRef == 'facetVariable1') {
-      meltedValuePlotRef <- 'yAxisVariable'
-    } else {
-      stop("Incompatable repeated variable")
-    }
-    
-    # Check to ensure meltedValuePlotRef is not already defined
-    if (any(map$plotRef == meltedValuePlotRef)) {
-      stop(paste0("Cannot melt data: ", meltedValuePlotRef, " already defined."))
-    }
+  # Only box knows which vars can be list, so it should handle validation
+  # plotdata should only check to make sure there is just one list var
+  #### ADD LISTVAR VALIDATION
 
-    # Record variable order
-    listVarIdOrder <- map$id[map$plotRef == listVarPlotRef]
-    #### Sep cannot include . (see plotRefMapToList)
-    meltedVariableName <- as.character(purrr::reduce(listVarIdOrder, function(x,y,sep="__") {paste(x,y,sep=sep)}))
-    
-    # Melt data and update the map 
-    data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name= meltedVariableName, value.name='meltedValue')
-    map <- remapListVar(map, listVarPlotRef, meltedValuePlotRef, newVarId = meltedVariableName)
-    
-  } # end handling of repeated plot element references
-
-  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable') #### NEED TO ADDRESS ENTITY STILL
   if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type box.")
   }
-  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable') #### NEED TO NOT HAVE THIS ERR. If length(x)==1,
   if (is.null(yAxisVariable$variableId)) {
     stop("Must provide yAxisVariable for plot type box.")
   }
@@ -235,9 +209,6 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                     mean = mean,
                     computeStats = computeStats,
                     evilMode = evilMode)
-
-  
-  #### Mess with complete cases table here?
   
   
   .box <- validateBoxPD(.box)
