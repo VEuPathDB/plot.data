@@ -37,6 +37,11 @@ newPlotdata <- function(.dt = data.table(),
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL),
                          evilMode = logical(),
+                         listValueVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          ...,
                          class = character()) {
 
@@ -100,13 +105,15 @@ newPlotdata <- function(.dt = data.table(),
   
 
   #### Handle listvar
+  listVariable <- NULL
   if (length(x) > 1) {
+    #### validate that listValueVariable$variableId not null
     # Numeric x becomes y
     listEntityId <- xAxisVariable$entityId[[1]]
     .dt <- data.table::melt(.dt, measure.vars = x,
                             variable.factor = FALSE,
                             variable.name= paste(listEntityId,'xAxisVariable', sep='.'),
-                            value.name=paste(listEntityId,'value', sep='.'))
+                            value.name=paste(listEntityId,listValueVariable$variableId, sep='.'))
     
     # Replace x, y axis variable
     listVariable <- xAxisVariable
@@ -117,13 +124,8 @@ newPlotdata <- function(.dt = data.table(),
                           'dataShape' = 'CATEGORICAL',
                           'displayLabel' = unique(listVariable$displayLabel))
     
-    # y is numeric continuous, we assume
-    yAxisVariable <- list('variableId' = 'value',
-                          'entityId' = unique(listVariable$entityId),
-                          'dataType' = 'NUMBER',
-                          'dataShape' = 'CONTINUOUS',
-                          'displayLabel' = '')
-    y <- toColNameOrNull(yAxisVariable)
+    # Assign to the appropriate var
+    do.call("<-", list(listValueVariable$variableId, listValueVariable))
   }
 
   
@@ -138,7 +140,7 @@ newPlotdata <- function(.dt = data.table(),
 
   attr <- attributes(.dt)
   attr$xAxisVariable <-  xAxisVariable
-  if (!is.null(y)) { attr$yAxisVariable <- yAxisVariable }
+  if (!is.null(toColNameOrNull(yAxisVariable))) { attr$yAxisVariable <- yAxisVariable }
   if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
   attr$completeCases <- completeCases
   attr$plottedIncompleteCases <- plottedIncompleteCases
@@ -148,6 +150,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(group)) { attr$overlayVariable <- overlayVariable }
   if (!is.null(facet1)) { attr$facetVariable1 <- facetVariable1 }
   if (!is.null(facet2)) { attr$facetVariable2 <- facetVariable2 }
+  if (!is.null(listVariable)) { attr$listVariable <- listVariable }
 
   setAttrFromList(.dt, attr)
   .pd <- validatePlotdata(.dt)

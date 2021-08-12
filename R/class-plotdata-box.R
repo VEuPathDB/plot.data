@@ -28,6 +28,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                          mean = logical(),
                          computeStats = logical(),
                          evilMode = logical(),
+                         listValueVariable = list(),
                          ...,
                          class = character()) {
 
@@ -38,6 +39,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
+                     listValueVariable = listValueVariable,
                      class = "boxplot")
 
   attr <- attributes(.pd)
@@ -183,21 +185,31 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     data.table::setDT(data)
   }
 
-  # Only box knows which vars can be list, so it should handle validation
-  # plotdata should only check to make sure there is just one list var
-  #### ADD LISTVAR VALIDATION
-
-  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable') #### NEED TO ADDRESS ENTITY STILL
+  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type box.")
   }
-  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable') #### NEED TO NOT HAVE THIS ERR. If length(x)==1,
+  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
   if (is.null(yAxisVariable$variableId) & length(xAxisVariable$variableId) == 1) {
     stop("Must provide yAxisVariable for plot type box.")
   }
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
+  
+  #### Listvar things
+  # Only box knows which vars can be list, so it should handle validation
+  # plotdata should only check to make sure there is just one list var
+  #### ADD LISTVAR VALIDATION
+  listValueVariable <- plotRefMapToList(map, 'listValueVariable')
+  if (length(xAxisVariable$variableId) > 1) {
+    # since we're in box with x as listvar, know things about listValue
+    listValueVariable <- list('variableId' = 'yAxisVariable',
+                          'entityId' = unique(xAxisVariable$entityId),
+                          'dataType' = 'NUMBER',
+                          'dataShape' = 'CONTINUOUS',
+                          'displayLabel' = '')
+  }
 
   .box <- newBoxPD(.dt = data,
                     xAxisVariable = xAxisVariable,
@@ -208,7 +220,8 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                     points = points,
                     mean = mean,
                     computeStats = computeStats,
-                    evilMode = evilMode)
+                    evilMode = evilMode,
+                    listValueVariable=listValueVariable)
   
   
   .box <- validateBoxPD(.box)

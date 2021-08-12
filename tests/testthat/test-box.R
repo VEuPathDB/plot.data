@@ -20,6 +20,7 @@ test_that("box.dt() returns a valid plot.data box object", {
   dt <- box.dt(df, map, 'all', FALSE)
   expect_is(dt, 'plot.data')
   expect_is(dt, 'boxplot')
+  namedAttrList <- getPDAttributes(dt)
   expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCases','plottedIncompleteCases','completeCasesTable','sampleSizeTable','overlayVariable', 'statsTable'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
