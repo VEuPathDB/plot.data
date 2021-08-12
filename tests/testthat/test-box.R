@@ -126,11 +126,13 @@ test_that("box.dt() returns an appropriately sized data.table", {
 })
 test_that("box.dt() accepts listVars for both x axis and facet vars", {  
   ## Case when we input multiple vars as one to x axis
-  map <- data.frame('id' = c('y', 'x', 'z', 'group','cat2','cat3'), 'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING', 'STRING', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('e.y', 'e.x', 'e.z', 'e.group','e.cat2','e.cat3'), 'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING', 'STRING', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
   df <- data.xy
-  df[, z := x+y]
-  df$cat2 <- sample(c('z1','z2','z3'), 500, replace=T) # Add another categorical var
-  df$cat3 <- sample(c('a','b','c','d'), 500, replace=T) # Add another categorical var
+  names(df) <- paste('e',names(df),sep='.')
+  df[, e.z := e.x+e.y]
+  df$e.cat2 <- sample(c('z1','z2','z3'), 500, replace=T) # Add another categorical var
+  df$e.cat3 <- sample(c('a','b','c','d'), 500, replace=T) # Add another categorical var
   
   dt <- box.dt(df, map, 'none', FALSE, computeStats = T)
   expect_is(dt, 'data.table')
