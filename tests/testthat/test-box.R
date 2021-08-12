@@ -2,7 +2,7 @@ context('box')
 
 test_that("box.dt() returns a valid plot.data box object", {
   map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  df <- data.xy
+  df <- data.table::as.data.table(data.xy)
 
   dt <- box.dt(df, map, 'none', FALSE)
   expect_is(dt, 'plot.data')
