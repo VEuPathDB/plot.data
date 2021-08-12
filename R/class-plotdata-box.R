@@ -192,7 +192,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     stop("Must provide xAxisVariable for plot type box.")
   }
   yAxisVariable <- plotRefMapToList(map, 'yAxisVariable') #### NEED TO NOT HAVE THIS ERR. If length(x)==1,
-  if (is.null(yAxisVariable$variableId)) {
+  if (is.null(yAxisVariable$variableId) & length(xAxisVariable$variableId) == 1) {
     stop("Must provide yAxisVariable for plot type box.")
   }
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')

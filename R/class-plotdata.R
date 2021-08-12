@@ -110,7 +110,7 @@ newPlotdata <- function(.dt = data.table(),
     
     # Replace x, y axis variable
     listVariable <- xAxisVariable
-    # x is now categorical (string or numeric we don't know. Use cases are string so far)
+    # x is now shape=categorical (Use cases are type=string so far)
     xAxisVariable <- list('variableId' = 'xAxisVariable',
                           'entityId' = unique(listVariable$entityId),
                           'dataType' = 'STRING',
@@ -123,6 +123,7 @@ newPlotdata <- function(.dt = data.table(),
                           'dataType' = 'NUMBER',
                           'dataShape' = 'CONTINUOUS',
                           'displayLabel' = '')
+    y <- toColNameOrNull(yAxisVariable)
   }
 
   
