@@ -33,6 +33,14 @@ collapseByGroup <- function(data, group = NULL, panel = NULL) {
 trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 
 plotRefMapToList <- function(map, plotRef) {
+  if (!plotRef %in% map$plotRef) {
+    return(list('variableId' = NULL,
+                'entityId' = NULL,
+                'dataType' = NULL,
+                'dataShape' = NULL,
+                'displayLabel' = NULL))
+  }
+
   variableId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 2)
   entityId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 1)
 
@@ -40,6 +48,7 @@ plotRefMapToList <- function(map, plotRef) {
   entityId <- emptyStringToNull(entityId)
   dataType <- emptyStringToNull(map$dataType[map$plotRef == plotRef])
   dataShape <- emptyStringToNull(map$dataShape[map$plotRef == plotRef])
+  displayLabel <- emptyStringToNull(map$displayLabel[map$plotRef == plotRef])
 
   if (!is.null(variableId) & !is.null(entityId)) {
     if (variableId == entityId) { entityId <- NULL }
@@ -48,15 +57,18 @@ plotRefMapToList <- function(map, plotRef) {
   plotRef <- list('variableId' = variableId,
                   'entityId' = entityId,
                   'dataType' = dataType,
-                  'dataShape' = dataShape)
+                  'dataShape' = dataShape,
+                  'displayLabel' = displayLabel)
 
   return(plotRef)
 }
 
+#' @importFrom lubridate is.Date
+#' @importFrom lubridate as_date
 updateType <- function(x, xType) {
-  if (xType == 'NUMBER') { x <- as.numeric(x) }
-  if (xType == 'DATE') { x <- as.Date(x) }
-  if (xType == 'STRING') { x <- as.character(x) }
+  if (xType == 'NUMBER' & !is.numeric(x)) { x <- as.numeric(x) }
+  if (xType == 'DATE' & !lubridate::is.Date(x)) { x <- lubridate::as_date(x) }
+  if (xType == 'STRING' & !is.character(x)) { x <- as.character(x) }
 
   return(x)
 }
@@ -184,6 +196,10 @@ emptyStringToNull <- function(x) {
 }
 
 toColNameOrNull <- function(varDetailsList) {
+  if (is.null(varDetailsList)) {
+    return(NULL)
+  }
+
   if (is.null(varDetailsList$variableId)) {
     return(NULL)
   }
@@ -394,12 +410,12 @@ matchArg <- function(arg, choices) {
 }
   
 
-remapListVar <- function(map, listVarPlotRef, newValuePlotRef, newVarId = 'meltedVariable', newValueId = 'meltedValue') {
+remapListVar <- function(map, listVarPlotRef, newValuePlotRef, newVarId = 'meltedVariable', newValueId = 'meltedValue', newVarDisplayLabel = NULL, newValueDisplayLabel = NULL) {
   
   listVarEntity <- unique(map$entityId[map$plotRef == listVarPlotRef])
   listVarType <- unique(map$dataType[map$plotRef == listVarPlotRef])
   listVarShape <- unique(map$dataShape[map$plotRef == listVarPlotRef])
-  
+
   newVar <- list('id' = newVarId, 'plotRef' = listVarPlotRef)
   newValue <- list('id' = newValueId, 'plotRef' = newValuePlotRef)
   if (!is.null(listVarEntity)) {
@@ -413,6 +429,12 @@ remapListVar <- function(map, listVarPlotRef, newValuePlotRef, newVarId = 'melte
   if (!is.null(listVarShape)) {
     newVar$dataShape <- 'CATEGORICAL'
     newValue$dataShape <- listVarShape
+  }
+
+  # Add displayLabels
+  if (!is.null(map$displayLabel)) {
+    newVar$displayLabel <- if(!is.null(newVarDisplayLabel)) {newVarDisplayLabel} else {''}
+    newValue$displayLabel <- if(!is.null(newValueDisplayLabel)) {newValueDisplayLabel} else {''}
   }
   
   # Remove all repeated variables from map

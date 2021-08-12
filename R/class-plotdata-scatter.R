@@ -2,23 +2,28 @@ newScatterPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          yAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          overlayVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          facetVariable1 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          value = character(),
                          evilMode = logical(),
                          ...,
@@ -47,9 +52,17 @@ newScatterPD <- function(.dt = data.table::data.table(),
     series <- collapseByGroup(.pd, group, panel)
     data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
   }
-  
-  series$seriesX <- lapply(series$seriesX, as.character)
-  series$seriesY <- lapply(series$seriesY, as.character)
+ 
+  if (attr$xAxisVariable$dataType == 'DATE') {
+    series$seriesX <- lapply(series$seriesX, format, '%Y-%m-%d')
+  } else { 
+    series$seriesX <- lapply(series$seriesX, as.character)
+  }
+  if (attr$yAxisVariable$dataType == 'DATE') {
+    series$seriesY <- lapply(series$seriesY, format, '%Y-%m-%d')
+  } else {
+    series$seriesY <- lapply(series$seriesY, as.character)
+  }
 
   if (value == 'smoothedMean') {
 
@@ -76,7 +89,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
   } else if (value == 'density') {
     
-    density <- groupDensity(.pd, x, group, panel)
+    density <- groupDensity(.pd, NULL, x, group, panel)
     .pd <- density
     
   } else {
@@ -155,19 +168,6 @@ scattergl.dt <- function(data,
   value <- matchArg(value)
   evilMode <- matchArg(evilMode) 
   
-  overlayVariable = list('variableId' = NULL,
-                         'entityId' = NULL,
-                         'dataType' = NULL,
-                         'dataShape' = NULL)
-  facetVariable1 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-  facetVariable2 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
@@ -201,34 +201,30 @@ scattergl.dt <- function(data,
     
   } # end handling of repeated plot element references
 
-  if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  if (is.null(xAxisVariable$variableId)) {
+    stop("Must provide xAxisVariable for plot type scatter.")
+  } else {
     if (xAxisVariable$dataType != 'NUMBER' & value == 'density') {
       stop('Density curves can only be provided for numeric independent axes.')
     }
-  } else {
-    stop("Must provide xAxisVariable for plot type scatter.")
   }
-  if ('yAxisVariable' %in% map$plotRef) {
-    yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+  if (is.null(yAxisVariable$variableId)) {
+    stop("Must provide yAxisVariable for plot type scatter.")
+  } else {
     if (yAxisVariable$dataType != 'NUMBER' & value != 'raw') {
       stop('Trend lines can only be provided for numeric dependent axes.')
     }
-  } else {
-    stop("Must provide yAxisVariable for plot type scatter.")
-  }
-  if ('overlayVariable' %in% map$plotRef) {
-    overlayVariable <- plotRefMapToList(map, 'overlayVariable')
+  } 
+  overlayVariable <- plotRefMapToList(map, 'overlayVariable')
+  if (!is.null(overlayVariable$variableId)) {
     if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
       stop('Continuous overlay variables cannot be used with trend lines.')
     }
   }
-  if ('facetVariable1' %in% map$plotRef) {
-    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  }
-  if ('facetVariable2' %in% map$plotRef) {
-    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
-  }
+  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
+  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
   .scatter <- newScatterPD(.dt = data,
                             xAxisVariable = xAxisVariable,

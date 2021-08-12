@@ -2,19 +2,23 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          yAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          facetVariable1 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          statistic = character(),
                          evilMode = logical(),
                          ...,
@@ -101,55 +105,39 @@ mosaic.dt <- function(data, map, statistic = NULL, evilMode = c(FALSE, TRUE)) {
     stop('invalid input to argument `evilMode`.')
   }
 
-  yAxisVariable = list('variableId' = NULL,
-                         'entityId' = NULL,
-                         'dataType' = NULL,
-                         'dataShape' = NULL)
-  facetVariable1 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-  facetVariable2 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
 
-  if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
-  } else {
+  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type mosaic.")
   }
-  if ('yAxisVariable' %in% map$plotRef) {
-    yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  } else {
+  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+  if (is.null(yAxisVariable$variableId)) {
     stop("Must provide yAxisVariable for plot type mosaic.")
   }
+
+  x <- toColNameOrNull(xAxisVariable)
+  y <- toColNameOrNull(yAxisVariable)
 
   if (!is.null(statistic)) {
     if (!statistic %in% c('chiSq','bothRatios')) {
       stop('`statistic` argument must be one of either \'chiSq\' or \'bothRatios\', the second of which returns both odds ratios and relative risk.')
     }
-    if ((data.table::uniqueN(data[[xAxisVariable$variableId]]) > 2 || data.table::uniqueN(data[[yAxisVariable$variableId]]) > 2) && statistic == 'bothRatios') {
+    if ((data.table::uniqueN(data[[x]]) > 2 || data.table::uniqueN(data[[y]]) > 2) && statistic == 'bothRatios') {
       stop('Odds ratio and relative risk can only be calculated for 2x2 contingency tables. Please use statistic `chiSq` instead.')
     }
   } else {
-    if (data.table::uniqueN(data[[xAxisVariable$variableId]]) > 2 || data.table::uniqueN(data[[yAxisVariable$variableId]]) > 2) {
+    if (data.table::uniqueN(data[[x]]) > 2 || data.table::uniqueN(data[[y]]) > 2) {
       statistic <- 'chiSq'
     } else {
       statistic <- 'bothRatios'
     }
   }
   
-  if ('facetVariable1' %in% map$plotRef) {
-    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  }
-  if ('facetVariable2' %in% map$plotRef) {
-    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
-  }
+  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
+  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
   .mosaic <- newMosaicPD(.dt = data,
                             xAxisVariable = xAxisVariable,

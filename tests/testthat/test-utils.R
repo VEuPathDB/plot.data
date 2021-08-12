@@ -18,6 +18,31 @@ test_that("plotRefMapToList returns NULL for entityId when there isnt one", {
   expect_equal(xVariableDetails$entityId,'c')
 })
 
+test_that("plotRefMapToList returns displayLabel only when defined", {
+  # Without a displayLabel for any var
+  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
+  
+  expect_equal(is.null(xVariableDetails$displayLabel), TRUE)
+  
+  # With a displayLabel for all vars
+  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('var1','var2','var3'), stringsAsFactors=FALSE)
+  xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
+  
+  expect_equal(is.null(xVariableDetails$displayLabel), FALSE)
+  expect_equal(xVariableDetails$displayLabel, 'var3')
+  
+  # With a displayLabel for some vars
+  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('var1','','var3'), stringsAsFactors=FALSE)
+  xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
+  yVariableDetails <- plotRefMapToList(map, 'yAxisVariable')
+  
+  expect_equal(is.null(xVariableDetails$displayLabel), FALSE)
+  expect_equal(xVariableDetails$displayLabel, 'var3')
+  expect_equal(is.null(yVariableDetails$displayLabel), TRUE)
+ 
+})
+
 test_that("toColNameOrNull works", {
   varDetailsList <- list('variableId' = 'var',
                          'entityId' = 'entity',
@@ -102,28 +127,28 @@ test_that("bin() returns appropriate bins for dates", {
   dt <- data.dates
 
   dt$dateBin <- bin(as.Date(data.dates$date), 'day', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-12-01 - 1999-12-02)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-12-01 - 1999-12-02")
 
   dt$dateBin <- bin(as.Date(data.dates$date), '4 day', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-11-29 - 1999-12-03)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-11-29 - 1999-12-03")
 
   dt$dateBin <- bin(as.Date(data.dates$date), 'week', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-11-29 - 1999-12-06)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-11-29 - 1999-12-06")
 
   dt$dateBin <- bin(as.Date(data.dates$date), '2 week', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-11-29 - 1999-12-13)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-11-29 - 1999-12-13")
 
   dt$dateBin <- bin(as.Date(data.dates$date), 'month', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-12-01 - 2000-01-01)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-12-01 - 2000-01-01")
 
   dt$dateBin <- bin(as.Date(data.dates$date), '2 month', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-11-01 - 2000-01-01)")   
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-11-01 - 2000-01-01")   
 
   dt$dateBin <- bin(as.Date(data.dates$date), 'year', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-01-01 - 2000-01-01)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-01-01 - 2000-01-01")
 
   dt$dateBin <- bin(as.Date(data.dates$date), '2 year', viewport)
-  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "[1999-01-01 - 2001-01-01)")
+  expect_equal(dt$dateBin[dt$date == '1999-12-01'], "1999-01-01 - 2001-01-01")
 })
 
 test_that("relativeRisk() returns the right columns", {
@@ -191,6 +216,26 @@ test_that("remapListVar appropriately updates map", {
   expect_equal(newMap$id, c('c', 'meltedVariable','meltedValue'))
   expect_equal(newMap$plotRef, c('overlayVariable', 'xAxisVariable', 'yAxisVariable'))
   expect_equal(newMap$dataType, c('STRING', 'STRING', 'NUMBER'))
+  expect_true(is.null(newMap$displayLabel))
+  
+  map <- data.frame('id' = c('a','b','c'),
+                    'plotRef' = c('xAxisVariable', 'xAxisVariable', 'overlayVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'),
+                    'entityId' = c('e1', 'e1', 'e2'),
+                    'displayLabel' = c('label1', '', 'label3'), stringsAsFactors=FALSE)
+  
+  newMap <- remapListVar(map, 'xAxisVariable', 'yAxisVariable')
+  expect_equal(newMap$id, c('c', 'meltedVariable','meltedValue'))
+  expect_equal(newMap$plotRef, c('overlayVariable', 'xAxisVariable', 'yAxisVariable'))
+  expect_equal(newMap$dataType, c('STRING', 'STRING', 'NUMBER'))
+  expect_equal(newMap$displayLabel, c('label3', '', ''))
+  
+  newMap <- remapListVar(map, 'xAxisVariable', 'yAxisVariable', 'id1', 'id2', 'displayLabel1', 'displayLabel2')
+  expect_equal(newMap$id, c('c', 'id1','id2'))
+  expect_equal(newMap$plotRef, c('overlayVariable', 'xAxisVariable', 'yAxisVariable'))
+  expect_equal(newMap$dataType, c('STRING', 'STRING', 'NUMBER'))
+  expect_equal(newMap$displayLabel, c('label3', 'displayLabel1', 'displayLabel2'))
 })
 
 test_that("nonparametricTest() errs gracefully", {
@@ -222,5 +267,29 @@ test_that("nonparametricTest() types do not change on error", {
   result_correct <- nonparametricTest(df$x, df$group)    # wilcox.test
   expect_equal(result_correct[[1]]$statsError, '')
   expect_equal(lapply(result_correct[[1]], typeof), lapply(result_err[[1]], typeof))
+})
+
+test_that("findBinWidth returns appropriate bin types for numeric inputs", {
+  # Integers should return integer bin width
+  x <- c(1.0, 4.0, 2.0, 9.0, 4.0, 1.0, 8.0, 11.0, 34.0, 23.0, 19.0)
+  binWidth <- findBinWidth(x)
+  expect_true(is.numeric(binWidth))
+  expect_equal(binWidth%%1, 0)
+  
+  x <- c(1.0, -4.0, 2.0, 9.0, 4.0, -1.0, 8.0, -11.0, 34.0, 23.0, -19.0)
+  binWidth <- findBinWidth(x)
+  expect_true(is.numeric(binWidth))
+  expect_equal(binWidth%%1, 0)
+  
+  x <- sample(-100:100, 100, replace=T)
+  binWidth <- findBinWidth(x)
+  expect_true(is.numeric(binWidth))
+  expect_equal(binWidth%%1, 0)
+  
+  # Values with non-zero decimals should return numeric
+  x <- runif(100, min=-1, max=1)
+  binWidth <- findBinWidth(x)
+  expect_true(is.numeric(binWidth))
+  
 })
 

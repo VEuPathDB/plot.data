@@ -70,7 +70,7 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
     }
   }
 
-  bins <- stringi::stri_c("[", binStart, " - ", binEnd, ")")
+  bins <- stringi::stri_c(binStart, " - ", binEnd)
 
   return(bins)
 }
@@ -90,7 +90,13 @@ findBinWidth <- function(x) UseMethod("findBinWidth")
 findBinWidth.numeric <- function(x) {
   numBins <- findNumBins(x)
   binWidth <- numBinsToBinWidth(x, numBins)
-  avgDigits <- floor(mean(stringr::str_count(as.character(x), "[[:digit:]]")))
+  if (all(x %% 1 == 0)) {
+    # Then x only contains integers, so the binWidth should also be an integer
+    avgDigits <- 0
+  } else {
+    # Then x contains data with non-zero decimals, so the binWidth can be any float
+    avgDigits <- floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
+  }
   binWidth <- round(binWidth, avgDigits)
 
   return(binWidth)

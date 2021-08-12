@@ -2,27 +2,33 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          yAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          zAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          overlayVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          facetVariable1 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          value = character(),
                          evilMode = logical(),
                          ...,
@@ -105,49 +111,22 @@ heatmap.dt <- function(data, map, value = c('series', 'collection'), evilMode = 
   value <- matchArg(value)
   evilMode <- matchArg(evilMode)
 
-  zAxisVariable = list('variableId' = NULL,
-                         'entityId' = NULL,
-                         'dataType' = NULL,
-                         'dataShape' = NULL)
-  overlayVariable = list('variableId' = NULL,
-                         'entityId' = NULL,
-                         'dataType' = NULL,
-                         'dataShape' = NULL)
-  facetVariable1 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-  facetVariable2 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL) 
-
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
 
-  if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
-  } else {
+  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type scatter.")
   }
-  if ('yAxisVariable' %in% map$plotRef) {
-    yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  } else {
+  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+  if (is.null(yAxisVariable$variableId)) {
     stop("Must provide yAxisVariable for plot type scatter.")
   }
-  if ('zAxisVariable' %in% map$plotRef) {
-    zAxisVariable <- plotRefMapToList(map, 'zAxisVariable')
-  }
-  if ('overlayVariable' %in% map$plotRef) {
-    overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  }
-  if ('facetVariable1' %in% map$plotRef) {
-    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  }
-  if ('facetVariable2' %in% map$plotRef) {
-    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
-  }
+  zAxisVariable <- plotRefMapToList(map, 'zAxisVariable')
+  overlayVariable <- plotRefMapToList(map, 'overlayVariable')
+  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
+  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
  
   .heatmap <- newHeatmapPD(.dt = data,
                             xAxisVariable = xAxisVariable,

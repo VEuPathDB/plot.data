@@ -3,19 +3,23 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          overlayVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          facetVariable1 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
-                                              'dataShape' = NULL),
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
                          viewport = list('xMin' = NULL,
                                          'xMax' = NULL),
                          binWidth,
@@ -84,7 +88,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     binSliderMax <- as.numeric((max(xVP) - min(xVP)) / 2)
     binSliderMin <- as.numeric((max(xVP) - min(xVP)) / 1000)
     if (xType == 'NUMBER') {
-      avgDigits <- floor(mean(stringr::str_count(as.character(xVP), "[[:digit:]]")))
+      avgDigits <- floor(mean(stringi::stri_count_regex(as.character(xVP), "[[:digit:]]")))
       binSliderMax <- round(binSliderMax, avgDigits)
       binSliderMin <- round(binSliderMin, avgDigits)
       binSliderStep <- round(((binSliderMax - binSliderMin) / 1000), avgDigits)
@@ -233,7 +237,7 @@ validateHistogramPD <- function(.histo) {
 #' @param viewport List of min and max values to consider as the range of data
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
-#' @importFrom stringr str_count
+#' @importFrom stringi stri_count_regex
 #' @importFrom jsonlite unbox
 #' @export
 histogram.dt <- function(data, 
@@ -245,19 +249,6 @@ histogram.dt <- function(data,
                          viewport = NULL,
                          evilMode = c(FALSE, TRUE)) {
 
-  overlayVariable = list('variableId' = NULL,
-                         'entityId' = NULL,
-                         'dataType' = NULL,
-                         'dataShape' = NULL)
-  facetVariable1 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-  facetVariable2 = list('variableId' = NULL,
-                        'entityId' = NULL,
-                        'dataType' = NULL,
-                        'dataShape' = NULL)
-                           
   value <- matchArg(value)
   barmode <- matchArg(barmode)
   binReportValue <- matchArg(binReportValue)
@@ -267,26 +258,20 @@ histogram.dt <- function(data,
     data.table::setDT(data)
   }
 
-  if ('xAxisVariable' %in% map$plotRef) {
-    xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  if (is.null(xAxisVariable$variableId)) {
+    stop("Must provide xAxisVariable for plot type histogram.")
+  } else {
     if (xAxisVariable$dataType == 'NUMBER' & !is.null(binWidth)) {
       binWidth <- suppressWarnings(as.numeric(binWidth))
       if (is.na(binWidth)) {
         stop("binWidth must be numeric for histograms of numeric values.")
       }
     }
-  } else {
-    stop("Must provide xAxisVariable for plot type histogram.")
   }
-  if ('overlayVariable' %in% map$plotRef) {
-    overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  }
-  if ('facetVariable1' %in% map$plotRef) {
-    facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  }
-  if ('facetVariable2' %in% map$plotRef) {
-    facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
-  }
+  overlayVariable <- plotRefMapToList(map, 'overlayVariable')
+  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
+  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
   .histo <- newHistogramPD(.dt = data,
                            xAxisVariable = xAxisVariable,
