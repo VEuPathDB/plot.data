@@ -498,7 +498,7 @@ test_that("histogram() returns appropriately formatted json", {
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList),c('histogram','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$histogram),c('data','config'))
-  expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','binStart','binEnd','value'))
+  expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','value','binStart','binEnd'))
   expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value', 'displayLabel'))
   expect_equal(nrow(jsonList$histogram$data$facetVariableDetails[[1]]), 2)
   expect_equal(names(jsonList$histogram$config),c('completeCases','plottedIncompleteCases','summary','viewport','binSlider','binSpec','xVariableDetails'))

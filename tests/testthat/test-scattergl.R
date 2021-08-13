@@ -69,7 +69,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'entityA.group', 'entityD.panel'))
+  expect_equal(names(dt),c('entityA.group', 'entityD.panel', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
   
   dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')

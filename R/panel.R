@@ -14,7 +14,7 @@ panelOddsRatio <- function(data, x, y, panel = NULL) {
     dt.list <- lapply(dt.list, tableXY)
     dt.list <- lapply(dt.list, oddsRatio)
     dt <- purrr::reduce(dt.list, rbind)
-    dt$panel <- names(dt.list)
+    dt[[panel]] <- names(dt.list)
   }
 
   return(dt)
@@ -34,7 +34,7 @@ panelRelativeRisk <- function(data, x, y, panel = NULL) {
     dt.list <- lapply(dt.list, tableXY)
     dt.list <- lapply(dt.list, relativeRisk)
     dt <- purrr::reduce(dt.list, rbind)
-    dt$panel <- names(dt.list)
+    d[[panel]] <- names(dt.list)
   }
 
   return(dt)
@@ -54,7 +54,7 @@ panelBothRatios <- function(data, x, y, panel = NULL) {
     dt.list <- lapply(dt.list, tableXY)
     dt.list <- lapply(dt.list, bothRatios)
     dt <- purrr::reduce(dt.list, rbind)
-    dt$panel <- names(dt.list)
+    dt[[panel]] <- names(dt.list)
   }
 
   return(dt)
@@ -74,7 +74,7 @@ panelChiSq <- function(data, x, y, panel = NULL) {
     dt.list <- lapply(dt.list, tableXY)
     dt.list <- lapply(dt.list, chiSq)
     dt <- purrr::reduce(dt.list, rbind)
-    dt$panel <- names(dt.list)
+    dt[[panel]] <- names(dt.list)
   }
 
   return(dt)
@@ -87,7 +87,7 @@ panelTable <- function(data, x, y, panel = NULL) {
     dt.list <- split(data, list(data[[panel]]))
     dt.list <- lapply(dt.list, tableAsDT, x, y)
     dt <- purrr::reduce(dt.list, rbind)
-    dt$panel <- names(dt.list)
+    dt[[panel]] <- names(dt.list)
   }
 
   return(dt)
