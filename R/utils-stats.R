@@ -1,3 +1,15 @@
+roundedSD <- function(x, digits = 4, ...) {
+  as.list(round(stats::sd(x, ...), digits))
+}
+
+roundedMean <- function(x, digits = 4, ...) {
+  as.list(round(mean(x, ...), digits))
+} 
+
+roundedQuantile <- function(x, digits = 4, ...) {
+  as.list(round(stats::quantile(x, ...), digits))
+}
+
 #' Fences
 #'
 #' This function returns the lower and upper fences for a numeric
@@ -14,7 +26,7 @@ fences <- function(x) {
   upperfence <- summary[4] + (1.5*iqr)
   upperfence <- max(x[x <= upperfence])
 
-  return(c(lowerfence, upperfence))
+  return(list(lowerfence, upperfence))
 }
 
 #' Outliers
@@ -42,9 +54,7 @@ outliers <- function(x) {
 #' @import data.table
 densityCurve <- function(x) {
   curve <- stats::density(x)
-  dt <- data.table::data.table("densityX" = c(curve$x), "densityY" = c(curve$y))
-
-  return(dt)
+  return(list("densityX" = c(curve$x), "densityY" = c(curve$y)))
 }
 
 # Prediction data frame
@@ -156,7 +166,7 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
     stop('Unrecognized smoothing method.')
   }
 
-  if (class(smoothed) == 'try-error') {
+  if (any(class(smoothed) == 'try-error')) {
     dt <- data.table::data.table("smoothedMeanX" = list(numeric()), "smoothedMeanY" = list(numeric()), "smoothedMeanSE" = list(numeric()), "smoothedMeanError" = jsonlite::unbox(as.character(smoothed[1])))
   } else {
     smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))

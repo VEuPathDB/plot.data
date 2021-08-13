@@ -93,7 +93,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'entity.group', 'entity.panel'))
+  expect_equal(names(dt),c('entity.group', 'entity.panel', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
 
   dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
@@ -119,7 +119,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'entity.group', 'entity.panel'))
+  expect_equal(names(dt),c('entity.group', 'entity.panel', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
 
   dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
@@ -151,7 +151,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'entity.group'))
+  expect_equal(names(dt),c('entity.group', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
  
   dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
@@ -179,7 +179,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, map, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'entity.panel'))
+  expect_equal(names(dt),c('entity.panel', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
   
   dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
@@ -223,7 +223,8 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   # Cases with repeated vars for one plot element
   map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.w', 'entity.group'), 'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.xy
-  df[, c('entity.z','entity.w') := list(entity.x+entity.y, entity.x-entity.y)]
+  df$entity.z <- df$entity.x + df$entity.y
+  df$entity.w <- df$entity.x - df$entity.y
   
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')
@@ -246,7 +247,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   # Continuous overlay
   map <- data.frame('id' = c('entity.z', 'entity.y', 'entity.x'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
   df <- data.xy
-  df[, entity.z := runif(500)]
+  df$entity.z <- runif(500)
   
   dt <- scattergl.dt(df, map, 'raw')
   expect_equal(nrow(dt), 1)
@@ -312,7 +313,7 @@ test_that("scattergl() returns appropriately formatted json", {
 
   map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.panel', 'entity.z'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
   df <- data.xy
-  df[, entity.z := runif(500)]
+  df$entity.z <- runif(500)
   dt <- scattergl.dt(df, map, 'raw')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)

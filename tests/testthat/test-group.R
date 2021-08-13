@@ -57,42 +57,38 @@ test_that("groupSmoothedMean() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt), c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'entity.group'))
+  expect_equal(names(dt), c('group', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'entity.group'))
 
   df <- copy(data.xy)
   dt <- groupSmoothedMean(df, 'entity.x', 'entity.y', NULL, 'entity.panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'entity.panel'))
+  expect_equal(names(dt), c('panel', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'entity.panel'))
 
   df <- copy(data.xy)
   dt <- groupSmoothedMean(df, 'entity.x', 'entity.y', 'entity.group', 'entity.panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt), c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'entity.group', 'entity.panel'))
+  expect_equal(names(dt), c('group', 'panel', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'entity.panel'))
 })
 
 test_that("groupDensity() returns an appropriately sized data.table", {
-  
-  df <- copy(data.xy)
-  dt <- groupDensity(df, 'entity.x')
+  dt <- groupDensity(data.xy, y='x')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt), c('densityX', 'densityY'))
 
-  df <- copy(data.xy)
-  dt <- groupDensity(df, 'entity.y', 'entity.group')
+  dt <- groupDensity(data.xy, y='entity.y', group='entity.group')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt), c('entity.group', 'densityX', 'densityY'))
 
-  df <- copy(data.xy)
-  dt <- groupDensity(df, 'entity.y', NULL, 'entity.panel')
+  dt <- groupDensity(data.xy, y='entity.y', group=NULL, panel='entity.panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt), c('entity.panel', 'densityX', 'densityY'))
 
-  df <- copy(data.xy)
-  dt <- groupDensity(df, 'entity.y', 'entity.group', 'entity.panel')
+  dt <- groupDensity(data.xy, y='entity.y', group='entity.group', panel='entity.panel')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
   expect_equal(names(dt), c('entity.group', 'entity.panel', 'densityX', 'densityY'))
@@ -127,18 +123,18 @@ test_that("groupSmoothedMean() returns consistent results", {
 })
 
 test_that("groupDensity() returns consistent results", {
-  dt <- groupDensity(data.xy,'entity.y')
+  dt <- groupDensity(data.xy, x=NULL, 'entity.y')
   expect_equal_to_reference(dt,"density.rds")
-  dt <- groupDensity(data.xy, 'entity.y','entity.group')
+  dt <- groupDensity(data.xy, x=NULL, 'entity.y','entity.group')
   expect_equal_to_reference(dt,"density.group.rds")
-  dt <- groupDensity(data.xy, 'entity.y', NULL, 'entity.panel')
+  dt <- groupDensity(data.xy, x=NULL, 'entity.y', group=NULL, 'entity.panel')
   expect_equal_to_reference(dt,"density.panel.rds")
-  dt <- groupDensity(data.xy, 'entity.y', 'entity.group', 'entity.panel')
+  dt <- groupDensity(data.xy, x=NULL, 'entity.y', 'entity.group', 'entity.panel')
   expect_equal_to_reference(dt,"density.group.panel.rds")
 })
 
 test_that("groupProportion() returns values that sum to 1", {
-  df <- data.frame("labels"=c("a","a","b","b","c"), "counts"=c(1,1, 1, 1, 1), "group"=c("g1","g2","g1","g2","g1"))
+  df <- data.table::data.table("labels"=c("a","a","b","b","c"), "counts"=c(1,1, 1, 1, 1), "group"=c("g1","g2","g1","g2","g1"))
   dt <- groupProportion(df, x="labels", y="counts")
   expect_equal(sum(dt$proportion[[1]]), 1)
   dt <- groupProportion(df, x="labels", y="counts", group="group")
@@ -146,7 +142,7 @@ test_that("groupProportion() returns values that sum to 1", {
 })
 
 test_that("groupProportion() maps to groupSize() correctly", {
-  df <- data.frame("labels"=c("a","a","b","b","a"), "counts"=c(1,1, 1, 1, 1))
+  df <- data.table::data.table("labels"=c("a","a","b","b","a"), "counts"=c(1,1, 1, 1, 1))
   dt_size <- groupSize(df, x="labels", y="counts")
   dt_prop <- groupProportion(df, x="labels", y="counts")
   expect_equal(dt_size$size[[1]]/sum(dt_size$size[[1]]), dt_prop$proportion[[1]])

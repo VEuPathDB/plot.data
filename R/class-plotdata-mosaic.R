@@ -118,15 +118,18 @@ mosaic.dt <- function(data, map, statistic = NULL, evilMode = c(FALSE, TRUE)) {
     stop("Must provide yAxisVariable for plot type mosaic.")
   }
 
+  x <- toColNameOrNull(xAxisVariable)
+  y <- toColNameOrNull(yAxisVariable)
+
   if (!is.null(statistic)) {
     if (!statistic %in% c('chiSq','bothRatios')) {
       stop('`statistic` argument must be one of either \'chiSq\' or \'bothRatios\', the second of which returns both odds ratios and relative risk.')
     }
-    if ((data.table::uniqueN(data[[toColNameOrNull(xAxisVariable)]]) > 2 || data.table::uniqueN(data[[yAxisVariable$variableId]]) > 2) && statistic == 'bothRatios') {
+    if ((data.table::uniqueN(data[[x]]) > 2 || data.table::uniqueN(data[[y]]) > 2) && statistic == 'bothRatios') {
       stop('Odds ratio and relative risk can only be calculated for 2x2 contingency tables. Please use statistic `chiSq` instead.')
     }
   } else {
-    if (data.table::uniqueN(data[[toColNameOrNull(xAxisVariable)]]) > 2 || data.table::uniqueN(data[[yAxisVariable$variableId]]) > 2) {
+    if (data.table::uniqueN(data[[x]]) > 2 || data.table::uniqueN(data[[y]]) > 2) {
       statistic <- 'chiSq'
     } else {
       statistic <- 'bothRatios'

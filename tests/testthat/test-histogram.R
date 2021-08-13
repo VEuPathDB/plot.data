@@ -188,19 +188,19 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport = viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport = viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
 
 
@@ -216,17 +216,17 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
 
 
   map <- data.frame('id' = c('entity.group', 'entity.var'), 
@@ -238,17 +238,17 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.group', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.group', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.group', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.group', 'binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.group', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.group', 'binLabel', 'value', 'binStart', 'binEnd'))
 
 
   map <- data.frame('id' = c('entity.var', 'entity.panel'), 
@@ -260,17 +260,17 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   map <- data.frame('id' = c('entity.var'), 
                     'plotRef' = c('xAxisVariable'), 
@@ -281,17 +281,17 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('binLabel', 'value', 'binStart', 'binEnd'))
 
 
   #this for dates
@@ -307,19 +307,19 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
 
 
@@ -334,17 +334,17 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
 
 
   map <- data.frame('id' = c('entity.group', 'entity.date'), 
@@ -356,17 +356,17 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.group', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.group', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.group', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.group', 'binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.group', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.group', 'binLabel', 'value', 'binStart', 'binEnd'))
 
 
   map <- data.frame('id' = c('entity.date', 'entity.panel'), 
@@ -378,17 +378,17 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.panel', 'binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   map <- data.frame('id' = c('entity.date'), 
                     'plotRef' = c('xAxisVariable'), 
@@ -399,17 +399,17 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('binLabel', 'binStart', 'binEnd', 'value'))
+  expect_equal(names(dt),c('binLabel', 'value', 'binStart', 'binEnd'))
 
 })
 
@@ -428,7 +428,7 @@ test_that("histogram() returns appropriately formatted json", {
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList),c('histogram','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$histogram),c('data','config'))
-  expect_equal(names(jsonList$histogram$data),c('overlayVariableDetails','facetVariableDetails','binLabel','binStart','binEnd','value'))
+  expect_equal(names(jsonList$histogram$data),c('overlayVariableDetails','facetVariableDetails','binLabel','value','binStart','binEnd'))
   expect_equal(names(jsonList$histogram$data$overlayVariableDetails),c('variableId','entityId','value'))
   expect_equal(names(jsonList$histogram$config),c('completeCases','plottedIncompleteCases','summary','viewport','binSlider','binSpec','xVariableDetails'))  
   expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId'))
@@ -455,7 +455,7 @@ test_that("histogram() returns appropriately formatted json", {
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList),c('histogram','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$histogram),c('data','config'))
-  expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','binStart','binEnd','value'))
+  expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','value','binStart','binEnd'))
   expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(nrow(jsonList$histogram$data$facetVariableDetails[[1]]), 2)
   expect_equal(names(jsonList$histogram$config),c('completeCases','plottedIncompleteCases','summary','viewport','binSlider','binSpec','xVariableDetails'))
@@ -473,7 +473,7 @@ test_that("histogram() returns appropriately formatted json", {
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList),c('histogram','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$histogram),c('data','config'))
-  expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','binStart','binEnd','value'))
+  expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','value','binStart','binEnd'))
   expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(nrow(jsonList$histogram$data$facetVariableDetails[[1]]), 2)
   expect_equal(names(jsonList$histogram$config),c('completeCases','plottedIncompleteCases','summary','viewport','binSlider','binSpec','xVariableDetails'))
