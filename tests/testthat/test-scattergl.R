@@ -37,9 +37,8 @@ test_that("scattergl.dt() returns plot data and config of the appropriate types"
 
 
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  df <- data.xy
 
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(data.xy, map, 'raw')
   expect_equal(class(unlist(dt$entity.panel)), 'character')
   expect_equal(class(unlist(dt$entity.group)), 'character')
   expect_equal(class(unlist(dt$seriesX)), 'character')
@@ -271,8 +270,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
 
 test_that("scattergl() returns appropriately formatted json", {
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  df <- data.xy
-  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
+  dt <- scattergl.dt(data.xy, map, 'smoothedMeanWithRaw')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
 
@@ -371,7 +369,7 @@ test_that("scattergl() returns appropriately formatted json", {
 
 test_that("scattergl.dt() returns correct information about missing data", {
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  df <- data.xy
+  df <- data.table::copy(data.xy)
   
   # Add 10 missing values to each column
   df$entity.x[sample(1:100, 10, replace=F)] <- NA
