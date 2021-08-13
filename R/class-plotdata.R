@@ -42,23 +42,29 @@ newPlotdata <- function(.dt = data.table(),
 
   x <- toColNameOrNull(xAxisVariable)
   xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
+  xShape <- emptyStringToNull(as.character(xAxisVariable$dataShape))
   y <- toColNameOrNull(yAxisVariable)
   yType <- emptyStringToNull(as.character(yAxisVariable$dataType))
+  yShape <- emptyStringToNull(as.character(yAxisVariable$dataShape))
   z <- toColNameOrNull(zAxisVariable)
   zType <- emptyStringToNull(as.character(zAxisVariable$dataType))
+  zShape <- emptyStringToNull(as.character(zAxisVariable$dataShape))
   group <- toColNameOrNull(overlayVariable)
   groupType <- emptyStringToNull(as.character(overlayVariable$dataType))
+  groupShape <- emptyStringToNull(as.character(overlayVariable$dataShape))
   facet1 <- toColNameOrNull(facetVariable1)
   facetType1 <- emptyStringToNull(as.character(facetVariable1$dataType))
+  facetShape1 <- emptyStringToNull(as.character(facetVariable1$dataShape))
   facet2 <- toColNameOrNull(facetVariable2)
   facetType2 <- emptyStringToNull(as.character(facetVariable2$dataType))
+  facetShape2 <- emptyStringToNull(as.character(facetVariable2$dataShape))
 
-  .dt[[x]] <- updateType(.dt[[x]], xType)
-  if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType) }
-  if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType) }
-  if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
-  if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1) }
-  if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2) }
+  .dt[[x]] <- updateType(.dt[[x]], xType, xShape)
+  if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType, yShape) }
+  if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType, zShape) }
+  if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape) }
+  if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) }
+  if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2, facetShape2) }
 
   varCols <- c(x, y, z, group, facet1, facet2)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
@@ -86,7 +92,7 @@ newPlotdata <- function(.dt = data.table(),
   # If overlay is continuous, it does not contribute to final groups
   overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
 
-  if (xType == 'STRING') {
+  if (xShape != 'CONTINUOUS') {
     .dt$dummy <- 1
     sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, collapse=F)
     .dt$dummy <- NULL
