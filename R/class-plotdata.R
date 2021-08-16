@@ -64,12 +64,12 @@ newPlotdata <- function(.dt = data.table(),
   facetType2 <- emptyStringToNull(as.character(facetVariable2$dataType))
   facetShape2 <- emptyStringToNull(as.character(facetVariable2$dataShape))
 
-  .dt[[x]] <- updateType(.dt[[x]], xType, xShape)
-  if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType, yShape) }
-  if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType, zShape) }
-  if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape) }
-  if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) }
-  if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2, facetShape2) }
+  # .dt[[x]] <- updateType(.dt[[x]], xType, xShape)
+  # if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType, yShape) }
+  # if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType, zShape) }
+  # if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape) }
+  # if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) }
+  # if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2, facetShape2) }
 
   varCols <- c(x, y, z, group, facet1, facet2)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
@@ -136,6 +136,7 @@ newPlotdata <- function(.dt = data.table(),
     do.call("<-", list(listValueVariable$variable$variableId, listValueVariable$variable))
     x <- toColNameOrNull(xAxisVariable)
     xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
+    xShape <- emptyStringToNull(as.character(xAxisVariable$dataShape))
   }
   
   
