@@ -6,7 +6,12 @@ makeVariableDetails <- function(value, variableId, entityId, displayLabel = NULL
       variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=value)
     }
   } else {
-    variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId))
+    if (length(variableId > 1)) {
+      #### Would this get confusing?
+      variableDetails <- list('variableId'=variableId, 'entityId'=entityId)
+    } else {
+      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId))
+    }
   }
 
   if (!is.null(displayLabel)) {
@@ -115,6 +120,10 @@ getJSON <- function(.pd, evilMode) {
   if ('zAxisVariable' %in% names(namedAttrList)) {
     namedAttrList$zVariableDetails <- makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId, namedAttrList$zAxisVariable$displayLabel)
     namedAttrList$zAxisVariable <- NULL
+  }
+  if ('listVariable' %in% names(namedAttrList)) {
+    namedAttrList$listVariableDetails <- makeVariableDetails(NULL, namedAttrList$listVariable$variableId, namedAttrList$listVariable$entityId, namedAttrList$listVariable$displayLabel)
+    namedAttrList$listVariable <- NULL
   }
   
   .pd <- addStrataVariableDetails(.pd)
