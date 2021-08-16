@@ -105,9 +105,10 @@ newPlotdata <- function(.dt = data.table(),
   #### Handle listvar
   listVariable <- NULL
   if (length(x) > 1) {
-    #### validate that listValueVariable$variableId not null
-    #### validate all the same entity, display name, type, shape
-    #### validateListVar(xAxisVariable, listValueVariable)
+    
+    # Validation
+    if (is.null(listValueVariable$variable$variableId)) stop("listValue error: variabeId must not be NULL")
+    xAxisVariable <- validateListVar(xAxisVariable)
     
     # Set variable, value names appropriately
     listEntityId <- xAxisVariable$entityId[[1]]

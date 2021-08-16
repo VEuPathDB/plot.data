@@ -150,6 +150,7 @@ validateBoxPD <- function(.box) {
   return(.box)
 }
 
+
 #' Box Plot as data.table
 #'
 #' This function returns a data.table of 
@@ -197,7 +198,9 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   
-  #### Listvar things
+  map <- validateMap(map)
+  
+
   # Only box knows which vars can be list, so it should handle validation
   # plotdata should only check to make sure there is just one list var
   #### ADD LISTVAR VALIDATION
@@ -205,6 +208,11 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   #### Ann think about this line. Maybe wrap into function with below?
   listValueVariable <- plotRefMapToList(map, 'listValueVariable')
   if (length(xAxisVariable$variableId) > 1) {
+    
+    # Ensure all variables are numbers
+    if (!all(xAxisVariable$dataType == 'NUMBER')){
+      stop(paste0("listVar error: All x vars must be of type NUMBER."))
+    }
     
     # since we're in box with x as listvar, know things about listValue
     if (is.null(listValueDisplayLabel)) listValueDisplayLabel <- 'yAxisVariable'

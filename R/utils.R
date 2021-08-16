@@ -450,38 +450,45 @@ remapListVar <- function(map, listVarPlotRef, newValuePlotRef, newVarId = 'melte
 }
 
 
-validateListVar <- function(map, listVarPlotRef) {
-  
-  # Only allow one plot element to be a list var 
-  if (length(listVarPlotRef) > 1) {
-    stop("Only one plot element can be a listVar.")
+validateListVar <- function(listVariable) {
+
+  # Require all repeated vars to have the same type, shape, and entity
+  if (length(unique(listVariable$entityId)) > 1 | length(unique(listVariable$dataType)) > 1 | length(unique(listVariable$dataShape)) > 1) {
+    stop("listVar error: all vars in a listVar must have the same entity id, type, and shape.")
   }
-  
-  # Ensure repeatedPlotRef is numeric
-  if (any(map$dataType[map$plotRef == listVarPlotRef] != 'NUMBER')) {
-    stop(paste0("All vars in ", listVarPlotRef, " must be of type NUMBER."))
+
+  return(listVariable)
+}
+
+validateMap <- function(map) {
+
+  # Check that fewer than 2 plotRefs have multiple variables assigned.
+  if (sum(table(map$plotRef) > 1) > 1) {
+    stop("map error: only one plotRef can be assigned to multiple variables.")
   }
 
   # Check to ensure if repeatedPlotRef is facet that there are no other facet vars.
-  if (listVarPlotRef == 'facetVariable1' & 'facetVariable2' %in% map$plotRef) {
-    stop("facetVariable2 should be NULL when using listVar for facetVariable1.")
+  if (any(duplicated(map$plotRef))) {
+    repeatedPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
+
+    # Do not allow repeated facet1 variable with a specified facet2 variable
+    if (repeatedPlotRef == 'facetVariable1' & 'facetVariable2' %in% map$plotRef) {
+      stop("facetVariable2 should be NULL when assigning multiple facetVariable1 variables.")
+    }
+
+
+    # Check we do not have too many vars -- restricted based on the rules in the data service
+    nVars <- sum(duplicated(map$plotRef))
+    if (repeatedPlotRef == 'xAxisVariable' & nVars > 10) {
+      stop("Too many values specified with listVar: maximum number of x axis values is 10.")
+    } else if (repeatedPlotRef == 'overlayVariable' & nVars > 8) {
+      stop("Too many values specified with listVar: maximum number of overlay values is 8.")
+    } else if (repeatedPlotRef == 'facetVariable1' & nVars > 25) {
+      stop("Too many values specified with listVar: maximum number of panels allowed is 25.")
+    }
   }
 
-  # Check we do not have too many vars -- restricted based on the rules in the data service
-  nVars <- length(map$id[map$plotRef == listVarPlotRef])
-  if (listVarPlotRef == 'xAxisVariable' & nVars > 10) {
-    stop("Too many values specified with listVar: maximum number of x axis values is 10.")
-  } else if (listVarPlotRef == 'overlayVariable' & nVars > 8) {
-    stop("Too many values specified with listVar: maximum number of overlay values is 8.")
-  } else if (listVarPlotRef == 'facetVariable1' & nVars > 25) {
-    stop("Too many values specified with listVar: maximum number of panels allowed is 25.")
-  }
-  
-  # Require all repeated vars to have the same type, shape, and entity
-  if (uniqueN(map$entityId[map$plotRef == listVarPlotRef]) > 1 | uniqueN(map$dataType[map$plotRef == listVarPlotRef]) > 1 | uniqueN(map$dataShape[map$plotRef == listVarPlotRef]) > 1) {
-    stop("All vars in a listVar must have the same entity id, type, and shape.")
-  }
 
-  return(listVarPlotRef)
+  return(map)
 }
 
