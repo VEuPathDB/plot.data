@@ -89,7 +89,7 @@ getJSON <- function(.pd, evilMode) {
     sampleSizeTable <- addStrataVariableDetails(sampleSizeTable)
     attr$names <- names(sampleSizeTable)
     sampleSizeTable <- setAttrFromList(sampleSizeTable, attr)
-    if ('xAxisVariable' %in% names(namedAttrList)) {
+    if ('xAxisVariable' %in% names(namedAttrList) & !('listVariable' %in% names(namedAttrList))) {
       if (namedAttrList$xAxisVariable$dataType == 'STRING') {
         x <- namedAttrList$xAxisVariable$variableId
         names(sampleSizeTable)[names(sampleSizeTable) == x] <- 'xVariableDetails'

@@ -93,15 +93,15 @@ newPlotdata <- function(.dt = data.table(),
   # If overlay is continuous, it does not contribute to final groups
   overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
 
-  #### Ann handle warning
-  if (xType == 'STRING') {
-    .dt$dummy <- 1
-    sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, collapse=F)
-    .dt$dummy <- NULL
-  } else {
-    sampleSizeTable <- groupSize(.dt, x=NULL, y=x, overlayGroup, panel, collapse=F)
-  }
-  sampleSizeTable$size <- lapply(sampleSizeTable$size, jsonlite::unbox)
+  # #### Ann handle warning
+  # if (xType == 'STRING') {
+  #   .dt$dummy <- 1
+  #   sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, collapse=F)
+  #   .dt$dummy <- NULL
+  # } else {
+  #   sampleSizeTable <- groupSize(.dt, x=NULL, y=x, overlayGroup, panel, collapse=F)
+  # }
+  # sampleSizeTable$size <- lapply(sampleSizeTable$size, jsonlite::unbox)
   
   
 
@@ -130,8 +130,20 @@ newPlotdata <- function(.dt = data.table(),
     
     # Assign to the appropriate var
     do.call("<-", list(listValueVariable$variable$variableId, listValueVariable$variable))
+    x <- toColNameOrNull(xAxisVariable)
+    xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
   }
-
+  
+  
+  if (xType == 'STRING') {
+    .dt$dummy <- 1
+    sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, collapse=F)
+    .dt$dummy <- NULL
+  } else {
+    sampleSizeTable <- groupSize(.dt, x=NULL, y=x, overlayGroup, panel, collapse=F)
+  }
+  sampleSizeTable$size <- lapply(sampleSizeTable$size, jsonlite::unbox)
+    
   
   if (is.null(xAxisVariable$dataType)) {
     xIsNum = all(!is.na(as.numeric(.dt[[x]])))
