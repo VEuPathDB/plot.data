@@ -64,12 +64,17 @@ newPlotdata <- function(.dt = data.table(),
   facetType2 <- emptyStringToNull(as.character(facetVariable2$dataType))
   facetShape2 <- emptyStringToNull(as.character(facetVariable2$dataShape))
 
-  # .dt[[x]] <- updateType(.dt[[x]], xType, xShape)
-  # if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType, yShape) }
-  # if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType, zShape) }
-  # if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape) }
-  # if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) }
-  # if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2, facetShape2) }
+  if (length(x) == 1) {
+    .dt[[x]] <- updateType(.dt[[x]], xType, xShape)
+  } else {
+    xVars <- lapply(.dt[, ..x], updateType, unique(xType), unique(xShape))
+    .dt[, (x):=xVars]
+  }
+  if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType, yShape) }
+  if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType, zShape) }
+  if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape) }
+  if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) }
+  if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2, facetShape2) }
 
   varCols <- c(x, y, z, group, facet1, facet2)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
@@ -96,18 +101,6 @@ newPlotdata <- function(.dt = data.table(),
 
   # If overlay is continuous, it does not contribute to final groups
   overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
-
-  # #### Ann handle warning
-  # if (xType == 'STRING') {
-  #   .dt$dummy <- 1
-  #   sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, collapse=F)
-  #   .dt$dummy <- NULL
-  # } else {
-  #   sampleSizeTable <- groupSize(.dt, x=NULL, y=x, overlayGroup, panel, collapse=F)
-  # }
-  # sampleSizeTable$size <- lapply(sampleSizeTable$size, jsonlite::unbox)
-  
-  
 
   #### Handle listvar
   listVariable <- NULL
