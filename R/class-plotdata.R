@@ -93,6 +93,7 @@ newPlotdata <- function(.dt = data.table(),
   # If overlay is continuous, it does not contribute to final groups
   overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
 
+  #### Ann handle warning
   if (xType == 'STRING') {
     .dt$dummy <- 1
     sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, collapse=F)
@@ -108,24 +109,27 @@ newPlotdata <- function(.dt = data.table(),
   listVariable <- NULL
   if (length(x) > 1) {
     #### validate that listValueVariable$variableId not null
+    #### validate all the same entity, display name, type, shape
     # Numeric x becomes y
+    
+    #### Ann handle names better
     listEntityId <- xAxisVariable$entityId[[1]]
     .dt <- data.table::melt(.dt, measure.vars = x,
                             variable.factor = FALSE,
                             variable.name= paste(listEntityId,'xAxisVariable', sep='.'),
-                            value.name=paste(listEntityId,listValueVariable$variableId, sep='.'))
+                            value.name=paste(listEntityId,listValueVariable$variable$variableId, sep='.'))
     
     # Replace x, y axis variable
     listVariable <- xAxisVariable
     # x is now shape=categorical (Use cases are type=string so far)
     xAxisVariable <- list('variableId' = 'xAxisVariable',
-                          'entityId' = unique(listVariable$entityId),
+                          'entityId' = unique(listValueVariable$variable$entityId),
                           'dataType' = 'STRING',
                           'dataShape' = 'CATEGORICAL',
-                          'displayLabel' = unique(listVariable$displayLabel))
+                          'displayLabel' = unique(listValueVariable$variable$displayLabel))
     
     # Assign to the appropriate var
-    do.call("<-", list(listValueVariable$variableId, listValueVariable))
+    do.call("<-", list(listValueVariable$variable$variableId, listValueVariable$variable))
   }
 
   

@@ -174,7 +174,7 @@ validateBoxPD <- function(.box) {
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
 #' @export
-box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE), evilMode = c(FALSE, TRUE)) {
+box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE), listValueDisplayLabel = NULL, evilMode = c(FALSE, TRUE)) {
 
   points <- matchArg(points)
   mean <- matchArg(mean)
@@ -201,14 +201,17 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   # Only box knows which vars can be list, so it should handle validation
   # plotdata should only check to make sure there is just one list var
   #### ADD LISTVAR VALIDATION
+  
+  #### Ann think about this line. Maybe wrap into function with below?
   listValueVariable <- plotRefMapToList(map, 'listValueVariable')
   if (length(xAxisVariable$variableId) > 1) {
     # since we're in box with x as listvar, know things about listValue
-    listValueVariable <- list('variableId' = 'yAxisVariable',
-                          'entityId' = unique(xAxisVariable$entityId),
-                          'dataType' = 'NUMBER',
-                          'dataShape' = 'CONTINUOUS',
-                          'displayLabel' = '')
+    listValueVariable <- list('variable' = list('variableId' = 'yAxisVariable',
+                                'entityId' = unique(xAxisVariable$entityId),
+                                'dataType' = 'NUMBER',
+                                'dataShape' = 'CONTINUOUS',
+                                'displayLabel' = ''),
+                              'valueName' = listValueDisplayLabel)
   }
 
   .box <- newBoxPD(.dt = data,
