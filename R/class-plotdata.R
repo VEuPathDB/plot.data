@@ -114,18 +114,24 @@ newPlotdata <- function(.dt = data.table(),
   if (length(x) > 1) {
     #### validate that listValueVariable$variableId not null
     #### validate all the same entity, display name, type, shape
-    # Numeric x becomes y
     
-    #### Ann handle names better
+    # Set variable, value names appropriately
     listEntityId <- xAxisVariable$entityId[[1]]
+    if(is.null(listEntityId)) {
+      variable.name <- 'xAxisVariable'
+      value.name <- listValueVariable$variable$variableId
+    } else {
+      variable.name <- paste(listEntityId,'xAxisVariable', sep='.')
+      value.name <- paste(listEntityId,listValueVariable$variable$variableId, sep='.')
+    }
+  
     .dt <- data.table::melt(.dt, measure.vars = x,
                             variable.factor = FALSE,
-                            variable.name= paste(listEntityId,'xAxisVariable', sep='.'),
-                            value.name=paste(listEntityId,listValueVariable$variable$variableId, sep='.'))
+                            variable.name= variable.name,
+                            value.name=value.name)
     
-    # Replace x, y axis variable
+    # Re-assign xAxisVariable
     listVariable <- xAxisVariable
-    # x is now shape=categorical (Use cases are type=string so far)
     xAxisVariable <- list('variableId' = 'xAxisVariable',
                           'entityId' = unique(listValueVariable$variable$entityId),
                           'dataType' = 'STRING',
@@ -133,7 +139,7 @@ newPlotdata <- function(.dt = data.table(),
                           'displayLabel' = unique(listValueVariable$variable$displayLabel))
     
     # Assign to the appropriate var
-    do.call("<-", list(listValueVariable$variable$variableId, listValueVariable$variable))
+    do.call("<-", list(listValueVariable$plotRef, listValueVariable$variable))
     x <- toColNameOrNull(xAxisVariable)
     xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
     xShape <- emptyStringToNull(as.character(xAxisVariable$dataShape))

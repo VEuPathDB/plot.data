@@ -205,13 +205,16 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   #### Ann think about this line. Maybe wrap into function with below?
   listValueVariable <- plotRefMapToList(map, 'listValueVariable')
   if (length(xAxisVariable$variableId) > 1) {
+    
     # since we're in box with x as listvar, know things about listValue
-    listValueVariable <- list('variable' = list('variableId' = 'yAxisVariable',
-                                'entityId' = unique(xAxisVariable$entityId),
-                                'dataType' = 'NUMBER',
-                                'dataShape' = 'CONTINUOUS',
-                                'displayLabel' = ''),
-                              'valueName' = listValueDisplayLabel)
+    if (is.null(listValueDisplayLabel)) listValueDisplayLabel <- 'yAxisVariable'
+    
+    listValueVariable <- list('variable' = list('variableId' = listValueDisplayLabel,
+                                              'entityId' = unique(xAxisVariable$entityId),
+                                              'dataType' = 'NUMBER',
+                                              'dataShape' = 'CONTINUOUS',
+                                              'displayLabel' = ''),
+                              'plotRef' = 'yAxisVariable')
   }
 
   .box <- newBoxPD(.dt = data,
