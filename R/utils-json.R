@@ -1,9 +1,9 @@
 makeVariableDetails <- function(value, variableId, entityId, displayLabel = NULL) {
   if (!is.null(value)) {
     if (length(value) == 1) {
-      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=jsonlite::unbox(value))
+      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=jsonlite::unbox(as.character(value)))
     } else {
-      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=value)
+      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=as.character(value))
     }
   } else {
     if (length(variableId > 1)) {
@@ -89,9 +89,9 @@ getJSON <- function(.pd, evilMode) {
     sampleSizeTable <- addStrataVariableDetails(sampleSizeTable)
     attr$names <- names(sampleSizeTable)
     sampleSizeTable <- setAttrFromList(sampleSizeTable, attr)
-    if ('xAxisVariable' %in% names(namedAttrList) & !('listVariable' %in% names(namedAttrList))) {
-      if (namedAttrList$xAxisVariable$dataType == 'STRING') {
-        x <- namedAttrList$xAxisVariable$variableId
+    if ('xAxisVariable' %in% names(namedAttrList)) {
+      if (namedAttrList$xAxisVariable$dataShape != "CONTINUOUS") {
+        x <- toColNameOrNull(namedAttrList$xAxisVariable)
         names(sampleSizeTable)[names(sampleSizeTable) == x] <- 'xVariableDetails'
         sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, x, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
       }

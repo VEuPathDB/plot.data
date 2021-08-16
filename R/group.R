@@ -148,25 +148,26 @@ groupDensity <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse
 
 #' @importFrom purrr reduce
 groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL, collapse = TRUE) {
-  
-  data.table::setnames(data, x, 'x')
-  data.table::setnames(data, y, 'y')
+
+  dt <- data.table::copy(data)
+  data.table::setnames(dt, x, 'x')
+  data.table::setnames(dt, y, 'y')
   y <- 'y'
   x <- 'x'
 
-  maxGroupSize <- max(groupSize(data, NULL, y, group, panel, collapse=F)$size)
+  maxGroupSize <- max(groupSize(dt, NULL, y, group, panel, collapse=F)$size)
   method <- 'loess'
   if (maxGroupSize > 1000) method <- 'gam'
 
-  byCols <- colnames(data)[colnames(data) %in% c(group, panel)]
+  byCols <- colnames(dt)[colnames(dt) %in% c(group, panel)]
   if (all(is.null(c(group,panel)))) {
-    dt <- data[, {smoothed <- smoothedMean(.SD, method, collapse);
+    dt <- dt[, {smoothed <- smoothedMean(.SD, method, collapse);
                   list(smoothedMeanX = smoothed[[1]],
                        smoothedMeanY = smoothed[[2]],
                        smoothedMeanSE = smoothed[[3]],
                        smoothedMeanError = smoothed[[4]])}]
   } else {
-    dt <- data[, {smoothed <- smoothedMean(.SD, method, collapse);
+    dt <- dt[, {smoothed <- smoothedMean(.SD, method, collapse);
                   list(smoothedMeanX = smoothed[[1]],
                        smoothedMeanY = smoothed[[2]],
                        smoothedMeanSE = smoothed[[3]],
@@ -181,20 +182,21 @@ groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL, collapse =
 }
 
 groupBestFitLine <- function(data, x, y, group = NULL, panel = NULL, collapse = TRUE) {
-  
-  data.table::setnames(data, x, 'x')
-  data.table::setnames(data, y, 'y')
+ 
+  dt <- data.table::copy(data) 
+  data.table::setnames(dt, x, 'x')
+  data.table::setnames(dt, y, 'y')
   y <- 'y'
   x <- 'x'
   
-  byCols <- colnames(data)[colnames(data) %in% c(group, panel)]
+  byCols <- colnames(dt)[colnames(dt) %in% c(group, panel)]
   if (all(is.null(c(group,panel)))) {
-    dt <- data[, {bestFitLine <- bestFitLine(.SD, collapse);
+    dt <- dt[, {bestFitLine <- bestFitLine(.SD, collapse);
                   list(bestFitLineX = bestFitLine[[1]],
                        bestFitLineY = bestFitLine[[2]],
                        r2 = bestFitLine[[3]])}]
   } else {
-    dt <- data[, {bestFitLine <- bestFitLine(.SD, collapse);
+    dt <- dt[, {bestFitLine <- bestFitLine(.SD, collapse);
                   list(bestFitLineX = bestFitLine[[1]],
                        bestFitLineY = bestFitLine[[2]],
                        r2 = bestFitLine[[3]])},

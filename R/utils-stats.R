@@ -3,7 +3,7 @@ roundedSD <- function(x, digits = 4, ...) {
 }
 
 roundedMean <- function(x, digits = 4, ...) {
-  as.list(round(mean(x, ...), digits))
+  c(round(mean(x, ...), digits))
 } 
 
 roundedQuantile <- function(x, digits = 4, ...) {
