@@ -32,7 +32,8 @@ addVariableDetailsToColumn <- function(.pd, variableIdColName) {
   if ('overlayVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == toColNameOrNull(namedAttrList$overlayVariable)] <- list(makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel))
   if ('facetVariable1' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == toColNameOrNull(namedAttrList$facetVariable1)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId, namedAttrList$facetVariable1$displayLabel))
   if ('facetVariable2' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == toColNameOrNull(namedAttrList$facetVariable2)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel))
-
+  if ('listVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] %in% toColNameOrNull(namedAttrList$listVariable)] <- lapply(seq_along(namedAttrList$listVariable$variableId), function(varInd) {makeVariableDetails(NULL, namedAttrList$listVariable$variableId[varInd], namedAttrList$listVariable$entityId[varInd], namedAttrList$listVariable$displayLabel[varInd])})
+  
   return(.pd)
 }
 

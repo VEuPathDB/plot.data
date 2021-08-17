@@ -185,16 +185,6 @@ test_that("box.dt() accepts listVars for both x axis and facet vars", {
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
 
-  
-  # lapply(lapply(dt$xVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId), list)
-  namedAttrList <- getPDAttributes(dt)
-  facet1 <- namedAttrList$facetVariable1$variableId
-  names(dt)[names(dt) == facet1] <- 'facetVariableDetails'
-  dt$facetVariableDetails <- lapply(lapply(dt$facetVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId), list)
-  
-  names(dt)[names(dt) == 'group'] <- 'overlayVariableDetails'
-  ovd <- lapply(dt$overlayVariableDetails, makeVariableDetails, group, namedAttrList$overlayVariable$entityId)
-  
 })
 
 test_that("box() returns appropriately formatted json", {
