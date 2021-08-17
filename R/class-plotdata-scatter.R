@@ -183,23 +183,24 @@ scattergl.dt <- function(data,
       stop('Density curves can only be provided for numeric independent axes.')
     }
   }
-  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  if (is.null(yAxisVariable$variableId)) {
-    #### stop("Must provide yAxisVariable for plot type scatter.")
-  } else {
-    if (yAxisVariable$dataType != 'NUMBER' & value != 'raw') {
-      stop('Trend lines can only be provided for numeric dependent axes.')
-    }
-  } 
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  if (!is.null(overlayVariable$variableId)) {
-    #### Ann fix
+  if (!is.null(overlayVariable$variableId) & length(overlayVariable$variableId) == 1) {
     if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
       stop('Continuous overlay variables cannot be used with trend lines.')
     }
   }
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
+  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+  if (is.null(yAxisVariable$variableId)) {
+    if (length(overlayVariable$variableId) == 1 & length(facetVariable1$variableId) == 1) {
+      stop("Must provide xAxisVariable for plot type scatter.")
+    }
+  } else {
+    if (yAxisVariable$dataType != 'NUMBER' & value != 'raw') {
+      stop('Trend lines can only be provided for numeric dependent axes.')
+    }
+  } 
 
   #### Ann think about this line. Maybe wrap into function with below?
   listValueVariable <- plotRefMapToList(map, 'listValueVariable')

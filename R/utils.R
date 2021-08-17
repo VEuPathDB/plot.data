@@ -190,6 +190,7 @@ emptyStringToPoint <- function(x) {
 #' @return non-empty character vector or NULL
 #' @export
 emptyStringToNull <- function(x) {
+  x <- unlist(x)
   if (is.null(x)) { return(NULL) }
   if (length(x) == 0) { return(NULL) }
   if (all(x == "")) { return(NULL) }
