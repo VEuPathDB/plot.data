@@ -37,11 +37,10 @@ newPlotdata <- function(.dt = data.table(),
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL),
                          evilMode = logical(),
-                         listValueVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                         listVarDetails = list('listValueVariable' = NULL,
+                                               'listValuePlotRef' = NULL,
+                                               'listVarPlotRef' = NULL,
+                                               'listVarDisplayLabel' = NULL),
                          ...,
                          class = character()) {
 
@@ -119,17 +118,17 @@ newPlotdata <- function(.dt = data.table(),
   if (length(x) > 1) {
     
     # Validation
-    if (is.null(listValueVariable$variable$variableId)) stop("listValue error: variabeId must not be NULL")
+    if (is.null(listVarDetails$listValueVariable$variableId)) stop("listValue error: variableId must not be NULL")
     xAxisVariable <- validateListVar(xAxisVariable)
     
     # Set variable, value names appropriately
     listEntityId <- xAxisVariable$entityId[[1]]
     if(is.null(listEntityId)) {
       variable.name <- 'xAxisVariable'
-      value.name <- listValueVariable$variable$variableId
+      value.name <- listVarDetails$listValueVariable$variableId
     } else {
       variable.name <- paste(listEntityId,'xAxisVariable', sep='.')
-      value.name <- paste(listEntityId,listValueVariable$variable$variableId, sep='.')
+      value.name <- paste(listEntityId,listVarDetails$listValueVariable$variableId, sep='.')
     }
   
     .dt <- data.table::melt(.dt, measure.vars = x,
@@ -140,13 +139,13 @@ newPlotdata <- function(.dt = data.table(),
     # Re-assign xAxisVariable
     listVariable <- xAxisVariable
     xAxisVariable <- list('variableId' = 'xAxisVariable',
-                          'entityId' = unique(listValueVariable$variable$entityId),
+                          'entityId' = unique(listVarDetails$listValueVariable$entityId),
                           'dataType' = 'STRING',
                           'dataShape' = 'CATEGORICAL',
-                          'displayLabel' = unique(listValueVariable$variable$displayLabel))
+                          'displayLabel' = listVarDetails$listVarDisplayLabel)
     
     # Assign to the appropriate var
-    do.call("<-", list(listValueVariable$plotRef, listValueVariable$variable))
+    do.call("<-", list(listVarDetails$listValuePlotRef, listVarDetails$listValueVariable))
     x <- toColNameOrNull(xAxisVariable)
     xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
     xShape <- emptyStringToNull(as.character(xAxisVariable$dataShape))
@@ -156,17 +155,17 @@ newPlotdata <- function(.dt = data.table(),
   if (length(group) > 1) {
     
     # Validation
-    if (is.null(listValueVariable$variable$variableId)) stop("listValue error: variabeId must not be NULL")
+    if (is.null(listVarDetails$listValueVariable$variableId)) stop("listValue error: variableId must not be NULL")
     overlayVariable <- validateListVar(overlayVariable)
     
     # Set variable, value names appropriately
     listEntityId <- overlayVariable$entityId[[1]]
     if(is.null(listEntityId)) {
       variable.name <- 'overlayVariable'
-      value.name <- listValueVariable$variable$variableId
+      value.name <- listVarDetails$listValueVariable$variableId
     } else {
       variable.name <- paste(listEntityId,'overlayVariable', sep='.')
-      value.name <- paste(listEntityId,listValueVariable$variable$variableId, sep='.')
+      value.name <- paste(listEntityId,listVarDetails$listValueVariable$variableId, sep='.')
     }
     
     .dt <- data.table::melt(.dt, measure.vars = group,
@@ -177,13 +176,13 @@ newPlotdata <- function(.dt = data.table(),
     # Re-assign overlayVariable
     listVariable <- overlayVariable
     overlayVariable <- list('variableId' = 'overlayVariable',
-                          'entityId' = unique(listValueVariable$variable$entityId),
+                          'entityId' = unique(listVarDetails$listValueVariable$entityId),
                           'dataType' = 'STRING',
                           'dataShape' = 'CATEGORICAL',
-                          'displayLabel' = unique(listValueVariable$variable$displayLabel))
+                          'displayLabel' = listVarDetails$listVarDisplayLabel)
     
     # Assign to the appropriate var
-    do.call("<-", list(listValueVariable$plotRef, listValueVariable$variable))
+    do.call("<-", list(listVarDetails$listValuePlotRef, listVarDetails$listValueVariable))
     group <- toColNameOrNull(overlayVariable)
     groupType <- emptyStringToNull(as.character(overlayVariable$dataType))
     groupShape <- emptyStringToNull(as.character(overlayVariable$dataShape))
@@ -193,17 +192,17 @@ newPlotdata <- function(.dt = data.table(),
   if (length(facet1) > 1) {
     
     # Validation
-    if (is.null(listValueVariable$variable$variableId)) stop("listValue error: variabeId must not be NULL")
+    if (is.null(listVarDetails$listValueVariable$variableId)) stop("listValue error: variableId must not be NULL")
     facetVariable1 <- validateListVar(facetVariable1)
     
     # Set variable, value names appropriately
     listEntityId <- facetVariable1$entityId[[1]]
     if(is.null(listEntityId)) {
       variable.name <- 'facetVariable1'
-      value.name <- listValueVariable$variable$variableId
+      value.name <- listVarDetails$listValueVariable$variableId
     } else {
       variable.name <- paste(listEntityId,'facetVariable1', sep='.')
-      value.name <- paste(listEntityId,listValueVariable$variable$variableId, sep='.')
+      value.name <- paste(listEntityId,listVarDetails$listValueVariable$variableId, sep='.')
     }
     
     .dt <- data.table::melt(.dt, measure.vars = facet1,
@@ -214,13 +213,13 @@ newPlotdata <- function(.dt = data.table(),
     # Re-assign facetVariable1
     listVariable <- facetVariable1
     facetVariable1 <- list('variableId' = 'facetVariable1',
-                          'entityId' = unique(listValueVariable$variable$entityId),
+                          'entityId' = unique(listVarDetails$listValueVariable$entityId),
                           'dataType' = 'STRING',
                           'dataShape' = 'CATEGORICAL',
-                          'displayLabel' = unique(listValueVariable$variable$displayLabel))
+                          'displayLabel' = listVarDetails$listVarDisplayLabel)
     
     # Assign to the appropriate var
-    do.call("<-", list(listValueVariable$plotRef, listValueVariable$variable))
+    do.call("<-", list(listVarDetails$listValuePlotRef, listVarDetails$listValueVariable))
     facet1 <- toColNameOrNull(facetVariable1)
     panel <- facet1
     facetType1 <- emptyStringToNull(as.character(facetVariable1$dataType))

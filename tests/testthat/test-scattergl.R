@@ -347,23 +347,27 @@ test_that("scattergl.dt() handles list vars as overlay and facet1", {
   df$entity.z <- df$entity.x + df$entity.y
   df$entity.w <- df$entity.x - df$entity.y
   
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, map, 'raw', listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 12)
   expect_equal(names(dt), c('entity.group', 'entity.facetVariable1', 'seriesX', 'seriesY'))
   expect_equal(unique(dt$entity.facetVariable1), c('entity.x', 'entity.y', 'entity.z'))
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
+  expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
+  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'listValueName')
   
   map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.w', 'entity.group'), 'plotRef' = c('overlayVariable', 'overlayVariable', 'overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, map, 'raw', listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 12)
   expect_equal(names(dt), c('entity.overlayVariable', 'entity.group', 'seriesX', 'seriesY'))
   expect_equal(unique(dt$entity.overlayVariable), c('entity.x', 'entity.y', 'entity.z'))
   expect_equal(attr(dt, 'overlayVariable')$variableId, 'overlayVariable')
+  expect_equal(attr(dt, 'overlayVariable')$displayLabel, 'listVarName')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
+  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'listValueName')
   
 })
 

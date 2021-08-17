@@ -163,27 +163,33 @@ test_that("box.dt() returns an appropriately sized data.table", {
 test_that("box.dt() accepts listVars for both x axis and facet vars", {  
   ## Case when we input multiple vars as one to x axis
   map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.group'), 'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
   df <- data.xy
   df[, entity.z := entity.x+entity.y]
-  dt <- box.dt(df, map, 'none', FALSE)
+  
+  dt <- box.dt(df, map, 'none', FALSE, listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 4)
   expect_equal(names(dt),c('entity.group', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
   expect_equal(unique(dt$label)[[1]], c('entity.x','entity.y','entity.z'))
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
+  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'listValueName')
   expect_equal(attr(dt, 'xAxisVariable')$variableId, 'xAxisVariable')
+  expect_equal(attr(dt, 'xAxisVariable')$displayLabel, 'listVarName')
 
   
   ## Case when we input multiple vars as one to facet 1
   map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.group'), 'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- box.dt(df, map, 'none', FALSE)
+  dt <- box.dt(df, map, 'none', FALSE, listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt),c('entity.facetVariable1', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
   expect_equal(dt$entity.facetVariable1, c('entity.x','entity.y','entity.z'))
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
+  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'listValueName')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
+  expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
 
 })
 

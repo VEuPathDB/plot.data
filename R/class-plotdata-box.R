@@ -28,7 +28,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                          mean = logical(),
                          computeStats = logical(),
                          evilMode = logical(),
-                         listValueVariable = list(),
+                         listVarDetails = list(),
                          ...,
                          class = character()) {
 
@@ -39,7 +39,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
-                     listValueVariable = listValueVariable,
+                     listVarDetails = listVarDetails,
                      class = "boxplot")
 
   attr <- attributes(.pd)
@@ -175,7 +175,14 @@ validateBoxPD <- function(.box) {
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
 #' @export
-box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE), listValueDisplayLabel = NULL, evilMode = c(FALSE, TRUE)) {
+box.dt <- function(data, 
+                   map,
+                   points = c('outliers', 'all', 'none'),
+                   mean = c(FALSE, TRUE),
+                   computeStats = c(TRUE, FALSE),
+                   listVarDisplayLabel = NULL,
+                   listValueDisplayLabel = NULL,
+                   evilMode = c(FALSE, TRUE)) {
 
   points <- matchArg(points)
   mean <- matchArg(mean)
@@ -202,6 +209,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
   
   
   #### Ann think about this line. Maybe wrap into function with below?
+  #### This is the wrong way to make a null one. Do better.
   listValueVariable <- plotRefMapToList(map, 'listValueVariable')
   if (length(xAxisVariable$variableId) > 1) {
     
@@ -213,12 +221,14 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     # since we're in box with x as listvar, know things about listValue
     if (is.null(listValueDisplayLabel)) listValueDisplayLabel <- 'yAxisVariable'
     
-    listValueVariable <- list('variable' = list('variableId' = listValueDisplayLabel,
+    listVarDetails <- list('listValueVariable' = list('variableId' = 'yAxisVariable',
                                               'entityId' = unique(xAxisVariable$entityId),
                                               'dataType' = 'NUMBER',
                                               'dataShape' = 'CONTINUOUS',
-                                              'displayLabel' = ''),
-                              'plotRef' = 'yAxisVariable')
+                                              'displayLabel' = listValueDisplayLabel),
+                              'listValuePlotRef' = 'yAxisVariable',
+                              'listVarPlotRef' = 'xAxisVariable',
+                              'listVarDisplayLabel' = listVarDisplayLabel)
   }
 
   if (length(facetVariable1$variableId) > 1) {
@@ -235,12 +245,14 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     
     if (is.null(listValueDisplayLabel)) listValueDisplayLabel <- 'yAxisVariable'
     
-    listValueVariable <- list('variable' = list('variableId' = listValueDisplayLabel,
+    listVarDetails <- list('listValueVariable' = list('variableId' = 'yAxisVariable',
                                               'entityId' = unique(facetVariable1$entityId),
                                               'dataType' = 'NUMBER',
                                               'dataShape' = 'CONTINUOUS',
-                                              'displayLabel' = ''),
-                              'plotRef' = 'yAxisVariable')
+                                              'displayLabel' = listValueDisplayLabel),
+                              'listValuePlotRef' = 'yAxisVariable',
+                              'listVarPlotRef' = 'facetVariable1',
+                              'listVarDisplayLabel' = listVarDisplayLabel)
   }
 
   .box <- newBoxPD(.dt = data,
@@ -253,7 +265,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                     mean = mean,
                     computeStats = computeStats,
                     evilMode = evilMode,
-                    listValueVariable=listValueVariable)
+                    listVarDetails = listVarDetails)
   
   
   .box <- validateBoxPD(.box)
@@ -286,7 +298,14 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
-box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE), evilMode = c(FALSE, TRUE)) {
+box <- function(data,
+                map,
+                points = c('outliers', 'all', 'none'),
+                mean = c(FALSE, TRUE),
+                computeStats = c(TRUE, FALSE),
+                listVarDisplayLabel = NULL,
+                listValueDisplayLabel = NULL,
+                evilMode = c(FALSE, TRUE)) {
 
   points <- matchArg(points)
   mean <- matchArg(mean)

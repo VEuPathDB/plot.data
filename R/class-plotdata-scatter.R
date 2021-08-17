@@ -26,7 +26,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                                               'displayLabel' = NULL),
                          value = character(),
                          evilMode = logical(),
-                         listValueVariable = list(),
+                         listVarDetails = list(),
                          ...,
                          class = character()) {
 
@@ -37,7 +37,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
-                     listValueVariable = listValueVariable,
+                     listVarDetails = listVarDetails,
                      class = "scatterplot")
 
   attr <- attributes(.pd)
@@ -165,6 +165,7 @@ validateScatterPD <- function(.scatter) {
 scattergl.dt <- function(data, 
                          map, 
                          value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
+                         listVarDisplayLabel = NULL,
                          listValueDisplayLabel = NULL,
                          evilMode = c(FALSE, TRUE)) {
 
@@ -211,14 +212,14 @@ scattergl.dt <- function(data,
       stop("listVar error: All overlay vars must be of type NUMBER.")
     }
     
-    if (is.null(listValueDisplayLabel)) listValueDisplayLabel <- 'yAxisVariable'
-    
-    listValueVariable <- list('variable' = list('variableId' = listValueDisplayLabel,
+    listVarDetails <- list('listValueVariable' = list('variableId' = 'yAxisVariable',
                                               'entityId' = unique(overlayVariable$entityId),
                                               'dataType' = 'NUMBER',
                                               'dataShape' = 'CONTINUOUS',
-                                              'displayLabel' = ''),
-                              'plotRef' = 'yAxisVariable')
+                                              'displayLabel' = listValueDisplayLabel),
+                              'listValuePlotRef' = 'yAxisVariable',
+                              'listVarPlotRef' = 'overlayVariable',
+                              'listVarDisplayLabel' = listVarDisplayLabel)
   }
 
   if (length(facetVariable1$variableId) > 1) {
@@ -228,14 +229,14 @@ scattergl.dt <- function(data,
       stop("listVar error: All facet1 vars must be of type NUMBER.")
     }
     
-    if (is.null(listValueDisplayLabel)) listValueDisplayLabel <- 'yAxisVariable'
-    
-    listValueVariable <- list('variable' = list('variableId' = listValueDisplayLabel,
+    listVarDetails <- list('listValueVariable' = list('variableId' = 'yAxisVariable',
                                               'entityId' = unique(facetVariable1$entityId),
                                               'dataType' = 'NUMBER',
                                               'dataShape' = 'CONTINUOUS',
-                                              'displayLabel' = ''),
-                              'plotRef' = 'yAxisVariable')
+                                              'displayLabel' = listValueDisplayLabel),
+                              'listValuePlotRef' = 'yAxisVariable',
+                              'listVarPlotRef' = 'facetVariable1',
+                              'listVarDisplayLabel' = listVarDisplayLabel)
   }
 
   .scatter <- newScatterPD(.dt = data,
@@ -246,7 +247,7 @@ scattergl.dt <- function(data,
                             facetVariable2 = facetVariable2,
                             value = value,
                             evilMode = evilMode,
-                            listValueVariable = listValueVariable)
+                            listVarDetails = listVarDetails)
 
   .scatter <- validateScatterPD(.scatter)
 
@@ -280,7 +281,12 @@ scattergl.dt <- function(data,
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
-scattergl <- function(data, map, value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'), evilMode = c(FALSE, TRUE)) {
+scattergl <- function(data,
+                      map,
+                      value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
+                      listVarDisplayLabel = NULL,
+                      listValueDisplayLabel = NULL,
+                      evilMode = c(FALSE, TRUE)) {
 
   value <- matchArg(value)
   evilMode <- matchArg(evilMode)
