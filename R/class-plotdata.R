@@ -72,7 +72,14 @@ newPlotdata <- function(.dt = data.table(),
   }
   if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType, yShape) }
   if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType, zShape) }
-  if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape) }
+  if (!is.null(group)) {
+    if (length(group) == 1) {
+      .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape)
+    } else {
+      groupVars <- lapply(.dt[, ..group], updateType, unique(groupType), unique(groupShape))
+      .dt[, (group):=groupVars]
+    }
+  }
   if (!is.null(facet1)) { 
     if (length(facet1)==1) {
       .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1)
@@ -81,7 +88,6 @@ newPlotdata <- function(.dt = data.table(),
       .dt[, (facet1):=facet1Vars]
     }
   }
-    
   if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2, facetShape2) }
 
   varCols <- c(x, y, z, group, facet1, facet2)
@@ -96,6 +102,7 @@ newPlotdata <- function(.dt = data.table(),
   .dt <- .dt[, myCols, with=FALSE]
 
   completeCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]))
+  #### If we have a listvar, since everything gets directed to y we should just skip this step?
   if (evilMode) {
     if (!is.null(group)) { .dt[[group]][is.na(.dt[[group]])] <- 'No data' }
     if (!is.null(panel)) { .dt[[panel]][is.na(.dt[[panel]])] <- 'No data' }
@@ -106,9 +113,6 @@ newPlotdata <- function(.dt = data.table(),
     .dt <- .dt[complete.cases(.dt),]
   }
   plottedIncompleteCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]) - completeCases)
-
-  # If overlay is continuous, it does not contribute to final groups
-  overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
 
   #### Handle listvar
   listVariable <- NULL
@@ -146,6 +150,44 @@ newPlotdata <- function(.dt = data.table(),
     x <- toColNameOrNull(xAxisVariable)
     xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
     xShape <- emptyStringToNull(as.character(xAxisVariable$dataShape))
+    data.table::setcolorder(.dt, c(x, toColNameOrNull(yAxisVariable), z, group, panel))
+  }
+
+  if (length(group) > 1) {
+    
+    # Validation
+    if (is.null(listValueVariable$variable$variableId)) stop("listValue error: variabeId must not be NULL")
+    overlayVariable <- validateListVar(overlayVariable)
+    
+    # Set variable, value names appropriately
+    listEntityId <- overlayVariable$entityId[[1]]
+    if(is.null(listEntityId)) {
+      variable.name <- 'overlayVariable'
+      value.name <- listValueVariable$variable$variableId
+    } else {
+      variable.name <- paste(listEntityId,'overlayVariable', sep='.')
+      value.name <- paste(listEntityId,listValueVariable$variable$variableId, sep='.')
+    }
+    
+    .dt <- data.table::melt(.dt, measure.vars = group,
+                            variable.factor = FALSE,
+                            variable.name= variable.name,
+                            value.name=value.name)
+    
+    # Re-assign overlayVariable
+    listVariable <- overlayVariable
+    overlayVariable <- list('variableId' = 'overlayVariable',
+                          'entityId' = unique(listValueVariable$variable$entityId),
+                          'dataType' = 'STRING',
+                          'dataShape' = 'CATEGORICAL',
+                          'displayLabel' = unique(listValueVariable$variable$displayLabel))
+    
+    # Assign to the appropriate var
+    do.call("<-", list(listValueVariable$plotRef, listValueVariable$variable))
+    group <- toColNameOrNull(overlayVariable)
+    groupType <- emptyStringToNull(as.character(overlayVariable$dataType))
+    groupShape <- emptyStringToNull(as.character(overlayVariable$dataShape))
+    data.table::setcolorder(.dt, c(x, toColNameOrNull(yAxisVariable), z, group, panel))
   }
   
   if (length(facet1) > 1) {
@@ -183,9 +225,13 @@ newPlotdata <- function(.dt = data.table(),
     panel <- facet1
     facetType1 <- emptyStringToNull(as.character(facetVariable1$dataType))
     facetShape1 <- emptyStringToNull(as.character(facetVariable1$dataShape))
+
+    data.table::setcolorder(.dt, c(x, toColNameOrNull(yAxisVariable), z, group, panel))
   }
   
   
+  # If overlay is continuous and NOT a listvar, it does not contribute to final groups
+  overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
 
   if (xShape != 'CONTINUOUS') {
     .dt$dummy <- 1

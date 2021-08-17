@@ -217,31 +217,6 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('densityX', 'densityY'))
-  
-  
-  # Cases with repeated vars for one plot element
-  map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.w', 'entity.group'), 'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  df <- data.xy
-  df$entity.z <- df$entity.x + df$entity.y
-  df$entity.w <- df$entity.x - df$entity.y
-  
-  dt <- scattergl.dt(df, map, 'raw')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt), 12)
-  expect_equal(names(dt), c('entity.group', 'meltedVariable', 'seriesX', 'seriesY'))
-  expect_equal(unique(dt$meltedVariable), c('entity.x', 'entity.y', 'entity.z'))
-  expect_equal(attr(dt, 'facetVariable1')$variableId, 'meltedVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'meltedValue')
-  
-  map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.w', 'entity.group'), 'plotRef' = c('overlayVariable', 'overlayVariable', 'overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  
-  dt <- scattergl.dt(df, map, 'raw')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt), 12)
-  expect_equal(names(dt), c('meltedVariable', 'entity.group', 'seriesX', 'seriesY'))
-  expect_equal(unique(dt$meltedVariable), c('entity.x', 'entity.y', 'entity.z'))
-  expect_equal(attr(dt, 'overlayVariable')$variableId, 'meltedVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'meltedValue')
 
   # Continuous overlay
   map <- data.frame('id' = c('entity.z', 'entity.y', 'entity.x'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
@@ -362,6 +337,34 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId', 'displayLabel'))
+})
+
+
+test_that("scattergl.dt() handles list vars as overlay and facet1", {
+
+  map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.w', 'entity.group'), 'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.xy
+  df$entity.z <- df$entity.x + df$entity.y
+  df$entity.w <- df$entity.x - df$entity.y
+  
+  dt <- scattergl.dt(df, map, 'raw')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt), 12)
+  expect_equal(names(dt), c('entity.group', 'entity.facetVariable1', 'seriesX', 'seriesY'))
+  expect_equal(unique(dt$entity.facetVariable1), c('entity.x', 'entity.y', 'entity.z'))
+  expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
+  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
+  
+  map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.w', 'entity.group'), 'plotRef' = c('overlayVariable', 'overlayVariable', 'overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- scattergl.dt(df, map, 'raw')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt), 12)
+  expect_equal(names(dt), c('entity.overlayVariable', 'entity.group', 'seriesX', 'seriesY'))
+  expect_equal(unique(dt$entity.overlayVariable), c('entity.x', 'entity.y', 'entity.z'))
+  expect_equal(attr(dt, 'overlayVariable')$variableId, 'overlayVariable')
+  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
+  
 })
 
 

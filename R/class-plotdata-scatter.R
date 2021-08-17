@@ -26,6 +26,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                                               'displayLabel' = NULL),
                          value = character(),
                          evilMode = logical(),
+                         listValueVariable = list(),
                          ...,
                          class = character()) {
 
@@ -36,6 +37,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
+                     listValueVariable = listValueVariable,
                      class = "scatterplot")
 
   attr <- attributes(.pd)
@@ -163,6 +165,7 @@ validateScatterPD <- function(.scatter) {
 scattergl.dt <- function(data, 
                          map, 
                          value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
+                         listValueDisplayLabel = NULL,
                          evilMode = c(FALSE, TRUE)) {
 
   value <- matchArg(value)
@@ -171,35 +174,6 @@ scattergl.dt <- function(data,
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
-  
-  
-  # Handle repeated plot references
-  if (any(duplicated(map$plotRef))) {
-
-    # Identify the list var based on any plotRef that is repeated
-    listVarPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
-    listVarPlotRef <- validateListVar(map, listVarPlotRef)
-    
-    # Scatter-specific
-    if (listVarPlotRef == 'facetVariable1' | listVarPlotRef == 'overlayVariable') {
-      meltedValuePlotRef <- 'yAxisVariable'
-    } else {
-      stop("Incompatable repeated variable")
-    }
-    
-    # Check to ensure meltedValuePlotRef is not already defined
-    if (any(map$plotRef == meltedValuePlotRef)) {
-      stop(paste0("Cannot melt data: ", meltedValuePlotRef, " already defined."))
-    }
-    
-    # Record variable order
-    listVarIdOrder <- map$id[map$plotRef == listVarPlotRef]
-    
-    # Melt data and update the map 
-    data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
-    map <- remapListVar(map, listVarPlotRef, meltedValuePlotRef)
-    
-  } # end handling of repeated plot element references
 
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   if (is.null(xAxisVariable$variableId)) {
@@ -211,7 +185,7 @@ scattergl.dt <- function(data,
   }
   yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
   if (is.null(yAxisVariable$variableId)) {
-    stop("Must provide yAxisVariable for plot type scatter.")
+    #### stop("Must provide yAxisVariable for plot type scatter.")
   } else {
     if (yAxisVariable$dataType != 'NUMBER' & value != 'raw') {
       stop('Trend lines can only be provided for numeric dependent axes.')
@@ -219,12 +193,49 @@ scattergl.dt <- function(data,
   } 
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
   if (!is.null(overlayVariable$variableId)) {
+    #### Ann fix
     if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
       stop('Continuous overlay variables cannot be used with trend lines.')
     }
   }
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
+
+  #### Ann think about this line. Maybe wrap into function with below?
+  listValueVariable <- plotRefMapToList(map, 'listValueVariable')
+  if (length(overlayVariable$variableId) > 1) {
+    
+    # Ensure all variables are numbers
+    if (!all(overlayVariable$dataType == 'NUMBER')){
+      stop("listVar error: All overlay vars must be of type NUMBER.")
+    }
+    
+    if (is.null(listValueDisplayLabel)) listValueDisplayLabel <- 'yAxisVariable'
+    
+    listValueVariable <- list('variable' = list('variableId' = listValueDisplayLabel,
+                                              'entityId' = unique(overlayVariable$entityId),
+                                              'dataType' = 'NUMBER',
+                                              'dataShape' = 'CONTINUOUS',
+                                              'displayLabel' = ''),
+                              'plotRef' = 'yAxisVariable')
+  }
+
+  if (length(facetVariable1$variableId) > 1) {
+    
+    # Ensure all variables are numbers
+    if (!all(facetVariable1$dataType == 'NUMBER')){
+      stop("listVar error: All facet1 vars must be of type NUMBER.")
+    }
+    
+    if (is.null(listValueDisplayLabel)) listValueDisplayLabel <- 'yAxisVariable'
+    
+    listValueVariable <- list('variable' = list('variableId' = listValueDisplayLabel,
+                                              'entityId' = unique(facetVariable1$entityId),
+                                              'dataType' = 'NUMBER',
+                                              'dataShape' = 'CONTINUOUS',
+                                              'displayLabel' = ''),
+                              'plotRef' = 'yAxisVariable')
+  }
 
   .scatter <- newScatterPD(.dt = data,
                             xAxisVariable = xAxisVariable,
@@ -233,7 +244,8 @@ scattergl.dt <- function(data,
                             facetVariable1 = facetVariable1,
                             facetVariable2 = facetVariable2,
                             value = value,
-                            evilMode = evilMode)
+                            evilMode = evilMode,
+                            listValueVariable = listValueVariable)
 
   .scatter <- validateScatterPD(.scatter)
 
