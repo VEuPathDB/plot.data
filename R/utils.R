@@ -461,6 +461,7 @@ validateListVar <- function(listVariable) {
 }
 
 validateMap <- function(map) {
+  # Could add checks for data type, shape, etc presence
 
   # Check that fewer than 2 plotRefs have multiple variables assigned.
   if (sum(table(map$plotRef) > 1) > 1) {

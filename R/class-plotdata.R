@@ -73,7 +73,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType, yShape) }
   if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType, zShape) }
   if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape) }
-  if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) }
+  # if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) }
   if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2, facetShape2) }
 
   varCols <- c(x, y, z, group, facet1, facet2)
@@ -138,6 +138,43 @@ newPlotdata <- function(.dt = data.table(),
     x <- toColNameOrNull(xAxisVariable)
     xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
     xShape <- emptyStringToNull(as.character(xAxisVariable$dataShape))
+  }
+  
+  if (length(facet1) > 1) {
+    
+    # Validation
+    if (is.null(listValueVariable$variable$variableId)) stop("listValue error: variabeId must not be NULL")
+    facetVariable1 <- validateListVar(facetVariable1)
+    
+    # Set variable, value names appropriately
+    listEntityId <- facetVariable1$entityId[[1]]
+    if(is.null(listEntityId)) {
+      variable.name <- 'facetVariable1'
+      value.name <- listValueVariable$variable$variableId
+    } else {
+      variable.name <- paste(listEntityId,'facetVariable1', sep='.')
+      value.name <- paste(listEntityId,listValueVariable$variable$variableId, sep='.')
+    }
+    
+    .dt <- data.table::melt(.dt, measure.vars = facet1,
+                            variable.factor = FALSE,
+                            variable.name= variable.name,
+                            value.name=value.name)
+    
+    # Re-assign facetVariable1
+    listVariable <- facetVariable1
+    facetVariable1 <- list('variableId' = 'facetVariable1',
+                          'entityId' = unique(listValueVariable$variable$entityId),
+                          'dataType' = 'STRING',
+                          'dataShape' = 'CATEGORICAL',
+                          'displayLabel' = unique(listValueVariable$variable$displayLabel))
+    
+    # Assign to the appropriate var
+    do.call("<-", list(listValueVariable$plotRef, listValueVariable$variable))
+    facet1 <- toColNameOrNull(facetVariable1)
+    panel <- facet1
+    facetType1 <- emptyStringToNull(as.character(facetVariable1$dataType))
+    facetShape1 <- emptyStringToNull(as.character(facetVariable1$dataShape))
   }
   
   

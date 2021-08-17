@@ -170,16 +170,9 @@ test_that("box.dt() accepts listVars for both x axis and facet vars", {
   expect_equal(nrow(dt), 4)
   expect_equal(names(dt),c('entity.group', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
   expect_equal(unique(dt$label)[[1]], c('entity.x','entity.y','entity.z'))
-  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'meltedValue')
-  expect_equal(attr(dt, 'xAxisVariable')$variableId, 'meltedVariable')
-  
-  # testing json
-  attrs <- attributes(dt)
-  cct <- attr(dt, 'completeCasesTable')
-  sst <- attr(dt, 'sampleSizeTable')
-  st <- attr(dt, 'statsTable')
-  outJson <- getJSON(dt, FALSE)
-  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
+  expect_equal(attr(dt, 'xAxisVariable')$variableId, 'xAxisVariable')
+
   
   ## Case when we input multiple vars as one to facet 1
   map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.group'), 'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -187,14 +180,11 @@ test_that("box.dt() accepts listVars for both x axis and facet vars", {
   dt <- box.dt(df, map, 'none', FALSE)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
-  expect_equal(names(dt),c('meltedVariable', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
-  expect_equal(unique(dt$meltedVariable), c('entity.x','entity.y','entity.z'))
-  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'meltedValue')
-  expect_equal(attr(dt, 'facetVariable1')$variableId, 'meltedVariable')
-  
-  # testing json
-  outJson <- getJSON(dt, FALSE)
-  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(dt),c('entity.facetVariable1', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
+  expect_equal(dt$entity.facetVariable1, c('entity.x','entity.y','entity.z'))
+  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
+  expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
+
   
   # lapply(lapply(dt$xVariableDetails, makeVariableDetails, facet1, namedAttrList$facetVariable1$entityId), list)
   namedAttrList <- getPDAttributes(dt)
@@ -353,13 +343,6 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   dt <- box.dt(df, map, 'none', FALSE, TRUE)
   statsTable <- attr(dt, 'statsTable')
   expect_equal(nrow(statsTable), uniqueN(df$entity.xcat)*uniqueN(df$entity.panel))
-  expect_equal(ncol(statsTable), 3)
-  
-  # With overlay and two facets
-  map <- data.frame('id' = c('xcat', 'y', 'group', 'panel', 'zcat'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'), 'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  dt <- box.dt(df, map, 'none', FALSE, TRUE)
-  statsTable <- attr(dt, 'statsTable')
-  expect_equal(nrow(statsTable), uniqueN(df$xcat)*uniqueN(df$panel))
   expect_equal(ncol(statsTable), 3)
   
   

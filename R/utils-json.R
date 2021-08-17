@@ -7,7 +7,7 @@ makeVariableDetails <- function(value, variableId, entityId, displayLabel = NULL
     }
   } else {
     if (length(variableId > 1)) {
-      #### Would this get confusing?
+      #### Would this get confusing for the data service?
       variableDetails <- list('variableId'=variableId, 'entityId'=entityId)
     } else {
       variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId))

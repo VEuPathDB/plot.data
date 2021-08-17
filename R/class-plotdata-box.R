@@ -186,24 +186,20 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     data.table::setDT(data)
   }
 
+  map <- validateMap(map)
+
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type box.")
   }
-  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  if (is.null(yAxisVariable$variableId) & length(xAxisVariable$variableId) == 1) {
-    stop("Must provide yAxisVariable for plot type box.")
-  }
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
+  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+  if (is.null(yAxisVariable$variableId) & length(xAxisVariable$variableId) == 1 & length(facetVariable1$variableId) == 1) {
+    stop("Must provide yAxisVariable for plot type box.")
+  }
   
-  map <- validateMap(map)
-  
-
-  # Only box knows which vars can be list, so it should handle validation
-  # plotdata should only check to make sure there is just one list var
-  #### ADD LISTVAR VALIDATION
   
   #### Ann think about this line. Maybe wrap into function with below?
   listValueVariable <- plotRefMapToList(map, 'listValueVariable')
@@ -211,7 +207,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     
     # Ensure all variables are numbers
     if (!all(xAxisVariable$dataType == 'NUMBER')){
-      stop(paste0("listVar error: All x vars must be of type NUMBER."))
+      stop("listVar error: All x vars must be of type NUMBER.")
     }
     
     # since we're in box with x as listvar, know things about listValue
@@ -219,6 +215,28 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     
     listValueVariable <- list('variable' = list('variableId' = listValueDisplayLabel,
                                               'entityId' = unique(xAxisVariable$entityId),
+                                              'dataType' = 'NUMBER',
+                                              'dataShape' = 'CONTINUOUS',
+                                              'displayLabel' = ''),
+                              'plotRef' = 'yAxisVariable')
+  }
+
+  if (length(facetVariable1$variableId) > 1) {
+
+    # Ensure there is no facetVariable2
+    if (!is.null(facetVariable2$variableId)) {
+      stop("listVar error: When facet1 is a listvar facet2 must be NULL.")
+    }
+    
+    # Ensure all variables are numbers
+    if (!all(facetVariable1$dataType == 'NUMBER')){
+      stop("listVar error: All facet vars must be of type NUMBER.")
+    }
+    
+    if (is.null(listValueDisplayLabel)) listValueDisplayLabel <- 'yAxisVariable'
+    
+    listValueVariable <- list('variable' = list('variableId' = listValueDisplayLabel,
+                                              'entityId' = unique(facetVariable1$entityId),
                                               'dataType' = 'NUMBER',
                                               'dataShape' = 'CONTINUOUS',
                                               'displayLabel' = ''),
