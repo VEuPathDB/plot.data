@@ -73,7 +73,15 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType, yShape) }
   if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType, zShape) }
   if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape) }
-  # if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) }
+  if (!is.null(facet1)) { 
+    if (length(facet1)==1) {
+      .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1)
+    } else {
+      facet1Vars <- lapply(.dt[, ..facet1], updateType, unique(facetType1), unique(facetShape1))
+      .dt[, (facet1):=facet1Vars]
+    }
+  }
+    
   if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2, facetShape2) }
 
   varCols <- c(x, y, z, group, facet1, facet2)
