@@ -185,14 +185,6 @@ scattergl.dt <- function(data,
       stop('Density curves can only be provided for numeric independent axes.')
     }
   }
-  overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  if (!is.null(overlayVariable$variableId) & length(overlayVariable$variableId) == 1) {
-    if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
-      stop('Continuous overlay variables cannot be used with trend lines.')
-    }
-  }
-  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
   if (is.null(yAxisVariable$variableId)) {
     if (is.null(listVarPlotRef)) {
@@ -203,41 +195,49 @@ scattergl.dt <- function(data,
       stop('Trend lines can only be provided for numeric dependent axes.')
     }
   } 
-
-  #### Ann think about this line. Maybe wrap into function with below?
-  listVarDetails <- plotRefMapToList(map, 'listValueVariable')
-  if (identical(listVarPlotRef, 'overlayVariable')) {
-    
-    # Ensure all variables are numbers
-    if (!all(overlayVariable$dataType == 'NUMBER')){
-      stop("listVar error: All overlay vars must be of type NUMBER.")
+  overlayVariable <- plotRefMapToList(map, 'overlayVariable')
+  if (!is.null(overlayVariable$variableId) & !identical(listVarPlotRef, 'overlayVariable')) {
+    if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
+      stop('Continuous overlay variables cannot be used with trend lines.')
     }
-    
-    listVarDetails <- list('listValueVariable' = list('variableId' = 'yAxisVariable',
-                                              'entityId' = unique(overlayVariable$entityId),
-                                              'dataType' = 'NUMBER',
-                                              'dataShape' = 'CONTINUOUS',
-                                              'displayLabel' = listValueDisplayLabel),
-                              'listValuePlotRef' = 'yAxisVariable',
-                              'listVarPlotRef' = listVarPlotRef,
-                              'listVarDisplayLabel' = listVarDisplayLabel)
   }
+  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
+  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
-  if (identical(listVarPlotRef, 'facetVariable1')) {
-    
-    # Ensure all variables are numbers
-    if (!all(facetVariable1$dataType == 'NUMBER')){
-      stop("listVar error: All facet1 vars must be of type NUMBER.")
+  # Handle listVars
+  listVarDetails <- list('listValueVariable' = NULL,
+                         'listValuePlotRef' = 'yAxisVariable',
+                         'listVarPlotRef' = listVarPlotRef,
+                         'listVarDisplayLabel' = listVarDisplayLabel)
+  if (!is.null(listVarPlotRef)) {
+    if (identical(listVarPlotRef, 'overlayVariable')) {
+      
+      # Ensure all variables are numbers
+      if (!all(overlayVariable$dataType == 'NUMBER')){
+        stop("listVar error: All overlay vars must be of type NUMBER.")
+      }
+      
+      listVarDetails$listValueVariable <- list('variableId' = 'yAxisVariable',
+                                                'entityId' = unique(overlayVariable$entityId),
+                                                'dataType' = 'NUMBER',
+                                                'dataShape' = 'CONTINUOUS',
+                                                'displayLabel' = listValueDisplayLabel)
+
+    } else if (identical(listVarPlotRef, 'facetVariable1')) {
+      
+      # Ensure all variables are numbers
+      if (!all(facetVariable1$dataType == 'NUMBER')){
+        stop("listVar error: All facet1 vars must be of type NUMBER.")
+      }
+      
+      listVarDetails$listValueVariable <- list('variableId' = 'yAxisVariable',
+                                                'entityId' = unique(facetVariable1$entityId),
+                                                'dataType' = 'NUMBER',
+                                                'dataShape' = 'CONTINUOUS',
+                                                'displayLabel' = listValueDisplayLabel)
+    } else {
+      stop('listVar error: listVarPlotRef must be either overlayVariable or facetVariable1 for scatter.')
     }
-    
-    listVarDetails <- list('listValueVariable' = list('variableId' = 'yAxisVariable',
-                                              'entityId' = unique(facetVariable1$entityId),
-                                              'dataType' = 'NUMBER',
-                                              'dataShape' = 'CONTINUOUS',
-                                              'displayLabel' = listValueDisplayLabel),
-                              'listValuePlotRef' = 'yAxisVariable',
-                              'listVarPlotRef' = listVarPlotRef,
-                              'listVarDisplayLabel' = listVarDisplayLabel)
   }
 
   .scatter <- newScatterPD(.dt = data,

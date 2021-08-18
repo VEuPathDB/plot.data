@@ -211,51 +211,40 @@ box.dt <- function(data,
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   
-  #### Ann think about this line. Maybe wrap into function with below?
-  #### This is the wrong way to make a null one. Do better.
-  listVarDetails <- plotRefMapToList(map, 'listValueVariable')
-  if (identical(listVarPlotRef, 'xAxisVariable')) {
-    
-    # Ensure all variables are numbers
-    if (!all(xAxisVariable$dataType == 'NUMBER')){
-      stop("listVar error: All x vars must be of type NUMBER.")
-    }
-    
-    # since we're in box with x as listvar, know things about listValue
-    if (is.null(listValueDisplayLabel)) listValueDisplayLabel <- 'yAxisVariable'
-    
-    listVarDetails <- list('listValueVariable' = list('variableId' = 'yAxisVariable',
-                                              'entityId' = unique(xAxisVariable$entityId),
-                                              'dataType' = 'NUMBER',
-                                              'dataShape' = 'CONTINUOUS',
-                                              'displayLabel' = listValueDisplayLabel),
-                              'listValuePlotRef' = 'yAxisVariable',
-                              'listVarPlotRef' = listVarPlotRef,
-                              'listVarDisplayLabel' = listVarDisplayLabel)
-  }
+  # Handle listVars
+  listVarDetails <- list('listValueVariable' = NULL,
+                         'listValuePlotRef' = 'yAxisVariable',
+                         'listVarPlotRef' = listVarPlotRef,
+                         'listVarDisplayLabel' = listVarDisplayLabel)
+  if (!is.null(listVarPlotRef)) {
+    if (identical(listVarPlotRef, 'xAxisVariable')) {
+      
+      # Ensure all variables are numbers
+      if (!all(xAxisVariable$dataType == 'NUMBER')){
+        stop("listVar error: All overlay vars must be of type NUMBER.")
+      }
+      
+      listVarDetails$listValueVariable <- list('variableId' = 'yAxisVariable',
+                                                'entityId' = unique(xAxisVariable$entityId),
+                                                'dataType' = 'NUMBER',
+                                                'dataShape' = 'CONTINUOUS',
+                                                'displayLabel' = listValueDisplayLabel)
 
-  if (identical(listVarPlotRef, 'facetVariable1')) {
-
-    # Ensure there is no facetVariable2
-    if (!is.null(facetVariable2$variableId)) {
-      stop("listVar error: When facet1 is a listvar facet2 must be NULL.")
+    } else if (identical(listVarPlotRef, 'facetVariable1')) {
+      
+      # Ensure all variables are numbers
+      if (!all(facetVariable1$dataType == 'NUMBER')){
+        stop("listVar error: All facet1 vars must be of type NUMBER.")
+      }
+      
+      listVarDetails$listValueVariable <- list('variableId' = 'yAxisVariable',
+                                                'entityId' = unique(facetVariable1$entityId),
+                                                'dataType' = 'NUMBER',
+                                                'dataShape' = 'CONTINUOUS',
+                                                'displayLabel' = listValueDisplayLabel)
+    } else {
+      stop('listVar error: listVarPlotRef must be either overlayVariable or facetVariable1 for scatter.')
     }
-    
-    # Ensure all variables are numbers
-    if (!all(facetVariable1$dataType == 'NUMBER')){
-      stop("listVar error: All facet vars must be of type NUMBER.")
-    }
-    
-    if (is.null(listValueDisplayLabel)) listValueDisplayLabel <- 'yAxisVariable'
-    
-    listVarDetails <- list('listValueVariable' = list('variableId' = 'yAxisVariable',
-                                              'entityId' = unique(facetVariable1$entityId),
-                                              'dataType' = 'NUMBER',
-                                              'dataShape' = 'CONTINUOUS',
-                                              'displayLabel' = listValueDisplayLabel),
-                              'listValuePlotRef' = 'yAxisVariable',
-                              'listVarPlotRef' = listVarPlotRef,
-                              'listVarDisplayLabel' = listVarDisplayLabel)
   }
 
   .box <- newBoxPD(.dt = data,
