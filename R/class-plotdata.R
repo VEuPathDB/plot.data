@@ -63,31 +63,12 @@ newPlotdata <- function(.dt = data.table(),
   facetType2 <- emptyStringToNull(as.character(facetVariable2$dataType))
   facetShape2 <- emptyStringToNull(as.character(facetVariable2$dataShape))
 
-  if (length(x) == 1) {
-    .dt[[x]] <- updateType(.dt[[x]], xType, xShape)
-  } else {
-    xVars <- lapply(.dt[, ..x], updateType, unique(xType), unique(xShape))
-    .dt[, (x):=xVars]
-  }
-  if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType, yShape) }
-  if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType, zShape) }
-  if (!is.null(group)) {
-    if (length(group) == 1) {
-      .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape)
-    } else {
-      groupVars <- lapply(.dt[, ..group], updateType, unique(groupType), unique(groupShape))
-      .dt[, (group):=groupVars]
-    }
-  }
-  if (!is.null(facet1)) { 
-    if (length(facet1)==1) {
-      .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1)
-    } else {
-      facet1Vars <- lapply(.dt[, ..facet1], updateType, unique(facetType1), unique(facetShape1))
-      .dt[, (facet1):=facet1Vars]
-    }
-  }
-  if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2, facetShape2) }
+  .dt[, (x)] <- .dt[, lapply(.SD, updateType, unique(xType), unique(xShape)), .SDcols = x]
+  if (!is.null(y)) { .dt[, (y)] <- .dt[, lapply(.SD, updateType, unique(yType), unique(yShape)), .SDcols = y] }
+  if (!is.null(z)) { .dt[, (z)] <- .dt[, lapply(.SD, updateType, unique(zType), unique(zShape)), .SDcols = z] }
+  if (!is.null(group)) { .dt[, (group)] <- .dt[, lapply(.SD, updateType, unique(groupType), unique(groupShape)), .SDcols = group] }
+  if (!is.null(facet1)) { .dt[, (facet1)] <- .dt[, lapply(.SD, updateType, unique(facetType1), unique(facetShape1)), .SDcols = facet1] }
+  if (!is.null(facet2)) { .dt[, (facet2)] <- .dt[, lapply(.SD, updateType, unique(facetType2), unique(facetShape2)), .SDcols = facet2] }
 
   varCols <- c(x, y, z, group, facet1, facet2)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
