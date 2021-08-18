@@ -160,6 +160,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('entity.numcat2', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'rawData', 'mean'))
   
 })
+
 test_that("box.dt() accepts listVars for both x axis and facet vars", {  
   ## Case when we input multiple vars as one to x axis
   map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.group'), 'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -257,6 +258,52 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$statsTable), c('entity.numcat1','statistics','overlayVariableDetails'))
+  expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
+  
+  
+  ## Case when we input multiple vars as one to x axis
+  map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.group'), 'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  df <- data.xy
+  df[, entity.z := entity.x+entity.y]
+  
+  dt <- box.dt(df, map, 'none', FALSE, listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList), c('boxplot','sampleSizeTable','statsTable','completeCasesTable'))
+  expect_equal(names(jsonList$boxplot), c('data','config'))
+  expect_equal(names(jsonList$boxplot$data), c('overlayVariableDetails','label','min','q1','median','q3','max','lowerfence','upperfence'))
+  expect_equal(names(jsonList$boxplot$config), c('completeCases','plottedIncompleteCases','xVariableDetails','yVariableDetails', 'listVariableDetails'))
+  expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId', 'displayLabel'))
+  expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId', 'displayLabel'))
+  expect_equal(names(jsonList$boxplot$config$listVariableDetails), c('variableId','entityId'))
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$statsTable), c('entity.xAxisVariable','statistics','overlayVariableDetails'))
+  expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
+  
+  ## Input multiple vars as one to facet 1
+  map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.group'), 'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- box.dt(df, map, 'none', FALSE, listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList), c('boxplot','sampleSizeTable','statsTable','completeCasesTable'))
+  expect_equal(names(jsonList$boxplot), c('data','config'))
+  expect_equal(names(jsonList$boxplot$data), c('facetVariableDetails','label','min','q1','median','q3','max','lowerfence','upperfence'))
+  expect_equal(names(jsonList$boxplot$config), c('completeCases','plottedIncompleteCases','xVariableDetails','yVariableDetails', 'listVariableDetails'))
+  expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId', 'displayLabel'))
+  expect_equal(names(jsonList$boxplot$config$listVariableDetails), c('variableId','entityId'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  expect_equal(names(jsonList$sampleSizeTable), c('facetVariableDetails','xVariableDetails','size'))
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$statsTable), c('facetVariableDetails','statistics'))
   expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
 })
 
