@@ -115,119 +115,76 @@ newPlotdata <- function(.dt = data.table(),
 
   #### Handle listvar
   listVariable <- NULL
-  if (length(x) > 1) {
-    
-    # Validation
-    if (is.null(listVarDetails$listValueVariable$variableId)) stop("listValue error: variableId must not be NULL")
-    xAxisVariable <- validateListVar(xAxisVariable)
-    
-    # Set variable, value names appropriately
-    listEntityId <- xAxisVariable$entityId[[1]]
-    if(is.null(listEntityId)) {
-      variable.name <- 'xAxisVariable'
-      value.name <- listVarDetails$listValueVariable$variableId
-    } else {
-      variable.name <- paste(listEntityId,'xAxisVariable', sep='.')
-      value.name <- paste(listEntityId,listVarDetails$listValueVariable$variableId, sep='.')
-    }
-  
-    .dt <- data.table::melt(.dt, measure.vars = x,
-                            variable.factor = FALSE,
-                            variable.name= variable.name,
-                            value.name=value.name)
-    
-    # Re-assign xAxisVariable
-    listVariable <- xAxisVariable
-    xAxisVariable <- list('variableId' = 'xAxisVariable',
-                          'entityId' = unique(listVarDetails$listValueVariable$entityId),
-                          'dataType' = 'STRING',
-                          'dataShape' = 'CATEGORICAL',
-                          'displayLabel' = listVarDetails$listVarDisplayLabel)
-    
-    # Assign to the appropriate var
-    do.call("<-", list(listVarDetails$listValuePlotRef, listVarDetails$listValueVariable))
-    x <- toColNameOrNull(xAxisVariable)
-    xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
-    xShape <- emptyStringToNull(as.character(xAxisVariable$dataShape))
-    data.table::setcolorder(.dt, c(x, toColNameOrNull(yAxisVariable), z, group, panel))
-  }
+  if (!is.null(listVarDetails$listVarPlotRef)) {
 
-  if (length(group) > 1) {
-    
-    # Validation
-    if (is.null(listVarDetails$listValueVariable$variableId)) stop("listValue error: variableId must not be NULL")
-    overlayVariable <- validateListVar(overlayVariable)
-    
-    # Set variable, value names appropriately
-    listEntityId <- overlayVariable$entityId[[1]]
-    if(is.null(listEntityId)) {
-      variable.name <- 'overlayVariable'
-      value.name <- listVarDetails$listValueVariable$variableId
-    } else {
-      variable.name <- paste(listEntityId,'overlayVariable', sep='.')
-      value.name <- paste(listEntityId,listVarDetails$listValueVariable$variableId, sep='.')
-    }
-    
-    .dt <- data.table::melt(.dt, measure.vars = group,
-                            variable.factor = FALSE,
-                            variable.name= variable.name,
-                            value.name=value.name)
-    
-    # Re-assign overlayVariable
-    listVariable <- overlayVariable
-    overlayVariable <- list('variableId' = 'overlayVariable',
-                          'entityId' = unique(listVarDetails$listValueVariable$entityId),
-                          'dataType' = 'STRING',
-                          'dataShape' = 'CATEGORICAL',
-                          'displayLabel' = listVarDetails$listVarDisplayLabel)
-    
-    # Assign to the appropriate var
-    do.call("<-", list(listVarDetails$listValuePlotRef, listVarDetails$listValueVariable))
-    group <- toColNameOrNull(overlayVariable)
-    groupType <- emptyStringToNull(as.character(overlayVariable$dataType))
-    groupShape <- emptyStringToNull(as.character(overlayVariable$dataShape))
-    data.table::setcolorder(.dt, c(x, toColNameOrNull(yAxisVariable), z, group, panel))
-  }
-  
-  if (length(facet1) > 1) {
-    
-    # Validation
-    if (is.null(listVarDetails$listValueVariable$variableId)) stop("listValue error: variableId must not be NULL")
-    facetVariable1 <- validateListVar(facetVariable1)
-    
-    # Set variable, value names appropriately
-    listEntityId <- facetVariable1$entityId[[1]]
-    if(is.null(listEntityId)) {
-      variable.name <- 'facetVariable1'
-      value.name <- listVarDetails$listValueVariable$variableId
-    } else {
-      variable.name <- paste(listEntityId,'facetVariable1', sep='.')
-      value.name <- paste(listEntityId,listVarDetails$listValueVariable$variableId, sep='.')
-    }
-    
-    .dt <- data.table::melt(.dt, measure.vars = facet1,
-                            variable.factor = FALSE,
-                            variable.name= variable.name,
-                            value.name=value.name)
-    
-    # Re-assign facetVariable1
-    listVariable <- facetVariable1
-    facetVariable1 <- list('variableId' = 'facetVariable1',
-                          'entityId' = unique(listVarDetails$listValueVariable$entityId),
-                          'dataType' = 'STRING',
-                          'dataShape' = 'CATEGORICAL',
-                          'displayLabel' = listVarDetails$listVarDisplayLabel)
-    
-    # Assign to the appropriate var
-    do.call("<-", list(listVarDetails$listValuePlotRef, listVarDetails$listValueVariable))
-    facet1 <- toColNameOrNull(facetVariable1)
-    panel <- facet1
-    facetType1 <- emptyStringToNull(as.character(facetVariable1$dataType))
-    facetShape1 <- emptyStringToNull(as.character(facetVariable1$dataShape))
+    if (listVarDetails$listVarPlotRef == 'xAxisVariable') { listVariable <- xAxisVariable
+    } else if (listVarDetails$listVarPlotRef == 'overlayVariable') { listVariable <- overlayVariable
+    } else if (listVarDetails$listVarPlotRef == 'facetVariable1') {listVariable <- facetVariable1
+    } else { stop('listVar error: unaccepted value passed as listVarPlotRef')}
+    listValue <- listVarDetails$listValueVariable
 
-    data.table::setcolorder(.dt, c(x, toColNameOrNull(yAxisVariable), z, group, panel))
+    # Validation
+    if (is.null(listVarDetails$listValueVariable$variableId)) stop("listVar error: listValue variableId must not be NULL")
+    listVariable <- validateListVar(listVariable)
+
+    # Set variable, value names appropriately
+    if(is.null(unique(listVarDetails$listValueVariable$entityId))) {
+      variable.name <- listVarDetails$listVarPlotRef
+      value.name <- listVarDetails$listValueVariable$variableId
+    } else {
+      variable.name <- paste(unique(listVarDetails$listValueVariable$entityId),listVarDetails$listVarPlotRef, sep='.')
+      value.name <- paste(unique(listVarDetails$listValueVariable$entityId),listVarDetails$listValueVariable$variableId, sep='.')
+    }
+
+    .dt <- data.table::melt(.dt, measure.vars = toColNameOrNull(listVariable),
+                        variable.factor = FALSE,
+                        variable.name= variable.name,
+                        value.name=value.name)
+
+    #### assign new variable details
+    newVariable <- list('variableId' = listVarDetails$listVarPlotRef,
+                   'entityId' = unique(listVarDetails$listValueVariable$entityId),
+                   'dataType' = 'STRING',
+                   'dataShape' = 'CATEGORICAL',
+                   'displayLabel' = listVarDetails$listVarDisplayLabel)
+
+    if (listVarDetails$listVarPlotRef == 'xAxisVariable') {
+      xAxisVariable <- newVariable
+      x <- toColNameOrNull(xAxisVariable)
+      xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
+      xShape <- emptyStringToNull(as.character(xAxisVariable$dataShape))
+      .dt[[x]] <- updateType(.dt[[x]], xType, xShape)
+
+    } else if (listVarDetails$listVarPlotRef == 'overlayVariable') {
+      overlayVariable <- newVariable
+      group <- toColNameOrNull(overlayVariable)
+      groupType <- emptyStringToNull(as.character(overlayVariable$dataType))
+      groupShape <- emptyStringToNull(as.character(overlayVariable$dataShape))
+      .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape)
+
+    } else if (listVarDetails$listVarPlotRef == 'facetVariable1') {
+      facetVariable1 <- newVariable
+      facet1 <- toColNameOrNull(facetVariable1)
+      facetType1 <- emptyStringToNull(as.character(facetVariable1$dataType))
+      facetShape1 <- emptyStringToNull(as.character(facetVariable1$dataShape))
+      .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) 
+
+      #### Possibly overkill. If we only allow 1 facet just rename panel
+      panelData <- makePanels(.dt, facet1, facet2)
+      .dt <- data.table::setDT(panelData[[1]])
+      panel <- panelData[[2]]
+    }
+
+    # Update y
+    yAxisVariable <- listVarDetails$listValueVariable
+    y <- toColNameOrNull(yAxisVariable)
+    yType <- emptyStringToNull(as.character(yAxisVariable$dataType))
+    yShape <- emptyStringToNull(as.character(yAxisVariable$dataShape))
+    .dt[[y]] <- updateType(.dt[[y]], yType, yShape) 
+
+    data.table::setcolorder(.dt, c(x, y, z, group, panel))
+
   }
-  
   
   # If overlay is continuous and NOT a listvar, it does not contribute to final groups
   overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
@@ -253,7 +210,7 @@ newPlotdata <- function(.dt = data.table(),
 
   attr <- attributes(.dt)
   attr$xAxisVariable <-  xAxisVariable
-  if (!is.null(toColNameOrNull(yAxisVariable))) { attr$yAxisVariable <- yAxisVariable }
+  if (!is.null(y)) { attr$yAxisVariable <- yAxisVariable }
   if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
   attr$completeCases <- completeCases
   attr$plottedIncompleteCases <- plottedIncompleteCases

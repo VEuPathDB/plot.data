@@ -210,7 +210,7 @@ box.dt <- function(data,
   
   #### Ann think about this line. Maybe wrap into function with below?
   #### This is the wrong way to make a null one. Do better.
-  listValueVariable <- plotRefMapToList(map, 'listValueVariable')
+  listVarDetails <- plotRefMapToList(map, 'listValueVariable')
   if (length(xAxisVariable$variableId) > 1) {
     
     # Ensure all variables are numbers

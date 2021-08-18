@@ -204,7 +204,7 @@ scattergl.dt <- function(data,
   } 
 
   #### Ann think about this line. Maybe wrap into function with below?
-  listValueVariable <- plotRefMapToList(map, 'listValueVariable')
+  listVarDetails <- plotRefMapToList(map, 'listValueVariable')
   if (length(overlayVariable$variableId) > 1) {
     
     # Ensure all variables are numbers
