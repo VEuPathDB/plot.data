@@ -400,6 +400,22 @@ test_that("scattergl.dt() handles list vars as overlay and facet1", {
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
   expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'listValueName')
   
+  
+  map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.w', 'entity.group'), 'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'facetVariable2'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt), 12)
+  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY'))
+  expect_equal(dt$panel[1], 'entity.x.||.group1')
+  expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
+  expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
+  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
+  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
+  expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
+  
+  
+  
   map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.w', 'entity.group'), 'plotRef' = c('overlayVariable', 'overlayVariable', 'overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
   dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'overlayVariable', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'listValueName')

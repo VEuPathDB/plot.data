@@ -75,9 +75,13 @@ newPlotdata <- function(.dt = data.table(),
   completeCasesTable <- data.table::transpose(completeCasesTable, keep.names = 'variableDetails')
   data.table::setnames(completeCasesTable, 'V1', 'completeCases')
   
-  panelData <- makePanels(.dt, facet1, facet2)
-  .dt <- data.table::setDT(panelData[[1]])
-  panel <- panelData[[2]]
+  if (!identical(listVarDetails$listVarPlotRef, 'facetVariable1')) {
+    panelData <- makePanels(.dt, facet1, facet2)
+    .dt <- data.table::setDT(panelData[[1]])
+    panel <- panelData[[2]]
+  } else {
+    panel <- c(facet1, facet2)
+  }
   myCols <- c(x, y, z, group, panel)
   .dt <- .dt[, myCols, with=FALSE]
 
@@ -150,7 +154,6 @@ newPlotdata <- function(.dt = data.table(),
       facetShape1 <- emptyStringToNull(as.character(facetVariable1$dataShape))
       .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) 
 
-      #### Possibly overkill. If we only allow 1 facet just rename panel
       panelData <- makePanels(.dt, facet1, facet2)
       .dt <- data.table::setDT(panelData[[1]])
       panel <- panelData[[2]]

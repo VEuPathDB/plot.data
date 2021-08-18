@@ -192,6 +192,19 @@ test_that("box.dt() accepts listVars for both x axis and facet vars", {
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
   expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
   
+  map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.group', 'entity.panel'), 'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'facetVariable2'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt), 12)
+  expect_equal(names(dt),c('panel', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
+  expect_equal(dt$panel[1], 'entity.x.||.panel1')
+  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
+  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
+  expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
+  expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
+  expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
+  
   
   # Handle only one var sent as a listVar
   map <- data.frame('id' = c('entity.y','entity.group'), 'plotRef' = c('xAxisVariable','overlayVariable'), 'dataType' = c('NUMBER','STRING'), 'dataShape' = c('CONTINUOUS','CATEGORICAL'), stringsAsFactors=FALSE)

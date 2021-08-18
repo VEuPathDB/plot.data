@@ -464,29 +464,24 @@ validateListVar <- function(listVariable) {
 validateMap <- function(map) {
   # Could add checks for data type, shape, etc presence
 
-  # Check that fewer than 2 plotRefs have multiple variables assigned.
-  if (sum(table(map$plotRef) > 1) > 1) {
-    stop("map error: only one plotRef can be assigned to multiple variables.")
-  }
-
-  # Check to ensure if repeatedPlotRef is facet that there are no other facet vars.
   if (any(duplicated(map$plotRef))) {
+    
+    # Check that there is at most one repeated plotRef
     repeatedPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
 
-    # Do not allow repeated facet1 variable with a specified facet2 variable
-    if (repeatedPlotRef == 'facetVariable1' & 'facetVariable2' %in% map$plotRef) {
-      stop("facetVariable2 should be NULL when assigning multiple facetVariable1 variables.")
+    if (length(repeatedPlotRef) > 1) {
+      stop("map error: only one plotRef can be assigned to multiple variables.")
     }
 
-
-    # Check we do not have too many vars -- restricted based on the rules in the data service
+    # Check we do not have too many repeated variables.
     nVars <- sum(duplicated(map$plotRef))
+
     if (repeatedPlotRef == 'xAxisVariable' & nVars > 10) {
       stop("Too many values specified with listVar: maximum number of x axis values is 10.")
     } else if (repeatedPlotRef == 'overlayVariable' & nVars > 8) {
       stop("Too many values specified with listVar: maximum number of overlay values is 8.")
-    } else if (repeatedPlotRef == 'facetVariable1' & nVars > 25) {
-      stop("Too many values specified with listVar: maximum number of panels allowed is 25.")
+    } else if (repeatedPlotRef == 'facetVariable1' & nVars > 10) {
+      stop("Too many values specified with listVar: maximum number of panels allowed is 10.")
     }
   }
 
