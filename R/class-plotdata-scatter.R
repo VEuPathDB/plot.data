@@ -167,7 +167,7 @@ scattergl.dt <- function(data,
                          value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
                          listVarPlotRef = NULL,
                          listVarDisplayLabel = NULL,
-                         listValueDisplayLabel = NULL,
+                         inferredVarDisplayLabel = NULL,
                          evilMode = c(FALSE, TRUE)) {
 
   value <- matchArg(value)
@@ -205,8 +205,8 @@ scattergl.dt <- function(data,
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
   # Handle listVars
-  listVarDetails <- list('listValueVariable' = NULL,
-                         'listValuePlotRef' = 'yAxisVariable',
+  listVarDetails <- list('inferredVariable' = NULL,
+                         'inferredVarPlotRef' = 'yAxisVariable',
                          'listVarPlotRef' = listVarPlotRef,
                          'listVarDisplayLabel' = listVarDisplayLabel)
   if (!is.null(listVarPlotRef)) {
@@ -217,11 +217,11 @@ scattergl.dt <- function(data,
         stop("listVar error: All overlay vars must be of type NUMBER.")
       }
       
-      listVarDetails$listValueVariable <- list('variableId' = 'yAxisVariable',
+      listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                                 'entityId' = unique(overlayVariable$entityId),
                                                 'dataType' = 'NUMBER',
                                                 'dataShape' = 'CONTINUOUS',
-                                                'displayLabel' = listValueDisplayLabel)
+                                                'displayLabel' = inferredVarDisplayLabel)
 
     } else if (identical(listVarPlotRef, 'facetVariable1')) {
       
@@ -230,11 +230,11 @@ scattergl.dt <- function(data,
         stop("listVar error: All facet1 vars must be of type NUMBER.")
       }
       
-      listVarDetails$listValueVariable <- list('variableId' = 'yAxisVariable',
+      listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                                 'entityId' = unique(facetVariable1$entityId),
                                                 'dataType' = 'NUMBER',
                                                 'dataShape' = 'CONTINUOUS',
-                                                'displayLabel' = listValueDisplayLabel)
+                                                'displayLabel' = inferredVarDisplayLabel)
     } else {
       stop('listVar error: listVarPlotRef must be either overlayVariable or facetVariable1 for scatter.')
     }
@@ -287,7 +287,7 @@ scattergl <- function(data,
                       value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
                       listVarPlotRef = listVarPlotRef,
                       listVarDisplayLabel = NULL,
-                      listValueDisplayLabel = NULL,
+                      inferredVarDisplayLabel = NULL,
                       evilMode = c(FALSE, TRUE)) {
 
   value <- matchArg(value)

@@ -37,8 +37,8 @@ newPlotdata <- function(.dt = data.table(),
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL),
                          evilMode = logical(),
-                         listVarDetails = list('listValueVariable' = NULL,
-                                               'listValuePlotRef' = NULL,
+                         listVarDetails = list('inferredVariable' = NULL,
+                                               'inferredVarPlotRef' = NULL,
                                                'listVarPlotRef' = NULL,
                                                'listVarDisplayLabel' = NULL),
                          ...,
@@ -102,19 +102,19 @@ newPlotdata <- function(.dt = data.table(),
     } else if (listVarDetails$listVarPlotRef == 'overlayVariable') { listVariable <- overlayVariable
     } else if (listVarDetails$listVarPlotRef == 'facetVariable1') {listVariable <- facetVariable1
     } else { stop('listVar error: unaccepted value passed as listVarPlotRef')}
-    listValue <- listVarDetails$listValueVariable
+    listValue <- listVarDetails$inferredVariable
 
     # Validation
-    if (is.null(listVarDetails$listValueVariable$variableId)) stop("listVar error: listValue variableId must not be NULL")
+    if (is.null(listVarDetails$inferredVariable$variableId)) stop("listVar error: listValue variableId must not be NULL")
     listVariable <- validateListVar(listVariable)
 
     # Set variable, value names appropriately
-    if(is.null(unique(listVarDetails$listValueVariable$entityId))) {
+    if(is.null(unique(listVarDetails$inferredVariable$entityId))) {
       variable.name <- listVarDetails$listVarPlotRef
-      value.name <- listVarDetails$listValueVariable$variableId
+      value.name <- listVarDetails$inferredVariable$variableId
     } else {
-      variable.name <- paste(unique(listVarDetails$listValueVariable$entityId),listVarDetails$listVarPlotRef, sep='.')
-      value.name <- paste(unique(listVarDetails$listValueVariable$entityId),listVarDetails$listValueVariable$variableId, sep='.')
+      variable.name <- paste(unique(listVarDetails$inferredVariable$entityId),listVarDetails$listVarPlotRef, sep='.')
+      value.name <- paste(unique(listVarDetails$inferredVariable$entityId),listVarDetails$inferredVariable$variableId, sep='.')
     }
 
     .dt <- data.table::melt(.dt, measure.vars = toColNameOrNull(listVariable),
@@ -124,7 +124,7 @@ newPlotdata <- function(.dt = data.table(),
 
     #### assign new variable details
     newVariable <- list('variableId' = listVarDetails$listVarPlotRef,
-                   'entityId' = unique(listVarDetails$listValueVariable$entityId),
+                   'entityId' = unique(listVarDetails$inferredVariable$entityId),
                    'dataType' = 'STRING',
                    'dataShape' = 'CATEGORICAL',
                    'displayLabel' = listVarDetails$listVarDisplayLabel)
@@ -156,8 +156,8 @@ newPlotdata <- function(.dt = data.table(),
       panel <- panelData[[2]]
     }
 
-    # Update y
-    yAxisVariable <- listVarDetails$listValueVariable
+    # Assume inferredVarPlotRef = yAxisVariable always.
+    yAxisVariable <- listVarDetails$inferredVariable
     y <- toColNameOrNull(yAxisVariable)
     yType <- emptyStringToNull(as.character(yAxisVariable$dataType))
     yShape <- emptyStringToNull(as.character(yAxisVariable$dataShape))

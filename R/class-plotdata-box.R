@@ -182,7 +182,7 @@ box.dt <- function(data,
                    computeStats = c(TRUE, FALSE),
                    listVarPlotRef = NULL,
                    listVarDisplayLabel = NULL,
-                   listValueDisplayLabel = NULL,
+                   inferredVarDisplayLabel = NULL,
                    evilMode = c(FALSE, TRUE)) {
 
   points <- matchArg(points)
@@ -212,8 +212,8 @@ box.dt <- function(data,
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   
   # Handle listVars
-  listVarDetails <- list('listValueVariable' = NULL,
-                         'listValuePlotRef' = 'yAxisVariable',
+  listVarDetails <- list('inferredVariable' = NULL,
+                         'inferredVarPlotRef' = 'yAxisVariable',
                          'listVarPlotRef' = listVarPlotRef,
                          'listVarDisplayLabel' = listVarDisplayLabel)
   if (!is.null(listVarPlotRef)) {
@@ -224,11 +224,11 @@ box.dt <- function(data,
         stop("listVar error: All overlay vars must be of type NUMBER.")
       }
       
-      listVarDetails$listValueVariable <- list('variableId' = 'yAxisVariable',
+      listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                                 'entityId' = unique(xAxisVariable$entityId),
                                                 'dataType' = 'NUMBER',
                                                 'dataShape' = 'CONTINUOUS',
-                                                'displayLabel' = listValueDisplayLabel)
+                                                'displayLabel' = inferredVarDisplayLabel)
 
     } else if (identical(listVarPlotRef, 'facetVariable1')) {
       
@@ -237,11 +237,11 @@ box.dt <- function(data,
         stop("listVar error: All facet1 vars must be of type NUMBER.")
       }
       
-      listVarDetails$listValueVariable <- list('variableId' = 'yAxisVariable',
+      listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                                 'entityId' = unique(facetVariable1$entityId),
                                                 'dataType' = 'NUMBER',
                                                 'dataShape' = 'CONTINUOUS',
-                                                'displayLabel' = listValueDisplayLabel)
+                                                'displayLabel' = inferredVarDisplayLabel)
     } else {
       stop('listVar error: listVarPlotRef must be either overlayVariable or facetVariable1 for scatter.')
     }
@@ -297,7 +297,7 @@ box <- function(data,
                 computeStats = c(TRUE, FALSE),
                 listVarPlotRef = NULL,
                 listVarDisplayLabel = NULL,
-                listValueDisplayLabel = NULL,
+                inferredVarDisplayLabel = NULL,
                 evilMode = c(FALSE, TRUE)) {
 
   points <- matchArg(points)
@@ -305,7 +305,7 @@ box <- function(data,
   computeStats <- matchArg(computeStats)
   evilMode <- matchArg(evilMode)
 
-  .box <- box.dt(data, map, points, mean, computeStats, listVarPlotRef, listVarDisplayLabel, listValueDisplayLabel, evilMode)
+  .box <- box.dt(data, map, points, mean, computeStats, listVarPlotRef, listVarDisplayLabel, inferredVarDisplayLabel, evilMode)
   outFileName <- writeJSON(.box, evilMode, 'boxplot')
 
   return(outFileName)
