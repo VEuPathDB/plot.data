@@ -180,6 +180,7 @@ box.dt <- function(data,
                    points = c('outliers', 'all', 'none'),
                    mean = c(FALSE, TRUE),
                    computeStats = c(TRUE, FALSE),
+                   listVarPlotRef = NULL,
                    listVarDisplayLabel = NULL,
                    listValueDisplayLabel = NULL,
                    evilMode = c(FALSE, TRUE)) {
@@ -194,24 +195,26 @@ box.dt <- function(data,
   }
 
   map <- validateMap(map)
+  #### should probably validate that if there is a duplicated plot ref then its gotta be listVarPlotRef
+  #### need to verify if any duplicated, then we must have listVarPlotRef
+  #### If we set other list var args, we must have listVarPlotRef
 
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type box.")
   }
+  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
+  if (is.null(yAxisVariable$variableId) & is.null(listVarPlotRef)) {
+    stop("Must provide yAxisVariable for plot type box.")
+  }
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
-  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  if (is.null(yAxisVariable$variableId) & length(xAxisVariable$variableId) == 1 & length(facetVariable1$variableId) == 1) {
-    stop("Must provide yAxisVariable for plot type box.")
-  }
-  
   
   #### Ann think about this line. Maybe wrap into function with below?
   #### This is the wrong way to make a null one. Do better.
   listVarDetails <- plotRefMapToList(map, 'listValueVariable')
-  if (length(xAxisVariable$variableId) > 1) {
+  if (identical(listVarPlotRef, 'xAxisVariable')) {
     
     # Ensure all variables are numbers
     if (!all(xAxisVariable$dataType == 'NUMBER')){
@@ -227,11 +230,11 @@ box.dt <- function(data,
                                               'dataShape' = 'CONTINUOUS',
                                               'displayLabel' = listValueDisplayLabel),
                               'listValuePlotRef' = 'yAxisVariable',
-                              'listVarPlotRef' = 'xAxisVariable',
+                              'listVarPlotRef' = listVarPlotRef,
                               'listVarDisplayLabel' = listVarDisplayLabel)
   }
 
-  if (length(facetVariable1$variableId) > 1) {
+  if (identical(listVarPlotRef, 'facetVariable1')) {
 
     # Ensure there is no facetVariable2
     if (!is.null(facetVariable2$variableId)) {
@@ -251,7 +254,7 @@ box.dt <- function(data,
                                               'dataShape' = 'CONTINUOUS',
                                               'displayLabel' = listValueDisplayLabel),
                               'listValuePlotRef' = 'yAxisVariable',
-                              'listVarPlotRef' = 'facetVariable1',
+                              'listVarPlotRef' = listVarPlotRef,
                               'listVarDisplayLabel' = listVarDisplayLabel)
   }
 
@@ -303,6 +306,7 @@ box <- function(data,
                 points = c('outliers', 'all', 'none'),
                 mean = c(FALSE, TRUE),
                 computeStats = c(TRUE, FALSE),
+                listVarPlotRef = NULL,
                 listVarDisplayLabel = NULL,
                 listValueDisplayLabel = NULL,
                 evilMode = c(FALSE, TRUE)) {
@@ -312,7 +316,7 @@ box <- function(data,
   computeStats <- matchArg(computeStats)
   evilMode <- matchArg(evilMode)
 
-  .box <- box.dt(data, map, points, mean, computeStats, evilMode)
+  .box <- box.dt(data, map, points, mean, computeStats, listVarPlotRef, listVarDisplayLabel, listValueDisplayLabel, evilMode)
   outFileName <- writeJSON(.box, evilMode, 'boxplot')
 
   return(outFileName)

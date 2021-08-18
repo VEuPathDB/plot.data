@@ -168,7 +168,7 @@ test_that("box.dt() accepts listVars for both x axis and facet vars", {
   df <- data.xy
   df[, entity.z := entity.x+entity.y]
   
-  dt <- box.dt(df, map, 'none', FALSE, listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
+  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'xAxisVariable', listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 4)
   expect_equal(names(dt),c('entity.group', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
@@ -182,7 +182,7 @@ test_that("box.dt() accepts listVars for both x axis and facet vars", {
   ## Case when we input multiple vars as one to facet 1
   map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.group'), 'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- box.dt(df, map, 'none', FALSE, listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
+  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt),c('entity.facetVariable1', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
@@ -191,7 +191,33 @@ test_that("box.dt() accepts listVars for both x axis and facet vars", {
   expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'listValueName')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
   expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
+  
+  
+  # Handle only one var sent as a listVar
+  map <- data.frame('id' = c('entity.y','entity.group'), 'plotRef' = c('xAxisVariable','overlayVariable'), 'dataType' = c('NUMBER','STRING'), 'dataShape' = c('CONTINUOUS','CATEGORICAL'), stringsAsFactors=FALSE)
 
+  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'xAxisVariable', listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt), 4)
+  expect_equal(names(dt),c('entity.group', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
+  expect_equal(unique(dt$label)[[1]], c('entity.y'))
+  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
+  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'listValueName')
+  expect_equal(attr(dt, 'xAxisVariable')$variableId, 'xAxisVariable')
+  expect_equal(attr(dt, 'xAxisVariable')$displayLabel, 'listVarName')
+  
+  # Handle only one var sent as a listVar
+  map <- data.frame('id' = c('entity.y','entity.group'), 'plotRef' = c('facetVariable1','xAxisVariable'), 'dataType' = c('NUMBER','STRING'), 'dataShape' = c('CONTINUOUS','CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt), 1)
+  expect_equal(names(dt),c('entity.facetVariable1', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
+  expect_equal(dt$entity.facetVariable1, c('entity.y'))
+  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
+  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'listValueName')
+  expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
+  expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
 })
 
 test_that("box() returns appropriately formatted json", {
@@ -267,7 +293,7 @@ test_that("box() returns appropriately formatted json", {
   df <- data.xy
   df[, entity.z := entity.x+entity.y]
   
-  dt <- box.dt(df, map, 'none', FALSE, listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
+  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'xAxisVariable', listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('boxplot','sampleSizeTable','statsTable','completeCasesTable'))
@@ -288,7 +314,7 @@ test_that("box() returns appropriately formatted json", {
   ## Input multiple vars as one to facet 1
   map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.z', 'entity.group'), 'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- box.dt(df, map, 'none', FALSE, listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
+  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', listValueDisplayLabel = 'listValueName')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('boxplot','sampleSizeTable','statsTable','completeCasesTable'))

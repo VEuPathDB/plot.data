@@ -165,6 +165,7 @@ validateScatterPD <- function(.scatter) {
 scattergl.dt <- function(data, 
                          map, 
                          value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
+                         listVarPlotRef = NULL,
                          listVarDisplayLabel = NULL,
                          listValueDisplayLabel = NULL,
                          evilMode = c(FALSE, TRUE)) {
@@ -194,7 +195,7 @@ scattergl.dt <- function(data,
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
   if (is.null(yAxisVariable$variableId)) {
-    if (length(overlayVariable$variableId) == 1 & length(facetVariable1$variableId) == 1) {
+    if (is.null(listVarPlotRef)) {
       stop("Must provide xAxisVariable for plot type scatter.")
     }
   } else {
@@ -205,7 +206,7 @@ scattergl.dt <- function(data,
 
   #### Ann think about this line. Maybe wrap into function with below?
   listVarDetails <- plotRefMapToList(map, 'listValueVariable')
-  if (length(overlayVariable$variableId) > 1) {
+  if (identical(listVarPlotRef, 'overlayVariable')) {
     
     # Ensure all variables are numbers
     if (!all(overlayVariable$dataType == 'NUMBER')){
@@ -218,11 +219,11 @@ scattergl.dt <- function(data,
                                               'dataShape' = 'CONTINUOUS',
                                               'displayLabel' = listValueDisplayLabel),
                               'listValuePlotRef' = 'yAxisVariable',
-                              'listVarPlotRef' = 'overlayVariable',
+                              'listVarPlotRef' = listVarPlotRef,
                               'listVarDisplayLabel' = listVarDisplayLabel)
   }
 
-  if (length(facetVariable1$variableId) > 1) {
+  if (identical(listVarPlotRef, 'facetVariable1')) {
     
     # Ensure all variables are numbers
     if (!all(facetVariable1$dataType == 'NUMBER')){
@@ -235,7 +236,7 @@ scattergl.dt <- function(data,
                                               'dataShape' = 'CONTINUOUS',
                                               'displayLabel' = listValueDisplayLabel),
                               'listValuePlotRef' = 'yAxisVariable',
-                              'listVarPlotRef' = 'facetVariable1',
+                              'listVarPlotRef' = listVarPlotRef,
                               'listVarDisplayLabel' = listVarDisplayLabel)
   }
 
@@ -284,6 +285,7 @@ scattergl.dt <- function(data,
 scattergl <- function(data,
                       map,
                       value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
+                      listVarPlotRef = listVarPlotRef,
                       listVarDisplayLabel = NULL,
                       listValueDisplayLabel = NULL,
                       evilMode = c(FALSE, TRUE)) {
