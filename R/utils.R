@@ -1,3 +1,12 @@
+#' Try-error Test
+#'
+#' This function returns a logical value indicating if x is
+#' a try-error object.
+#' @param x an R object
+#' @return logical TRUE if x is a try-error object, FALSE otherwise
+#' @export
+is.error <- function(x) inherits(x, "try-error")
+
 tableXY <- function(data) {
   table(data$x, data$y)
 }
