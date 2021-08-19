@@ -15,7 +15,7 @@ test_that("box.dt() returns a valid plot.data box object", {
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(names(sampleSizes), c('entity.group','entity.panel','size'))
   expect_equal(nrow(sampleSizes), 4)
-  expect_equal(names(namedAttrList$statsTable), c('entity.panel','statistics'))
+  expect_equal(names(namedAttrList$statsTable), c('entity.panel','statistic','pvalue','parameter','method','statsError'))
   
   dt <- box.dt(df, map, 'all', FALSE)
   expect_is(dt, 'plot.data')
@@ -27,7 +27,7 @@ test_that("box.dt() returns a valid plot.data box object", {
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(names(sampleSizes), c('entity.group','entity.panel','size'))
   expect_equal(nrow(sampleSizes), 4)
-  expect_equal(names(namedAttrList$statsTable), c('entity.panel','statistics'))
+  expect_equal(names(namedAttrList$statsTable), c('entity.panel','statistic','pvalue','parameter','method','statsError'))
   expect_equal(dt$entity.group[[1]], 'group1')
   expect_equal(dt$label[[1]], c('panel1','panel2','panel3','panel4'))
   expect_equal(unlist(lapply(dt$rawData[[1]], length)), c(25,50,25,25))
@@ -200,7 +200,7 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
-  expect_equal(names(jsonList$statsTable), c('entity.panel','statistics','overlayVariableDetails'))
+  expect_equal(names(jsonList$statsTable), c('entity.panel','statistic','pvalue','parameter','method','statsError','overlayVariableDetails'))
 
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('groupLabel','yLabel','panelLabel'), stringsAsFactors=FALSE)
 
@@ -217,7 +217,7 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId','displayLabel'))
-  expect_equal(names(jsonList$statsTable), c('entity.panel','statistics','overlayVariableDetails'))
+  expect_equal(names(jsonList$statsTable), c('entity.panel','statistic','pvalue','parameter','method','statsError','overlayVariableDetails'))
 
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('','','panelLabel'), stringsAsFactors=FALSE)
 
@@ -247,7 +247,7 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
-  expect_equal(names(jsonList$statsTable), c('entity.numcat1','statistics','overlayVariableDetails'))
+  expect_equal(names(jsonList$statsTable), c('entity.numcat1','statistic','pvalue','parameter','method','statsError','overlayVariableDetails'))
   expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
 })
 
@@ -309,28 +309,28 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   dt <- box.dt(df, map, 'none', FALSE, TRUE)
   statsTable <- attr(dt, 'statsTable')
   expect_equal(nrow(statsTable), 1)
-  expect_equal(ncol(statsTable), 1)
+  expect_equal(ncol(statsTable), 5)
   
   # No overlay, one facet
   map <- data.frame('id' = c('entity.xcat', 'entity.y', 'entity.panel'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt <- box.dt(df, map, 'none', FALSE, TRUE)
   statsTable <- attr(dt, 'statsTable')
   expect_equal(nrow(statsTable), uniqueN(df$entity.panel))
-  expect_equal(ncol(statsTable), 2)
+  expect_equal(ncol(statsTable), 6)
   
   # With overlay, no facets
   map <- data.frame('id' = c('entity.xcat', 'entity.y', 'entity.group'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt <- box.dt(df, map, 'none', FALSE, TRUE)
   statsTable <- attr(dt, 'statsTable')
   expect_equal(nrow(statsTable), uniqueN(df$entity.xcat))
-  expect_equal(ncol(statsTable), 2)
+  expect_equal(ncol(statsTable), 6)
   
   # With overlay and facet
   map <- data.frame('id' = c('entity.xcat', 'entity.y', 'entity.group', 'entity.panel'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt <- box.dt(df, map, 'none', FALSE, TRUE)
   statsTable <- attr(dt, 'statsTable')
   expect_equal(nrow(statsTable), uniqueN(df$entity.xcat)*uniqueN(df$entity.panel))
-  expect_equal(ncol(statsTable), 3)
+  expect_equal(ncol(statsTable), 7)
   
   
 })
