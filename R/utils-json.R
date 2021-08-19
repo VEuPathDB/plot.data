@@ -6,7 +6,7 @@ makeVariableDetails <- function(value, variableId, entityId, displayLabel = NULL
       variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=as.character(value))
     }
   } else {
-    if (length(variableId > 1)) {
+    if (length(variableId) > 1) {
       variableDetails <- list('variableId'=variableId, 'entityId'=entityId)
     } else {
       variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId))
