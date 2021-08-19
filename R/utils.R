@@ -1,3 +1,9 @@
+logWithTime <- function(message, verbose) {
+  if (verbose) {
+    message('\n', Sys.time(), ' ', message)
+  }
+}
+
 #' Try-error Test
 #'
 #' This function returns a logical value indicating if x is

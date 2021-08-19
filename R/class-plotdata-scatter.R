@@ -26,6 +26,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                                               'displayLabel' = NULL),
                          value = character(),
                          evilMode = logical(),
+                         verbose = logical(),
                          ...,
                          class = character()) {
 
@@ -36,6 +37,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
+                     verbose = verbose,
                      class = "scatterplot")
 
   attr <- attributes(.pd)
@@ -63,11 +65,13 @@ newScatterPD <- function(.dt = data.table::data.table(),
   } else {
     series$seriesY <- lapply(series$seriesY, as.character)
   }
+  logWithTime('Collected raw scatter plot data.', verbose)
 
   if (value == 'smoothedMean') {
 
     smoothedMean <- groupSmoothedMean(.pd, x, y, group, panel)
     .pd <- smoothedMean
+    logWithTime('Calculated smoothed means.', verbose)
 
   } else if (value == 'smoothedMeanWithRaw') {
     
@@ -77,6 +81,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
     } else {
       .pd <- cbind(series, smoothedMean)
     }
+    logWithTime('Calculated smoothed means.', verbose)
 
   } else if (value == 'bestFitLineWithRaw') {
   
@@ -86,12 +91,14 @@ newScatterPD <- function(.dt = data.table::data.table(),
     } else {
       .pd <- cbind(series, bestFitLine)
     }
+    logWithTime('Calculated best fit line.', verbose)
 
   } else if (value == 'density') {
     
     density <- groupDensity(.pd, NULL, x, group, panel)
     .pd <- density
-    
+    logWithTime('Kernel density estimated calculated from raw data.', verbose)
+
   } else {
     .pd <- series
   }
@@ -102,7 +109,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   return(.pd)
 }
 
-validateScatterPD <- function(.scatter) {
+validateScatterPD <- function(.scatter, verbose) {
   xAxisVariable <- attr(.scatter, 'xAxisVariable')
   if (!xAxisVariable$dataShape %in% c('CONTINUOUS','ORDINAL')) {
     stop('The independent axis must be continuous or ordinal for scatterplot.')
@@ -129,6 +136,7 @@ validateScatterPD <- function(.scatter) {
       stop('The second facet variable must be binary, ordinal or categorical.')
     }
   }
+  logWithTime('Scatter plot request has been validated!', verbose)
 
   return(.scatter)
 }
@@ -163,11 +171,13 @@ validateScatterPD <- function(.scatter) {
 scattergl.dt <- function(data, 
                          map, 
                          value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
-                         evilMode = c(FALSE, TRUE)) {
+                         evilMode = c(FALSE, TRUE),
+                         verbose = c(TRUE, FALSE)) {
 
   value <- matchArg(value)
   evilMode <- matchArg(evilMode) 
-  
+  verbose <- matchArg(verbose)  
+
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
@@ -199,6 +209,7 @@ scattergl.dt <- function(data,
     data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
     map <- remapListVar(map, listVarPlotRef, meltedValuePlotRef)
     
+    logWithTime('Repeated plot references have been melted into a list variable!', verbose)
   } # end handling of repeated plot element references
 
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
@@ -233,9 +244,10 @@ scattergl.dt <- function(data,
                             facetVariable1 = facetVariable1,
                             facetVariable2 = facetVariable2,
                             value = value,
-                            evilMode = evilMode)
+                            evilMode = evilMode,
+                            verbose = verbose)
 
-  .scatter <- validateScatterPD(.scatter)
+  .scatter <- validateScatterPD(.scatter, verbose)
 
   return(.scatter)
 }
@@ -267,13 +279,16 @@ scattergl.dt <- function(data,
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
-scattergl <- function(data, map, value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'), evilMode = c(FALSE, TRUE)) {
+scattergl <- function(data, map, 
+                      value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'), 
+                      evilMode = c(FALSE, TRUE),
+                      verbose = c(TRUE, FALSE)) {
 
-  value <- matchArg(value)
-  evilMode <- matchArg(evilMode)
+  verbose <- matchArg(verbose)
 
-  .scatter <- scattergl.dt(data, map, value, evilMode)
-  outFileName <- writeJSON(.scatter, evilMode, 'scattergl')
+  .scatter <- scattergl.dt(data, map, value, evilMode, verbose)
+  logWithTime('New scatter plot object created!', verbose)
+  outFileName <- writeJSON(.scatter, evilMode, 'scattergl', verbose)
 
   return(outFileName)
 }

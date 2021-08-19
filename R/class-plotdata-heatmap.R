@@ -31,6 +31,7 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
                                               'displayLabel' = NULL),
                          value = character(),
                          evilMode = logical(),
+                         verbose = logical(),
                          ...,
                          class = character()) {
 
@@ -40,7 +41,8 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
-                     class = "heatmapplot")
+                     verbose = verbose,
+                     class = "heatmap")
 
   attr <- attributes(.pd)
   attr$yAxisVariable <- yAxisVariable
@@ -106,10 +108,14 @@ validateHeatmapPD <- function(.heatmap) {
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
 #' @export
-heatmap.dt <- function(data, map, value = c('series', 'collection'), evilMode = c(FALSE, TRUE)) {
+heatmap.dt <- function(data, map, 
+                       value = c('series', 'collection'), 
+                       evilMode = c(FALSE, TRUE),
+                       verbose = c(TRUE, FALSE)) {
 
   value <- matchArg(value)
   evilMode <- matchArg(evilMode)
+  verbose <- matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -136,9 +142,10 @@ heatmap.dt <- function(data, map, value = c('series', 'collection'), evilMode = 
                             facetVariable1 = facetVariable1,
                             facetVariable2 = facetVariable2,
                             value = value,
-                            evilMode = evilMode)
+                            evilMode = evilMode,
+                            verbose = verbose)
 
-  .heatmap <- validateHeatmapPD(.heatmap)
+  .heatmap <- validateHeatmapPD(.heatmap, verbose)
 
   return(.heatmap)
 
@@ -170,12 +177,14 @@ heatmap.dt <- function(data, map, value = c('series', 'collection'), evilMode = 
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
-heatmap <- function(data, map, value = c('series','collection'), evilMode = c(FALSE, TRUE)) {
-  value <- matchArg(value)
-  evilMode <- matchArg(evilMode)
-
-  .heatmap <- heatmap.dt(data, map, value, evilMode)
-  outFileName <- writeJSON(.heatmap, evilMode, 'heatmap')
+heatmap <- function(data, map, 
+                    value = c('series','collection'), 
+                    evilMode = c(FALSE, TRUE)) {
+  verbose <- matchArg(verbose)
+ 
+  .heatmap <- heatmap.dt(data, map, value, evilMode, verbose)
+  logWithTime('New heatmap object created!', verbose)
+  outFileName <- writeJSON(.heatmap, evilMode, 'heatmap', verbose)
 
   return(outFileName)
 }

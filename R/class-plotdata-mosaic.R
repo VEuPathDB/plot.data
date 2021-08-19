@@ -21,6 +21,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                                               'displayLabel' = NULL),
                          statistic = character(),
                          evilMode = logical(),
+                         verbose = logical(),
                          ...,
                          class = character()) {
 
@@ -30,6 +31,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
+                     verbose = verbose,
                      class = "mosaic")
 
   attr <- attributes(.pd)
@@ -40,8 +42,10 @@ newMosaicPD <- function(.dt = data.table::data.table(),
 
   if (statistic == 'chiSq') {
     statsTable <- panelChiSq(.pd, x, y, panel)
+    logWithTime('Calculated chi-squared statistic.', verbose)
   } else {
     statsTable <- panelBothRatios(.pd, x, y, panel)
+    logWithTime('Calculated odds ratio and relative risk.', verbose)
   }
   .pd <- panelTable(.pd, x, y, panel)
 
@@ -53,7 +57,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   return(.pd)
 }
 
-validateMosaicPD <- function(.mosaic) {
+validateMosaicPD <- function(.mosaic, verbose) {
   xAxisVariable <- attr(.mosaic, 'xAxisVariable')
   if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
     stop('The independent axis must be binary, ordinal or categorical for mosaic.')
@@ -74,6 +78,7 @@ validateMosaicPD <- function(.mosaic) {
       stop('The second facet variable must be binary, ordinal or categorical.')
     }
   }
+  logWithTime('Mosaic plot request has been validated!', verbose)
 
   return(.mosaic)
 }
@@ -99,11 +104,12 @@ validateMosaicPD <- function(.mosaic) {
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
 #' @export
-mosaic.dt <- function(data, map, statistic = NULL, evilMode = c(FALSE, TRUE)) {
-  evilMode <- evilMode[1]
-  if (!evilMode %in% c(FALSE, TRUE)) {
-    stop('invalid input to argument `evilMode`.')
-  }
+mosaic.dt <- function(data, map, 
+                      statistic = NULL, 
+                      evilMode = c(FALSE, TRUE),
+                      verbose = c(TRUE, FALSE)) {
+  evilMode <- matchArg(evilMode)
+  verbose <- matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -134,6 +140,7 @@ mosaic.dt <- function(data, map, statistic = NULL, evilMode = c(FALSE, TRUE)) {
     } else {
       statistic <- 'bothRatios'
     }
+    logWithTime(paste('No statistic specified, using:', ifelse(statistic=='chiSq', 'chi-squared', 'odds ratio and relative risk')), verbose)
   }
   
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
@@ -145,9 +152,10 @@ mosaic.dt <- function(data, map, statistic = NULL, evilMode = c(FALSE, TRUE)) {
                             facetVariable1 = facetVariable1,
                             facetVariable2 = facetVariable2,
                             statistic = statistic,
-                            evilMode = evilMode)
+                            evilMode = evilMode,
+                            verbose = verbose)
 
-  .mosaic <- validateMosaicPD(.mosaic)
+  .mosaic <- validateMosaicPD(.mosaic, verbose)
 
   return(.mosaic)
 }
@@ -172,15 +180,15 @@ mosaic.dt <- function(data, map, statistic = NULL, evilMode = c(FALSE, TRUE)) {
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
-mosaic <- function(data, map, statistic = NULL, evilMode = c(FALSE, TRUE)) {
-  evilMode <- evilMode[1]
-  if (!evilMode %in% c(FALSE, TRUE)) {
-    stop('invalid input to argument `evilMode`.')
-  }
+mosaic <- function(data, map, 
+                   statistic = NULL, 
+                   evilMode = c(FALSE, TRUE),
+                   verbose = c(TRUE, FALSE)) {
+  verbose <- matchArg(verbose)
 
-  .mosaic <- mosaic.dt(data, map, statistic, evilMode)
-
-  outFileName <- writeJSON(.mosaic, evilMode, 'mosaic')
+  .mosaic <- mosaic.dt(data, map, statistic, evilMode, verbose)
+  logWithTime('New mosaic plot object created!', verbose)
+  outFileName <- writeJSON(.mosaic, evilMode, 'mosaic', verbose)
 
   return(outFileName)
 }
