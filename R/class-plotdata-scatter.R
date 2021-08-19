@@ -26,7 +26,10 @@ newScatterPD <- function(.dt = data.table::data.table(),
                                               'displayLabel' = NULL),
                          value = character(),
                          evilMode = logical(),
-                         listVarDetails = list(),
+                         listVarDetails = list('inferredVariable' = NULL,
+                                               'inferredVarPlotRef' = NULL,
+                                               'listVarPlotRef' = NULL,
+                                               'listVarDisplayLabel' = NULL),
                          ...,
                          class = character()) {
 
@@ -159,6 +162,9 @@ validateScatterPD <- function(.scatter) {
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
+#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
+#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
+#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
 #' @export
@@ -175,6 +181,20 @@ scattergl.dt <- function(data,
   
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
+  }
+
+  map <- validateMap(map)
+
+  # If there is a duplicated plotRef in map, it must match listVarPlotRef
+  if (any(duplicated(map$plotRef))) {
+    if (!identical(listVarPlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
+      stop('listVar error: duplicated map plotRef does not match listVarPlotRef.')
+    }
+  }
+
+  # If listVar and inferredVar labels are provided, must also provide listVarPlotRef
+  if ((!is.null(listVarDisplayLabel) | !is.null(inferredVarDisplayLabel)) & is.null(listVarPlotRef)) {
+    stop('listVar error: listVarPlotRef must be specified in order to use inferredVarDisplayLabel or listVarDisplayLabel')
   }
 
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
@@ -216,6 +236,11 @@ scattergl.dt <- function(data,
       if (!all(overlayVariable$dataType == 'NUMBER')){
         stop("listVar error: All overlay vars must be of type NUMBER.")
       }
+
+      # Ensure evilMode is F
+      if (evilMode) {
+        stop("listVar error: Using listVar as overlay is incompatible with evilMode.")
+      }
       
       listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                                 'entityId' = unique(overlayVariable$entityId),
@@ -228,6 +253,11 @@ scattergl.dt <- function(data,
       # Ensure all variables are numbers
       if (!all(facetVariable1$dataType == 'NUMBER')){
         stop("listVar error: All facet1 vars must be of type NUMBER.")
+      }
+
+      # Ensure evilMode is F
+      if (evilMode) {
+        stop("listVar error: Using listVar as facet1 is incompatible with evilMode.")
       }
       
       listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
@@ -279,6 +309,9 @@ scattergl.dt <- function(data,
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
+#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
+#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
+#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export

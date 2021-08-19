@@ -86,7 +86,7 @@ newPlotdata <- function(.dt = data.table(),
   .dt <- .dt[, myCols, with=FALSE]
 
   completeCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]))
-  #### If we have a listvar, since everything gets directed to y we should just skip this step?
+
   if (evilMode) {
     if (!is.null(group)) { .dt[[group]][is.na(.dt[[group]])] <- 'No data' }
     if (!is.null(panel)) { .dt[[panel]][is.na(.dt[[panel]])] <- 'No data' }
@@ -98,7 +98,7 @@ newPlotdata <- function(.dt = data.table(),
   }
   plottedIncompleteCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]) - completeCases)
 
-  #### Handle listvar
+  # Reshape data and remap variables if listVar is specified
   listVariable <- NULL
   if (!is.null(listVarDetails$listVarPlotRef)) {
 
@@ -121,34 +121,35 @@ newPlotdata <- function(.dt = data.table(),
       value.name <- paste(unique(listVarDetails$inferredVariable$entityId),listVarDetails$inferredVariable$variableId, sep='.')
     }
 
+    # Reshape data
     .dt <- data.table::melt(.dt, measure.vars = toColNameOrNull(listVariable),
                         variable.factor = FALSE,
                         variable.name= variable.name,
                         value.name=value.name)
 
-    #### assign new variable details
-    newVariable <- list('variableId' = listVarDetails$listVarPlotRef,
-                   'entityId' = unique(listVarDetails$inferredVariable$entityId),
+    # Assign new variable details for the created categorical variable
+    newCatVariable <- list('variableId' = listVarDetails$listVarPlotRef,
+                   'entityId' = unique(listVariable$entityId),
                    'dataType' = 'STRING',
                    'dataShape' = 'CATEGORICAL',
                    'displayLabel' = listVarDetails$listVarDisplayLabel)
 
     if (listVarDetails$listVarPlotRef == 'xAxisVariable') {
-      xAxisVariable <- newVariable
+      xAxisVariable <- newCatVariable
       x <- toColNameOrNull(xAxisVariable)
       xType <- emptyStringToNull(as.character(xAxisVariable$dataType))
       xShape <- emptyStringToNull(as.character(xAxisVariable$dataShape))
       .dt[[x]] <- updateType(.dt[[x]], xType, xShape)
 
     } else if (listVarDetails$listVarPlotRef == 'overlayVariable') {
-      overlayVariable <- newVariable
+      overlayVariable <- newCatVariable
       group <- toColNameOrNull(overlayVariable)
       groupType <- emptyStringToNull(as.character(overlayVariable$dataType))
       groupShape <- emptyStringToNull(as.character(overlayVariable$dataShape))
       .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape)
 
     } else if (listVarDetails$listVarPlotRef == 'facetVariable1') {
-      facetVariable1 <- newVariable
+      facetVariable1 <- newCatVariable
       facet1 <- toColNameOrNull(facetVariable1)
       facetType1 <- emptyStringToNull(as.character(facetVariable1$dataType))
       facetShape1 <- emptyStringToNull(as.character(facetVariable1$dataShape))

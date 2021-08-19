@@ -28,7 +28,10 @@ newBoxPD <- function(.dt = data.table::data.table(),
                          mean = logical(),
                          computeStats = logical(),
                          evilMode = logical(),
-                         listVarDetails = list(),
+                         listVarDetails = list('inferredVariable' = NULL,
+                                               'inferredVarPlotRef' = NULL,
+                                               'listVarPlotRef' = NULL,
+                                               'listVarDisplayLabel' = NULL),
                          ...,
                          class = character()) {
 
@@ -172,6 +175,9 @@ validateBoxPD <- function(.box) {
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
+#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
+#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
+#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
 #' @export
@@ -195,9 +201,18 @@ box.dt <- function(data,
   }
 
   map <- validateMap(map)
-  #### should probably validate that if there is a duplicated plot ref then its gotta be listVarPlotRef
-  #### need to verify if any duplicated, then we must have listVarPlotRef
-  #### If we set other list var args, we must have listVarPlotRef
+
+  # If there is a duplicated plotRef in map, it must match listVarPlotRef
+  if (any(duplicated(map$plotRef))) {
+    if (!identical(listVarPlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
+      stop('listVar error: duplicated map plotRef does not match listVarPlotRef.')
+    }
+  }
+
+  # If listVar and inferredVar labels are provided, must also provide listVarPlotRef
+  if ((!is.null(listVarDisplayLabel) | !is.null(inferredVarDisplayLabel)) & is.null(listVarPlotRef)) {
+    stop('listVar error: listVarPlotRef must be specified in order to use inferredVarDisplayLabel or listVarDisplayLabel')
+  }
 
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   if (is.null(xAxisVariable$variableId)) {
@@ -216,6 +231,7 @@ box.dt <- function(data,
                          'inferredVarPlotRef' = 'yAxisVariable',
                          'listVarPlotRef' = listVarPlotRef,
                          'listVarDisplayLabel' = listVarDisplayLabel)
+
   if (!is.null(listVarPlotRef)) {
     if (identical(listVarPlotRef, 'xAxisVariable')) {
       
@@ -236,6 +252,11 @@ box.dt <- function(data,
       if (!all(facetVariable1$dataType == 'NUMBER')){
         stop("listVar error: All facet1 vars must be of type NUMBER.")
       }
+
+      # Ensure evilMode is F
+      if (evilMode) {
+        stop("listVar error: Using listVar as facet1 is incompatible with evilMode.")
+      }
       
       listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                                 'entityId' = unique(facetVariable1$entityId),
@@ -243,7 +264,7 @@ box.dt <- function(data,
                                                 'dataShape' = 'CONTINUOUS',
                                                 'displayLabel' = inferredVarDisplayLabel)
     } else {
-      stop('listVar error: listVarPlotRef must be either overlayVariable or facetVariable1 for scatter.')
+      stop('listVar error: listVarPlotRef must be either xAxisVariable or facetVariable1 for box.')
     }
   }
 
@@ -287,6 +308,9 @@ box.dt <- function(data,
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
+#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
+#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
+#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
