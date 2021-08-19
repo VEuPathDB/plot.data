@@ -171,10 +171,10 @@ validateScatterPD <- function(.scatter) {
 scattergl.dt <- function(data, 
                          map, 
                          value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
+                         evilMode = c(FALSE, TRUE),
                          listVarPlotRef = NULL,
                          listVarDisplayLabel = NULL,
-                         inferredVarDisplayLabel = NULL,
-                         evilMode = c(FALSE, TRUE)) {
+                         inferredVarDisplayLabel = NULL) {
 
   value <- matchArg(value)
   evilMode <- matchArg(evilMode) 
@@ -318,10 +318,10 @@ scattergl.dt <- function(data,
 scattergl <- function(data,
                       map,
                       value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
+                      evilMode = c(FALSE, TRUE)
                       listVarPlotRef = listVarPlotRef,
                       listVarDisplayLabel = NULL,
-                      inferredVarDisplayLabel = NULL,
-                      evilMode = c(FALSE, TRUE)) {
+                      inferredVarDisplayLabel = NULL) {
 
   value <- matchArg(value)
   evilMode <- matchArg(evilMode)

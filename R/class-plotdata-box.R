@@ -186,10 +186,10 @@ box.dt <- function(data,
                    points = c('outliers', 'all', 'none'),
                    mean = c(FALSE, TRUE),
                    computeStats = c(TRUE, FALSE),
+                   evilMode = c(FALSE, TRUE),
                    listVarPlotRef = NULL,
                    listVarDisplayLabel = NULL,
-                   inferredVarDisplayLabel = NULL,
-                   evilMode = c(FALSE, TRUE)) {
+                   inferredVarDisplayLabel = NULL) {
 
   points <- matchArg(points)
   mean <- matchArg(mean)
@@ -319,10 +319,10 @@ box <- function(data,
                 points = c('outliers', 'all', 'none'),
                 mean = c(FALSE, TRUE),
                 computeStats = c(TRUE, FALSE),
+                evilMode = c(FALSE, TRUE)
                 listVarPlotRef = NULL,
                 listVarDisplayLabel = NULL,
-                inferredVarDisplayLabel = NULL,
-                evilMode = c(FALSE, TRUE)) {
+                inferredVarDisplayLabel = NULL) {
 
   points <- matchArg(points)
   mean <- matchArg(mean)
