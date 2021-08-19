@@ -318,7 +318,7 @@ scattergl.dt <- function(data,
 scattergl <- function(data,
                       map,
                       value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
-                      evilMode = c(FALSE, TRUE)
+                      evilMode = c(FALSE, TRUE),
                       listVarPlotRef = listVarPlotRef,
                       listVarDisplayLabel = NULL,
                       inferredVarDisplayLabel = NULL) {
