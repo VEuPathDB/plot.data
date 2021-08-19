@@ -308,10 +308,10 @@ box.dt <- function(data,
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
 #' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
 box <- function(data,
@@ -329,7 +329,15 @@ box <- function(data,
   computeStats <- matchArg(computeStats)
   evilMode <- matchArg(evilMode)
 
-  .box <- box.dt(data, map, points, mean, computeStats, listVarPlotRef, listVarDisplayLabel, inferredVarDisplayLabel, evilMode)
+  .box <- box.dt(data,
+                 map,
+                 points = points,
+                 mean = mean,
+                 computeStats = computeStats,
+                 evilMode = evilMode,
+                 listVarPlotRef = listVarPlotRef,
+                 listVarDisplayLabel = listVarDisplayLabel,
+                 inferredVarDisplayLabel = inferredVarDisplayLabel)
   outFileName <- writeJSON(.box, evilMode, 'boxplot')
 
   return(outFileName)

@@ -162,10 +162,10 @@ validateScatterPD <- function(.scatter) {
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
 #' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return data.table plot-ready data
 #' @export
 scattergl.dt <- function(data, 
@@ -309,24 +309,31 @@ scattergl.dt <- function(data,
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
 #' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @return character name of json file containing plot-ready data
 #' @export
 scattergl <- function(data,
                       map,
                       value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
                       evilMode = c(FALSE, TRUE),
-                      listVarPlotRef = listVarPlotRef,
+                      listVarPlotRef = NULL,
                       listVarDisplayLabel = NULL,
                       inferredVarDisplayLabel = NULL) {
 
   value <- matchArg(value)
   evilMode <- matchArg(evilMode)
 
-  .scatter <- scattergl.dt(data, map, value, evilMode)
+  .scatter <- scattergl.dt(data,
+                           map,
+                           value = value,
+                           evilMode = evilMode,
+                           listVarPlotRef = listVarPlotRef,
+                           listVarDisplayLabel = listVarDisplayLabel,
+                           inferredVarDisplayLabel = inferredVarDisplayLabel)
+                           
   outFileName <- writeJSON(.scatter, evilMode, 'scattergl')
 
   return(outFileName)
