@@ -156,7 +156,9 @@ getJSON <- function(.pd, evilMode) {
 #' @importFrom jsonlite toJSON
 #' @importFrom jsonlite prettify
 #' @export
-writeJSON <- function(.pd, evilMode, pattern = NULL) {
+writeJSON <- function(.pd, evilMode, pattern = NULL, verbose = c(TRUE, FALSE)) {
+  verbose <- matchArg(verbose)
+
   outJson <- getJSON(.pd, evilMode)
   if (is.null(pattern)) { 
     pattern <- attr(.pd, 'class')[1]
@@ -166,6 +168,7 @@ writeJSON <- function(.pd, evilMode, pattern = NULL) {
   }
   outFileName <- basename(tempfile(pattern = pattern, tmpdir = tempdir(), fileext = ".json"))
   write(outJson, outFileName)
+  logWithTime(paste('New output file written:', outFileName), verbose)
 
   return(outFileName)
 }

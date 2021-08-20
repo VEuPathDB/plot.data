@@ -12,7 +12,8 @@ histogram(
   binReportValue = c("binWidth", "numBins"),
   barmode = c("stack", "overlay"),
   viewport = NULL,
-  evilMode = c(FALSE, TRUE)
+  evilMode = c(FALSE, TRUE),
+  verbose = c(TRUE, FALSE)
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ histogram(
 \item{viewport}{List of min and max values to consider as the range of data}
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
+
+\item{verbose}{boolean indicating if timed logging is desired}
 }
 \value{
 character name of json file containing plot-ready data

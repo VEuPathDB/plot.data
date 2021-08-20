@@ -22,6 +22,7 @@ newBarPD <- function(.dt = data.table::data.table(),
                          value = character(),
                          barmode = character(),
                          evilMode = logical(),
+                         verbose = logical(),
                          ...,
                          class = character()) {
 
@@ -31,6 +32,7 @@ newBarPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
+                     verbose = verbose,
                      class = "barplot")
 
   attr <- attributes(.pd)
@@ -42,15 +44,17 @@ newBarPD <- function(.dt = data.table::data.table(),
 
   if (value == 'identity') {
     .pd <- collapseByGroup(.pd, group, panel)
+    logWithTime('Value is set to `identity`. Resulting barplot object will represent raw values.', verbose)
   } else if (value == 'count' ) {
     .pd$dummy <- 1
     .pd <- groupSize(.pd, x, 'dummy', group, panel, collapse = T)
     data.table::setnames(.pd, c(group, panel, 'label', 'value'))
-
+    logWithTime('Value is set to `count`. Resulting barplot object will represent counts of unique x-axis values per group.', verbose)
   } else if (value == 'proportion') {
     .pd$dummy <- 1
     .pd <- groupProportion(.pd, x, 'dummy', group, panel, barmode, collapse = T)
     data.table::setnames(.pd, c(group, panel, 'label', 'value'))
+    logWithTime('Value is set to `proportion`. If barmode is `group` the resulting barplot object will represent the relative proportions of unique x-axis values across groups. If barmode is `stack` the resulting barplot object will represent the proportions of unique x-axis values relative to the total x-axis values in that panel.', verbose)
   }
   
   attr$names <- names(.pd)
@@ -60,7 +64,7 @@ newBarPD <- function(.dt = data.table::data.table(),
   return(.pd)
 }
 
-validateBarPD <- function(.bar) {
+validateBarPD <- function(.bar, verbose) {
   xAxisVariable <- attr(.bar, 'xAxisVariable')
   if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
     stop('The independent axis must be binary, ordinal or categorical for barplot.')
@@ -83,6 +87,7 @@ validateBarPD <- function(.bar) {
       stop('The second facet variable must be binary, ordinal or categorical.')
     }
   }
+  logWithTime('Barplot request has been validated!', verbose)
 
   return(.bar)
 }
@@ -110,17 +115,20 @@ validateBarPD <- function(.bar) {
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
 bar.dt <- function(data, 
                    map, 
                    value = c('count', 'identity', 'proportion'), 
                    barmode = c('group', 'stack'), 
-                   evilMode = c(FALSE, TRUE)) {
+                   evilMode = c(FALSE, TRUE),
+                   verbose = c(TRUE, FALSE)) {
 
   value <- matchArg(value)
   barmode <- matchArg(barmode)
   evilMode <- matchArg(evilMode)
+  verbose <- matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -141,9 +149,11 @@ bar.dt <- function(data,
                     facetVariable2 = facetVariable2,
                     value = value,
                     barmode = barmode,
-                    evilMode = evilMode)
+                    evilMode = evilMode,
+                    verbose = verbose)
 
-  .bar <- validateBarPD(.bar)
+  .bar <- validateBarPD(.bar, verbose)
+  logWithTime(paste('New barplot object created with parameters value =', value, ', barmode =', barmode, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.bar)
 }
@@ -171,20 +181,20 @@ bar.dt <- function(data,
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
 bar <- function(data, 
                 map, 
                 value = c('count', 'identity', 'proportion'), 
                 barmode = c('group', 'stack'), 
-                evilMode = c(FALSE, TRUE)) {
+                evilMode = c(FALSE, TRUE),
+                verbose = c(TRUE, FALSE)) {
 
-  value <- matchArg(value)
-  barmode <- matchArg(barmode)
-  evilMode <- matchArg(evilMode)  
+  verbose <- matchArg(verbose)
 
-  .bar <- bar.dt(data, map, value, barmode, evilMode)
-  outFileName <- writeJSON(.bar, evilMode, 'barplot')
+  .bar <- bar.dt(data, map, value, barmode, evilMode, verbose)
+  outFileName <- writeJSON(.bar, evilMode, 'barplot', verbose)
 
   return(outFileName)
 }

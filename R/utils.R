@@ -1,3 +1,25 @@
+#' Diagnositc Messages with Time of Occurance
+#'
+#' This function generates a diagnositc message which
+#' includes the time of occurance.
+#' @param message character to pass to `message`
+#' @param verbose boolean indicating if timed logging is desired
+#' @export
+logWithTime <- function(message, verbose) {
+  if (verbose) {
+    message('\n', Sys.time(), ' ', message)
+  }
+}
+
+#' Try-error Test
+#'
+#' This function returns a logical value indicating if x is
+#' a try-error object.
+#' @param x an R object
+#' @return logical TRUE if x is a try-error object, FALSE otherwise
+#' @export
+is.error <- function(x) inherits(x, "try-error")
+
 tableXY <- function(data) {
   table(data$x, data$y)
 }

@@ -28,6 +28,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                          mean = logical(),
                          computeStats = logical(),
                          evilMode = logical(),
+                         verbose = logical(),
                          ...,
                          class = character()) {
 
@@ -38,6 +39,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
+                     verbose = verbose,
                      class = "boxplot")
 
   attr <- attributes(.pd)
@@ -50,6 +52,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   summary <- groupSummary(.pd, x, y, group, panel)
   fences <- groupFences(.pd, x, y, group, panel)
   fences <- fences[, -x, with = FALSE]
+  logWithTime('Calculated five-number summaries and upper and lower fences for boxplot.', verbose)
 
   if (computeStats) {
     
@@ -63,7 +66,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
     }
     
     attr$statsTable <- statsTable
-    
+    logWithTime('Calculated boxplot supporting statistics.', verbose)
   }
   
 
@@ -81,6 +84,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
     } else {
       .pd.base <- cbind(.pd.base, outliers)
     }
+    logWithTime('Identified outliers for boxplot.', verbose)
   } else if (points == 'all') {
     byCols <- colnames(.pd)[colnames(.pd) %in% c(x, group, panel)]
     rawData <- .pd[, list(rawData=lapply(.SD, as.vector)), keyby=byCols]
@@ -97,6 +101,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
     } else {
       .pd.base <- cbind(.pd.base, rawData)
     }
+    logWithTime('Returning all points for boxplot.', verbose)
   }
 
   if (mean) {
@@ -107,6 +112,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
     } else {
       .pd.base <- cbind(.pd.base, mean)
     }
+    logWithTime('Calculated means for boxplot.', verbose)
   }
   
   .pd <- .pd.base
@@ -117,7 +123,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   return(.pd)
 }
 
-validateBoxPD <- function(.box) {
+validateBoxPD <- function(.box, verbose) {
   xAxisVariable <- attr(.box, 'xAxisVariable')
   if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
     stop('The independent axis must be binary, ordinal or categorical for boxplot.')
@@ -144,6 +150,7 @@ validateBoxPD <- function(.box) {
       stop('The second facet variable must be binary, ordinal or categorical.')
     }
   }
+  logWithTime('Boxplot request has been validated!', verbose)
 
   return(.box)
 }
@@ -170,14 +177,21 @@ validateBoxPD <- function(.box) {
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
-box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE), evilMode = c(FALSE, TRUE)) {
+box.dt <- function(data, map, 
+                   points = c('outliers', 'all', 'none'), 
+                   mean = c(FALSE, TRUE), 
+                   computeStats = c(TRUE, FALSE), 
+                   evilMode = c(FALSE, TRUE),
+                   verbose = c(TRUE, FALSE)) {
 
   points <- matchArg(points)
   mean <- matchArg(mean)
   computeStats <- matchArg(computeStats)
   evilMode <- matchArg(evilMode)
+  verbose <- matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -209,6 +223,7 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
     data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
     map <- remapListVar(map, listVarPlotRef, meltedValuePlotRef)
     
+    logWithTime('Repeated plot references have been melted into a list variable!', verbose)
   } # end handling of repeated plot element references
 
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
@@ -232,9 +247,11 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
                     points = points,
                     mean = mean,
                     computeStats = computeStats,
-                    evilMode = evilMode)
+                    evilMode = evilMode,
+                    verbose = verbose)
 
-  .box <- validateBoxPD(.box)
+  .box <- validateBoxPD(.box, verbose)
+  logWithTime(paste('New boxplot object created with parameters points =', points, ', mean =', mean, ', computeStats =', computeStats, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.box) 
 
@@ -262,17 +279,20 @@ box.dt <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FA
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
-box <- function(data, map, points = c('outliers', 'all', 'none'), mean = c(FALSE, TRUE), computeStats = c(TRUE, FALSE), evilMode = c(FALSE, TRUE)) {
+box <- function(data, map, 
+                points = c('outliers', 'all', 'none'), 
+                mean = c(FALSE, TRUE), 
+                computeStats = c(TRUE, FALSE), 
+                evilMode = c(FALSE, TRUE),
+                verbose = c(TRUE, FALSE)) {
 
-  points <- matchArg(points)
-  mean <- matchArg(mean)
-  computeStats <- matchArg(computeStats)
-  evilMode <- matchArg(evilMode)
-
-  .box <- box.dt(data, map, points, mean, computeStats, evilMode)
-  outFileName <- writeJSON(.box, evilMode, 'boxplot')
+   verbose <- matchArg(verbose) 
+ 
+  .box <- box.dt(data, map, points, mean, computeStats, evilMode, verbose)
+  outFileName <- writeJSON(.box, evilMode, 'boxplot', verbose)
 
   return(outFileName)
 }

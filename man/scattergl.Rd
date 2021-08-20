@@ -9,7 +9,8 @@ scattergl(
   map,
   value = c("smoothedMean", "smoothedMeanWithRaw", "bestFitLineWithRaw", "density",
     "raw"),
-  evilMode = c(FALSE, TRUE)
+  evilMode = c(FALSE, TRUE),
+  verbose = c(TRUE, FALSE)
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ scattergl(
 \item{value}{character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.}
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
+
+\item{verbose}{boolean indicating if timed logging is desired}
 }
 \value{
 character name of json file containing plot-ready data
