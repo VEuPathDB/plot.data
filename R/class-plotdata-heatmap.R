@@ -147,6 +147,7 @@ heatmap.dt <- function(data, map,
                             verbose = verbose)
 
   .heatmap <- validateHeatmapPD(.heatmap, verbose)
+  logWithTime(paste('New heatmap object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.heatmap)
 
@@ -185,7 +186,6 @@ heatmap <- function(data, map,
   verbose <- matchArg(verbose)
  
   .heatmap <- heatmap.dt(data, map, value, evilMode, verbose)
-  logWithTime('New heatmap object created!', verbose)
   outFileName <- writeJSON(.heatmap, evilMode, 'heatmap', verbose)
 
   return(outFileName)

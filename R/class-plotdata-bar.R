@@ -153,6 +153,7 @@ bar.dt <- function(data,
                     verbose = verbose)
 
   .bar <- validateBarPD(.bar, verbose)
+  logWithTime(paste('New barplot object created with parameters value =', value, ', barmode =', barmode, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.bar)
 }
@@ -193,7 +194,6 @@ bar <- function(data,
   verbose <- matchArg(verbose)
 
   .bar <- bar.dt(data, map, value, barmode, evilMode, verbose)
-  logWithTime('New barplot object created!', verbose)
   outFileName <- writeJSON(.bar, evilMode, 'barplot', verbose)
 
   return(outFileName)

@@ -302,6 +302,7 @@ histogram.dt <- function(data,
                            verbose = verbose)
 
   .histo <- validateHistogramPD(.histo, verbose)
+  logWithTime(paste('New histogram object created with parameters viewport min =', viewport$xMin, ', viewport max =', viewport$xMax, ', binWidth =', binWidth, ', binReportValue =', binReportValue, ', value =', value, ', barmode =', barmode, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.histo)
 }
@@ -346,7 +347,6 @@ histogram <- function(data,
   verbose <- matchArg(verbose)
 
   .histo <- histogram.dt(data, map, binWidth, value, binReportValue, barmode, viewport, evilMode, verbose)
-  logWithTime('New histogram object created!', verbose)
   outFileName <- writeJSON(.histo, evilMode, 'histogram', verbose)
 
   return(outFileName)

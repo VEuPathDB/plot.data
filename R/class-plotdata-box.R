@@ -251,6 +251,7 @@ box.dt <- function(data, map,
                     verbose = verbose)
 
   .box <- validateBoxPD(.box, verbose)
+  logWithTime(paste('New boxplot object created with parameters points =', points, ', mean =', mean, ', computeStats =', computeStats, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.box) 
 
@@ -291,7 +292,6 @@ box <- function(data, map,
    verbose <- matchArg(verbose) 
  
   .box <- box.dt(data, map, points, mean, computeStats, evilMode, verbose)
-  logWithTime('New boxplot object created!', verbose)
   outFileName <- writeJSON(.box, evilMode, 'boxplot', verbose)
 
   return(outFileName)

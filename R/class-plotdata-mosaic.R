@@ -157,6 +157,7 @@ mosaic.dt <- function(data, map,
                             verbose = verbose)
 
   .mosaic <- validateMosaicPD(.mosaic, verbose)
+  logWithTime(paste('New mosaic plot object created with parameters statistic =', statistic, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.mosaic)
 }
@@ -189,7 +190,6 @@ mosaic <- function(data, map,
   verbose <- matchArg(verbose)
 
   .mosaic <- mosaic.dt(data, map, statistic, evilMode, verbose)
-  logWithTime('New mosaic plot object created!', verbose)
   outFileName <- writeJSON(.mosaic, evilMode, 'mosaic', verbose)
 
   return(outFileName)

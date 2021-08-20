@@ -249,6 +249,7 @@ scattergl.dt <- function(data,
                             verbose = verbose)
 
   .scatter <- validateScatterPD(.scatter, verbose)
+  logWithTime(paste('New scatter plot object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.scatter)
 }
@@ -289,7 +290,6 @@ scattergl <- function(data, map,
   verbose <- matchArg(verbose)
 
   .scatter <- scattergl.dt(data, map, value, evilMode, verbose)
-  logWithTime('New scatter plot object created!', verbose)
   outFileName <- writeJSON(.scatter, evilMode, 'scattergl', verbose)
 
   return(outFileName)
