@@ -115,6 +115,7 @@ validateBarPD <- function(.bar, verbose) {
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
 bar.dt <- function(data, 
@@ -179,6 +180,7 @@ bar.dt <- function(data,
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
 bar <- function(data, 

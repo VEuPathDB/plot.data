@@ -4,7 +4,7 @@
 \alias{writeJSON}
 \title{Write json to local tmp file}
 \usage{
-writeJSON(.pd, evilMode, pattern = NULL)
+writeJSON(.pd, evilMode, pattern = NULL, verbose = c(TRUE, FALSE))
 }
 \arguments{
 \item{.pd}{a data.table to convert to json and write to a tmp file}

@@ -102,6 +102,7 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
 mosaic.dt <- function(data, map, 
@@ -178,6 +179,7 @@ mosaic.dt <- function(data, map,
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
 mosaic <- function(data, map, 

@@ -106,6 +106,7 @@ validateHeatmapPD <- function(.heatmap) {
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
 heatmap.dt <- function(data, map, 
@@ -175,6 +176,7 @@ heatmap.dt <- function(data, map,
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
 heatmap <- function(data, map, 

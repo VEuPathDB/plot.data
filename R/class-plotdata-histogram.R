@@ -248,6 +248,7 @@ validateHistogramPD <- function(.histo, verbose) {
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @importFrom stringi stri_count_regex
 #' @importFrom jsonlite unbox
@@ -328,6 +329,7 @@ histogram.dt <- function(data,
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @importFrom jsonlite unbox
 #' @export
