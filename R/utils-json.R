@@ -40,7 +40,7 @@ addStrataVariableDetails <- function(.pd) {
   # !!!!! work off a copy while writing json
   # since we have two exported fxns, dont want calling one changing the result of the other
   if (!is.null(group)) {
-    if (!identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS')) {
+    if (!identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS') & (group %in% names(.pd))) {
       names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
       .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
     }
