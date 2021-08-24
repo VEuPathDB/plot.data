@@ -104,7 +104,6 @@ newPlotdata <- function(.dt = data.table(),
   } else {
     sampleSizeTable <- groupSize(.dt, x=NULL, y=x, overlayGroup, panel, collapse=F)
   }
-  sampleSizeTable$size <- lapply(sampleSizeTable$size, jsonlite::unbox)
   logWithTime('Calculated sample sizes per group.', verbose)
 
   if (is.null(xAxisVariable$dataType)) {
