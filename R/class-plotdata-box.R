@@ -32,6 +32,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                                                'inferredVarPlotRef' = NULL,
                                                'listVarPlotRef' = NULL,
                                                'listVarDisplayLabel' = NULL),
+                         verbose = logical(),
                          ...,
                          class = character()) {
 
@@ -43,6 +44,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
                      listVarDetails = listVarDetails,
+                     verbose = verbose,
                      class = "boxplot")
 
   attr <- attributes(.pd)
@@ -55,6 +57,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   summary <- groupSummary(.pd, x, y, group, panel)
   fences <- groupFences(.pd, x, y, group, panel)
   fences <- fences[, -x, with = FALSE]
+  logWithTime('Calculated five-number summaries and upper and lower fences for boxplot.', verbose)
 
   if (computeStats) {
     
@@ -68,7 +71,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
     }
     
     attr$statsTable <- statsTable
-    
+    logWithTime('Calculated boxplot supporting statistics.', verbose)
   }
   
 
@@ -86,6 +89,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
     } else {
       .pd.base <- cbind(.pd.base, outliers)
     }
+    logWithTime('Identified outliers for boxplot.', verbose)
   } else if (points == 'all') {
     byCols <- colnames(.pd)[colnames(.pd) %in% c(x, group, panel)]
     rawData <- .pd[, list(rawData=lapply(.SD, as.vector)), keyby=byCols]
@@ -102,6 +106,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
     } else {
       .pd.base <- cbind(.pd.base, rawData)
     }
+    logWithTime('Returning all points for boxplot.', verbose)
   }
 
   if (mean) {
@@ -112,6 +117,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
     } else {
       .pd.base <- cbind(.pd.base, mean)
     }
+    logWithTime('Calculated means for boxplot.', verbose)
   }
   
   .pd <- .pd.base
@@ -122,7 +128,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   return(.pd)
 }
 
-validateBoxPD <- function(.box) {
+validateBoxPD <- function(.box, verbose) {
   xAxisVariable <- attr(.box, 'xAxisVariable')
   if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
     stop('The independent axis must be binary, ordinal or categorical for boxplot.')
@@ -149,6 +155,7 @@ validateBoxPD <- function(.box) {
       stop('The second facet variable must be binary, ordinal or categorical.')
     }
   }
+  logWithTime('Boxplot request has been validated!', verbose)
 
   return(.box)
 }
@@ -179,6 +186,7 @@ validateBoxPD <- function(.box) {
 #' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
 box.dt <- function(data, 
@@ -189,12 +197,14 @@ box.dt <- function(data,
                    evilMode = c(FALSE, TRUE),
                    listVarPlotRef = NULL,
                    listVarDisplayLabel = NULL,
-                   inferredVarDisplayLabel = NULL) {
+                   inferredVarDisplayLabel = NULL,
+                   verbose = c(TRUE, FALSE)) {
 
   points <- matchArg(points)
   mean <- matchArg(mean)
   computeStats <- matchArg(computeStats)
   evilMode <- matchArg(evilMode)
+  verbose <- matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -278,10 +288,11 @@ box.dt <- function(data,
                     mean = mean,
                     computeStats = computeStats,
                     evilMode = evilMode,
-                    listVarDetails = listVarDetails)
-  
-  
-  .box <- validateBoxPD(.box)
+                    listVarDetails = listVarDetails,
+                    verbose = verbose)
+
+  .box <- validateBoxPD(.box, verbose)
+  logWithTime(paste('New boxplot object created with parameters points =', points, ', mean =', mean, ', computeStats =', computeStats, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.box) 
 
@@ -312,6 +323,7 @@ box.dt <- function(data,
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
 #' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
 box <- function(data,
@@ -322,12 +334,10 @@ box <- function(data,
                 evilMode = c(FALSE, TRUE),
                 listVarPlotRef = NULL,
                 listVarDisplayLabel = NULL,
-                inferredVarDisplayLabel = NULL) {
+                inferredVarDisplayLabel = NULL,
+                verbose = c(TRUE, FALSE)) {
 
-  points <- matchArg(points)
-  mean <- matchArg(mean)
-  computeStats <- matchArg(computeStats)
-  evilMode <- matchArg(evilMode)
+  verbose <- matchArg(verbose)
 
   .box <- box.dt(data,
                  map,
@@ -337,8 +347,9 @@ box <- function(data,
                  evilMode = evilMode,
                  listVarPlotRef = listVarPlotRef,
                  listVarDisplayLabel = listVarDisplayLabel,
-                 inferredVarDisplayLabel = inferredVarDisplayLabel)
-  outFileName <- writeJSON(.box, evilMode, 'boxplot')
+                 inferredVarDisplayLabel = inferredVarDisplayLabel,
+                 verbose = verbose)
+  outFileName <- writeJSON(.box, evilMode, 'boxplot', verbose)
 
   return(outFileName)
 }

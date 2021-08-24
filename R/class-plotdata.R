@@ -41,6 +41,7 @@ newPlotdata <- function(.dt = data.table(),
                                                'inferredVarPlotRef' = NULL,
                                                'listVarPlotRef' = NULL,
                                                'listVarDisplayLabel' = NULL),
+                         verbose = logical(),
                          ...,
                          class = character()) {
 
@@ -69,11 +70,14 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(group)) { .dt[, (group)] <- .dt[, lapply(.SD, updateType, unique(groupType), unique(groupShape)), .SDcols = group] }
   if (!is.null(facet1)) { .dt[, (facet1)] <- .dt[, lapply(.SD, updateType, unique(facetType1), unique(facetShape1)), .SDcols = facet1] }
   if (!is.null(facet2)) { .dt[, (facet2)] <- .dt[, lapply(.SD, updateType, unique(facetType2), unique(facetShape2)), .SDcols = facet2] }
+  logWithTime('Base data types updated for all columns as necessary.', verbose)
 
   varCols <- c(x, y, z, group, facet1, facet2)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
   completeCasesTable <- data.table::transpose(completeCasesTable, keep.names = 'variableDetails')
   data.table::setnames(completeCasesTable, 'V1', 'completeCases')
+  
+  logWithTime('Determined the number of complete cases per variable.', verbose)
   
   if (!identical(listVarDetails$listVarPlotRef, 'facetVariable1')) {
     panelData <- makePanels(.dt, facet1, facet2)
@@ -82,8 +86,10 @@ newPlotdata <- function(.dt = data.table(),
   } else {
     panel <- c(facet1, facet2)
   }
+
   myCols <- c(x, y, z, group, panel)
   .dt <- .dt[, myCols, with=FALSE]
+  logWithTime('Identified facet intersections.', verbose)
 
   completeCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]))
 
@@ -97,6 +103,7 @@ newPlotdata <- function(.dt = data.table(),
     .dt <- .dt[complete.cases(.dt),]
   }
   plottedIncompleteCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]) - completeCases)
+  logWithTime('Determined total number of plotted complete and incomplete cases.', verbose)
 
   # Reshape data and remap variables if listVar is specified
   listVariable <- NULL
@@ -181,9 +188,9 @@ newPlotdata <- function(.dt = data.table(),
   } else {
     sampleSizeTable <- groupSize(.dt, x=NULL, y=x, overlayGroup, panel, collapse=F)
   }
-  sampleSizeTable$size <- lapply(sampleSizeTable$size, jsonlite::unbox)
-    
-  
+
+  logWithTime('Calculated sample sizes per group.', verbose)
+
   if (is.null(xAxisVariable$dataType)) {
     xIsNum = all(!is.na(as.numeric(.dt[[x]])))
     xAxisVariable$dataType <- 'NUMBER'
@@ -209,6 +216,7 @@ newPlotdata <- function(.dt = data.table(),
 
   setAttrFromList(.dt, attr)
   .pd <- validatePlotdata(.dt)
+  logWithTime('Base plot.data object created.', verbose)
 
   return(.pd)
 }
