@@ -27,6 +27,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          value = character(),
                          barmode = character(),
                          evilMode = logical(),
+                         verbose = logical(),
                          ...,
                          class = character()) {
 
@@ -36,6 +37,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
+                     verbose = verbose,
                      class = "histogram")
 
   attr <- attributes(.pd)
@@ -49,6 +51,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   summary <- lapply(summary, as.character)
   summary <- lapply(summary, jsonlite::unbox)
   attr$summary <- summary
+  logWithTime('Supporting summary statistics calculated for histogram.', verbose)
 
   if (is.null(viewport)) {
     if (xType == 'NUMBER') {
@@ -56,6 +59,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     } else {
       viewport <- list('xMin' = min(.pd[[x]]), 'xMax' = max(.pd[[x]]))
     }
+    logWithTime('Determined default viewport.', verbose)
   } else {
     if (xType == 'NUMBER') {
       viewport$xMin <- as.numeric(viewport$xMin)
@@ -64,6 +68,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       viewport$xMin <- as.Date(viewport$xMin, format='%Y-%m-%d')
       viewport$xMax <- as.Date(viewport$xMax, format='%Y-%m-%d')
     }
+    logWithTime('Using provided viewport.', verbose)
   }
   attr$viewport <- lapply(viewport, as.character)
   attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
@@ -72,12 +77,15 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   if (binReportValue == 'binWidth') {
     if (is.null(binWidth)) {
       binWidth <- findBinWidth(xVP)
+      logWithTime('Determined ideal bin width.', verbose)
     }
   } else {
     if (is.null(binWidth)) {
       numBins <- findNumBins(xVP)
+      logWithTime('Determined ideal number of bins.', verbose)
     } else {
       numBins <- binWidthToNumBins(xVP, binWidth)
+      logWithTime('Converted provided bin width to number of bins.', verbose)
     }
   }
 
@@ -128,11 +136,14 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   }
   attr$binSlider <- binSlider
   attr$binSpec <- binSpec
+  logWithTime('Determined bin width slider min, max and step values.', verbose)
 
   if (value == 'count') {
     .pd <- binSize(.pd, x, group, panel, binWidth, viewport)
+    logWithTime('Value is set to `count`. Resulting histogram object will represent counts of unique x-axis bins per group.', verbose)
   } else if (value == 'proportion' ) {
     .pd <- binProportion(.pd, x, group, panel, binWidth, barmode, viewport)
+    logWithTime('Value is set to `proportion`. If barmode is `group` the resulting histogram object will represent the relative proportions of unique x-axis bins across groups. If barmode is `stack` the resulting histogram object will represent the proportions of unique x-axis bins relative to the total x-axis bins in that panel.', verbose)
   } else {
     stop('Unrecognized argument to "value".')
   }
@@ -174,7 +185,7 @@ validateViewport <- function(viewport) {
   return(TRUE)
 }
 
-validateHistogramPD <- function(.histo) {
+validateHistogramPD <- function(.histo, verbose) {
   binSlider <- attr(.histo, 'binSlider')
   stopifnot(validateBinSlider(binSlider))
   viewport <- attr(.histo, 'viewport')
@@ -209,7 +220,8 @@ validateHistogramPD <- function(.histo) {
       stop("binWidth must be numeric for histograms of numeric values.")
     }
   }
-
+  logWithTime('Histogram request has been validated!', verbose)
+  
   return(.histo)
 }
 
@@ -236,6 +248,7 @@ validateHistogramPD <- function(.histo) {
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @importFrom stringi stri_count_regex
 #' @importFrom jsonlite unbox
@@ -247,12 +260,14 @@ histogram.dt <- function(data,
                          binReportValue = c('binWidth', 'numBins'),
                          barmode = c('stack', 'overlay'),
                          viewport = NULL,
-                         evilMode = c(FALSE, TRUE)) {
+                         evilMode = c(FALSE, TRUE),
+                         verbose = c(TRUE, FALSE)) {
 
   value <- matchArg(value)
   barmode <- matchArg(barmode)
   binReportValue <- matchArg(binReportValue)
   evilMode <- matchArg(evilMode)
+  verbose <- matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -283,9 +298,11 @@ histogram.dt <- function(data,
                            binReportValue = binReportValue,
                            value = value,
                            barmode = barmode,
-                           evilMode = evilMode)
+                           evilMode = evilMode,
+                           verbose = verbose)
 
-  .histo <- validateHistogramPD(.histo)
+  .histo <- validateHistogramPD(.histo, verbose)
+  logWithTime(paste('New histogram object created with parameters viewport min =', viewport$xMin, ', viewport max =', viewport$xMax, ', binWidth =', binWidth, ', binReportValue =', binReportValue, ', value =', value, ', barmode =', barmode, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.histo)
 }
@@ -313,6 +330,7 @@ histogram.dt <- function(data,
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @importFrom jsonlite unbox
 #' @export
@@ -323,15 +341,13 @@ histogram <- function(data,
                       binReportValue = c('binWidth', 'numBins'), 
                       barmode = c('stack', 'overlay'),
                       viewport = NULL,
-                      evilMode = c(FALSE, TRUE)) {
+                      evilMode = c(FALSE, TRUE),
+                      verbose = c(TRUE, FALSE)) {
 
-  value <- matchArg(value)
-  barmode <- matchArg(barmode)
-  binReportValue <- matchArg(binReportValue)
-  evilMode <- matchArg(evilMode)
+  verbose <- matchArg(verbose)
 
-  .histo <- histogram.dt(data, map, binWidth, value, binReportValue, barmode, viewport, evilMode)
-  outFileName <- writeJSON(.histo, evilMode, 'histogram')
+  .histo <- histogram.dt(data, map, binWidth, value, binReportValue, barmode, viewport, evilMode, verbose)
+  outFileName <- writeJSON(.histo, evilMode, 'histogram', verbose)
 
   return(outFileName)
 }

@@ -37,6 +37,7 @@ newPlotdata <- function(.dt = data.table(),
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL),
                          evilMode = logical(),
+                         verbose = logical(),
                          ...,
                          class = character()) {
 
@@ -65,17 +66,20 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape) }
   if (!is.null(facet1)) { .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) }
   if (!is.null(facet2)) { .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2, facetShape2) }
+  logWithTime('Base data types updated for all columns as necessary.', verbose)
 
   varCols <- c(x, y, z, group, facet1, facet2)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
   completeCasesTable <- data.table::transpose(completeCasesTable, keep.names = 'variableDetails')
   data.table::setnames(completeCasesTable, 'V1', 'completeCases')
-  
+  logWithTime('Determined the number of complete cases per variable.', verbose)  
+
   panelData <- makePanels(.dt, facet1, facet2)
   .dt <- data.table::setDT(panelData[[1]])
   panel <- panelData[[2]]
   myCols <- c(x, y, z, group, panel)
   .dt <- .dt[, myCols, with=FALSE]
+  logWithTime('Identified facet intersections.', verbose)
 
   completeCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]))
   if (evilMode) {
@@ -88,6 +92,7 @@ newPlotdata <- function(.dt = data.table(),
     .dt <- .dt[complete.cases(.dt),]
   }
   plottedIncompleteCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]) - completeCases)
+  logWithTime('Determined total number of plotted complete and incomplete cases.', verbose)
 
   # If overlay is continuous, it does not contribute to final groups
   overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
@@ -99,7 +104,7 @@ newPlotdata <- function(.dt = data.table(),
   } else {
     sampleSizeTable <- groupSize(.dt, x=NULL, y=x, overlayGroup, panel, collapse=F)
   }
-  sampleSizeTable$size <- lapply(sampleSizeTable$size, jsonlite::unbox)
+  logWithTime('Calculated sample sizes per group.', verbose)
 
   if (is.null(xAxisVariable$dataType)) {
     xIsNum = all(!is.na(as.numeric(.dt[[x]])))
@@ -125,6 +130,7 @@ newPlotdata <- function(.dt = data.table(),
 
   setAttrFromList(.dt, attr)
   .pd <- validatePlotdata(.dt)
+  logWithTime('Base plot.data object created.', verbose)
 
   return(.pd)
 }

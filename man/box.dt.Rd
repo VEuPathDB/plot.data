@@ -10,7 +10,8 @@ box.dt(
   points = c("outliers", "all", "none"),
   mean = c(FALSE, TRUE),
   computeStats = c(TRUE, FALSE),
-  evilMode = c(FALSE, TRUE)
+  evilMode = c(FALSE, TRUE),
+  verbose = c(TRUE, FALSE)
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ box.dt(
 \item{computeStats}{boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)}
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
+
+\item{verbose}{boolean indicating if timed logging is desired}
 }
 \value{
 data.table plot-ready data

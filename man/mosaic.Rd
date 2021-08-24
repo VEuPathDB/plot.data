@@ -4,7 +4,13 @@
 \alias{mosaic}
 \title{Mosaic data file}
 \usage{
-mosaic(data, map, statistic = NULL, evilMode = c(FALSE, TRUE))
+mosaic(
+  data,
+  map,
+  statistic = NULL,
+  evilMode = c(FALSE, TRUE),
+  verbose = c(TRUE, FALSE)
+)
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
@@ -14,6 +20,8 @@ mosaic(data, map, statistic = NULL, evilMode = c(FALSE, TRUE))
 \item{statistic}{String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.}
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
+
+\item{verbose}{boolean indicating if timed logging is desired}
 }
 \value{
 character name of json file containing plot-ready data

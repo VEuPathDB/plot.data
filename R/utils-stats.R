@@ -166,7 +166,7 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
     stop('Unrecognized smoothing method.')
   }
 
-  if (any(class(smoothed) == 'try-error')) {
+  if (any(is.error(smoothed))) {
     dt <- data.table::data.table("smoothedMeanX" = list(numeric()), "smoothedMeanY" = list(numeric()), "smoothedMeanSE" = list(numeric()), "smoothedMeanError" = jsonlite::unbox(as.character(smoothed[1])))
   } else {
     smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
@@ -324,7 +324,7 @@ nonparametricTest <- function(values, groups) {
     testResult <- try(kruskal.test(values, groups), silent = TRUE)
   }
   
-  if (class(testResult) == 'try-error'){
+  if (is.error(testResult)){
     testResult <- list("statistic" = numeric(),
       "pvalue" = numeric(),
       "parameter" = numeric(),
