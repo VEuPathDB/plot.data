@@ -56,6 +56,31 @@ test_that("box.dt() returns plot data and config of the appropriate types", {
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(class(unlist(sampleSizes$entity.panel)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
+  
+  #w outliers
+  dt <- box.dt(df, map, 'outliers', TRUE)
+  expect_equal(class(dt$min[[1]]), 'numeric')
+  expect_equal(class(dt$q1[[1]]), 'numeric')
+  expect_equal(class(dt$median[[1]]), 'numeric')
+  expect_equal(class(dt$q3[[1]]), 'numeric')
+  expect_equal(class(dt$max[[1]]), 'numeric')
+  expect_equal(class(dt$lowerfence[[1]]), 'numeric')
+  expect_equal(class(dt$upperfence[[1]]), 'numeric')
+  expect_equal(class(dt$mean[[1]]), 'numeric')
+  #first group has no outliers, want json like [] rather than {}
+  expect_equal(class(dt$outliers[[1]][[1]]), 'list')
+  expect_equal(class(dt$outliers[[1]][[2]]), 'numeric')
+  
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(class(namedAttrList$completeCasesAllVars),c('scalar', 'integer'))
+  expect_equal(class(namedAttrList$completeCasesAxesVars),c('scalar', 'integer'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(class(unlist(completeCases$variableDetails)), 'character')
+  expect_equal(class(unlist(completeCases$completeCases)), 'integer')
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(class(unlist(sampleSizes$entity.panel)), 'character')
+  expect_equal(class(unlist(sampleSizes$size)), 'integer')
+  
 
   #single group
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
