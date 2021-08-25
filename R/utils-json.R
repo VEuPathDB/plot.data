@@ -74,6 +74,11 @@ getJSON <- function(.pd, evilMode) {
     statsTable <- addStrataVariableDetails(statsTable)
     attr$names <- names(statsTable)
     statsTable <- setAttrFromList(statsTable, attr)
+    if (toColNameOrNull(namedAttrList$xAxisVariable) %in% names(statsTable)) {
+      x <- toColNameOrNull(namedAttrList$xAxisVariable)
+      names(statsTable)[names(statsTable) == x] <- 'xVariableDetails'
+      statsTable$xVariableDetails <- lapply(statsTable$xVariableDetails, makeVariableDetails, x, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
+    }
   }
 
   if ('sampleSizeTable' %in% names(namedAttrList)) {
