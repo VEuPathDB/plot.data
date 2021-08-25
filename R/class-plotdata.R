@@ -63,12 +63,12 @@ newPlotdata <- function(.dt = data.table(),
   facetType2 <- emptyStringToNull(as.character(facetVariable2$dataType))
   facetShape2 <- emptyStringToNull(as.character(facetVariable2$dataShape))
 
-  .dt[, (x)] <- .dt[, lapply(.SD, updateType, unique(xType), unique(xShape)), .SDcols = x]
-  if (!is.null(y)) { .dt[, (y)] <- .dt[, lapply(.SD, updateType, unique(yType), unique(yShape)), .SDcols = y] }
-  if (!is.null(z)) { .dt[, (z)] <- .dt[, lapply(.SD, updateType, unique(zType), unique(zShape)), .SDcols = z] }
-  if (!is.null(group)) { .dt[, (group)] <- .dt[, lapply(.SD, updateType, unique(groupType), unique(groupShape)), .SDcols = group] }
-  if (!is.null(facet1)) { .dt[, (facet1)] <- .dt[, lapply(.SD, updateType, unique(facetType1), unique(facetShape1)), .SDcols = facet1] }
-  if (!is.null(facet2)) { .dt[, (facet2)] <- .dt[, lapply(.SD, updateType, unique(facetType2), unique(facetShape2)), .SDcols = facet2] }
+  # .dt[, (x)] <- .dt[, lapply(.SD, updateType, unique(xType), unique(xShape)), .SDcols = x]
+  # if (!is.null(y)) { .dt[, (y)] <- .dt[, lapply(.SD, updateType, unique(yType), unique(yShape)), .SDcols = y] }
+  # if (!is.null(z)) { .dt[, (z)] <- .dt[, lapply(.SD, updateType, unique(zType), unique(zShape)), .SDcols = z] }
+  # if (!is.null(group)) { .dt[, (group)] <- .dt[, lapply(.SD, updateType, unique(groupType), unique(groupShape)), .SDcols = group] }
+  # if (!is.null(facet1)) { .dt[, (facet1)] <- .dt[, lapply(.SD, updateType, unique(facetType1), unique(facetShape1)), .SDcols = facet1] }
+  # if (!is.null(facet2)) { .dt[, (facet2)] <- .dt[, lapply(.SD, updateType, unique(facetType2), unique(facetShape2)), .SDcols = facet2] }
 
   varCols <- c(x, y, z, group, facet1, facet2)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
@@ -84,19 +84,6 @@ newPlotdata <- function(.dt = data.table(),
   }
   myCols <- c(x, y, z, group, panel)
   .dt <- .dt[, myCols, with=FALSE]
-
-  completeCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]))
-
-  if (evilMode) {
-    if (!is.null(group)) { .dt[[group]][is.na(.dt[[group]])] <- 'No data' }
-    if (!is.null(panel)) { .dt[[panel]][is.na(.dt[[panel]])] <- 'No data' }
-    axesCols <- c(x, y, z)
-    axesDT <- .dt[, axesCols, with = FALSE]
-    .dt <- .dt[complete.cases(axesDT)]
-  } else { 
-    .dt <- .dt[complete.cases(.dt),]
-  }
-  plottedIncompleteCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]) - completeCases)
 
   # Reshape data and remap variables if listVar is specified
   listVariable <- NULL
@@ -170,6 +157,27 @@ newPlotdata <- function(.dt = data.table(),
     data.table::setcolorder(.dt, c(x, y, z, group, panel))
 
   }
+
+  # Update types
+  .dt[[x]] <- updateType(.dt[[x]], xType, xShape)
+  if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType, yShape) }
+  if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType, zShape) }
+  if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape) }
+  if (!is.null(panel)) { .dt[[panel]] <- updateType(.dt[[panel]], 'STRING', 'CATEGORICAL') }
+
+
+  completeCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]))
+
+  if (evilMode) {
+    if (!is.null(group)) { .dt[[group]][is.na(.dt[[group]])] <- 'No data' }
+    if (!is.null(panel)) { .dt[[panel]][is.na(.dt[[panel]])] <- 'No data' }
+    axesCols <- c(x, y, z)
+    axesDT <- .dt[, axesCols, with = FALSE]
+    .dt <- .dt[complete.cases(axesDT)]
+  } else { 
+    .dt <- .dt[complete.cases(.dt),]
+  }
+  plottedIncompleteCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]) - completeCases)
   
   # If overlay is continuous and NOT a listvar, it does not contribute to final groups
   overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
