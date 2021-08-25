@@ -56,6 +56,29 @@ test_that("box.dt() returns plot data and config of the appropriate types", {
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(class(unlist(sampleSizes$entity.panel)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
+
+  #single group
+  map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.xy[data.xy$entity.group == 'group1' & data.xy$entity.panel == 'panel2',]
+
+  dt <- box.dt(df, map, 'none', TRUE)
+  expect_equal(class(dt$min[[1]]), 'numeric')
+  expect_equal(class(dt$q1[[1]]), 'numeric')
+  expect_equal(class(dt$median[[1]]), 'numeric')
+  expect_equal(class(dt$q3[[1]]), 'numeric')
+  expect_equal(class(dt$max[[1]]), 'numeric')
+  expect_equal(class(dt$lowerfence[[1]]), 'numeric')
+  expect_equal(class(dt$upperfence[[1]]), 'numeric')
+  expect_equal(class(dt$mean[[1]]), 'numeric')
+
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(class(namedAttrList$completeCases),c('scalar', 'integer'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(class(unlist(completeCases$variableDetails)), 'character')
+  expect_equal(class(unlist(completeCases$completeCases)), 'integer')
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(class(unlist(sampleSizes$entity.panel)), 'character')
+  expect_equal(class(unlist(sampleSizes$size)), 'integer')
 })
 
 test_that("box.dt() returns an appropriately sized data.table", {

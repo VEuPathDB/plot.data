@@ -9,7 +9,8 @@ bar.dt(
   map,
   value = c("count", "identity", "proportion"),
   barmode = c("group", "stack"),
-  evilMode = c(FALSE, TRUE)
+  evilMode = c(FALSE, TRUE),
+  verbose = c(TRUE, FALSE)
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ bar.dt(
 \item{barmode}{String indicating if bars should be grouped or stacked ('group', 'stack')}
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
+
+\item{verbose}{boolean indicating if timed logging is desired}
 }
 \value{
 data.table plot-ready data

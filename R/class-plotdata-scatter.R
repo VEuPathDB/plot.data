@@ -30,6 +30,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                                                'inferredVarPlotRef' = NULL,
                                                'listVarPlotRef' = NULL,
                                                'listVarDisplayLabel' = NULL),
+                         verbose = logical(),
                          ...,
                          class = character()) {
 
@@ -41,6 +42,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
                      listVarDetails = listVarDetails,
+                     verbose = verbose,
                      class = "scatterplot")
 
   attr <- attributes(.pd)
@@ -68,11 +70,13 @@ newScatterPD <- function(.dt = data.table::data.table(),
   } else {
     series$seriesY <- lapply(series$seriesY, as.character)
   }
+  logWithTime('Collected raw scatter plot data.', verbose)
 
   if (value == 'smoothedMean') {
 
     smoothedMean <- groupSmoothedMean(.pd, x, y, group, panel)
     .pd <- smoothedMean
+    logWithTime('Calculated smoothed means.', verbose)
 
   } else if (value == 'smoothedMeanWithRaw') {
     
@@ -82,6 +86,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
     } else {
       .pd <- cbind(series, smoothedMean)
     }
+    logWithTime('Calculated smoothed means.', verbose)
 
   } else if (value == 'bestFitLineWithRaw') {
   
@@ -91,12 +96,14 @@ newScatterPD <- function(.dt = data.table::data.table(),
     } else {
       .pd <- cbind(series, bestFitLine)
     }
+    logWithTime('Calculated best fit line.', verbose)
 
   } else if (value == 'density') {
     
     density <- groupDensity(.pd, NULL, x, group, panel)
     .pd <- density
-    
+    logWithTime('Kernel density estimated calculated from raw data.', verbose)
+
   } else {
     .pd <- series
   }
@@ -107,7 +114,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   return(.pd)
 }
 
-validateScatterPD <- function(.scatter) {
+validateScatterPD <- function(.scatter, verbose) {
   xAxisVariable <- attr(.scatter, 'xAxisVariable')
   if (!xAxisVariable$dataShape %in% c('CONTINUOUS','ORDINAL')) {
     stop('The independent axis must be continuous or ordinal for scatterplot.')
@@ -134,6 +141,7 @@ validateScatterPD <- function(.scatter) {
       stop('The second facet variable must be binary, ordinal or categorical.')
     }
   }
+  logWithTime('Scatter plot request has been validated!', verbose)
 
   return(.scatter)
 }
@@ -166,6 +174,7 @@ validateScatterPD <- function(.scatter) {
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
 #' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
 scattergl.dt <- function(data, 
@@ -174,11 +183,13 @@ scattergl.dt <- function(data,
                          evilMode = c(FALSE, TRUE),
                          listVarPlotRef = NULL,
                          listVarDisplayLabel = NULL,
-                         inferredVarDisplayLabel = NULL) {
+                         inferredVarDisplayLabel = NULL,
+                         verbose = c(TRUE, FALSE)) {
 
   value <- matchArg(value)
   evilMode <- matchArg(evilMode) 
-  
+  verbose <- matchArg(verbose)  
+
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
@@ -273,9 +284,11 @@ scattergl.dt <- function(data,
                             facetVariable2 = facetVariable2,
                             value = value,
                             evilMode = evilMode,
-                            listVarDetails = listVarDetails)
+                            listVarDetails = listVarDetails,
+                            verbose = verbose)
 
-  .scatter <- validateScatterPD(.scatter)
+  .scatter <- validateScatterPD(.scatter, verbose)
+  logWithTime(paste('New scatter plot object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.scatter)
 }
@@ -308,6 +321,7 @@ scattergl.dt <- function(data,
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
 #' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
 scattergl <- function(data,
@@ -316,10 +330,10 @@ scattergl <- function(data,
                       evilMode = c(FALSE, TRUE),
                       listVarPlotRef = NULL,
                       listVarDisplayLabel = NULL,
-                      inferredVarDisplayLabel = NULL) {
+                      inferredVarDisplayLabel = NULL,
+                      verbose = c(TRUE, FALSE)) {
 
-  value <- matchArg(value)
-  evilMode <- matchArg(evilMode)
+  verbose <- matchArg(verbose)
 
   .scatter <- scattergl.dt(data,
                            map,
@@ -327,9 +341,10 @@ scattergl <- function(data,
                            evilMode = evilMode,
                            listVarPlotRef = listVarPlotRef,
                            listVarDisplayLabel = listVarDisplayLabel,
-                           inferredVarDisplayLabel = inferredVarDisplayLabel)
+                           inferredVarDisplayLabel = inferredVarDisplayLabel,
+                           verbose = verbose)
                            
-  outFileName <- writeJSON(.scatter, evilMode, 'scattergl')
+  outFileName <- writeJSON(.scatter, evilMode, 'scattergl', verbose)
 
   return(outFileName)
 }

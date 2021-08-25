@@ -19,6 +19,8 @@ heatmap(
 \item{value}{String indicating which of the three methods to use to calculate z-values ('collection', 'series')}
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
+
+\item{verbose}{boolean indicating if timed logging is desired}
 }
 \value{
 character name of json file containing plot-ready data

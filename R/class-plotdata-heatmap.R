@@ -31,6 +31,7 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
                                               'displayLabel' = NULL),
                          value = character(),
                          evilMode = logical(),
+                         verbose = logical(),
                          ...,
                          class = character()) {
 
@@ -40,7 +41,8 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
-                     class = "heatmapplot")
+                     verbose = verbose,
+                     class = "heatmap")
 
   attr <- attributes(.pd)
   attr$yAxisVariable <- yAxisVariable
@@ -104,12 +106,17 @@ validateHeatmapPD <- function(.heatmap) {
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
-heatmap.dt <- function(data, map, value = c('series', 'collection'), evilMode = c(FALSE, TRUE)) {
+heatmap.dt <- function(data, map, 
+                       value = c('series', 'collection'), 
+                       evilMode = c(FALSE, TRUE),
+                       verbose = c(TRUE, FALSE)) {
 
   value <- matchArg(value)
   evilMode <- matchArg(evilMode)
+  verbose <- matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -136,9 +143,11 @@ heatmap.dt <- function(data, map, value = c('series', 'collection'), evilMode = 
                             facetVariable1 = facetVariable1,
                             facetVariable2 = facetVariable2,
                             value = value,
-                            evilMode = evilMode)
+                            evilMode = evilMode,
+                            verbose = verbose)
 
-  .heatmap <- validateHeatmapPD(.heatmap)
+  .heatmap <- validateHeatmapPD(.heatmap, verbose)
+  logWithTime(paste('New heatmap object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.heatmap)
 
@@ -168,14 +177,16 @@ heatmap.dt <- function(data, map, value = c('series', 'collection'), evilMode = 
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
-heatmap <- function(data, map, value = c('series','collection'), evilMode = c(FALSE, TRUE)) {
-  value <- matchArg(value)
-  evilMode <- matchArg(evilMode)
-
-  .heatmap <- heatmap.dt(data, map, value, evilMode)
-  outFileName <- writeJSON(.heatmap, evilMode, 'heatmap')
+heatmap <- function(data, map, 
+                    value = c('series','collection'), 
+                    evilMode = c(FALSE, TRUE)) {
+  verbose <- matchArg(verbose)
+ 
+  .heatmap <- heatmap.dt(data, map, value, evilMode, verbose)
+  outFileName <- writeJSON(.heatmap, evilMode, 'heatmap', verbose)
 
   return(outFileName)
 }
