@@ -281,13 +281,16 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE','smoothedMeanError'))
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 16)
+  expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'panel')
   expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$scatterplot$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$scatterplot$config$xVariableDetails$variableId, 'x')
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
   expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
-  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId')) 
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('x', 'y', 'group', 'panel'))
   
 
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.panel', ''), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING', ''), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', ''), stringsAsFactors=FALSE)

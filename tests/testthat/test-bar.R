@@ -174,12 +174,15 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(names(jsonList$barplot$data), c('overlayVariableDetails','facetVariableDetails','label','value'))
   expect_equal(names(jsonList$barplot$config), c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails'))
   expect_equal(names(jsonList$barplot$config$xVariableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$barplot$config$xVariableDetails$variableId, 'x')
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','facetVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  expect_equal(jsonList$sampleSizeTable$xVariableDetails$variableId[1], 'x')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('x', 'group', 'panel'))
 
   map <- data.frame('id' = c('entity.group', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), 'displayLabel' = c('groupLabel','xLabel','panelLabel'), stringsAsFactors=FALSE)
 
@@ -190,6 +193,7 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(names(jsonList$barplot), c('data','config'))
   expect_equal(names(jsonList$barplot$data), c('overlayVariableDetails','facetVariableDetails','label','value'))
   expect_equal(names(jsonList$barplot$data$overlayVariableDetails), c('variableId','entityId','value','displayLabel'))
+  expect_equal(jsonList$barplot$data$overlayVariableDetails$variableId[1], 'group')
   expect_equal(names(jsonList$barplot$config), c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails'))
   expect_equal(names(jsonList$barplot$config$xVariableDetails), c('variableId','entityId','displayLabel'))
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','facetVariableDetails','xVariableDetails','size'))
