@@ -231,11 +231,6 @@ scattergl.dt <- function(data,
                          'listVarDisplayLabel' = listVarDisplayLabel)
   if (!is.null(listVarPlotRef)) {
     if (identical(listVarPlotRef, 'overlayVariable')) {
-      
-      # Ensure all variables are numbers
-      if (!all(overlayVariable$dataType == 'NUMBER')){
-        stop("listVar error: All overlay vars must be of type NUMBER.")
-      }
 
       # Ensure evilMode is F
       if (evilMode) {

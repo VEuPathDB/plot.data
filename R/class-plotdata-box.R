@@ -235,11 +235,6 @@ box.dt <- function(data,
   if (!is.null(listVarPlotRef)) {
     if (identical(listVarPlotRef, 'xAxisVariable')) {
       
-      # Ensure all variables are numbers
-      if (!all(xAxisVariable$dataType == 'NUMBER')){
-        stop("listVar error: All overlay vars must be of type NUMBER.")
-      }
-      
       listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                                 'entityId' = unique(xAxisVariable$entityId),
                                                 'dataType' = 'NUMBER',

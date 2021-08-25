@@ -458,6 +458,16 @@ validateListVar <- function(listVariable) {
     stop("listVar error: all vars in a listVar must have the same entity id, type, and shape.")
   }
 
+  # Ensure all variables are numbers
+  if (!all(listVariable$dataType == 'NUMBER')){
+    stop("listVar error: All vars must be of type NUMBER.")
+  }
+
+  # Ensure all variables are continuous
+  if (!all(listVariable$dataShape == 'CONTINUOUS')){
+    stop("listVar error: All vars must be CONTINUOUS.")
+  }
+
   return(listVariable)
 }
 
