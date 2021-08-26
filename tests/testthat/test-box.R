@@ -421,6 +421,10 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   expect_equal(nrow(statsTable), 1)
   expect_equal(ncol(statsTable), 5)
   expect_equal(names(statsTable), c('statistic', 'pvalue', 'parameter', 'method', 'statsError'))
+  expect_equal(class(statsTable$statistic[[1]]), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$pvalue[[1]]), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$method[[1]]), c('scalar', 'character'))
+  expect_equal(class(statsTable$statsError[[1]]), c('scalar', 'character'))
   
   # No overlay, one facet
   map <- data.frame('id' = c('entity.xcat', 'entity.y', 'entity.panel'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -429,6 +433,10 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   expect_equal(nrow(statsTable), uniqueN(df$entity.panel))
   expect_equal(ncol(statsTable), 6)
   expect_equal(names(statsTable), c('entity.panel', 'statistic', 'pvalue', 'parameter', 'method', 'statsError'))
+  expect_equal(class(statsTable$statistic), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$pvalue), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$method), c('scalar', 'character'))
+  expect_equal(class(statsTable$statsError), c('scalar', 'character'))
   
   # With overlay, no facets
   map <- data.frame('id' = c('entity.xcat', 'entity.y', 'entity.group'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -437,6 +445,10 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   expect_equal(nrow(statsTable), uniqueN(df$entity.xcat))
   expect_equal(ncol(statsTable), 6)
   expect_equal(names(statsTable), c('entity.xcat', 'statistic', 'pvalue', 'parameter', 'method', 'statsError'))
+  expect_equal(class(statsTable$statistic), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$pvalue), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$method), c('scalar', 'character'))
+  expect_equal(class(statsTable$statsError), c('scalar', 'character'))
   
   # With overlay and facet
   map <- data.frame('id' = c('entity.xcat', 'entity.y', 'entity.group', 'entity.panel'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -445,6 +457,10 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   expect_equal(nrow(statsTable), uniqueN(df$entity.xcat)*uniqueN(df$entity.panel))
   expect_equal(ncol(statsTable), 7)
   expect_equal(names(statsTable), c('entity.xcat', 'entity.panel', 'statistic', 'pvalue', 'parameter', 'method', 'statsError'))
+  expect_equal(class(statsTable$statistic), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$pvalue), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$method), c('scalar', 'character'))
+  expect_equal(class(statsTable$statsError), c('scalar', 'character'))
   
   ## Wilcoxon
   map <- data.frame('id' = c('entity.bin', 'entity.y'), 'plotRef' = c('xAxisVariable', 'yAxisVariable'), 'dataType' = c('STRING', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
@@ -454,6 +470,10 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   expect_equal(nrow(statsTable), 1)
   expect_equal(ncol(statsTable), 5)
   expect_equal(names(statsTable), c('statistic', 'pvalue', 'parameter', 'method', 'statsError'))
+  expect_equal(class(statsTable$statistic[[1]]), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$pvalue[[1]]), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$method[[1]]), c('scalar', 'character'))
+  expect_equal(class(statsTable$statsError[[1]]), c('scalar', 'character'))
   
   # No overlay, one facet
   map <- data.frame('id' = c('entity.bin', 'entity.y', 'entity.panel'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -462,6 +482,10 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   expect_equal(nrow(statsTable), uniqueN(df$entity.panel))
   expect_equal(ncol(statsTable), 6)
   expect_equal(names(statsTable), c('entity.panel', 'statistic', 'pvalue', 'parameter', 'method', 'statsError'))
+  expect_equal(class(statsTable$statistic), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$pvalue), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$method), c('scalar', 'character'))
+  expect_equal(class(statsTable$statsError), c('scalar', 'character'))
   
   # With overlay, no facets
   map <- data.frame('id' = c('entity.bin', 'entity.y', 'entity.group'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -470,6 +494,10 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   expect_equal(nrow(statsTable), uniqueN(df$entity.bin))
   expect_equal(ncol(statsTable), 6)
   expect_equal(names(statsTable), c('entity.bin', 'statistic', 'pvalue', 'parameter', 'method', 'statsError'))
+  expect_equal(class(statsTable$statistic), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$pvalue), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$method), c('scalar', 'character'))
+  expect_equal(class(statsTable$statsError), c('scalar', 'character'))
   
   # With overlay and facet
   map <- data.frame('id' = c('entity.bin', 'entity.y', 'entity.group', 'entity.panel'), 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -478,4 +506,8 @@ test_that("box.dt() returns an appropriately sized statistics table", {
   expect_equal(nrow(statsTable), uniqueN(df$entity.bin)*uniqueN(df$entity.panel))
   expect_equal(ncol(statsTable), 7)
   expect_equal(names(statsTable), c('entity.bin', 'entity.panel', 'statistic', 'pvalue', 'parameter', 'method', 'statsError'))
+  expect_equal(class(statsTable$statistic), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$pvalue), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$method), c('scalar', 'character'))
+  expect_equal(class(statsTable$statsError), c('scalar', 'character'))
 })
