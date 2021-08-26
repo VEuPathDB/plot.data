@@ -77,7 +77,7 @@ getJSON <- function(.pd, evilMode) {
     if (toColNameOrNull(namedAttrList$xAxisVariable) %in% names(statsTable)) {
       x <- toColNameOrNull(namedAttrList$xAxisVariable)
       names(statsTable)[names(statsTable) == x] <- 'xVariableDetails'
-      statsTable$xVariableDetails <- lapply(statsTable$xVariableDetails, makeVariableDetails, x, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
+      statsTable$xVariableDetails <- lapply(statsTable$xVariableDetails, makeVariableDetails, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
     }
   }
 
