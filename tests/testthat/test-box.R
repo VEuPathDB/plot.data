@@ -272,8 +272,6 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
   
   
-  
-
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('','','panelLabel'), stringsAsFactors=FALSE)
 
   dt <- box.dt(df, map, 'none', FALSE)
@@ -306,6 +304,36 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(class(jsonList$statsTable$statistic), 'numeric')
   expect_equal(class(jsonList$statsTable$statsError), 'character')
   expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
+
+  map <- data.frame('id' = c('entity.y', 'entity.bin'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- box.dt(df, map, 'none', FALSE, computeStats = T)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList), c('boxplot','sampleSizeTable','statsTable','completeCasesTable'))
+  expect_equal(names(jsonList$boxplot), c('data','config'))
+  expect_equal(names(jsonList$boxplot$data), c('label','min','q1','median','q3','max','lowerfence','upperfence'))
+  expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
+  expect_equal(names(jsonList$boxplot$config), c('completeCases','plottedIncompleteCases','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$sampleSizeTable), c('xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$statsTable), c('statistic','pvalue','parameter','method','statsError'))
+  expect_equal(class(jsonList$statsTable$statistic), 'integer')
+  expect_equal(length(jsonList$statsTable$statistic), 1)
+  expect_equal(class(jsonList$statsTable$statsError), 'character')
+  
+  map <- data.frame('id' = c('entity.y', 'entity.group'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- box.dt(df, map, 'none', FALSE, computeStats = T)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList$statsTable), c('statistic','pvalue','parameter','method','statsError'))
+  expect_equal(class(jsonList$statsTable$statistic), 'numeric')
+  expect_equal(length(jsonList$statsTable$statistic), 1)
+  expect_equal(class(jsonList$statsTable$statsError), 'character')
 
 
   df <- as.data.frame(data.numcat)

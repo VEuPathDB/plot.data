@@ -332,8 +332,14 @@ nonparametricTest <- function(values, groups) {
       "statsError" = jsonlite::unbox(as.character(testResult[1])))
   } else {
     testResult$parameter <- as.numeric(testResult$parameter)
+    testResult$statistic <- as.numeric(testResult$statistic)
+
     names(testResult)[names(testResult) == 'p.value'] <- 'pvalue'
-    testResult <- c(testResult[c('statistic', 'pvalue', 'parameter', 'method')], "statsError" = jsonlite::unbox(""))
+    testResult <- list("statistic" = jsonlite::unbox(testResult$statistic),
+      "pvalue" = jsonlite::unbox(testResult$pvalue),
+      "parameter" = testResult$parameter,
+      "method" = jsonlite::unbox(testResult$method),
+      "statsError" = jsonlite::unbox(""))
   }
   
   return(testResult)

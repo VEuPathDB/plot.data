@@ -259,13 +259,13 @@ test_that("nonparametricTest() types do not change on error", {
   result_correct <- nonparametricTest(df$entity.x, df$entity.group)    # kruskal.test
   result_err <- nonparametricTest(df$entity.x[df$entity.group == 'group1'], df$entity.group[df$entity.group == 'group1'])
   expect_true(grepl( 'Error', result_err$statsError, fixed = TRUE))
-  expect_equal(result_correct$statsError, '')
+  expect_equal(result_correct$statsError, jsonlite::unbox(''))
   expect_equal(lapply(result_correct, typeof), lapply(result_err, typeof))
   
   df$entity.group[df$entity.group =='group3'] <- 'group1'
   df$entity.group[df$entity.group == 'group4'] <- 'group2'
   result_correct <- nonparametricTest(df$entity.x, df$entity.group)    # wilcox.test
-  expect_equal(result_correct$statsError, '')
+  expect_equal(result_correct$statsError, jsonlite::unbox(''))
   expect_equal(lapply(result_correct, typeof), lapply(result_err, typeof))
 })
 
