@@ -243,34 +243,17 @@ box.dt <- function(data,
                          'listVarDisplayLabel' = listVarDisplayLabel)
 
   if (!is.null(listVarPlotRef)) {
-    if (identical(listVarPlotRef, 'xAxisVariable')) {
-      
-      listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
-                                                'entityId' = unique(xAxisVariable$entityId),
-                                                'dataType' = 'NUMBER',
-                                                'dataShape' = 'CONTINUOUS',
-                                                'displayLabel' = inferredVarDisplayLabel)
-
-    } else if (identical(listVarPlotRef, 'facetVariable1')) {
-      
-      # Ensure all variables are numbers
-      if (!all(facetVariable1$dataType == 'NUMBER')){
-        stop("listVar error: All facet1 vars must be of type NUMBER.")
-      }
-
-      # Ensure evilMode is F
-      if (evilMode) {
-        stop("listVar error: Using listVar as facet1 is incompatible with evilMode.")
-      }
-      
-      listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
-                                                'entityId' = unique(facetVariable1$entityId),
-                                                'dataType' = 'NUMBER',
-                                                'dataShape' = 'CONTINUOUS',
-                                                'displayLabel' = inferredVarDisplayLabel)
-    } else {
-      stop('listVar error: listVarPlotRef must be either xAxisVariable or facetVariable1 for box.')
+    if (identical(listVarPlotRef, 'xAxisVariable')) { inferredVarEntityId <- unique(xAxisVariable$entityId)
+    } else if (identical(listVarPlotRef, 'facetVariable1')) { inferredVarEntityId <- unique(facetVariable1$entityId)
+    } else if (identical(listVarPlotRef, 'facetVariable2')) { inferredVarEntityId <- unique(facetVariable2$entityId)
+    } else { stop('listVar error: listVarPlotRef must be either xAxisVariable or facetVariable1 for box.')
     }
+
+    listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
+                                          'entityId' = inferredVarEntityId,
+                                          'dataType' = 'NUMBER',
+                                          'dataShape' = 'CONTINUOUS',
+                                          'displayLabel' = inferredVarDisplayLabel)
   }
 
   .box <- newBoxPD(.dt = data,

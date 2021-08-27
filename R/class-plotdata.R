@@ -72,7 +72,7 @@ newPlotdata <- function(.dt = data.table(),
   
   logWithTime('Determined the number of complete cases per variable.', verbose)
   
-  if (!identical(listVarDetails$listVarPlotRef, 'facetVariable1')) {
+  if (!identical(listVarDetails$listVarPlotRef, 'facetVariable1') & !identical(listVarDetails$listVarPlotRef, 'facetVariable2')) {
     panelData <- makePanels(.dt, facet1, facet2)
     .dt <- data.table::setDT(panelData[[1]])
     panel <- panelData[[2]]
@@ -91,11 +91,13 @@ newPlotdata <- function(.dt = data.table(),
     if (listVarDetails$listVarPlotRef == 'xAxisVariable') { listVariable <- xAxisVariable
     } else if (listVarDetails$listVarPlotRef == 'overlayVariable') { listVariable <- overlayVariable
     } else if (listVarDetails$listVarPlotRef == 'facetVariable1') {listVariable <- facetVariable1
+    } else if (listVarDetails$listVarPlotRef == 'facetVariable2') {listVariable <- facetVariable2
     } else { stop('listVar error: unaccepted value passed as listVarPlotRef')}
     listValue <- listVarDetails$inferredVariable
 
     # Validation
-    if (is.null(listVarDetails$inferredVariable$variableId)) stop("listVar error: listValue variableId must not be NULL")
+    if (is.null(listVarDetails$inferredVariable$variableId)) stop('listVar error: listValue variableId must not be NULL')
+    if (listVarDetails$listVarPlotRef != 'xAxisVariable' & evilMode) stop('listVar error: evilMode not compatible.')
     listVariable <- validateListVar(listVariable)
 
     # Set variable, value names appropriately
@@ -140,6 +142,17 @@ newPlotdata <- function(.dt = data.table(),
       facetType1 <- emptyStringToNull(as.character(facetVariable1$dataType))
       facetShape1 <- emptyStringToNull(as.character(facetVariable1$dataShape))
       .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) 
+
+      panelData <- makePanels(.dt, facet1, facet2)
+      .dt <- data.table::setDT(panelData[[1]])
+      panel <- panelData[[2]]
+
+    } else if (listVarDetails$listVarPlotRef == 'facetVariable2') {
+      facetVariable2 <- newCatVariable
+      facet2 <- toColNameOrNull(facetVariable2)
+      facetType2 <- emptyStringToNull(as.character(facetVariable2$dataType))
+      facetShape2 <- emptyStringToNull(as.character(facetVariable2$dataShape))
+      .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2, facetShape2) 
 
       panelData <- makePanels(.dt, facet1, facet2)
       .dt <- data.table::setDT(panelData[[1]])

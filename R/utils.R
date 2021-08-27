@@ -490,6 +490,11 @@ validateListVar <- function(listVariable) {
     stop("listVar error: All vars must be CONTINUOUS.")
   }
 
+  # Ensure no to variables are the same
+  if (any(duplicated(listVariable$variableId))) {
+    stop("listVar error: No duplicate vars allowed.")
+  }
+
   return(listVariable)
 }
 
