@@ -115,6 +115,9 @@ newPlotdata <- function(.dt = data.table(),
                         variable.name= variable.name,
                         value.name=value.name)
 
+    # Replace listVar values (previously column names) with display labels or variableId
+    .dt[[variable.name]] <- lapply(.dt[[variable.name]], toIdOrDisplayLabel, listVariable)
+
     # Assign new variable details for the created categorical variable
     newCatVariable <- list('variableId' = listVarDetails$listVarPlotRef,
                    'entityId' = unique(listVariable$entityId),

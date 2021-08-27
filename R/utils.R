@@ -526,3 +526,13 @@ validateMap <- function(map) {
   return(map)
 }
 
+toIdOrDisplayLabel <- function(colName, plotRef) {
+      varIndex <- which(toColNameOrNull(plotRef) == colName)
+      if (is.null(plotRef$displayLabel[varIndex]) || identical(plotRef$displayLabel[varIndex], '')) {
+        name <- plotRef$variableId[varIndex]
+      } else {
+        name <- plotRef$displayLabel[varIndex]
+      }
+      return(name)
+    }
+
