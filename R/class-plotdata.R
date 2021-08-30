@@ -181,7 +181,9 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(panel)) { .dt[[panel]] <- updateType(.dt[[panel]], 'STRING', 'CATEGORICAL') }
   logWithTime('Base data types updated for all columns as necessary.', verbose)
 
-  completeCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]))
+  completeCasesAllVars <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]))
+  completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[complete.cases(.dt[, c(x,y), with=FALSE]),]))
+  logWithTime('Determined total number of complete cases across axes and strata vars.', verbose)
 
   if (evilMode) {
     if (!is.null(group)) { .dt[[group]][is.na(.dt[[group]])] <- 'No data' }
@@ -192,9 +194,8 @@ newPlotdata <- function(.dt = data.table(),
   } else { 
     .dt <- .dt[complete.cases(.dt),]
   }
-  plottedIncompleteCases <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]) - completeCases)
-  
-  # If overlay is continuous and NOT a listvar, it does not contribute to final groups
+
+  # If overlay is continuous, it does not contribute to final groups
   overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
 
   if (xShape != 'CONTINUOUS') {
@@ -220,8 +221,8 @@ newPlotdata <- function(.dt = data.table(),
   attr$xAxisVariable <-  xAxisVariable
   if (!is.null(y)) { attr$yAxisVariable <- yAxisVariable }
   if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
-  attr$completeCases <- completeCases
-  attr$plottedIncompleteCases <- plottedIncompleteCases
+  attr$completeCasesAllVars <- completeCasesAllVars
+  attr$completeCasesAxesVars <- completeCasesAxesVars
   attr$completeCasesTable <- completeCasesTable
   attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, overlayGroup, panel)
   attr$class = c(class, 'plot.data', attr$class)
