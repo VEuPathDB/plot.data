@@ -119,6 +119,8 @@ groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL, collaps
     dt <- merge(dt, byColValues, by=byCols, all=TRUE)
   }
 
+  dt$outliers <- lapply(dt$outliers, FUN=function(x){if (is.null(x)) x <- list(); return(x)})
+
   if (collapse) {
     dt <- collapseByGroup(dt, group, panel)
   }
