@@ -180,10 +180,11 @@ validateBoxPD <- function(.box, verbose) {
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
+
 box.dt <- function(data, map, 
                    points = c('outliers', 'all', 'none'), 
                    mean = c(FALSE, TRUE), 
-                   computeStats = c(TRUE, FALSE), 
+                   computeStats = c(FALSE, TRUE), 
                    evilMode = c(FALSE, TRUE),
                    verbose = c(TRUE, FALSE)) {
 
@@ -285,7 +286,7 @@ box.dt <- function(data, map,
 box <- function(data, map, 
                 points = c('outliers', 'all', 'none'), 
                 mean = c(FALSE, TRUE), 
-                computeStats = c(TRUE, FALSE), 
+                computeStats = c(FALSE, TRUE), 
                 evilMode = c(FALSE, TRUE),
                 verbose = c(TRUE, FALSE)) {
 

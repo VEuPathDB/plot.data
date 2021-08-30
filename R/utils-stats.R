@@ -330,11 +330,16 @@ nonparametricTest <- function(values, groups) {
       "parameter" = numeric(),
       "method" = character(),
       "statsError" = jsonlite::unbox(as.character(testResult[1])))
-    testResult <- list(testResult)
   } else {
     testResult$parameter <- as.numeric(testResult$parameter)
+    testResult$statistic <- as.numeric(testResult$statistic)
+
     names(testResult)[names(testResult) == 'p.value'] <- 'pvalue'
-    testResult <- list(c(testResult[c('statistic', 'pvalue', 'parameter', 'method')], "statsError" = jsonlite::unbox("")))
+    testResult <- list("statistic" = jsonlite::unbox(testResult$statistic),
+      "pvalue" = jsonlite::unbox(testResult$pvalue),
+      "parameter" = testResult$parameter,
+      "method" = jsonlite::unbox(testResult$method),
+      "statsError" = jsonlite::unbox(""))
   }
   
   return(testResult)
@@ -346,14 +351,17 @@ nonparametricByGroup <- function(data, numericCol, levelsCol, byCols = NULL) {
   setDT(data)
   
   if (is.null(byCols)) {
-    statsResults <- data.table::as.data.table(t(nonparametricTest(data[[numericCol]], data[[levelsCol]])))
+    dt <- data.table::as.data.table(t(nonparametricTest(data[[numericCol]], data[[levelsCol]])))
   } else {
-    statsResults <- data[, .(nonparametricTest(get(..numericCol), get(..levelsCol))) , by=eval(colnames(data)[colnames(data) %in% byCols])]
+    dt <- data[, {testResult <- nonparametricTest(get(..numericCol), get(..levelsCol));
+                    list(statistic=testResult$statistic,
+                          pvalue=testResult$pvalue,
+                          parameter=testResult$parameter,
+                          method=testResult$method,
+                          statsError=testResult$statsError)} , by=eval(colnames(data)[colnames(data) %in% byCols])]
   }
-  
-  data.table::setnames(statsResults, 'V1', 'statistics')
 
-  return (statsResults)
+  return (dt)
   
 }
 
