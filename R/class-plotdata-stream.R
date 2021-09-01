@@ -44,6 +44,9 @@ newStreamPD <- function(.dt = data.table::data.table(),
   y <- toColNameOrNull(attr$yAxisVariable)
   group <- toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
+  
+  # For stacked area, order by x
+  data.table::setorderv(.pd, x)
 
   if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
     series <- collapseByGroup(.pd, group = NULL, panel)

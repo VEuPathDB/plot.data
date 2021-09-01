@@ -37,9 +37,9 @@ test_that("stream.dt() returns plot data and config of the appropriate types", {
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
 
 
-  map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
 
-  dt <- stream.dt(data.xy, map, 'raw')
+  dt <- stream.dt(data.xy, map)
   expect_equal(class(unlist(dt$entity.panel)), 'character')
   expect_equal(class(unlist(dt$entity.group)), 'character')
   expect_equal(class(unlist(dt$seriesX)), 'character')
