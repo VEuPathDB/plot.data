@@ -517,8 +517,10 @@ validateMap <- function(map) {
       stop("Too many values specified with listVar: maximum number of x axis values is 10.")
     } else if (repeatedPlotRef == 'overlayVariable' & nVars > 8) {
       stop("Too many values specified with listVar: maximum number of overlay values is 8.")
-    } else if (repeatedPlotRef == 'facetVariable1' & nVars > 10) {
-      stop("Too many values specified with listVar: maximum number of panels allowed is 10.")
+    } else if (repeatedPlotRef == 'facetVariable1' & nVars > 25) {
+      stop("Too many values specified with listVar: maximum number of facet1 values allowed is 25.")
+    } else if (repeatedPlotRef == 'facetVariable2' & nVars > 25) {
+      stop("Too many values specified with listVar: maximum number of facet2 values allowed is 25.")
     }
   }
 
