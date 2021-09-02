@@ -195,6 +195,7 @@ scattergl.dt <- function(data,
   }
 
   map <- validateMap(map)
+  logWithTime('Map has been validated.', verbose)
 
   # If there is a duplicated plotRef in map, it must match listVarPlotRef
   if (any(duplicated(map$plotRef))) {
@@ -252,6 +253,8 @@ scattergl.dt <- function(data,
                                           'dataType' = 'NUMBER',
                                           'dataShape' = 'CONTINUOUS',
                                           'displayLabel' = inferredVarDisplayLabel)
+
+    logWithTime('Created inferred variable from listVariable.', verbose)
   }
 
   .scatter <- newScatterPD(.dt = data,

@@ -524,7 +524,6 @@ validateMap <- function(map) {
     }
   }
 
-
   return(map)
 }
 

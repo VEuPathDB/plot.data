@@ -97,11 +97,13 @@ newPlotdata <- function(.dt = data.table(),
     } else if (listVarDetails$listVarPlotRef == 'facetVariable2') {listVariable <- facetVariable2
     } else { stop('listVar error: unaccepted value passed as listVarPlotRef')}
     listValue <- listVarDetails$inferredVariable
+    logWithTime('Identified listVariable.', verbose)
 
     # Validation
     if (is.null(listVarDetails$inferredVariable$variableId)) stop('listVar error: listValue variableId must not be NULL')
     if (listVarDetails$listVarPlotRef != 'xAxisVariable' & evilMode) stop('listVar error: evilMode not compatible.')
     listVariable <- validateListVar(listVariable)
+    logWithTime('listVariable has been validated.', verbose)
 
     # Set variable, value names appropriately
     if(is.null(unique(listVarDetails$inferredVariable$entityId))) {
@@ -117,6 +119,8 @@ newPlotdata <- function(.dt = data.table(),
                         variable.factor = FALSE,
                         variable.name= variable.name,
                         value.name=value.name)
+
+    logWithTime('Data reshaped according to listVariable.', verbose)
 
     # Replace listVar values (previously column names) with display labels or variableId
     .dt[[variable.name]] <- lapply(.dt[[variable.name]], toIdOrDisplayLabel, listVariable)
@@ -174,6 +178,8 @@ newPlotdata <- function(.dt = data.table(),
     .dt[[y]] <- updateType(.dt[[y]], yType, yShape) 
 
     data.table::setcolorder(.dt, c(x, y, z, group, panel))
+
+    logWithTime('Handling of listVariables complete.', verbose)
 
   }
 
