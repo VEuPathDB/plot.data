@@ -159,6 +159,36 @@ test_that("bar.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('entity.strcat1', 'entity.numcat2', 'label', 'value'))
   # sum of x counts should sum to 1 for each panel. Checking panel 1
   expect_equal(sum(unlist(lapply(seq_along(dt[dt$entity.numcat2 == '1']$label), function(v, dt) {dt[dt$entity.numcat2=='1']$value[[v]][which(dt[dt$entity.numcat2 == '1']$label[[v]] == df$entity.numcat1[1])]}, dt))),1)
+
+  # With factors
+  df <- as.data.frame(data.binned)
+  df$entity.factor1 <- factor(sample(c('mon','tues','wed','thurs','fri'), size = nrow(df), replace = T))
+  df$entity.factor2 <- factor(sample(c('red','orange','yellow'), size = nrow(df), replace = T))
+  
+  map <- data.frame('id' = c('entity.group', 'entity.x', 'entity.factor1'), 'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- bar.dt(df, map, value='count')
+  expect_is(dt, 'data.table')
+  expect_is(dt, 'barplot')
+  expect_equal(nrow(dt),20)
+  expect_equal(names(dt),c('entity.group', 'entity.factor1', 'label', 'value'))
+  expect_equal(class(dt$entity.factor1), 'character')
+
+  map <- data.frame('id' = c('entity.group', 'entity.x', 'entity.factor1'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- bar.dt(df, map, value='count')
+  expect_is(dt, 'data.table')
+  expect_is(dt, 'barplot')
+  expect_equal(nrow(dt),20)
+  expect_equal(names(dt),c('panel', 'label', 'value'))
+  expect_equal(class(dt$panel), 'character')
+
+  map <- data.frame('id' = c('entity.factor2', 'entity.x', 'entity.factor1'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- bar.dt(df, map, value='count')
+  expect_is(dt, 'data.table')
+  expect_is(dt, 'barplot')
+  expect_equal(nrow(dt),15)
+  expect_equal(names(dt),c('panel', 'label', 'value'))
+  expect_equal(class(dt$panel), 'character')
+
   
 })
 

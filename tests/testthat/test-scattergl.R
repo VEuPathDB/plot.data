@@ -243,6 +243,28 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(length(dt$seriesGradientColorscale[[1]]), length(dt$seriesX[[1]]))
   
   
+  # With factors
+  df <- data.xy
+  df$entity.factor1 <- factor(sample(c('mon','tues','wed','thurs','fri'), size = nrow(df), replace = T))
+  df$entity.factor2 <- factor(sample(c('red','orange','yellow'), size = nrow(df), replace = T))
+  
+  map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.factor1'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- scattergl.dt(df, map, 'raw')
+  expect_equal(nrow(dt), 20)
+  expect_equal(names(dt), c('entity.group', 'entity.factor1','seriesX','seriesY'))
+  expect_equal(class(dt$entity.factor1), 'character')
+  
+  map <- data.frame('id' = c('entity.factor2', 'entity.y', 'entity.x', 'entity.factor1'), 'plotRef' = c('facetVariable2', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- scattergl.dt(df, map, 'raw')
+  expect_equal(nrow(dt), 15)
+  expect_equal(names(dt), c('panel','seriesX','seriesY'))
+  expect_equal(class(dt$panel), 'character')
+
+  map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.factor1'), 'plotRef' = c('facetVariable2', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- scattergl.dt(df, map, 'raw')
+  expect_equal(nrow(dt), 20)
+  expect_equal(names(dt), c('panel','seriesX','seriesY'))
+  expect_equal(class(dt$panel), 'character')
 })
 
 test_that("scattergl() returns appropriately formatted json", {

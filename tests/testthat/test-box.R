@@ -209,6 +209,32 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),5)
   expect_equal(names(dt),c('entity.numcat2', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'rawData', 'mean'))
   
+  # With factors
+  df <- data.xy
+  df$entity.factor1 <- factor(sample(c('mon','tues','wed','thurs','fri'), size = nrow(df), replace = T))
+  df$entity.factor2 <- factor(sample(c('red','orange','yellow'), size = nrow(df), replace = T))
+
+  map <- data.frame('id' = c('entity.factor1', 'entity.y', 'entity.panel'), 'plotRef' = c('facetVariable1', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- box.dt(df, map, 'all', TRUE)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),5)
+  expect_equal(names(dt),c('entity.factor1', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'rawData', 'mean'))
+  expect_equal(class(dt$entity.factor1), 'character')
+
+  map <- data.frame('id' = c('entity.factor1','entity.group', 'entity.y', 'entity.panel'), 'plotRef' = c('facetVariable1', 'facetVariable2', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- box.dt(df, map, 'all', TRUE)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),20)
+  expect_equal(names(dt),c('panel', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'rawData', 'mean'))
+  expect_equal(class(dt$panel), 'character')
+
+  map <- data.frame('id' = c('entity.factor1','entity.factor2', 'entity.y', 'entity.panel'), 'plotRef' = c('facetVariable1', 'facetVariable2', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- box.dt(df, map, 'all', TRUE)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),15)
+  expect_equal(names(dt),c('panel', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'rawData', 'mean'))
+  expect_equal(class(dt$panel), 'character')
+  
 })
 
 test_that("box.dt() accepts listVars for both the x axis and facet vars", {  
