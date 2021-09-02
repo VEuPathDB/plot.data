@@ -45,7 +45,7 @@ addStrataVariableDetails <- function(.pd) {
   # !!!!! work off a copy while writing json
   # since we have two exported fxns, dont want calling one changing the result of the other
   if (!is.null(group)) {
-    if (!identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS')) {
+    if (!identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS') & (group %in% names(.pd))) {
       names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
       .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
     }
@@ -79,6 +79,11 @@ getJSON <- function(.pd, evilMode) {
     statsTable <- addStrataVariableDetails(statsTable)
     attr$names <- names(statsTable)
     statsTable <- setAttrFromList(statsTable, attr)
+    if (toColNameOrNull(namedAttrList$xAxisVariable) %in% names(statsTable)) {
+      x <- toColNameOrNull(namedAttrList$xAxisVariable)
+      names(statsTable)[names(statsTable) == x] <- 'xVariableDetails'
+      statsTable$xVariableDetails <- lapply(statsTable$xVariableDetails, makeVariableDetails, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
+    }
   }
 
   if ('sampleSizeTable' %in% names(namedAttrList)) {
@@ -93,7 +98,7 @@ getJSON <- function(.pd, evilMode) {
       if (namedAttrList$xAxisVariable$dataShape != "CONTINUOUS") {
         x <- toColNameOrNull(namedAttrList$xAxisVariable)
         names(sampleSizeTable)[names(sampleSizeTable) == x] <- 'xVariableDetails'
-        sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, x, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
+        sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
       }
     }
   }

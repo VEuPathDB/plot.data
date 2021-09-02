@@ -189,11 +189,11 @@ validateBoxPD <- function(.box, verbose) {
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
-box.dt <- function(data, 
-                   map,
-                   points = c('outliers', 'all', 'none'),
-                   mean = c(FALSE, TRUE),
-                   computeStats = c(TRUE, FALSE),
+
+box.dt <- function(data, map, 
+                   points = c('outliers', 'all', 'none'), 
+                   mean = c(FALSE, TRUE), 
+                   computeStats = c(FALSE, TRUE), 
                    evilMode = c(FALSE, TRUE),
                    listVarPlotRef = NULL,
                    listVarDisplayLabel = NULL,
@@ -307,11 +307,10 @@ box.dt <- function(data,
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
-box <- function(data,
-                map,
-                points = c('outliers', 'all', 'none'),
-                mean = c(FALSE, TRUE),
-                computeStats = c(TRUE, FALSE),
+box <- function(data, map, 
+                points = c('outliers', 'all', 'none'), 
+                mean = c(FALSE, TRUE), 
+                computeStats = c(FALSE, TRUE), 
                 evilMode = c(FALSE, TRUE),
                 listVarPlotRef = NULL,
                 listVarDisplayLabel = NULL,

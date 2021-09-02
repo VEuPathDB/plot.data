@@ -241,7 +241,7 @@ test_that("remapListVar appropriately updates map", {
 test_that("nonparametricTest() errs gracefully", {
   df <- as.data.frame(data.xy)
   result <- nonparametricTest(df$entity.x[df$entity.group == 'group1'], df$entity.group[df$entity.group == 'group1'])
-  expect_true(grepl( 'Error', result[[1]]$statsError, fixed = TRUE))
+  expect_true(grepl( 'Error', result$statsError, fixed = TRUE))
   
 })
 
@@ -258,15 +258,15 @@ test_that("nonparametricTest() types do not change on error", {
   df <- as.data.frame(data.xy)
   result_correct <- nonparametricTest(df$entity.x, df$entity.group)    # kruskal.test
   result_err <- nonparametricTest(df$entity.x[df$entity.group == 'group1'], df$entity.group[df$entity.group == 'group1'])
-  expect_true(grepl( 'Error', result_err[[1]]$statsError, fixed = TRUE))
-  expect_equal(result_correct[[1]]$statsError, '')
-  expect_equal(lapply(result_correct[[1]], typeof), lapply(result_err[[1]], typeof))
+  expect_true(grepl( 'Error', result_err$statsError, fixed = TRUE))
+  expect_equal(result_correct$statsError, jsonlite::unbox(''))
+  expect_equal(lapply(result_correct, typeof), lapply(result_err, typeof))
   
   df$entity.group[df$entity.group =='group3'] <- 'group1'
   df$entity.group[df$entity.group == 'group4'] <- 'group2'
   result_correct <- nonparametricTest(df$entity.x, df$entity.group)    # wilcox.test
-  expect_equal(result_correct[[1]]$statsError, '')
-  expect_equal(lapply(result_correct[[1]], typeof), lapply(result_err[[1]], typeof))
+  expect_equal(result_correct$statsError, jsonlite::unbox(''))
+  expect_equal(lapply(result_correct, typeof), lapply(result_err, typeof))
 })
 
 test_that("findBinWidth returns appropriate bin types for numeric inputs", {

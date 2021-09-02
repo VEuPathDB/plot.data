@@ -476,8 +476,10 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram),c('data','config'))
   expect_equal(names(jsonList$histogram$data),c('overlayVariableDetails','facetVariableDetails','binLabel','value','binStart','binEnd'))
   expect_equal(names(jsonList$histogram$data$overlayVariableDetails),c('variableId','entityId','value'))
+  expect_equal(jsonList$histogram$data$overlayVariableDetails$variableId[1], 'group')
   expect_equal(names(jsonList$histogram$config),c('completeCasesAllVars','completeCasesAxesVars','summary','viewport','binSlider','binSpec','xVariableDetails'))  
   expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$histogram$config$xVariableDetails$variableId, 'var')
   expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
@@ -485,7 +487,8 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
-  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId')) 
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('var', 'group', 'panel'))
 
   map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
@@ -503,16 +506,21 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram),c('data','config'))
   expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','value','binStart','binEnd'))
   expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
+  expect_equal(jsonList$histogram$data$facetVariableDetails[[1]]$variableId, c('panel', 'group'))
   expect_equal(nrow(jsonList$histogram$data$facetVariableDetails[[1]]), 2)
   expect_equal(names(jsonList$histogram$config),c('completeCasesAllVars','completeCasesAxesVars','summary','viewport','binSlider','binSpec','xVariableDetails'))
   expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$histogram$config$xVariableDetails$variableId, 'var')
   expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(jsonList$sampleSizeTable$facetVariableDetails[[1]]$variableId, c('panel', 'group'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId')) 
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('var', 'panel', 'group'))
+  
  
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'stack', binReportValue, viewport)
   outJson <- getJSON(dt, FALSE)
@@ -522,15 +530,19 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','value','binStart','binEnd'))
   expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(nrow(jsonList$histogram$data$facetVariableDetails[[1]]), 2)
+  expect_equal(jsonList$histogram$data$facetVariableDetails[[1]]$variableId, c('panel', 'group'))
   expect_equal(names(jsonList$histogram$config),c('completeCasesAllVars','completeCasesAxesVars','summary','viewport','binSlider','binSpec','xVariableDetails'))
   expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$histogram$config$xVariableDetails$variableId, 'var')
   expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(jsonList$sampleSizeTable$facetVariableDetails[[1]]$variableId, c('panel', 'group'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('var', 'panel', 'group'))
 
 
   map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
@@ -547,6 +559,7 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','value','binStart','binEnd'))
   expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value', 'displayLabel'))
   expect_equal(nrow(jsonList$histogram$data$facetVariableDetails[[1]]), 2)
+  
   expect_equal(names(jsonList$histogram$config),c('completeCasesAllVars','completeCasesAxesVars','summary','viewport','binSlider','binSpec','xVariableDetails'))
   expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId','displayLabel'))
   expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
