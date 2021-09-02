@@ -76,6 +76,9 @@ newPlotdata <- function(.dt = data.table(),
     panelData <- makePanels(.dt, facet1, facet2)
     .dt <- data.table::setDT(panelData[[1]])
     panel <- panelData[[2]]
+    if (!is.null(panel)){
+      if (uniqueN(.dt[[panel]]) > 25) stop("Maximum number of panels allowed is 25.")
+    }
   } else {
     panel <- c(facet1, facet2)
   }
@@ -160,6 +163,7 @@ newPlotdata <- function(.dt = data.table(),
       panelData <- makePanels(.dt, facet1, facet2)
       .dt <- data.table::setDT(panelData[[1]])
       panel <- panelData[[2]]
+      if (uniqueN(.dt[[panel]]) > 25) stop("Maximum number of panels allowed is 25.")
     }
 
     # Assume inferredVarPlotRef = yAxisVariable always.
