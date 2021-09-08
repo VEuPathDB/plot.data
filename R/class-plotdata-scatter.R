@@ -245,7 +245,7 @@ scattergl.dt <- function(data,
     if (identical(listVarPlotRef, 'overlayVariable')) { inferredVarEntityId <- unique(overlayVariable$entityId)
     } else if (identical(listVarPlotRef, 'facetVariable1')) { inferredVarEntityId <- unique(facetVariable1$entityId)
     } else if (identical(listVarPlotRef, 'facetVariable2')) { inferredVarEntityId <- unique(facetVariable2$entityId)
-    } else { stop('listVar error: listVarPlotRef must be either overlayVariable, acetVariable1, or facetVariable2 for scatter.')
+    } else { stop('listVar error: listVarPlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for scatter.')
     }
 
     listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
