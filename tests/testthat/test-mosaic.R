@@ -242,6 +242,37 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   sampleSizeTable <- sampleSizeTable(dt)
   expect_equal(names(sampleSizeTable),c('entity.strcat1','entity.numcat1','size'))
   expect_equal(class(sampleSizeTable$entity.numcat1[[1]]), 'character')
+
+
+  # With factors
+  df$entity.factor1 <- factor(sample(c('mon','tues','wed','thurs','fri'), size = nrow(df), replace = T))
+  df$entity.factor2 <- factor(sample(c('red','orange','yellow'), size = nrow(df), replace = T))
+
+  map <- data.frame('id' = c('entity.numcat2', 'entity.numcat1', 'entity.factor1'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- mosaic.dt(df, map)
+  expect_is(dt, 'data.table')
+  expect_is(dt$value, 'list')
+  expect_is(dt$value[[1]], 'list')
+  expect_equal(nrow(dt),5)
+  expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'entity.factor1'))
+  expect_equal(class(dt$entity.factor1), 'character')
+
+  map <- data.frame('id' = c('entity.numcat2', 'entity.numcat1', 'entity.factor1', 'entity.factor2'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- mosaic.dt(df, map)
+  expect_is(dt, 'data.table')
+  expect_is(dt$value, 'list')
+  expect_is(dt$value[[1]], 'list')
+  expect_equal(nrow(dt),15)
+  expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'panel'))
+
+  map <- data.frame('id' = c('entity.numcat2', 'entity.numcat1', 'entity.strcat1', 'entity.factor2'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- mosaic.dt(df, map)
+  expect_is(dt, 'data.table')
+  expect_is(dt$value, 'list')
+  expect_is(dt$value[[1]], 'list')
+  expect_equal(nrow(dt),9)
+  expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'panel'))
+  
 })
 
 test_that("mosaic() returns appropriately formatted json", {

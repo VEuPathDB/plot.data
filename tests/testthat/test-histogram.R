@@ -413,6 +413,50 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('binLabel', 'value', 'binStart', 'binEnd'))
 
+
+  # With factors
+  df <- data.xy
+  df$entity.factor1 <- factor(sample(c('mon','tues','wed','thurs','fri'), size = nrow(df), replace = T))
+  df$entity.factor2 <- factor(sample(c('red','orange','yellow'), size = nrow(df), replace = T))
+
+  viewport <- list('xMin'=min(df$entity.x), 'xMax'=max(df$entity.x))
+  
+  map <- data.frame('id' = c('entity.x', 'entity.factor1'), 
+                  'plotRef' = c('xAxisVariable', 'facetVariable1'), 
+                  'dataType' = c('NUMBER', 'STRING'), 
+                  'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), 
+                  stringsAsFactors = FALSE)
+
+  dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),5)
+  expect_equal(names(dt),c('entity.factor1', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(class(dt$entity.factor1), 'character')
+
+  map <- data.frame('id' = c('entity.x', 'entity.factor1', 'entity.group'), 
+                  'plotRef' = c('xAxisVariable', 'facetVariable1', 'facetVariable2'), 
+                  'dataType' = c('NUMBER', 'STRING', 'STRING'), 
+                  'dataShape' = c('CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), 
+                  stringsAsFactors = FALSE)
+
+  dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),20)
+  expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(class(dt$panel), 'character')
+
+  map <- data.frame('id' = c('entity.x', 'entity.factor1', 'entity.factor2'), 
+                  'plotRef' = c('xAxisVariable', 'facetVariable1', 'facetVariable2'), 
+                  'dataType' = c('NUMBER', 'STRING', 'STRING'), 
+                  'dataShape' = c('CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), 
+                  stringsAsFactors = FALSE)
+
+  dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),15)
+  expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(class(dt$panel), 'character')
+
 })
 
 test_that("histogram() returns appropriately formatted json", {

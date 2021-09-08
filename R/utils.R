@@ -63,9 +63,10 @@ plotRefMapToList <- function(map, plotRef) {
                 'displayLabel' = NULL))
   }
 
-  variableId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 2)
-  entityId <- strSplit(map$id[map$plotRef == plotRef], ".", 4, 1)
+  variableId <- lapply(map$id[map$plotRef == plotRef], strSplit, ".", 4, 2)
+  entityId <- lapply(map$id[map$plotRef == plotRef], strSplit, ".", 4, 1)
 
+  # If there are no variable
   variableId <- emptyStringToNull(variableId)
   entityId <- emptyStringToNull(entityId)
   dataType <- emptyStringToNull(map$dataType[map$plotRef == plotRef])
@@ -73,7 +74,7 @@ plotRefMapToList <- function(map, plotRef) {
   displayLabel <- emptyStringToNull(map$displayLabel[map$plotRef == plotRef])
 
   if (!is.null(variableId) & !is.null(entityId)) {
-    if (variableId == entityId) { entityId <- NULL }
+    if (all(variableId == entityId)) { entityId <- NULL }
   }
 
   plotRef <- list('variableId' = variableId,
@@ -211,9 +212,10 @@ emptyStringToPoint <- function(x) {
 #' @return non-empty character vector or NULL
 #' @export
 emptyStringToNull <- function(x) {
+  x <- unlist(x)
   if (is.null(x)) { return(NULL) }
   if (length(x) == 0) { return(NULL) }
-  if (x == "") { return(NULL) }
+  if (all(x == "")) { return(NULL) }
 
   return(as.character(x))
 }
@@ -471,37 +473,67 @@ remapListVar <- function(map, listVarPlotRef, newValuePlotRef, newVarId = 'melte
 }
 
 
-validateListVar <- function(map, listVarPlotRef) {
-  
-  # Only allow one plot element to be a list var 
-  if (length(listVarPlotRef) > 1) {
-    stop("Only one plot element can be a listVar.")
-  }
-  
-  # Ensure repeatedPlotRef is numeric
-  if (any(map$dataType[map$plotRef == listVarPlotRef] != 'NUMBER')) {
-    stop(paste0("All vars in ", listVarPlotRef, " must be of type NUMBER."))
-  }
+validateListVar <- function(listVariable) {
 
-  # Check to ensure if repeatedPlotRef is facet that there are no other facet vars.
-  if (listVarPlotRef == 'facetVariable1' & 'facetVariable2' %in% map$plotRef) {
-    stop("facetVariable2 should be NULL when using listVar for facetVariable1.")
-  }
-
-  # Check we do not have too many vars -- restricted based on the rules in the data service
-  nVars <- length(map$id[map$plotRef == listVarPlotRef])
-  if (listVarPlotRef == 'xAxisVariable' & nVars > 10) {
-    stop("Too many values specified with listVar: maximum number of x axis values is 10.")
-  } else if (listVarPlotRef == 'overlayVariable' & nVars > 8) {
-    stop("Too many values specified with listVar: maximum number of overlay values is 8.")
-  } else if (listVarPlotRef == 'facetVariable1' & nVars > 25) {
-    stop("Too many values specified with listVar: maximum number of panels allowed is 25.")
-  }
-  
   # Require all repeated vars to have the same type, shape, and entity
-  if (uniqueN(map$entityId[map$plotRef == listVarPlotRef]) > 1 | uniqueN(map$dataType[map$plotRef == listVarPlotRef]) > 1 | uniqueN(map$dataShape[map$plotRef == listVarPlotRef]) > 1) {
-    stop("All vars in a listVar must have the same entity id, type, and shape.")
+  if (length(unique(listVariable$entityId)) > 1 | length(unique(listVariable$dataType)) > 1 | length(unique(listVariable$dataShape)) > 1) {
+    stop("listVar error: all vars in a listVar must have the same entity id, type, and shape.")
   }
 
-  return(listVarPlotRef)
+  # Ensure all variables are numbers
+  if (!all(listVariable$dataType == 'NUMBER')){
+    stop("listVar error: All vars must be of type NUMBER.")
+  }
+
+  # Ensure all variables are continuous
+  if (!all(listVariable$dataShape == 'CONTINUOUS')){
+    stop("listVar error: All vars must be CONTINUOUS.")
+  }
+
+  # Ensure no to variables are the same
+  if (any(duplicated(listVariable$variableId))) {
+    stop("listVar error: No duplicate vars allowed.")
+  }
+
+  return(listVariable)
 }
+
+validateMap <- function(map) {
+  # Could add checks for data type, shape, etc presence
+
+  if (any(duplicated(map$plotRef))) {
+    
+    # Check that there is at most one repeated plotRef
+    repeatedPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
+
+    if (length(repeatedPlotRef) > 1) {
+      stop("map error: only one plotRef can be assigned to multiple variables.")
+    }
+
+    # Check we do not have too many repeated variables.
+    nVars <- sum(duplicated(map$plotRef))
+
+    if (repeatedPlotRef == 'xAxisVariable' & nVars > 10) {
+      stop("Too many values specified with listVar: maximum number of x axis values is 10.")
+    } else if (repeatedPlotRef == 'overlayVariable' & nVars > 8) {
+      stop("Too many values specified with listVar: maximum number of overlay values is 8.")
+    } else if (repeatedPlotRef == 'facetVariable1' & nVars > 25) {
+      stop("Too many values specified with listVar: maximum number of facet1 values allowed is 25.")
+    } else if (repeatedPlotRef == 'facetVariable2' & nVars > 25) {
+      stop("Too many values specified with listVar: maximum number of facet2 values allowed is 25.")
+    }
+  }
+
+  return(map)
+}
+
+toIdOrDisplayLabel <- function(colName, plotRef) {
+      varIndex <- which(toColNameOrNull(plotRef) == colName)
+      if (is.null(plotRef$displayLabel[varIndex]) || identical(plotRef$displayLabel[varIndex], '')) {
+        name <- plotRef$variableId[varIndex]
+      } else {
+        name <- plotRef$displayLabel[varIndex]
+      }
+      return(name)
+    }
+

@@ -6,7 +6,11 @@ makeVariableDetails <- function(value, variableId, entityId, displayLabel = NULL
       variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=as.character(value))
     }
   } else {
-    variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId))
+    if (length(variableId) > 1) {
+      variableDetails <- list('variableId'=variableId, 'entityId'=entityId)
+    } else {
+      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId))
+    }
   }
 
   if (!is.null(displayLabel)) {
@@ -27,7 +31,8 @@ addVariableDetailsToColumn <- function(.pd, variableIdColName) {
   if ('overlayVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == toColNameOrNull(namedAttrList$overlayVariable)] <- list(makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel))
   if ('facetVariable1' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == toColNameOrNull(namedAttrList$facetVariable1)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId, namedAttrList$facetVariable1$displayLabel))
   if ('facetVariable2' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == toColNameOrNull(namedAttrList$facetVariable2)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel))
-
+  if ('listVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] %in% toColNameOrNull(namedAttrList$listVariable)] <- lapply(seq_along(namedAttrList$listVariable$variableId), function(varInd) {makeVariableDetails(NULL, namedAttrList$listVariable$variableId[varInd], namedAttrList$listVariable$entityId[varInd], namedAttrList$listVariable$displayLabel[varInd])})
+  
   return(.pd)
 }
 
@@ -112,6 +117,7 @@ getJSON <- function(.pd, evilMode) {
     namedAttrList$xVariableDetails <- makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId,  namedAttrList$xAxisVariable$displayLabel)
     namedAttrList$xAxisVariable <- NULL
   }
+
   if ('yAxisVariable' %in% names(namedAttrList)) {
     namedAttrList$yVariableDetails <- makeVariableDetails(NULL, namedAttrList$yAxisVariable$variableId, namedAttrList$yAxisVariable$entityId,  namedAttrList$yAxisVariable$displayLabel)
     namedAttrList$yAxisVariable <- NULL
@@ -119,6 +125,10 @@ getJSON <- function(.pd, evilMode) {
   if ('zAxisVariable' %in% names(namedAttrList)) {
     namedAttrList$zVariableDetails <- makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId, namedAttrList$zAxisVariable$displayLabel)
     namedAttrList$zAxisVariable <- NULL
+  }
+  if ('listVariable' %in% names(namedAttrList)) {
+    namedAttrList$listVariableDetails <- makeVariableDetails(NULL, namedAttrList$listVariable$variableId, namedAttrList$listVariable$entityId, namedAttrList$listVariable$displayLabel)
+    namedAttrList$listVariable <- NULL
   }
   
   .pd <- addStrataVariableDetails(.pd)

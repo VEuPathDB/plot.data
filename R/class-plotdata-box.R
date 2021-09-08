@@ -28,6 +28,10 @@ newBoxPD <- function(.dt = data.table::data.table(),
                          mean = logical(),
                          computeStats = logical(),
                          evilMode = logical(),
+                         listVarDetails = list('inferredVariable' = NULL,
+                                               'inferredVarPlotRef' = NULL,
+                                               'listVarPlotRef' = NULL,
+                                               'listVarDisplayLabel' = NULL),
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -39,6 +43,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
+                     listVarDetails = listVarDetails,
                      verbose = verbose,
                      class = "boxplot")
 
@@ -155,6 +160,7 @@ validateBoxPD <- function(.box, verbose) {
   return(.box)
 }
 
+
 #' Box Plot as data.table
 #'
 #' This function returns a data.table of 
@@ -176,6 +182,9 @@ validateBoxPD <- function(.box, verbose) {
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
+#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
+#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
+#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
@@ -186,6 +195,9 @@ box.dt <- function(data, map,
                    mean = c(FALSE, TRUE), 
                    computeStats = c(FALSE, TRUE), 
                    evilMode = c(FALSE, TRUE),
+                   listVarPlotRef = NULL,
+                   listVarDisplayLabel = NULL,
+                   inferredVarDisplayLabel = NULL,
                    verbose = c(TRUE, FALSE)) {
 
   points <- matchArg(points)
@@ -198,46 +210,54 @@ box.dt <- function(data, map,
     data.table::setDT(data)
   }
 
-  # Handle repeated plot references
-  if (any(duplicated(map$plotRef))) {
-    
-    # Identify the list var based on any plotRef that is repeated
-    listVarPlotRef <- unique(map$plotRef[duplicated(map$plotRef)])
-    listVarPlotRef <- validateListVar(map, listVarPlotRef)
-    
-    # Box-specific
-    if (listVarPlotRef == 'xAxisVariable' | listVarPlotRef == 'facetVariable1') {
-      meltedValuePlotRef <- 'yAxisVariable'
-    } else {
-      stop("Incompatable repeated variable")
-    }
-    
-    # Check to ensure meltedValuePlotRef is not already defined
-    if (any(map$plotRef == meltedValuePlotRef)) {
-      stop(paste0("Cannot melt data: ", meltedValuePlotRef, " already defined."))
-    }
+  map <- validateMap(map)
+  logWithTime('Map has been validated.', verbose)
 
-    # Record variable order
-    listVarIdOrder <- map$id[map$plotRef == listVarPlotRef]
-    
-    # Melt data and update the map 
-    data <- data.table::melt(data, measure.vars = listVarIdOrder, variable.factor = FALSE, variable.name='meltedVariable', value.name='meltedValue')
-    map <- remapListVar(map, listVarPlotRef, meltedValuePlotRef)
-    
-    logWithTime('Repeated plot references have been melted into a list variable!', verbose)
-  } # end handling of repeated plot element references
+  # If there is a duplicated plotRef in map, it must match listVarPlotRef
+  if (any(duplicated(map$plotRef))) {
+    if (!identical(listVarPlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
+      stop('listVar error: duplicated map plotRef does not match listVarPlotRef.')
+    }
+  }
+
+  # If listVar and inferredVar labels are provided, must also provide listVarPlotRef
+  if ((!is.null(listVarDisplayLabel) | !is.null(inferredVarDisplayLabel)) & is.null(listVarPlotRef)) {
+    stop('listVar error: listVarPlotRef must be specified in order to use inferredVarDisplayLabel or listVarDisplayLabel')
+  }
 
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type box.")
   }
   yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  if (is.null(yAxisVariable$variableId)) {
+  if (is.null(yAxisVariable$variableId) & is.null(listVarPlotRef)) {
     stop("Must provide yAxisVariable for plot type box.")
   }
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
+  
+  # Handle listVars
+  listVarDetails <- list('inferredVariable' = NULL,
+                         'inferredVarPlotRef' = 'yAxisVariable',
+                         'listVarPlotRef' = listVarPlotRef,
+                         'listVarDisplayLabel' = listVarDisplayLabel)
+
+  if (!is.null(listVarPlotRef)) {
+    if (identical(listVarPlotRef, 'xAxisVariable')) { inferredVarEntityId <- unique(xAxisVariable$entityId)
+    } else if (identical(listVarPlotRef, 'facetVariable1')) { inferredVarEntityId <- unique(facetVariable1$entityId)
+    } else if (identical(listVarPlotRef, 'facetVariable2')) { inferredVarEntityId <- unique(facetVariable2$entityId)
+    } else { stop('listVar error: listVarPlotRef must be either xAxisVariable, facetVariable1, or facetVariable2 for box.')
+    }
+
+    listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
+                                          'entityId' = inferredVarEntityId,
+                                          'dataType' = 'NUMBER',
+                                          'dataShape' = 'CONTINUOUS',
+                                          'displayLabel' = inferredVarDisplayLabel)
+
+    logWithTime('Created inferred variable from listVariable.', verbose)
+  }
 
   .box <- newBoxPD(.dt = data,
                     xAxisVariable = xAxisVariable,
@@ -249,6 +269,7 @@ box.dt <- function(data, map,
                     mean = mean,
                     computeStats = computeStats,
                     evilMode = evilMode,
+                    listVarDetails = listVarDetails,
                     verbose = verbose)
 
   .box <- validateBoxPD(.box, verbose)
@@ -280,6 +301,9 @@ box.dt <- function(data, map,
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
+#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
+#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
@@ -288,11 +312,23 @@ box <- function(data, map,
                 mean = c(FALSE, TRUE), 
                 computeStats = c(FALSE, TRUE), 
                 evilMode = c(FALSE, TRUE),
+                listVarPlotRef = NULL,
+                listVarDisplayLabel = NULL,
+                inferredVarDisplayLabel = NULL,
                 verbose = c(TRUE, FALSE)) {
 
-   verbose <- matchArg(verbose) 
- 
-  .box <- box.dt(data, map, points, mean, computeStats, evilMode, verbose)
+  verbose <- matchArg(verbose)
+
+  .box <- box.dt(data,
+                 map,
+                 points = points,
+                 mean = mean,
+                 computeStats = computeStats,
+                 evilMode = evilMode,
+                 listVarPlotRef = listVarPlotRef,
+                 listVarDisplayLabel = listVarDisplayLabel,
+                 inferredVarDisplayLabel = inferredVarDisplayLabel,
+                 verbose = verbose)
   outFileName <- writeJSON(.box, evilMode, 'boxplot', verbose)
 
   return(outFileName)
