@@ -387,6 +387,7 @@ test_that("mosaic.dt() returns correct information about missing data", {
   df$entity.panel[sample(1:100, 10, replace=F)] <- NA
   
   dt <- mosaic.dt(df, map)
+  expect_equal(names(statsTable(dt)),c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'entity.panel'))
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - 10
   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
