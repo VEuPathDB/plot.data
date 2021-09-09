@@ -10,6 +10,9 @@ scattergl.dt(
   value = c("smoothedMean", "smoothedMeanWithRaw", "bestFitLineWithRaw", "density",
     "raw"),
   evilMode = c(FALSE, TRUE),
+  listVarPlotRef = NULL,
+  listVarDisplayLabel = NULL,
+  inferredVarDisplayLabel = NULL,
   verbose = c(TRUE, FALSE)
 )
 }
@@ -21,6 +24,12 @@ scattergl.dt(
 \item{value}{character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.}
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
+
+\item{listVarPlotRef}{string indicating the plotRef to be considered as a listVariable. Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.}
+
+\item{listVarDisplayLabel}{string indicating the final displayLabel to be assigned to the repeated variable.}
+
+\item{inferredVarDisplayLabel}{string indicated the final displayLabel to be assigned to the inferred variable.}
 
 \item{verbose}{boolean indicating if timed logging is desired}
 }

@@ -9,8 +9,11 @@ box.dt(
   map,
   points = c("outliers", "all", "none"),
   mean = c(FALSE, TRUE),
-  computeStats = c(TRUE, FALSE),
+  computeStats = c(FALSE, TRUE),
   evilMode = c(FALSE, TRUE),
+  listVarPlotRef = NULL,
+  listVarDisplayLabel = NULL,
+  inferredVarDisplayLabel = NULL,
   verbose = c(TRUE, FALSE)
 )
 }
@@ -26,6 +29,12 @@ box.dt(
 \item{computeStats}{boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)}
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
+
+\item{listVarPlotRef}{string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.}
+
+\item{listVarDisplayLabel}{string indicating the final displayLabel to be assigned to the repeated variable.}
+
+\item{inferredVarDisplayLabel}{string indicated the final displayLabel to be assigned to the inferred variable.}
 
 \item{verbose}{boolean indicating if timed logging is desired}
 }
