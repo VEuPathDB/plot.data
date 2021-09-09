@@ -65,28 +65,28 @@ newBarPD <- function(.dt = data.table::data.table(),
 }
 
 validateBarPD <- function(.bar, verbose) {
-  xAxisVariable <- attr(.bar, 'xAxisVariable')
-  if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-    stop('The independent axis must be binary, ordinal or categorical for barplot.')
-  }
-  overlayVariable <- attr(.bar, 'overlayVariable')
-  if (!is.null(overlayVariable)) {
-    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-      stop('The overlay variable must be binary, ordinal or categorical.')
-    }
-  }
-  facetVariable1 <- attr(.bar, 'facetVariable1')
-  if (!is.null(facetVariable1)) {
-    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-      stop('The first facet variable must be binary, ordinal or categorical.')
-    }
-  }
-  facetVariable2 <- attr(.bar, 'facetVariable2')
-  if (!is.null(facetVariable2)) {
-    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-      stop('The second facet variable must be binary, ordinal or categorical.')
-    }
-  }
+#  xAxisVariable <- attr(.bar, 'xAxisVariable')
+#  if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+#    stop('The independent axis must be binary, ordinal or categorical for barplot.')
+#  }
+#  overlayVariable <- attr(.bar, 'overlayVariable')
+#  if (!is.null(overlayVariable)) {
+#    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+#      stop('The overlay variable must be binary, ordinal or categorical.')
+#    }
+#  }
+#  facetVariable1 <- attr(.bar, 'facetVariable1')
+#  if (!is.null(facetVariable1)) {
+#    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+#      stop('The first facet variable must be binary, ordinal or categorical.')
+#    }
+#  }
+#  facetVariable2 <- attr(.bar, 'facetVariable2')
+#  if (!is.null(facetVariable2)) {
+#    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+#      stop('The second facet variable must be binary, ordinal or categorical.')
+#    }
+#  }
   logWithTime('Barplot request has been validated!', verbose)
 
   return(.bar)
