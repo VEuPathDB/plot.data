@@ -58,26 +58,26 @@ newMosaicPD <- function(.dt = data.table::data.table(),
 }
 
 validateMosaicPD <- function(.mosaic, verbose) {
-  xAxisVariable <- attr(.mosaic, 'xAxisVariable')
-  if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-    stop('The independent axis must be binary, ordinal or categorical for mosaic.')
-  }
-  yAxisVariable <- attr(.mosaic, 'yAxisVariable')
-  if (!yAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-    stop('The dependent axis must be binary, ordinal or categorical for mosaic.')
-  }
-  facetVariable1 <- attr(.mosaic, 'facetVariable1')
-  if (!is.null(facetVariable1)) {
-    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-      stop('The first facet variable must be binary, ordinal or categorical.')
-    }
-  }
-  facetVariable2 <- attr(.mosaic, 'facetVariable2')
-  if (!is.null(facetVariable2)) {
-    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-      stop('The second facet variable must be binary, ordinal or categorical.')
-    }
-  }
+#  xAxisVariable <- attr(.mosaic, 'xAxisVariable')
+#  if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+#    stop('The independent axis must be binary, ordinal or categorical for mosaic.')
+#  }
+#  yAxisVariable <- attr(.mosaic, 'yAxisVariable')
+#  if (!yAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+#    stop('The dependent axis must be binary, ordinal or categorical for mosaic.')
+#  }
+#  facetVariable1 <- attr(.mosaic, 'facetVariable1')
+#  if (!is.null(facetVariable1)) {
+#    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+#      stop('The first facet variable must be binary, ordinal or categorical.')
+#    }
+#  }
+#  facetVariable2 <- attr(.mosaic, 'facetVariable2')
+#  if (!is.null(facetVariable2)) {
+#    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+#      stop('The second facet variable must be binary, ordinal or categorical.')
+#    }
+#  }
   logWithTime('Mosaic plot request has been validated!', verbose)
 
   return(.mosaic)

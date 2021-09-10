@@ -190,28 +190,28 @@ validateHistogramPD <- function(.histo, verbose) {
   stopifnot(validateBinSlider(binSlider))
   viewport <- attr(.histo, 'viewport')
   stopifnot(validateViewport(viewport))
-  xAxisVariable <- attr(.histo, 'xAxisVariable')
-  if (!xAxisVariable$dataShape == 'CONTINUOUS') {
-    stop('The independent axis must be continuous for a histogram.')
-  }
-  overlayVariable <- attr(.histo, 'overlayVariable')
-  if (!is.null(overlayVariable)) {
-    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-      stop('The overlay variable must be binary, ordinal or categorical.')
-    }
-  }
-  facetVariable1 <- attr(.histo, 'facetVariable1')
-  if (!is.null(facetVariable1)) {
-    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-      stop('The first facet variable must be binary, ordinal or categorical.')
-    }
-  }
-  facetVariable2 <- attr(.histo, 'facetVariable2')
-  if (!is.null(facetVariable2)) {
-    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-      stop('The second facet variable must be binary, ordinal or categorical.')
-    }
-  }
+#  xAxisVariable <- attr(.histo, 'xAxisVariable')
+#  if (!xAxisVariable$dataShape == 'CONTINUOUS') {
+#    stop('The independent axis must be continuous for a histogram.')
+#  }
+#  overlayVariable <- attr(.histo, 'overlayVariable')
+#  if (!is.null(overlayVariable)) {
+#    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+#      stop('The overlay variable must be binary, ordinal or categorical.')
+#    }
+#  }
+#  facetVariable1 <- attr(.histo, 'facetVariable1')
+#  if (!is.null(facetVariable1)) {
+#    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+#      stop('The first facet variable must be binary, ordinal or categorical.')
+#    }
+#  }
+#  facetVariable2 <- attr(.histo, 'facetVariable2')
+#  if (!is.null(facetVariable2)) {
+#    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
+#      stop('The second facet variable must be binary, ordinal or categorical.')
+#    }
+#  }
   binWidth <- attr(.histo, 'binWidth')
   if (!is.null(binWidth)) {
     if (xAxisVariable$dataType == 'DATE' && !is.character(binWidth)) {
