@@ -6,6 +6,10 @@ roundedMean <- function(x, digits = 4, ...) {
   c(round(mean(x, ...), digits))
 } 
 
+roundedMedian <- function(x, digits = 4, ...) {
+  c(round(median(x, ...), digits))
+} 
+
 roundedQuantile <- function(x, digits = 4, ...) {
   as.list(round(stats::quantile(x, ...), digits))
 }

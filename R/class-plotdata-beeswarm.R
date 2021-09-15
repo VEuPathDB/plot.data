@@ -47,71 +47,31 @@ newBeeswarmPD <- function(.dt = data.table::data.table(),
                      class = "beeswarm")
 
   attr <- attributes(.pd)
+  print(jitter)
 
   x <- toColNameOrNull(attr$xAxisVariable)
   y <- toColNameOrNull(attr$yAxisVariable)
   group <- toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-#   if (summaryStats) {
-#     summary <- groupSummary(.pd, x, y, group, panel)
-#     logWithTime('Calculated five-number summaries and upper and lower fences for boxplot.', verbose)
-#   }
-#   fences <- groupFences(.pd, x, y, group, panel)
-#   fences <- fences[, -x, with = FALSE]
 
-#   if (computeStats) {
-    
-#     if (is.null(group)) {
-#       # If no overlay, then compute across x per panel
-#       statsTable <- nonparametricByGroup(.pd, numericCol=y, levelsCol=x, byCols=panel)
-      
-#     } else {
-#       # compute across overlay values per panel
-#       statsTable <- nonparametricByGroup(.pd, numericCol=y, levelsCol=group, byCols=c(x, panel))
-#     }
-    
-#     attr$statsTable <- statsTable
-#     logWithTime('Calculated boxplot supporting statistics.', verbose)
-#   }
-  
-
-#   if (!is.null(key(summary))) {
-#     .pd.base <- merge(summary, fences)
-#   } else {
-#     .pd.base <- cbind(summary, fences)
-#   }
-
-#   if (points == 'outliers') {
-#     outliers <- groupOutliers(.pd, x, y, group, panel)
-#     outliers[[x]] <- NULL
-#     if (!is.null(key(outliers))) {
-#       .pd.base <- merge(.pd.base, outliers)
-#     } else {
-#       .pd.base <- cbind(.pd.base, outliers)
-#     }
-#     logWithTime('Identified outliers for boxplot.', verbose)
-#   } else if (points == 'all') {
+  # Organize raw data and compute jittered values
   byCols <- colnames(.pd)[colnames(.pd) %in% c(x, group, panel)]
-  rawData <- .pd[, list(rawData=lapply(.SD, as.vector)), keyby=byCols]
+  rawWithJitter <- .pd[, list(rawData=lapply(.SD, as.vector),
+                        jitteredValues=lapply(.SD, function(x, jitter) runif(length(x), min=(-jitter), max=jitter), jitter=jitter)), keyby=byCols]
+  
   byColValues <- unique(.pd[, byCols, with=FALSE])
-  rawData <- merge(rawData, byColValues, by=byCols, all=TRUE)
+  rawWithJitter <- merge(rawWithJitter, byColValues, by=byCols, all=TRUE)
 
-  rawData <- collapseByGroup(rawData, group, panel)
-  rawData[[x]] <- NULL
-  indexCols <- c(panel, group)
-  setkeyv(rawData, indexCols)
-
-  if (!is.null(key(rawData))) {
-      .pd.base <- merge(.pd.base, rawData)
-  } else {
-      .pd.base <- cbind(.pd.base, rawData)
-  }
+  rawWithJitter <- collapseByGroup(rawWithJitter, group, panel)
+  # indexCols <- c(panel, group)
+  # setkeyv(rawWithJitter, indexCols)
+  
+  .pd.base <- rawWithJitter
   logWithTime('Returning all points for beeswarm.', verbose)
-#   }
 
   if (median) {
-    median <- groupMean(.pd, x, y, group, panel)
+    median <- groupMedian(.pd, x, y, group, panel)
     median[[x]] <- NULL
     if (!is.null(key(median))) {
       .pd.base <- merge(.pd.base, median)
@@ -190,7 +150,7 @@ validateBeeswarmPD <- function(.beeswarm, verbose) {
 #' @return data.table plot-ready data
 #' @export
 
-box.dt <- function(data, map,
+beeswarm.dt <- function(data, map,
                    jitter = NULL, 
                    median = c(FALSE, TRUE), 
                    evilMode = c(FALSE, TRUE),
@@ -203,9 +163,11 @@ box.dt <- function(data, map,
   evilMode <- matchArg(evilMode)
   verbose <- matchArg(verbose)
 
-  # Set default jitter to 0.1
+  # Set default jitter to 0.1 (should also test is numeric)
   if (is.null(jitter)) {
     jitter <- 0.1
+  } else if (!is.numeric(jitter)) {
+    stop('jitter must be numeric for beeswarm plots.')
   }
 
   if (!'data.table' %in% class(data)) {
@@ -267,6 +229,7 @@ box.dt <- function(data, map,
                     overlayVariable = overlayVariable,
                     facetVariable1 = facetVariable1,
                     facetVariable2 = facetVariable2,
+                    jitter = jitter,
                     median = median,
                     evilMode = evilMode,
                     listVarDetails = listVarDetails,
@@ -286,7 +249,6 @@ box.dt <- function(data, map,
 #' 'x', 'min', 'q1', 'median', 'q3' and 'max' represent the 
 #' pre-computed values per group. Columns 'group' and 'panel' specify
 #' the group the data belong to. 
-#' Optionally, can return columns 'outliers' and 'mean' as well.
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr

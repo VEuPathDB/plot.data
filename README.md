@@ -44,7 +44,11 @@ Each `plot.data` class has a similar set up within their "class-plotdata-{plot n
 - A function that takes data and returns a json file containing the above plot-ready data. We name these functions "{plot name}" (ex. `beeswarm`).
 - Validation functions. For each class, we should include at least one validation function that ensures the created plot-ready data adheres to the appropriate variable constraints, for example. We name these functions "validate{plot name}PD" (ex. `validateBeeswarmPD`).
 
+***Testing***
+Each plotdata class should have a corresponding test context, i.e file called "test-{plot name}.R" in the tests/testthat directory. Tests written in this file should be basic unit tests, for example checking that the created object is of the appropriate class and size. See `test-beeswarm.R` for an example.
 
+***Helpers***
+Helper functions are organized into those that compute values per group (`group.R`), per panel (`panel.R`), handle binning (`bin.R`), or various other categories (see `utils` and `utils-*.R`). Using the beeswarm as an example, we can add `groupMedian` to `group.R`, which computes the median of the dataset per group (overlay, panel).
 
 ## License
 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
