@@ -50,5 +50,8 @@ Each plotdata class should have a corresponding test context, i.e file called "t
 ***Helpers***
 Helper functions are organized into those that compute values per group (`group.R`), per panel (`panel.R`), handle binning (`bin.R`), or various other categories (see `utils` and `utils-*.R`). Using the beeswarm as an example, we can add `groupMedian` to `group.R`, which computes the median of the dataset per group (overlay, panel).
 
+***Exporting functions***
+Now that we've created a new plot, we'd like to use it! Add relevant functions to `NAMESPACE` so they get properly exported and can be used when someone loads `plot.data`.
+
 ## License
 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
