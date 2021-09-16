@@ -55,7 +55,7 @@ newBeeswarmPD <- function(.dt = data.table::data.table(),
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
 
-  # Organize raw data and compute jittered values
+  # Organize raw data and compute jittered values. Keeping all jittered values centered at 0 so that the front end can reorder if necessary.
   byCols <- colnames(.pd)[colnames(.pd) %in% c(x, group, panel)]
   rawWithJitter <- .pd[, list(rawData=lapply(.SD, as.vector),
                         jitteredValues=lapply(.SD, function(x, jitter) runif(length(x), min=(-jitter), max=jitter), jitter=jitter)), keyby=byCols]
