@@ -1,17 +1,29 @@
 context('utils')
 
 test_that("plotRefMapToList returns NULL for entityId when there isnt one", {
-  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'y', 'panel'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
   xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
   
   expect_equal(is.null(xVariableDetails$entityId),TRUE)
 
-  map <- data.frame('id' = c('.group', '.y', '.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('.group', '.y', '.panel'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
   xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
   
   expect_equal(is.null(xVariableDetails$entityId),TRUE)
 
-  map <- data.frame('id' = c('a.group', 'b.y', 'c.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('a.group', 'b.y', 'c.panel'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
   xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
   
   expect_equal(is.null(xVariableDetails$entityId),FALSE)
@@ -20,20 +32,32 @@ test_that("plotRefMapToList returns NULL for entityId when there isnt one", {
 
 test_that("plotRefMapToList returns displayLabel only when defined", {
   # Without a displayLabel for any var
-  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'y', 'panel'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
   xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
   
   expect_equal(is.null(xVariableDetails$displayLabel), TRUE)
   
   # With a displayLabel for all vars
-  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('var1','var2','var3'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'y', 'panel'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('var1','var2','var3'), stringsAsFactors=FALSE)
+
   xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
   
   expect_equal(is.null(xVariableDetails$displayLabel), FALSE)
   expect_equal(xVariableDetails$displayLabel, 'var3')
   
   # With a displayLabel for some vars
-  map <- data.frame('id' = c('group', 'y', 'panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('var1','','var3'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'y', 'panel'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('var1','','var3'), stringsAsFactors=FALSE)
+
   xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
   yVariableDetails <- plotRefMapToList(map, 'yAxisVariable')
   
@@ -123,32 +147,32 @@ test_that("bin() does not return NA", {
 })
 
 test_that("bin() returns appropriate bins for dates", {
-  viewport <- list('xMin'=min(data.dates$entity.date), 'xMax'=max(data.dates$entity.date))
-  dt <- data.dates
+  viewport <- list('xMin'=min(test.df$entity.dateA), 'xMax'=max(test.df$entity.dateA))
+  dt <- test.df
 
-  dt$dateBin <- bin(as.Date(data.dates$entity.date), 'day', viewport)
-  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-12-01 - 1999-12-02")
+  dt$dateBin <- bin(as.Date(test.df$entity.dateA), 'day', viewport)
+  expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-12-01 - 1999-12-02")
 
-  dt$dateBin <- bin(as.Date(data.dates$entity.date), '4 day', viewport)
-  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-11-29 - 1999-12-03")
+  dt$dateBin <- bin(as.Date(test.df$entity.dateA), '4 day', viewport)
+  expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-11-29 - 1999-12-03")
 
-  dt$dateBin <- bin(as.Date(data.dates$entity.date), 'week', viewport)
-  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-11-29 - 1999-12-06")
+  dt$dateBin <- bin(as.Date(test.df$entity.dateA), 'week', viewport)
+  expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-11-29 - 1999-12-06")
 
-  dt$dateBin <- bin(as.Date(data.dates$entity.date), '2 week', viewport)
-  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-11-29 - 1999-12-13")
+  dt$dateBin <- bin(as.Date(test.df$entity.dateA), '2 week', viewport)
+  expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-11-29 - 1999-12-13")
 
-  dt$dateBin <- bin(as.Date(data.dates$entity.date), 'month', viewport)
-  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-12-01 - 2000-01-01")
+  dt$dateBin <- bin(as.Date(test.df$entity.dateA), 'month', viewport)
+  expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-12-01 - 2000-01-01")
 
-  dt$dateBin <- bin(as.Date(data.dates$entity.date), '2 month', viewport)
-  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-11-01 - 2000-01-01")   
+  dt$dateBin <- bin(as.Date(test.df$entity.dateA), '2 month', viewport)
+  expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-11-01 - 2000-01-01")   
 
-  dt$dateBin <- bin(as.Date(data.dates$entity.date), 'year', viewport)
-  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-01-01 - 2000-01-01")
+  dt$dateBin <- bin(as.Date(test.df$entity.dateA), 'year', viewport)
+  expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-01-01 - 2000-01-01")
 
-  dt$dateBin <- bin(as.Date(data.dates$entity.date), '2 year', viewport)
-  expect_equal(dt$dateBin[dt$entity.date == '1999-12-01'], "1999-01-01 - 2001-01-01")
+  dt$dateBin <- bin(as.Date(test.df$entity.dateA), '2 year', viewport)
+  expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-01-01 - 2001-01-01")
 })
 
 test_that("relativeRisk() returns the right columns", {
@@ -179,12 +203,12 @@ test_that("getAggStr() is sane", {
 })
 
 test_that("makePanels() returns 2 entry list: 1) data.frame 2) character vector", {
-  panels <- makePanels(data, 'group', 'panel')
+  panels <- makePanels(test.df, 'cat3', 'cat5')
 
   expect_is(panels, 'list')
   expect_equal(length(panels),2)
   expect_is(panels[[1]], 'data.frame')
-  expect_equal(nrow(data), nrow(panels[[1]]))
+  expect_equal(nrow(test.df), nrow(panels[[1]]))
   expect_is(panels[[2]], 'character')
 })
 
@@ -196,75 +220,40 @@ test_that("makePanels() does nothing if there are no facets", {
 })
 
 test_that("contingencyDT() returns appropriately sized data.table", {
-  dt <- contingencyDT(data.binned)
+  # dt <- contingencyDT(data.binned)
+  dt <- contingencyDT(test.df[, c('entity.cat3','entity.cat4','entity.cat7','entity.cat6')])
 
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),data.table::uniqueN(data.binned$x))
-  expect_equal(length(dt),data.table::uniqueN(data.binned$y)+1)
+  expect_equal(nrow(dt),data.table::uniqueN(test.df$cat7))
+  expect_equal(length(dt),data.table::uniqueN(test.df$cat6)+1)
 })
 
-
-test_that("remapListVar appropriately updates map", {
-  
-  map <- data.frame('id' = c('a','b','c'),
-                    'plotRef' = c('xAxisVariable', 'xAxisVariable', 'overlayVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'),
-                    'entityId' = c('e1', 'e1', 'e2'), stringsAsFactors=FALSE)
-  
-  newMap <- remapListVar(map, 'xAxisVariable', 'yAxisVariable')
-  expect_equal(newMap$id, c('c', 'meltedVariable','meltedValue'))
-  expect_equal(newMap$plotRef, c('overlayVariable', 'xAxisVariable', 'yAxisVariable'))
-  expect_equal(newMap$dataType, c('STRING', 'STRING', 'NUMBER'))
-  expect_true(is.null(newMap$displayLabel))
-  
-  map <- data.frame('id' = c('a','b','c'),
-                    'plotRef' = c('xAxisVariable', 'xAxisVariable', 'overlayVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'),
-                    'entityId' = c('e1', 'e1', 'e2'),
-                    'displayLabel' = c('label1', '', 'label3'), stringsAsFactors=FALSE)
-  
-  newMap <- remapListVar(map, 'xAxisVariable', 'yAxisVariable')
-  expect_equal(newMap$id, c('c', 'meltedVariable','meltedValue'))
-  expect_equal(newMap$plotRef, c('overlayVariable', 'xAxisVariable', 'yAxisVariable'))
-  expect_equal(newMap$dataType, c('STRING', 'STRING', 'NUMBER'))
-  expect_equal(newMap$displayLabel, c('label3', '', ''))
-  
-  newMap <- remapListVar(map, 'xAxisVariable', 'yAxisVariable', 'id1', 'id2', 'displayLabel1', 'displayLabel2')
-  expect_equal(newMap$id, c('c', 'id1','id2'))
-  expect_equal(newMap$plotRef, c('overlayVariable', 'xAxisVariable', 'yAxisVariable'))
-  expect_equal(newMap$dataType, c('STRING', 'STRING', 'NUMBER'))
-  expect_equal(newMap$displayLabel, c('label3', 'displayLabel1', 'displayLabel2'))
-})
 
 test_that("nonparametricTest() errs gracefully", {
-  df <- as.data.frame(data.xy)
-  result <- nonparametricTest(df$entity.x[df$entity.group == 'group1'], df$entity.group[df$entity.group == 'group1'])
+  df <- as.data.frame(test.df)
+  result <- nonparametricTest(df$entity.contA, df$entity.cat1)
   expect_true(grepl( 'Error', result$statsError, fixed = TRUE))
   
 })
 
 test_that("nonparametricTestByGroup() errs gracefully", {
-  df <- as.data.frame(data.xy)
-  df$entity.group[df$entity.panel == 'panel1'] <- 'group1'
-  result <- nonparametricByGroup(df, 'entity.x', 'entity.group', 'entity.panel')
+  df <- as.data.frame(test.df)
+  df$entity.cat3[df$entity.cat4 == 'cat4_a'] <- 'cat3_a'
+  result <- nonparametricByGroup(df, 'entity.contA', 'entity.cat3', 'entity.cat4')
   # Expect four rows but only one error
   expect_equal(nrow(result), 4)
   expect_equal(sum(rapply(result, function(x) {grepl('Error', x, fixed=TRUE)})), 1)
 })
 
 test_that("nonparametricTest() types do not change on error", {
-  df <- as.data.frame(data.xy)
-  result_correct <- nonparametricTest(df$entity.x, df$entity.group)    # kruskal.test
-  result_err <- nonparametricTest(df$entity.x[df$entity.group == 'group1'], df$entity.group[df$entity.group == 'group1'])
+  df <- as.data.frame(test.df)
+  result_correct <- nonparametricTest(df$entity.contA, df$entity.cat3)    # kruskal.test
+  result_err <- nonparametricTest(df$entity.contA, df$entity.cat1)
   expect_true(grepl( 'Error', result_err$statsError, fixed = TRUE))
   expect_equal(result_correct$statsError, jsonlite::unbox(''))
   expect_equal(lapply(result_correct, typeof), lapply(result_err, typeof))
   
-  df$entity.group[df$entity.group =='group3'] <- 'group1'
-  df$entity.group[df$entity.group == 'group4'] <- 'group2'
-  result_correct <- nonparametricTest(df$entity.x, df$entity.group)    # wilcox.test
+  result_correct <- nonparametricTest(df$entity.contA, df$entity.binA)    # wilcox.test
   expect_equal(result_correct$statsError, jsonlite::unbox(''))
   expect_equal(lapply(result_correct, typeof), lapply(result_err, typeof))
 })
