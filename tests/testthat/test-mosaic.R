@@ -264,6 +264,50 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   sampleSizeTable <- sampleSizeTable(dt)
   expect_equal(names(sampleSizeTable),c('entity.cat7','size'))
   expect_equal(class(sampleSizeTable$entity.cat7[[1]]), 'character')
+
+  # With factors
+  map <- data.frame('id' = c('entity.factor3', 'entity.factor6'),
+                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  dt <- mosaic.dt(df, map)
+  expect_is(dt, 'data.table')
+  expect_is(dt$value, 'list')
+  expect_is(dt$value[[1]], 'list')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt),c('xLabel', 'yLabel', 'value'))
+  expect_equal(dt$xLabel[[1]],paste0("factor6_", letters[1:6]))
+  expect_equal(dt$yLabel[[1]][[1]],paste0("factor3_", letters[1:3]))
+  expect_equal(length(dt$value[[1]]),6)
+  expect_equal(length(dt$value[[1]][[1]]),3)
+  statsTable <- statsTable(dt)
+  expect_equal(names(statsTable), c(c('chisq', 'pvalue', 'degreesFreedom')))
+  sampleSizeTable <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizeTable),c('entity.factor6','size'))
+  expect_equal(class(sampleSizeTable$entity.factor6[[1]]), 'character')
+
+
+  map <- data.frame('id' = c('entity.cat3', 'entity.cat7', 'entity.factor3'),
+                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('STRING', 'STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  dt <- mosaic.dt(df, map)
+  expect_is(dt, 'data.table')
+  expect_is(dt$value, 'list')
+  expect_is(dt$value[[1]], 'list')
+  expect_equal(nrow(dt),3)
+  expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'entity.factor3'))
+  expect_equal(dt$xLabel[[1]],paste0("cat7_", letters[1:7]))
+  expect_equal(dt$yLabel[[1]][[1]],paste0("cat3_", letters[1:3]))
+  expect_equal(length(dt$value[[1]]),7)
+  expect_equal(length(dt$value[[1]][[1]]),3)
+  statsTable <- statsTable(dt)
+  expect_equal(names(statsTable), c(c('chisq', 'pvalue', 'degreesFreedom', 'entity.factor3')))
+  sampleSizeTable <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizeTable),c('entity.factor3','entity.cat7','size'))
+  expect_equal(class(sampleSizeTable$entity.cat7[[1]]), 'character')
   
   
   # df <- as.data.frame(data.numcat)
@@ -285,36 +329,6 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   # expect_equal(names(sampleSizeTable),c('entity.strcat1','entity.numcat1','size'))
   # expect_equal(class(sampleSizeTable$entity.numcat1[[1]]), 'character')
 
-
-  # With factors
-  # map <- data.frame('id' = c('entity.numcat2', 'entity.numcat1', 'entity.factor1'),
-  #                   'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-  #                   'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
-  #                   'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-                    
-  # dt <- mosaic.dt(df, map)
-  # expect_is(dt, 'data.table')
-  # expect_is(dt$value, 'list')
-  # expect_is(dt$value[[1]], 'list')
-  # expect_equal(nrow(dt),5)
-  # expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'entity.factor1'))
-  # expect_equal(class(dt$entity.factor1), 'character')
-
-  # map <- data.frame('id' = c('entity.numcat2', 'entity.numcat1', 'entity.factor1', 'entity.factor2'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  # dt <- mosaic.dt(df, map)
-  # expect_is(dt, 'data.table')
-  # expect_is(dt$value, 'list')
-  # expect_is(dt$value[[1]], 'list')
-  # expect_equal(nrow(dt),15)
-  # expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'cat4'))
-
-  # map <- data.frame('id' = c('entity.numcat2', 'entity.numcat1', 'entity.strcat1', 'entity.factor2'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  # dt <- mosaic.dt(df, map)
-  # expect_is(dt, 'data.table')
-  # expect_is(dt$value, 'list')
-  # expect_is(dt$value[[1]], 'list')
-  # expect_equal(nrow(dt),9)
-  # expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'cat4'))
   
 })
 
