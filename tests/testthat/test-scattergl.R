@@ -279,7 +279,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(length(dt$seriesGradientColorscale[[1]]), length(dt$seriesX[[1]]))
 
   ## List vars
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contAabs', 'entity.cat3'),
+  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
                     'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'overlayVariable'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -295,7 +295,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   
   
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contAabs', 'entity.cat3'),
+  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
                     'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'facetVariable2'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('Y','X','Z','',''), stringsAsFactors=FALSE)
@@ -311,7 +311,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
   
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contAabs', 'entity.cat3'),
+  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
                     'plotRef' = c('facetVariable2', 'facetVariable2', 'facetVariable2', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -328,7 +328,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
   
   
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contAabs', 'entity.cat3'),
+  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
                     'plotRef' = c('overlayVariable', 'overlayVariable', 'overlayVariable', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('Y','X','Z','',''), stringsAsFactors=FALSE)
@@ -540,7 +540,7 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId', 'displayLabel'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','contC','cat4'))
 
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contAabs', 'entity.cat3'),
+  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
                     'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'overlayVariable'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -562,7 +562,7 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(length(jsonList$completeCasesTable$variableDetails$variableId), 5)
 
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contAabs', 'entity.cat3'),
+  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
                     'plotRef' = c('facetVariable2', 'facetVariable2', 'facetVariable2', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -584,7 +584,7 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(length(jsonList$completeCasesTable$variableDetails$variableId), 5)
   
   
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contAabs', 'entity.cat3'),
+  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
                     'plotRef' = c('overlayVariable', 'overlayVariable', 'overlayVariable', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
