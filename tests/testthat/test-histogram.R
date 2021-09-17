@@ -593,28 +593,27 @@ test_that("histogram() returns appropriately formatted json", {
   
 })
 
-# test_that("histogram.dt() returns correct information about missing data", {
-#   map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
-#                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
-#                     'dataType' = c('STRING', 'NUMBER', 'STRING'), 
-#                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
-#                     stringsAsFactors=FALSE)
-#   df <- as.data.frame(test.df)
-#   viewport <- list('xMin'=min(test.df$entity.contA), 'xMax'=max(test.df$entity.contA))
-#   binReportValue <- 'binWidth'
+test_that("histogram.dt() returns correct information about missing data", {
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
+                    'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
+                    stringsAsFactors=FALSE)
+                    
+  # Add nMissing missing values to each column
+  nMissing <- 10
+  df <- as.data.frame(lapply(test.df, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+
+  viewport <- list('xMin'=min(test.df$entity.contA), 'xMax'=max(test.df$entity.contA))
+  binReportValue <- 'binWidth'
   
-#   # Add 10 missing values to each column
-#   df$entity.contA[sample(1:100, 10, replace=F)] <- NA
-#   df$entity.cat3[sample(1:100, 10, replace=F)] <- NA
-#   df$entity.cat4[sample(1:100, 10, replace=F)] <- NA
-  
-#   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
-#   completecasestable <- completeCasesTable(dt)
-#   # Each entry should equal NROW(df) - 10
-#   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
-#   # number of completeCases should be <= complete cases for each var
-#   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE) 
-#   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-#   dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue = binReportValue, viewport = viewport, evilMode = TRUE)
-#   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA)))
-# })
+  dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - nMissing
+  expect_equal(all(completecasestable$completeCases == nrow(df)-nMissing), TRUE)
+  # number of completeCases should be <= complete cases for each var
+  expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE) 
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
+  dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue = binReportValue, viewport = viewport, evilMode = TRUE)
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA)))
+})

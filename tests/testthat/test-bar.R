@@ -324,25 +324,26 @@ test_that("bar() returns appropriately formatted json", {
 
 
 
-# test_that("bar.dt() returns correct information about missing data", {
-#   map <- data.frame('id' = c('entity.group', 'entity.x', 'entity.panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-#   df <- as.data.frame(test.df)
-  
-#   # Add 10 missing values to each column
-#   df$entity.x[sample(1:100, 10, replace=F)] <- NA
-#   df$entity.y[sample(1:100, 10, replace=F)] <- NA
-#   df$entity.group[sample(1:100, 10, replace=F)] <- NA
-#   df$entity.panel[sample(1:100, 10, replace=F)] <- NA
-#   dt <- bar.dt(df, map, value='count')
-#   completecasestable <- completeCasesTable(dt)
-#   # Each entry should equal NROW(df) - 10
-#   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
-#   # number of completeCases should be <= complete cases for each var
-#   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
-#   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-#   dt <- bar.dt(df, map, value='count', evilMode = TRUE)
-#   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.x)))
-# })
+test_that("bar.dt() returns correct information about missing data", {
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'),
+                    'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('STRING', 'STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  # Add nMissing missing values to each column
+  nMissing <- 10
+  df <- as.data.frame(lapply(test.df, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+
+  dt <- bar.dt(df, map, value='count')
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - nMissing
+  expect_equal(all(completecasestable$completeCases == nrow(df)-nMissing), TRUE)
+  # number of completeCases should be <= complete cases for each var
+  expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
+  dt <- bar.dt(df, map, value='count', evilMode = TRUE)
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA)))
+})
 
 ### may become var constraints check
 # test_that("bar.dt() returns same shaped outputs for string cats and num cats.", {
