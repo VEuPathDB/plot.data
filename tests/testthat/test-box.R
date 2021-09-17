@@ -261,12 +261,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('panel', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'rawData', 'mean'))
   expect_equal(class(dt$panel), 'character')
   
-})
-
-test_that("box.dt() accepts listVars for both the x axis and facet vars", {  
-  
-  df <- as.data.frame(test.df)
-  
+  ## List vars
   # Multiple vars to x
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.cat3'),
                     'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'overlayVariable'),
@@ -645,6 +640,26 @@ test_that("box() returns appropriately formatted json", {
 })
 
 
+# test_that("box.dt() returns correct information about missing data", {
+#   map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.cat4'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#   df <- data.xy
+  
+#   # Add 10 missing values to each column
+#   df$entity.contA[sample(1:100, 10, replace=F)] <- NA
+#   df$entity.contB[sample(1:100, 10, replace=F)] <- NA
+#   df$entity.cat3[sample(1:100, 10, replace=F)] <- NA
+#   df$entity.cat4[sample(1:100, 10, replace=F)] <- NA
+#   dt <- box.dt(df, map, 'none', FALSE)
+#   completecasestable <- completeCasesTable(dt)
+#   # Each entry should equal NROW(df) - 10
+#   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
+#   # number of completeCases should be <= complete cases for each var
+#   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
+#   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
+#   dt <- box.dt(df, map, points = 'none', mean = FALSE, computeStats = TRUE, evilMode = TRUE)
+#   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB) & !is.na(df$entity.cat4))) 
+# })
+
 
 # test_that("box.dt() returns same shaped outputs for string cats and num cats.", {
   
@@ -672,26 +687,6 @@ test_that("box() returns appropriately formatted json", {
   
 # })
 
-
-# test_that("box.dt() returns correct information about missing data", {
-#   map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.cat4'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-#   df <- data.xy
-  
-#   # Add 10 missing values to each column
-#   df$entity.contA[sample(1:100, 10, replace=F)] <- NA
-#   df$entity.contB[sample(1:100, 10, replace=F)] <- NA
-#   df$entity.cat3[sample(1:100, 10, replace=F)] <- NA
-#   df$entity.cat4[sample(1:100, 10, replace=F)] <- NA
-#   dt <- box.dt(df, map, 'none', FALSE)
-#   completecasestable <- completeCasesTable(dt)
-#   # Each entry should equal NROW(df) - 10
-#   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
-#   # number of completeCases should be <= complete cases for each var
-#   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
-#   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-#   dt <- box.dt(df, map, points = 'none', mean = FALSE, computeStats = TRUE, evilMode = TRUE)
-#   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB) & !is.na(df$entity.cat4))) 
-# })
 
 test_that("box.dt() returns an appropriately sized statistics table", {
   map <- data.frame('id' = c('entity.cat6', 'entity.contB'),

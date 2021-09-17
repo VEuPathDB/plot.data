@@ -21,6 +21,7 @@ test_that("bar.dt() returns a valid plot.data barplot object", {
   expect_equal(nrow(sampleSizes), 12)
 })
 
+
 test_that("bar.dt() returns plot data and config of the appropriate types", {
   map <- data.frame('id' = c('entity.cat4', 'entity.cat6', 'entity.cat5'),
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'),
@@ -322,24 +323,6 @@ test_that("bar() returns appropriately formatted json", {
 })
 
 
-# test_that("bar.dt() returns same shaped outputs for string cats and num cats.", {
-  
-#   df <- data.numcat
-  
-#   map_string <- data.frame('id' = c('entity.strcat1', 'entity.strcat2', 'entity.myoverlay'), 'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-#   dt_string <- bar.dt(df, map_string)
-  
-#   map_num <- data.frame('id' = c('entity.numcat1', 'entity.numcat2', 'entity.myoverlay'), 'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-#   dt_num <- bar.dt(df, map_num)
-  
-#   expect_equal(dim(dt_string), dim(dt_num))
-#   expect_equal(names(dt_string), c('entity.myoverlay', 'entity.strcat1', 'label', 'value'))
-#   expect_equal(names(dt_num), c('entity.myoverlay', 'entity.numcat1', 'label', 'value'))
-#   expect_equal(dt_string$entity.myoverlay, dt_num$entity.myoverlay)
-#   expect_equal(length(dt_string$label[[1]]), length(dt_num$label[[1]]))
-#   expect_equal(length(dt_string$value[[1]]), length(dt_num$value[[1]]))
-  
-# })
 
 # test_that("bar.dt() returns correct information about missing data", {
 #   map <- data.frame('id' = c('entity.group', 'entity.x', 'entity.panel'), 'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
@@ -359,4 +342,24 @@ test_that("bar() returns appropriately formatted json", {
 #   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
 #   dt <- bar.dt(df, map, value='count', evilMode = TRUE)
 #   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.x)))
+# })
+
+### may become var constraints check
+# test_that("bar.dt() returns same shaped outputs for string cats and num cats.", {
+  
+#   df <- data.numcat
+  
+#   map_string <- data.frame('id' = c('entity.strcat1', 'entity.strcat2', 'entity.myoverlay'), 'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#   dt_string <- bar.dt(df, map_string)
+  
+#   map_num <- data.frame('id' = c('entity.numcat1', 'entity.numcat2', 'entity.myoverlay'), 'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#   dt_num <- bar.dt(df, map_num)
+  
+#   expect_equal(dim(dt_string), dim(dt_num))
+#   expect_equal(names(dt_string), c('entity.myoverlay', 'entity.strcat1', 'label', 'value'))
+#   expect_equal(names(dt_num), c('entity.myoverlay', 'entity.numcat1', 'label', 'value'))
+#   expect_equal(dt_string$entity.myoverlay, dt_num$entity.myoverlay)
+#   expect_equal(length(dt_string$label[[1]]), length(dt_num$label[[1]]))
+#   expect_equal(length(dt_string$value[[1]]), length(dt_num$value[[1]]))
+  
 # })

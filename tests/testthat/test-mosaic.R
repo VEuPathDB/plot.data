@@ -415,6 +415,26 @@ test_that("mosaic() returns appropriately formatted json", {
   
 })
 
+# test_that("mosaic.dt() returns correct information about missing data", {
+#   map <- data.frame('id' = c('entity.cat3', 'entity.binA', 'entity.cat4'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#   df <- data.binary
+  
+#   # Add 10 missing values to each column
+#   df$entity.binA[sample(1:100, 10, replace=F)] <- NA
+#   df$entity.cat3[sample(1:100, 10, replace=F)] <- NA
+#   df$entity.cat4[sample(1:100, 10, replace=F)] <- NA
+  
+#   dt <- mosaic.dt(df, map)
+#   expect_equal(names(statsTable(dt)),c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'entity.cat4'))
+#   completecasestable <- completeCasesTable(dt)
+#   # Each entry should equal NROW(df) - 10
+#   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
+#   # number of completeCases should be <= complete cases for each var
+#   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE) 
+#   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
+#   dt <- mosaic.dt(df, map, evilMode = TRUE)
+#   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.cat3) & !is.na(df$entity.binA)))
+# })
 
 # test_that("mosaic.dt() returns same shaped outputs for string cats and num cats.", {
   
@@ -436,23 +456,3 @@ test_that("mosaic() returns appropriately formatted json", {
 # })
 
 
-# test_that("mosaic.dt() returns correct information about missing data", {
-#   map <- data.frame('id' = c('entity.cat3', 'entity.binA', 'entity.cat4'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-#   df <- data.binary
-  
-#   # Add 10 missing values to each column
-#   df$entity.binA[sample(1:100, 10, replace=F)] <- NA
-#   df$entity.cat3[sample(1:100, 10, replace=F)] <- NA
-#   df$entity.cat4[sample(1:100, 10, replace=F)] <- NA
-  
-#   dt <- mosaic.dt(df, map)
-#   expect_equal(names(statsTable(dt)),c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'entity.cat4'))
-#   completecasestable <- completeCasesTable(dt)
-#   # Each entry should equal NROW(df) - 10
-#   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
-#   # number of completeCases should be <= complete cases for each var
-#   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE) 
-#   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-#   dt <- mosaic.dt(df, map, evilMode = TRUE)
-#   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.cat3) & !is.na(df$entity.binA)))
-# })
