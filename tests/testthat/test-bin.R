@@ -29,7 +29,7 @@ test_that("binProportion() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),3)
   expect_equal(names(dt), c('entity.cat3', 'binLabel', 'value', 'binStart', 'binEnd'))
   dt_inter <- data.table('binLabel'=unlist(dt$binLabel), 'value'=unlist(dt$value))
-  ####expect_true(all(dt_inter[, sum(value), by='binLabel'][['V1']] == 1))
+  expect_true(all(unlist(lapply(dt_inter[, sum(value), by='binLabel'][['V1']], function(x) all.equal(x,1)))))
 
   df <- test.df[, c('entity.contB','entity.cat4')]
   dt <- binProportion(df, 'entity.contB', NULL, 'entity.cat4', binWidth=.1, barmode = 'overlay', viewport=viewport)
@@ -57,7 +57,7 @@ test_that("binProportion() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),12)
   expect_equal(names(dt), c('entity.cat3', 'entity.cat4', 'binLabel','value', 'binStart', 'binEnd'))
   dt_inter <- data.table('binLabel'=unlist(dt[dt$entity.cat4 == 'cat4_a']$binLabel), 'value'=unlist(dt[dt$entity.cat4 == 'cat4_a']$value))
-  ####expect_true(all(dt_inter[, sum(value), by=c('binLabel')][['V1']] == 1))
+  expect_true(all(unlist(lapply(dt_inter[, sum(value), by='binLabel'][['V1']], function(x) all.equal(x,1)))))
   
 })
 
