@@ -5,6 +5,7 @@
 ###   - return a total count of plotted incomplete cases
 ###   - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul
 
+#' @importFrom stats complete.cases
 newPlotdata <- function(.dt = data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
