@@ -23,11 +23,8 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v1
         with:
-          extra-packages: |
-            covr
-            htmlwidgets
-            DT
+          extra-packages: covr
 
       - name: Test coverage
-        run: covr::report(file = 'test-coverage.html')
+        run: covr::package_coverage()
         shell: Rscript {0}
