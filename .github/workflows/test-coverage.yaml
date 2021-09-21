@@ -26,5 +26,5 @@ jobs:
           extra-packages: covr
 
       - name: Test coverage
-        run: covr::codecov()
+        run: covr::report(file = 'test-coverage.html')
         shell: Rscript {0}
