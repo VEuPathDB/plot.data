@@ -63,6 +63,7 @@ densityCurve <- function(x) {
 # @keyword internal
 # @alias predictdf.gam
 # @alias predictdf.loess
+#' @importFrom stats qnorm
 predictdf <- function(model, xseq, se, level) UseMethod("predictdf")
 
 predictdf.default <- function(model, xseq, se = FALSE, level = .95) {
