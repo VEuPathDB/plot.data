@@ -26,6 +26,7 @@ jobs:
           extra-packages: |
             covr
             htmlwidgets
+            DT
 
       - name: Test coverage
         run: covr::report(file = 'test-coverage.html')
