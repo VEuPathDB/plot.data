@@ -190,6 +190,7 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
 #' This function calculates odds ratio, confidence intervals and p-values for epidemiologic data 
 #' @param tbl A frequency table of two binary variables.
 #' @return data.table
+#' @importFrom stats chisq.test
 #' @export
 oddsRatio <- function(tbl) {
   a <- tbl[1,1]
@@ -304,6 +305,8 @@ getR2.default <- function(model) {
 }
 
 # Compute appropriate nonparametric test comparing multiple distributions.
+#' @importFrom stats kruskal.test
+#' @importFrom stats wilcox.test
 nonparametricTest <- function(values, groups) {
   
   # values and groups should be vectors of the same length
