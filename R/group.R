@@ -215,6 +215,7 @@ groupBestFitLine <- function(data, x, y, group = NULL, panel = NULL, collapse = 
 # think we want table col reformatted to be two cols, 'label' and 'value'. the second will be a list.
 # can we use collapseByGroup for the second task ??
 
+#' @importFrom stats as.formula
 groupSplit <- function(data, x, y, z, group, panel, longToWide = FALSE) {
   aggStr <- getAggStr(c(group, panel, y), x)
 
