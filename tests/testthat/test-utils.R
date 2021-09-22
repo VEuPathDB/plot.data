@@ -293,3 +293,20 @@ test_that("findBinWidth returns appropriate bin types for numeric inputs", {
   
 })
 
+test_that("findBinWidth returns sane results", {
+  x <- c(as.Date('2021-12-25'))
+  expect_equal(findBinWidth(x), 'day')
+
+  x <- c(1,2,3)
+  expect_equal(findBinWidth(x), 1)
+  
+  x <- c(1)
+  expect_equal(findBinWidth(x), 1)
+
+  x <- c(1.2345,1.6789)
+  expect_equal(findBinWidth(x), 0.2222)
+
+  x <- c(1.2345)
+  expect_equal(findBinWidth(x), 0)
+})
+

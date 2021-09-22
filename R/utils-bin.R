@@ -88,22 +88,36 @@ findBinWidth <- function(x) UseMethod("findBinWidth")
 
 #' @export
 findBinWidth.numeric <- function(x) {
+  if (all(x %% 1 == 0)) {
+    isInteger <- TRUE
+    if (length(x) == 1) { return(1) }
+  } else {
+    isInteger <- FALSE
+    if (length(x) == 1) { return(0) }
+  } 
   numBins <- findNumBins(x)
   binWidth <- numBinsToBinWidth(x, numBins)
-  if (all(x %% 1 == 0)) {
-    # Then x only contains integers, so the binWidth should also be an integer
+  
+  if (isInteger) {
+    # binWidth should also be an integer
     avgDigits <- 0
+    binWidth <- round(binWidth, avgDigits)
+    if (binWidth == 0) { binWidth <- 1}
   } else {
-    # Then x contains data with non-zero decimals, so the binWidth can be any float
+    # binWidth can be any float
     avgDigits <- floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
+    binWidth <- round(binWidth, avgDigits)
   }
-  binWidth <- round(binWidth, avgDigits)
 
   return(binWidth)
 }
 
 #' @export
 findBinWidth.Date <- function(x) {
+  if (length(x) == 1) {
+    return('day')
+  }
+
   dateMap <- data.table('date' = x, 'numeric' = as.numeric(x))
   binWidth <- findBinWidth(dateMap$numeric)
 
