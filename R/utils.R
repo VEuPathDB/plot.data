@@ -1,3 +1,15 @@
+nonZeroRound <- function(x, digits) {
+  if (x == 0) {
+    warning("Input is already zero and cannot be rounded to a non-zero number.")
+    return(x)
+  }
+  if (round(x,digits) == 0) { 
+    Recall(x,digits+1) 
+  } else { 
+    round(x,digits) 
+  } 
+}
+
 #' Diagnositc Messages with Time of Occurance
 #'
 #' This function generates a diagnositc message which

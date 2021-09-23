@@ -80,20 +80,36 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
 #' This function determines the ideal bin width based on the range,
 #' sample size and distribution of values.
 #' @param x Numeric or Date vector
+#' @param na.rm boolean indicating if missing values should be removed
 #' @return Numeric or character bin width
 #' @export
 # @alias findBinWidth.numeric
 # @alias findBinWidth.POSIXct
-findBinWidth <- function(x) UseMethod("findBinWidth")
+# @alias findBinWidth.logical
+# @alias findBinWidth.NULL
+findBinWidth <- function(x, na.rm = c(FALSE, TRUE)) UseMethod("findBinWidth")
 
 #' @export
-findBinWidth.numeric <- function(x) {
+findBinWidth.NULL <- function(x, na.rm = c(FALSE, TRUE)) { NULL }
+
+#' @export
+findBinWidth.logical <- function(x, na.rm = c(FALSE, TRUE)) { NA }
+
+#' @export
+findBinWidth.numeric <- function(x, na.rm = c(FALSE, TRUE)) {
+  na.rm <- matchArg(na.rm)
+  if (na.rm) {
+    x <- x[complete.cases(x)]
+  } else if (any(is.na(x))) {
+    return(NA)
+  }
+
   if (all(x %% 1 == 0)) {
     isInteger <- TRUE
-    if (length(x) == 1) { return(1) }
+    if (data.table::uniqueN(x) == 1) { return(1) }
   } else {
     isInteger <- FALSE
-    if (length(x) == 1) { return(0) }
+    if (data.table::uniqueN(x) == 1) { return(0) }
   } 
   numBins <- findNumBins(x)
   binWidth <- numBinsToBinWidth(x, numBins)
@@ -101,20 +117,27 @@ findBinWidth.numeric <- function(x) {
   if (isInteger) {
     # binWidth should also be an integer
     avgDigits <- 0
-    binWidth <- round(binWidth, avgDigits)
+    binWidth <- nonZeroRound(binWidth, avgDigits)
     if (binWidth == 0) { binWidth <- 1}
   } else {
     # binWidth can be any float
     avgDigits <- floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
-    binWidth <- round(binWidth, avgDigits)
+    binWidth <- nonZeroRound(binWidth, avgDigits)
   }
 
   return(binWidth)
 }
 
 #' @export
-findBinWidth.Date <- function(x) {
-  if (length(x) == 1) {
+findBinWidth.Date <- function(x, na.rm = c(FALSE, TRUE)) {
+  na.rm <- matchArg(na.rm)
+  if (na.rm) {
+    x <- x[complete.cases(x)]
+  } else if (any(is.na(x))) {
+    return(NA)
+  }
+
+  if (data.table::uniqueN(x) == 1) {
     return('day')
   }
 

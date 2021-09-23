@@ -2,7 +2,9 @@
 
 S3method(bin,Date)
 S3method(bin,numeric)
+S3method(findBinWidth,"NULL")
 S3method(findBinWidth,Date)
+S3method(findBinWidth,logical)
 S3method(findBinWidth,numeric)
 export("%>%")
 export(adjustToViewport)

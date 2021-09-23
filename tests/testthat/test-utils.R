@@ -297,10 +297,16 @@ test_that("findBinWidth returns sane results", {
   x <- c(as.Date('2021-12-25'))
   expect_equal(findBinWidth(x), 'day')
 
+  x <- c(as.Date('2021-12-25'), as.Date('2021-12-25'))
+  expect_equal(findBinWidth(x), 'day')
+
   x <- c(1,2,3)
   expect_equal(findBinWidth(x), 1)
   
   x <- c(1)
+  expect_equal(findBinWidth(x), 1)
+
+  x <- c(2,2,2)
   expect_equal(findBinWidth(x), 1)
 
   x <- c(1.2345,1.6789)
@@ -308,5 +314,20 @@ test_that("findBinWidth returns sane results", {
 
   x <- c(1.2345)
   expect_equal(findBinWidth(x), 0)
+
+  x <- c(0,0,0,0,0,0,0,.123445)
+  expect_equal(findBinWidth(x), .02)
+
+  x <- c(NA)
+  expect_equal(findBinWidth(x), NA)
+
+  x <- c(NULL)
+  expect_equal(findBinWidth(x), NULL)
+
+  x <- c(1,2,3,NA)
+  expect_equal(findBinWidth(x), NA)
+
+  x <- c(1,2,3,NA)
+  expect_equal(findBinWidth(x, na.rm = T), 1)
 })
 
