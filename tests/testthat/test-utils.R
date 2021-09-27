@@ -147,31 +147,31 @@ test_that("bin() does not return NA", {
 })
 
 test_that("bin() returns appropriate bins for dates", {
-  viewport <- list('xMin'=min(test.df$entity.dateA), 'xMax'=max(test.df$entity.dateA))
-  dt <- test.df
+  viewport <- list('xMin'=min(testDF$entity.dateA), 'xMax'=max(testDF$entity.dateA))
+  dt <- testDF
 
-  dt$dateBin <- bin(as.Date(test.df$entity.dateA), 'day', viewport)
+  dt$dateBin <- bin(as.Date(testDF$entity.dateA), 'day', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-12-01 - 1999-12-02")
 
-  dt$dateBin <- bin(as.Date(test.df$entity.dateA), '4 day', viewport)
+  dt$dateBin <- bin(as.Date(testDF$entity.dateA), '4 day', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-11-29 - 1999-12-03")
 
-  dt$dateBin <- bin(as.Date(test.df$entity.dateA), 'week', viewport)
+  dt$dateBin <- bin(as.Date(testDF$entity.dateA), 'week', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-11-29 - 1999-12-06")
 
-  dt$dateBin <- bin(as.Date(test.df$entity.dateA), '2 week', viewport)
+  dt$dateBin <- bin(as.Date(testDF$entity.dateA), '2 week', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-11-29 - 1999-12-13")
 
-  dt$dateBin <- bin(as.Date(test.df$entity.dateA), 'month', viewport)
+  dt$dateBin <- bin(as.Date(testDF$entity.dateA), 'month', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-12-01 - 2000-01-01")
 
-  dt$dateBin <- bin(as.Date(test.df$entity.dateA), '2 month', viewport)
+  dt$dateBin <- bin(as.Date(testDF$entity.dateA), '2 month', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-11-01 - 2000-01-01")   
 
-  dt$dateBin <- bin(as.Date(test.df$entity.dateA), 'year', viewport)
+  dt$dateBin <- bin(as.Date(testDF$entity.dateA), 'year', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-01-01 - 2000-01-01")
 
-  dt$dateBin <- bin(as.Date(test.df$entity.dateA), '2 year', viewport)
+  dt$dateBin <- bin(as.Date(testDF$entity.dateA), '2 year', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-01-01 - 2001-01-01")
 })
 
@@ -203,12 +203,12 @@ test_that("getAggStr() is sane", {
 })
 
 test_that("makePanels() returns 2 entry list: 1) data.frame 2) character vector", {
-  panels <- makePanels(test.df, 'cat3', 'cat5')
+  panels <- makePanels(testDF, 'cat3', 'cat5')
 
   expect_is(panels, 'list')
   expect_equal(length(panels),2)
   expect_is(panels[[1]], 'data.frame')
-  expect_equal(nrow(test.df), nrow(panels[[1]]))
+  expect_equal(nrow(testDF), nrow(panels[[1]]))
   expect_is(panels[[2]], 'character')
 })
 
@@ -221,23 +221,23 @@ test_that("makePanels() does nothing if there are no facets", {
 
 test_that("contingencyDT() returns appropriately sized data.table", {
   # dt <- contingencyDT(data.binned)
-  dt <- contingencyDT(test.df[, c('entity.cat3','entity.cat4','entity.cat7','entity.cat6')])
+  dt <- contingencyDT(testDF[, c('entity.cat3','entity.cat4','entity.cat7','entity.cat6')])
 
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),data.table::uniqueN(test.df$cat7))
-  expect_equal(length(dt),data.table::uniqueN(test.df$cat6)+1)
+  expect_equal(nrow(dt),data.table::uniqueN(testDF$cat7))
+  expect_equal(length(dt),data.table::uniqueN(testDF$cat6)+1)
 })
 
 
 test_that("nonparametricTest() errs gracefully", {
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
   result <- nonparametricTest(df$entity.contA, df$entity.cat1)
   expect_true(grepl( 'Error', result$statsError, fixed = TRUE))
   
 })
 
 test_that("nonparametricTestByGroup() errs gracefully", {
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
   df$entity.cat3[df$entity.cat4 == 'cat4_a'] <- 'cat3_a'
   result <- nonparametricByGroup(df, 'entity.contA', 'entity.cat3', 'entity.cat4')
   # Expect four rows but only one error
@@ -246,7 +246,7 @@ test_that("nonparametricTestByGroup() errs gracefully", {
 })
 
 test_that("nonparametricTest() types do not change on error", {
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
   result_correct <- nonparametricTest(df$entity.contA, df$entity.cat3)    # kruskal.test
   result_err <- nonparametricTest(df$entity.contA, df$entity.cat1)
   expect_true(grepl( 'Error', result_err$statsError, fixed = TRUE))

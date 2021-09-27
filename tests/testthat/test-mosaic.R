@@ -6,7 +6,7 @@ test_that("mosaic.dt() returns a valid plot.data mosaic object", {
                     'dataType' = c('STRING', 'STRING', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- mosaic.dt(df, map)
   expect_is(dt, 'plot.data')
@@ -64,7 +64,7 @@ test_that("mosaic.dt() returns plot data and config of the appropriate types", {
                     'dataType' = c('STRING', 'STRING', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- mosaic.dt(df, map)
   expect_equal(class(unlist(dt$xLabel)), 'character')
@@ -142,7 +142,7 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
                     'dataType' = c('STRING', 'STRING', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- mosaic.dt(df, map)
   expect_is(dt, 'data.table')
@@ -338,7 +338,7 @@ test_that("mosaic() returns appropriately formatted json", {
                     'dataType' = c('STRING', 'STRING', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- mosaic.dt(df, map)
   outJson <- getJSON(dt, FALSE)
@@ -437,7 +437,7 @@ test_that("mosaic.dt() returns correct information about missing data", {
 
   # Add nMissing missing values to each column
   nMissing <- 10
-  df <- as.data.frame(lapply(test.df, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+  df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
   
   dt <- mosaic.dt(df, map)
   expect_equal(names(statsTable(dt)),c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'entity.cat4'))

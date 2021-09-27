@@ -6,7 +6,7 @@ test_that("scattergl.dt() returns a valid plot.data scatter object", {
                     'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'plot.data')
@@ -27,7 +27,7 @@ test_that("scattergl.dt() returns plot data and config of the appropriate types"
                     'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- scattergl.dt(df, map, 'raw')
   expect_equal(class(unlist(dt$entity.cat4)), 'character')
@@ -73,7 +73,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
                     'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING', ''),
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', ''), stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
   
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')
@@ -413,7 +413,7 @@ test_that("scattergl() returns appropriately formatted json", {
                     'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
   outJson <- getJSON(dt, FALSE)
@@ -617,7 +617,7 @@ test_that("scattergl.dt() returns correct information about missing data", {
 
   # Add nMissing missing values to each column
   nMissing <- 10
-  df <- as.data.frame(lapply(test.df, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+  df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
   
   dt <- scattergl.dt(df, map, 'raw')
   completecasestable <- completeCasesTable(dt)

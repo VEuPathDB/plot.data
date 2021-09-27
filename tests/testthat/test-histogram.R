@@ -7,7 +7,7 @@ test_that("histogram.dt() returns requested numBins/ binWidth", {
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
   viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
   binReportValue <- 'binWidth'
   
@@ -40,7 +40,7 @@ test_that("histogram.dt() returns a valid plot.data histogram object", {
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
   viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
   binReportValue <- 'binWidth'
   
@@ -102,7 +102,7 @@ test_that("histogram.dt() returns plot data and config of the appropriate types"
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
   viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
   binReportValue <- 'binWidth'
   
@@ -167,7 +167,7 @@ test_that("histogram.dt() returns bins according to specified viewport", {
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
   binReportValue <- 'binWidth'
   viewport <- list('xMin'=-1.5,'xMax'=2.5)
   
@@ -181,7 +181,7 @@ test_that("histogram.dt() returns bins according to specified viewport", {
 })
 
 test_that("histogram.dt() returns an appropriately sized data.table", {
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
   
   map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
@@ -469,7 +469,7 @@ test_that("histogram() returns appropriately formatted json", {
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
   viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
   binReportValue <- 'binWidth'
 
@@ -500,7 +500,7 @@ test_that("histogram() returns appropriately formatted json", {
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
   viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
   binReportValue <- 'binWidth'
 
@@ -602,9 +602,9 @@ test_that("histogram.dt() returns correct information about missing data", {
                     
   # Add nMissing missing values to each column
   nMissing <- 10
-  df <- as.data.frame(lapply(test.df, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+  df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
 
-  viewport <- list('xMin'=min(test.df$entity.contA), 'xMax'=max(test.df$entity.contA))
+  viewport <- list('xMin'=min(testDF$entity.contA), 'xMax'=max(testDF$entity.contA))
   binReportValue <- 'binWidth'
   
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)

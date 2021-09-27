@@ -6,7 +6,7 @@ test_that("bar.dt() returns a valid plot.data barplot object", {
                     'dataType' = c('STRING', 'STRING', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- bar.dt(df, map, value='count')
   expect_is(dt, 'plot.data')
@@ -27,7 +27,7 @@ test_that("bar.dt() returns plot data and config of the appropriate types", {
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('STRING', 'STRING', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- bar.dt(df, map, value='count')
   expect_is(dt$label, 'list')
@@ -50,7 +50,7 @@ test_that("bar.dt() returns an appropriately sized data.table", {
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('STRING', 'STRING', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- bar.dt(df, map, value='count')
   expect_is(dt, 'data.table')
@@ -82,7 +82,7 @@ test_that("bar.dt() returns an appropriately sized data.table", {
                     'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('STRING', 'STRING', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- bar.dt(df, map, value='count')
   expect_is(dt, 'data.table')
@@ -226,7 +226,7 @@ test_that("bar() returns appropriately formatted json", {
                     'dataType' = c('STRING', 'STRING', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- bar.dt(df, map, value='count')
   outJson <- getJSON(dt, FALSE)
@@ -332,7 +332,7 @@ test_that("bar.dt() returns correct information about missing data", {
 
   # Add nMissing missing values to each column
   nMissing <- 10
-  df <- as.data.frame(lapply(test.df, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+  df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
 
   dt <- bar.dt(df, map, value='count')
   completecasestable <- completeCasesTable(dt)

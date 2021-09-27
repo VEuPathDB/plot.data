@@ -6,7 +6,7 @@ test_that("box.dt() returns a valid plot.data box object", {
                     'dataType' = c('STRING', 'NUMBER', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- box.dt(df, map, 'none', FALSE, computeStats = T)
   expect_is(dt, 'plot.data')
@@ -43,7 +43,7 @@ test_that("box.dt() returns plot data and config of the appropriate types", {
                     'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
                     'dataType' = c('STRING', 'NUMBER', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- box.dt(df, map, 'none', TRUE)
   expect_equal(class(dt$min[[1]]), 'numeric')
@@ -96,7 +96,7 @@ test_that("box.dt() returns plot data and config of the appropriate types", {
                     'dataType' = c('STRING', 'NUMBER', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  df <- test.df[test.df$entity.cat3 == 'cat3_a' & test.df$entity.cat4 == 'cat4_a',] #### ANN REVISIT
+  df <- testDF[testDF$entity.cat3 == 'cat3_a' & testDF$entity.cat4 == 'cat4_a',] #### ANN REVISIT
 
   dt <- box.dt(df, map, 'none', TRUE)
   expect_equal(class(dt$min[[1]]), 'numeric')
@@ -125,7 +125,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
                     'dataType' = c('STRING', 'NUMBER', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
   
   dt <- box.dt(df, map, 'none', FALSE)
   expect_is(dt, 'data.table')
@@ -385,7 +385,7 @@ test_that("box() returns appropriately formatted json", {
                     'dataType' = c('STRING', 'NUMBER', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
 
   dt <- box.dt(df, map, 'none', FALSE, computeStats = T)
   outJson <- getJSON(dt, FALSE)
@@ -648,7 +648,7 @@ test_that("box.dt() returns correct information about missing data", {
 
   # Add nMissing missing values to each column
   nMissing <- 10
-  df <- as.data.frame(lapply(test.df, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+  df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
 
   dt <- box.dt(df, map, 'none', FALSE)
   completecasestable <- completeCasesTable(dt)
@@ -695,7 +695,7 @@ test_that("box.dt() returns an appropriately sized statistics table", {
                     'dataType' = c('STRING', 'NUMBER'),
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
   
-  df <- as.data.frame(test.df)
+  df <- as.data.frame(testDF)
   
   ## Kruskal-Wallis
   # No overlay, no facets
