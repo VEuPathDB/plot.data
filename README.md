@@ -8,6 +8,9 @@ Use the R package [remotes](https://cran.r-project.org/web/packages/remotes/inde
 
 ```R
 remotes::install_github('VEuPathDB/plot.data')
+
+# or to install a specific version
+remotes::install_github('VEuPathDB/plot.data', 'v1.2.3')
 ```
 
 ## Usage
@@ -15,7 +18,13 @@ remotes::install_github('VEuPathDB/plot.data')
 ```R
 #data object is a data.table of raw values to bin and count
 #map is a data.table mapping column names from data object to 'xAxisVariable', 'overlayVariable', etc
-histogram(data, map, value='count', binWidth=NULL, binReportValue='binWidth', viewport=NULL) # returns the name of a json file where client-ready plotting data can be found
+#returns the name of a json file where client-ready plotting data can be found
+histogram(data, 
+          map, 
+          value='count', 
+          binWidth=NULL, 
+          binReportValue='binWidth', 
+          viewport=NULL)
 ```
 
 ## Contributing
@@ -25,8 +34,9 @@ Please make sure to update tests as appropriate.
 
 ## Development
 Before we begin, a few definitions:
-- Variable: Data belonging to one category or name. Variables contain *values*. For example, a "Days of the Week" variable has values "Monday", "Tuesday", ... "Sunday". A variable can be categorical or numeric, and must have at least one value.
+- Variable: Data belonging to one category or name. Variables contain *values*. (maybe: 'A collection of related values, which may represent either a category or a measurement.' -Danielle) For example, a "Days of the Week" variable has values "Monday", "Tuesday", ... "Sunday". A variable can be categorical, date or numeric, and must have at least one value.
 - Axis: 
+- Group: 
 - Panel: An independent collection of axes.
 - Strata variable: A variable that 
 - Plot: A collection of required axes, optional parameters, variable constraints, and geometric shapes bound to data that together convey information about a dataset.  
@@ -51,7 +61,7 @@ Each plotdata class should have a corresponding test context, i.e file called "t
 Helper functions are organized into those that compute values per group (`group.R`), per panel (`panel.R`), handle binning (`bin.R`), or various other categories (see `utils` and `utils-*.R`). Using the beeswarm as an example, we can add `groupMedian` to `group.R`, which computes the median of the dataset per group (overlay, panel).
 
 ***Exporting functions***
-Now that we've created a new plot, we'd like to use it! Add relevant functions to `NAMESPACE` so they get properly exported and can be used when someone loads `plot.data`.
+Now that we've created a new plot, we'd like to use it! Add relevant functions to `NAMESPACE` so they get properly exported and can be used when someone loads `plot.data`. (This should be done with devtools::document(), rather than directly updating `NAMESPACE` -Danielle)
 
 ## License
 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
