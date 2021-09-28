@@ -1,6 +1,6 @@
 Package: plot.data
 Title: Create `data.table`s of Ready to Plot Data
-Version: 1.2.1
+Version: 1.2.3
 Authors@R: 
     person(given = "Danielle",
            family = "Callan",
@@ -14,6 +14,7 @@ Imports:
     mgcv,
     moments,
     purrr,
+    stats,
     stringi,
     zoo
 URL: https://github.com/VEuPathDB/plot.data
@@ -22,6 +23,7 @@ Description: plot.data is an R package for creating client-ready data for variou
 License: Apache License (= 2.0)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: 
+    covr,
     testthat (>= 2.1.0)

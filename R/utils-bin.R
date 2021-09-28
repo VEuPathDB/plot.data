@@ -80,30 +80,67 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
 #' This function determines the ideal bin width based on the range,
 #' sample size and distribution of values.
 #' @param x Numeric or Date vector
+#' @param na.rm boolean indicating if missing values should be removed
 #' @return Numeric or character bin width
 #' @export
 # @alias findBinWidth.numeric
 # @alias findBinWidth.POSIXct
-findBinWidth <- function(x) UseMethod("findBinWidth")
+# @alias findBinWidth.logical
+# @alias findBinWidth.NULL
+findBinWidth <- function(x, na.rm = c(FALSE, TRUE)) UseMethod("findBinWidth")
 
 #' @export
-findBinWidth.numeric <- function(x) {
+findBinWidth.NULL <- function(x, na.rm = c(FALSE, TRUE)) { NULL }
+
+#' @export
+findBinWidth.logical <- function(x, na.rm = c(FALSE, TRUE)) { NA }
+
+#' @export
+findBinWidth.numeric <- function(x, na.rm = c(FALSE, TRUE)) {
+  na.rm <- matchArg(na.rm)
+  if (na.rm) {
+    x <- x[complete.cases(x)]
+  } else if (any(is.na(x))) {
+    return(NA)
+  }
+
+  if (all(x %% 1 == 0)) {
+    isInteger <- TRUE
+    if (data.table::uniqueN(x) == 1) { return(1) }
+  } else {
+    isInteger <- FALSE
+    if (data.table::uniqueN(x) == 1) { return(0) }
+  } 
   numBins <- findNumBins(x)
   binWidth <- numBinsToBinWidth(x, numBins)
-  if (all(x %% 1 == 0)) {
-    # Then x only contains integers, so the binWidth should also be an integer
+  
+  if (isInteger) {
+    # binWidth should also be an integer
     avgDigits <- 0
+    binWidth <- nonZeroRound(binWidth, avgDigits)
+    if (binWidth == 0) { binWidth <- 1}
   } else {
-    # Then x contains data with non-zero decimals, so the binWidth can be any float
+    # binWidth can be any float
     avgDigits <- floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
+    binWidth <- nonZeroRound(binWidth, avgDigits)
   }
-  binWidth <- round(binWidth, avgDigits)
 
   return(binWidth)
 }
 
 #' @export
-findBinWidth.Date <- function(x) {
+findBinWidth.Date <- function(x, na.rm = c(FALSE, TRUE)) {
+  na.rm <- matchArg(na.rm)
+  if (na.rm) {
+    x <- x[complete.cases(x)]
+  } else if (any(is.na(x))) {
+    return(NA)
+  }
+
+  if (data.table::uniqueN(x) == 1) {
+    return('day')
+  }
+
   dateMap <- data.table('date' = x, 'numeric' = as.numeric(x))
   binWidth <- findBinWidth(dateMap$numeric)
 
