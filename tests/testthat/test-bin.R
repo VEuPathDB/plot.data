@@ -11,7 +11,25 @@ test_that("binProportion() returns an appropriately sized data.table", {
   expect_equal(names(dt), c('binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(sum(dt$value[[1]]), 1)
   
+  dt <- binProportion(data.table('const' = c(1, 1, 1, 1, 1, 1, 1)),'const', barmode='overlay', viewport=viewport)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt), c('binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(sum(dt$value[[1]]), 1)
+  
+  dt <- binProportion(df,'entity.contB', barmode='overlay', viewport=viewport)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt), c('binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(sum(dt$value[[1]]), 1)
+  
   dt <- binProportion(df,'entity.contB', binWidth=.1, barmode='stack', viewport=viewport)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt), c('binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(sum(dt$value[[1]]), 1)
+
+  dt <- binProportion(df,'entity.contB', barmode='stack', viewport=viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt), c('binLabel', 'value', 'binStart', 'binEnd'))
