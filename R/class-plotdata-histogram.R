@@ -54,14 +54,14 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   logWithTime('Supporting summary statistics calculated for histogram.', verbose)
 
   if (is.null(viewport)) {
-    if (xType == 'NUMBER') {
+    if (xType %in% c('NUMBER', 'INTEGER')) {
       viewport <- list('xMin' = min(0,min(.pd[[x]])), 'xMax' = max(.pd[[x]]))
     } else {
       viewport <- list('xMin' = min(.pd[[x]]), 'xMax' = max(.pd[[x]]))
     }
     logWithTime('Determined default viewport.', verbose)
   } else {
-    if (xType == 'NUMBER') {
+    if (xType %in% c('NUMBER', 'INTEGER')) {
       viewport$xMin <- as.numeric(viewport$xMin)
       viewport$xMax <- as.numeric(viewport$xMax)
     } else if (xType == 'DATE') {
@@ -95,7 +95,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   } else {
     binSliderMax <- as.numeric((max(xVP) - min(xVP)) / 2)
     binSliderMin <- as.numeric((max(xVP) - min(xVP)) / 1000)
-    if (xType == 'NUMBER') {
+    if (xType %in% c('NUMBER', 'INTEGER')) {
       avgDigits <- floor(mean(stringi::stri_count_regex(as.character(xVP), "[[:digit:]]")))
       binSliderMax <- round(binSliderMax, avgDigits)
       binSliderMin <- round(binSliderMin, avgDigits)
@@ -216,7 +216,7 @@ validateHistogramPD <- function(.histo, verbose) {
   if (!is.null(binWidth)) {
     if (xAxisVariable$dataType == 'DATE' && !is.character(binWidth)) {
       stop("binWidth must be a character string for histograms of date values.")
-    } else if (xAxisVariable$dataType == 'NUMBER' && !is.numeric(binWidth)) {
+    } else if (xAxisVariable$dataType %in% c('NUMBER', 'INTEGER') && !is.numeric(binWidth)) {
       stop("binWidth must be numeric for histograms of numeric values.")
     }
   }
@@ -277,7 +277,7 @@ histogram.dt <- function(data,
   if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type histogram.")
   } else {
-    if (xAxisVariable$dataType == 'NUMBER' & !is.null(binWidth)) {
+    if (xAxisVariable$dataType %in% c('NUMBER', 'INTEGER') & !is.null(binWidth)) {
       binWidth <- suppressWarnings(as.numeric(binWidth))
       if (is.na(binWidth)) {
         stop("binWidth must be numeric for histograms of numeric values.")

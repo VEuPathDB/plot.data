@@ -134,8 +134,8 @@ validateBoxPD <- function(.box, verbose) {
   #  stop('The independent axis must be binary, ordinal or categorical for boxplot.')
   #}
   yAxisVariable <- attr(.box, 'yAxisVariable')
-  if (!yAxisVariable$dataType %in% c('NUMBER')) {
-    stop('The dependent axis must be of type number for boxplot.')
+  if (!yAxisVariable$dataType %in% c('NUMBER', 'INTEGER')) {
+    stop('The dependent axis must be of type number or integer for boxplot.')
   }
   overlayVariable <- attr(.box, 'overlayVariable')
   #if (!is.null(overlayVariable)) {

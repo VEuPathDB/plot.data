@@ -213,7 +213,7 @@ scattergl.dt <- function(data,
   if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type scatter.")
   } else {
-    if (xAxisVariable$dataType != 'NUMBER' & value == 'density') {
+    if (!xAxisVariable$dataType %in% c('NUMBER','INTEGER') & value == 'density') {
       stop('Density curves can only be provided for numeric independent axes.')
     }
   }
@@ -223,7 +223,7 @@ scattergl.dt <- function(data,
       stop("Must provide xAxisVariable for plot type scatter.")
     }
   } else {
-    if (yAxisVariable$dataType != 'NUMBER' & value != 'raw') {
+    if (!yAxisVariable$dataType %in% c('NUMBER', 'INTEGER') & value != 'raw') {
       stop('Trend lines can only be provided for numeric dependent axes.')
     }
   } 
