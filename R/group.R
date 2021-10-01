@@ -121,12 +121,9 @@ groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL, collaps
 
   dt$outliers <- lapply(dt$outliers, FUN=function(x){if (is.null(x)) x <- list(); return(x)})
 
-  # Wrap single outliers in a list if not already.
-  if (is.null(group) && is.null(panel)) {
-    dt$outliers <- lapply(dt$outliers, FUN=function(x){
-      if (length(x)==1 & typeof(x)=='double') { x <- list(x)}
-      return(x)
-      })
+  # Ensure single outliers in a list if not already.
+  if (NROW(dt) == 1 && length(dt$outliers[[1]]) == 1) {
+        dt$outliers[[1]] <- list(dt$outliers[[1]])
   }
   
   if (collapse) {
