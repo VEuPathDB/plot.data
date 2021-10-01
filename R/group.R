@@ -121,9 +121,18 @@ groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL, collaps
 
   dt$outliers <- lapply(dt$outliers, FUN=function(x){if (is.null(x)) x <- list(); return(x)})
 
+  # Wrap single outliers in a list if not already.
+  if (is.null(group) && is.null(panel)) {
+    dt$outliers <- lapply(dt$outliers, FUN=function(x){
+      if (length(x)==1 & typeof(x)=='double') { x <- list(x)}
+      return(x)
+      })
+  }
+  
   if (collapse) {
     dt <- collapseByGroup(dt, group, panel)
   }
+  
   
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
