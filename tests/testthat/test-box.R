@@ -235,6 +235,14 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('panel', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'rawData', 'mean'))
   expect_equal(class(dt$panel), 'character')
   
+  # A single outlier
+  df <- data.frame('entity.x' = c('group1'), 'entity.y'=c(35.1, 34.2, 36.2, 90.2))
+  map <- data.frame('id' = c('entity.y', 'entity.x'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- box.dt(df, map, 'outliers', FALSE, computeStats = T)
+  expect_equal(names(dt),c('label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'outliers'))
+  expect_equal(class(dt$label[[1]]), 'character')
+  expect_equal(class(dt$min[[1]]), 'numeric')
+  expect_equal(class(dt$outliers[[1]]), 'list')
 })
 
 test_that("box.dt() accepts listVars for both the x axis and facet vars", {  
