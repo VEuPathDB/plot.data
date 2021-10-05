@@ -97,9 +97,9 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     binSliderMin <- as.numeric((max(xVP) - min(xVP)) / 1000)
     if (xType %in% c('NUMBER', 'INTEGER')) {
       avgDigits <- floor(mean(stringi::stri_count_regex(as.character(xVP), "[[:digit:]]")))
-      binSliderMax <- round(binSliderMax, avgDigits)
-      binSliderMin <- round(binSliderMin, avgDigits)
-      binSliderStep <- round(((binSliderMax - binSliderMin) / 1000), avgDigits)
+      binSliderMax <- nonZeroRound(binSliderMax, avgDigits)
+      binSliderMin <- nonZeroRound(binSliderMin, avgDigits)
+      binSliderStep <- nonZeroRound(((binSliderMax - binSliderMin) / 1000), avgDigits)
       binSliderMin <- ifelse(binSliderMin == 0, .1, binSliderMin)
       binSliderStep <- ifelse(binSliderStep == 0, binSliderMin, binSliderStep)
       binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
