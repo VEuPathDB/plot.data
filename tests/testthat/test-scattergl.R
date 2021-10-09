@@ -221,26 +221,26 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('densityX', 'densityY'))
 
   # Continuous overlay
-  map <- data.frame('id' = c('entity.z', 'entity.y', 'entity.x'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
-  df <- data.xy
-  df$entity.z <- runif(500)
-  
-  dt <- scattergl.dt(df, map, 'raw')
-  expect_equal(nrow(dt), 1)
-  expect_equal(names(dt), c('seriesX', 'seriesY', 'seriesGradientColorscale'))
-  expect_true(identical(dt$seriesGradientColorscale[[1]], df$entity.z))
-  
-  map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.panel', 'entity.z'), 'plotRef' = c('facetVariable2', 'yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
-  dt <- scattergl.dt(df, map, 'raw')
-  expect_equal(nrow(dt), 16)
-  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'seriesGradientColorscale'))
-  expect_equal(length(dt$seriesGradientColorscale[[1]]), length(dt$seriesX[[1]]))
-  
-  map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.panel', 'entity.z'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
-  dt <- scattergl.dt(df, map, 'raw')
-  expect_equal(nrow(dt), 4)
-  expect_equal(names(dt), c('entity.panel', 'seriesX', 'seriesY', 'seriesGradientColorscale'))
-  expect_equal(length(dt$seriesGradientColorscale[[1]]), length(dt$seriesX[[1]]))
+#  map <- data.frame('id' = c('entity.z', 'entity.y', 'entity.x'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
+#  df <- data.xy
+#  df$entity.z <- runif(500)
+#  
+#  dt <- scattergl.dt(df, map, 'raw')
+#  expect_equal(nrow(dt), 1)
+#  expect_equal(names(dt), c('seriesX', 'seriesY', 'seriesGradientColorscale'))
+#  expect_true(identical(dt$seriesGradientColorscale[[1]], df$entity.z))
+#  
+#  map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.panel', 'entity.z'), 'plotRef' = c('facetVariable2', 'yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
+#  dt <- scattergl.dt(df, map, 'raw')
+#  expect_equal(nrow(dt), 16)
+#  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'seriesGradientColorscale'))
+#  expect_equal(length(dt$seriesGradientColorscale[[1]]), length(dt$seriesX[[1]]))
+#  
+#  map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.panel', 'entity.z'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
+#  dt <- scattergl.dt(df, map, 'raw')
+#  expect_equal(nrow(dt), 4)
+#  expect_equal(names(dt), c('entity.panel', 'seriesX', 'seriesY', 'seriesGradientColorscale'))
+#  expect_equal(length(dt$seriesGradientColorscale[[1]]), length(dt$seriesX[[1]]))
   
   
   # With factors

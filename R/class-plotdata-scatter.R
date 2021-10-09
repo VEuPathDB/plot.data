@@ -52,13 +52,13 @@ newScatterPD <- function(.dt = data.table::data.table(),
   group <- toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-  if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
-    series <- collapseByGroup(.pd, group = NULL, panel)
-    data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale'))
-  } else {
+  #if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
+  #  series <- collapseByGroup(.pd, group = NULL, panel)
+  #  data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale'))
+  #} else {
     series <- collapseByGroup(.pd, group, panel)
     data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
-  }
+  #}
  
   if (attr$xAxisVariable$dataType == 'DATE') {
     series$seriesX <- lapply(series$seriesX, format, '%Y-%m-%d')
@@ -229,9 +229,9 @@ scattergl.dt <- function(data,
   } 
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
   if (!is.null(overlayVariable$variableId) & !identical(listVarPlotRef, 'overlayVariable')) {
-    if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
-      stop('Continuous overlay variables cannot be used with trend lines.')
-    }
+    #if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
+    #  stop('Continuous overlay variables cannot be used with trend lines.')
+    #}
   }
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
