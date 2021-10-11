@@ -1,5 +1,41 @@
 context('scattergl')
 
+test_that("scatter.dt does not fail when there are no complete cases.", {
+  map <- data.frame('id' = c('entity.int', 'entity.cont'),
+                    'plotRef' = c('xAxisVariable', 'yAxisVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER'),
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS'),
+                    stringsAsFactors = FALSE)
+  df <- data.noneComplete[is.na(entity.int),]
+
+  dt <- scattergl.dt(df, map, 'raw')  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+
+  dt <- scattergl.dt(df, map, value='smoothedMeanWithRaw')  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+
+  dt <- scattergl.dt(df, map, value='bestFitLineWithRaw')  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+
+  dt <- scattergl.dt(df, map, value='density')  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+
+  map <- data.frame('id' = c('entity.cont', 'entity.int', 'entity.binary2'),
+                    'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'),
+                    stringsAsFactors = FALSE)
+  df <- data.noneComplete
+
+  dt <- scattergl.dt(df, map, 'raw')
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+})
+
 test_that("scattergl.dt() returns a valid plot.data scatter object", {
   map <- data.frame('id' = c('entity.group', 'entity.contVar', 'entity.date', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.dates

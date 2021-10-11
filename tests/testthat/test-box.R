@@ -1,5 +1,45 @@
 context('box')
 
+test_that("box.dt does not fail when there are no complete cases.", {
+  map <- data.frame('id' = c('entity.binary1', 'entity.cont'),
+                    'plotRef' = c('xAxisVariable', 'yAxisVariable'),
+                    'dataType' = c('STRING', 'NUMBER'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS'),
+                    stringsAsFactors = FALSE)
+  df <- data.noneComplete[is.na(entity.binary1),]
+
+  dt <- box.dt(df, map, 'none', FALSE, FALSE)  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+
+  dt <- box.dt(df, map, 'none', FALSE, TRUE)  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+
+  dt <- box.dt(df, map, 'none', TRUE, TRUE)  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+
+  dt <- box.dt(df, map, 'outliers', FALSE, TRUE)  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+
+  dt <- box.dt(df, map, 'all', FALSE, TRUE)  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+
+  map <- data.frame('id' = c('entity.binary1', 'entity.cont', 'entity.binary2'),
+                    'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'),
+                    stringsAsFactors = FALSE)
+  df <- data.noneComplete
+
+  dt <- box.dt(df, map, 'none', FALSE, FALSE)
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+})
+
 test_that("box.dt() returns a valid plot.data box object", {
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   df <- data.table::as.data.table(data.xy)

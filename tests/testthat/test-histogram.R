@@ -1,5 +1,45 @@
 context('histogram')
 
+test_that("histogram.dt does not fail when there are no complete cases.", {
+  map <- data.frame('id' = c('entity.cont'),
+                    'plotRef' = c('xAxisVariable'),
+                    'dataType' = c('NUMBER'),
+                    'dataShape' = c('CONTINUOUS'),
+                    stringsAsFactors = FALSE)
+  df <- data.noneComplete[is.na(entity.cont),]
+
+  dt <- histogram.dt(df, map, binWidth = .3, value='count', barmode = 'overlay', 'binWidth', NULL)  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+
+  dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', 'binWidth', NULL)  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+
+  dt <- histogram.dt(df, map, binWidth = .3, value='proportion', barmode = 'overlay', 'binWidth', NULL)  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+    
+  dt <- histogram.dt(df, map, binWidth = .3, value='count', barmode = 'stack', 'binWidth', NULL)
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+
+  dt <- histogram.dt(df, map, binWidth = .3, value='count', barmode = 'overlay', 'numBins', NULL)
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+
+  map <- data.frame('id' = c('entity.cont', 'entity.binary2'),
+                    'plotRef' = c('xAxisVariable', 'overlayVariable'),
+                    'dataType' = c('NUMBER', 'STRING'),
+                    'dataShape' = c('CONTINUOUS', 'CATEGORICAL'),
+                    stringsAsFactors = FALSE)
+  df <- data.noneComplete
+
+  dt <- histogram.dt(df, map, binWidth = .3, value='count', barmode = 'overlay', 'binWidth', NULL)
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+})
+
 test_that("histogram.dt() returns requested numBins/ binWidth", {
   map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 

@@ -325,6 +325,7 @@ pruneViewportAdjustmentFromBins <- function(bins, xVP, x, viewport) {
 }
 
 strSplit <- function(str, pattern, ncol = 2, index = 1, fixed = TRUE) {
+  if (!length(str)) { return(NULL) }
   matrix(unlist(strsplit(str, pattern, fixed = fixed)), ncol = ncol, byrow = TRUE)[,index]
 }
 

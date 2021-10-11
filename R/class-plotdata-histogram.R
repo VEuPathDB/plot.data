@@ -92,51 +92,57 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     }
   }
 
-  if (binReportValue == 'numBins') {
-    binSlider <- list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
-    binSpec <- list('type'=jsonlite::unbox('numBins'), 'value'=jsonlite::unbox(numBins))
+  if (!length(xVP)) {
+    binSlider <- list('min'=jsonlite::unbox(NULL), 'max'=jsonlite::unbox(NULL), 'step'=jsonlite::unbox(NULL))
+    binSpec <- list('type'=jsonlite::unbox(binReportValue), 'value'=jsonlite::unbox(NULL))
   } else {
-    binSliderMax <- as.numeric((max(xVP) - min(xVP)) / 2)
-    binSliderMin <- as.numeric((max(xVP) - min(xVP)) / 1000)
-    if (xType %in% c('NUMBER', 'INTEGER')) {
-      avgDigits <- floor(mean(stringi::stri_count_regex(as.character(xVP), "[[:digit:]]")))
-      binSliderMax <- nonZeroRound(binSliderMax, avgDigits)
-      binSliderMin <- nonZeroRound(binSliderMin, avgDigits)
-      binSliderStep <- nonZeroRound(((binSliderMax - binSliderMin) / 1000), avgDigits)
-      binSliderMin <- ifelse(binSliderMin == 0, .1, binSliderMin)
-      binSliderStep <- ifelse(binSliderStep == 0, binSliderMin, binSliderStep)
-      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
+    if (binReportValue == 'numBins') {
+      binSlider <- list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
+      binSpec <- list('type'=jsonlite::unbox('numBins'), 'value'=jsonlite::unbox(numBins))
     } else {
-      if (is.null(binWidth)) {
-        binWidth <- findBinWidth(xVP)
-      }
-      numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
-      if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
-      unit <- trim(gsub("^[[:digit:]].", "", binWidth))
-      if (unit %in% c('day', 'days')) {
-        binSliderMin <- floor(binSliderMin)
-        binSliderMax <- ceiling(binSliderMax)
-      } else if (unit %in% c('week', 'weeks')) {
-        numWeeks <- floor(as.numeric(difftime(max(xVP), min(xVP), units='weeks'))) 
-        binSliderMin <- floor(numWeeks/1000)
-        binSliderMax <- ceiling(numWeeks/2)
-      } else if (unit %in% c('month', 'months')) {
-        numMonths <- uniqueN(zoo::as.yearmon(xVP))
-        binSliderMin <- floor(numMonths/1000)
-        binSliderMax <- ceiling(numMonths/2) 
-      } else if (unit %in% c('year', 'years')) {
-        numYears <- uniqueN(strSplit(as.character(xVP), '-', 3))
-        binSliderMin <- floor(numYears/1000)
-        binSliderMax <- ceiling(numYears/2)
+      binSliderMax <- as.numeric((max(xVP) - min(xVP)) / 2)
+      binSliderMin <- as.numeric((max(xVP) - min(xVP)) / 1000)
+      if (xType %in% c('NUMBER', 'INTEGER')) {
+        avgDigits <- floor(mean(stringi::stri_count_regex(as.character(xVP), "[[:digit:]]")))
+        binSliderMax <- nonZeroRound(binSliderMax, avgDigits)
+        binSliderMin <- nonZeroRound(binSliderMin, avgDigits)
+        binSliderStep <- nonZeroRound(((binSliderMax - binSliderMin) / 1000), avgDigits)
+        binSliderMin <- ifelse(binSliderMin == 0, .1, binSliderMin)
+        binSliderStep <- ifelse(binSliderStep == 0, binSliderMin, binSliderStep)
+        binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
       } else {
-        stop("Unrecognized unit for date histogram.")
+        if (is.null(binWidth)) {
+          binWidth <- findBinWidth(xVP)
+        }
+        numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
+        if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
+        unit <- trim(gsub("^[[:digit:]].", "", binWidth))
+        if (unit %in% c('day', 'days')) {
+          binSliderMin <- floor(binSliderMin)
+          binSliderMax <- ceiling(binSliderMax)
+        } else if (unit %in% c('week', 'weeks')) {
+          numWeeks <- floor(as.numeric(difftime(max(xVP), min(xVP), units='weeks'))) 
+          binSliderMin <- floor(numWeeks/1000)
+          binSliderMax <- ceiling(numWeeks/2)
+        } else if (unit %in% c('month', 'months')) {
+          numMonths <- uniqueN(zoo::as.yearmon(xVP))
+          binSliderMin <- floor(numMonths/1000)
+          binSliderMax <- ceiling(numMonths/2) 
+        } else if (unit %in% c('year', 'years')) {
+          numYears <- uniqueN(strSplit(as.character(xVP), '-', 3))
+          binSliderMin <- floor(numYears/1000)
+          binSliderMax <- ceiling(numYears/2)
+        } else {
+          stop("Unrecognized unit for date histogram.")
+        }
+        binSliderMin <- ifelse(binSliderMin == 0, 1, binSliderMin)
+        binSliderStep <- 1
+        binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
       }
-      binSliderMin <- ifelse(binSliderMin == 0, 1, binSliderMin)
-      binSliderStep <- 1
-      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
+      binSlider <- list('min'=jsonlite::unbox(binSliderMin), 'max'=jsonlite::unbox(binSliderMax), 'step'=jsonlite::unbox(binSliderStep))
     }
-    binSlider <- list('min'=jsonlite::unbox(binSliderMin), 'max'=jsonlite::unbox(binSliderMax), 'step'=jsonlite::unbox(binSliderStep))
   }
+
   attr$binSlider <- binSlider
   attr$binSpec <- binSpec
   logWithTime('Determined bin width slider min, max and step values.', verbose)
