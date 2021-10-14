@@ -632,3 +632,15 @@ test_that("scattergl.dt() returns correct information about missing data", {
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA) & !is.na(df$entity.contB)))
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], length(unlist(dt$seriesX)))
 })
+
+
+test_that("scattergl.dt() errs when variable constrains are broken", {
+
+    df <- testDF
+    map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.contA', 'entity.cat4'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('NUMBER', 'STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+    dt <- scattergl.dt(df, map, 'raw')
+})

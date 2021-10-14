@@ -310,24 +310,26 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(class(sampleSizeTable$entity.cat7[[1]]), 'character')
   
   
-  # df <- as.data.frame(data.numcat)
-  # map <- data.frame('id' = c('entity.numcat2', 'entity.numcat1', 'entity.strcat1'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.int6', 'entity.int7', 'entity.cat5'),
+                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  # dt <- mosaic.dt(df, map)
-  # expect_is(dt, 'data.table')
-  # expect_is(dt$value, 'list')
-  # expect_is(dt$value[[1]], 'list')
-  # expect_equal(nrow(dt),3)
-  # expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'entity.strcat1'))
-  # expect_equal(dt$xLabel[[1]],c('1','2','3'))
-  # expect_equal(dt$yLabel[[1]][[1]],c('1','2','3','4','5'))
-  # expect_equal(length(dt$value[[1]]),3)
-  # expect_equal(length(dt$value[[1]][[1]]),5)
-  # statsTable <- statsTable(dt)
-  # expect_equal(names(statsTable), c(c('chisq', 'pvalue', 'degreesFreedom', 'entity.strcat1')))
-  # sampleSizeTable <- sampleSizeTable(dt)
-  # expect_equal(names(sampleSizeTable),c('entity.strcat1','entity.numcat1','size'))
-  # expect_equal(class(sampleSizeTable$entity.numcat1[[1]]), 'character')
+  dt <- mosaic.dt(df, map)
+  expect_is(dt, 'data.table')
+  expect_is(dt$value, 'list')
+  expect_is(dt$value[[1]], 'list')
+  expect_equal(nrow(dt),5)
+  expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'entity.cat5'))
+  expect_equal(dt$xLabel[[1]],c('1','2','3','4','5','6','7'))
+  expect_equal(dt$yLabel[[1]][[1]],c('1','2','3','4','5','6'))
+  expect_equal(length(dt$value[[1]]),7)
+  expect_equal(length(dt$value[[1]][[1]]),6)
+  statsTable <- statsTable(dt)
+  expect_equal(names(statsTable), c(c('chisq', 'pvalue', 'degreesFreedom', 'entity.cat5')))
+  sampleSizeTable <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizeTable),c('entity.cat5','entity.int7','size'))
+  expect_equal(class(sampleSizeTable$entity.int7[[1]]), 'character')
 
   
 })
@@ -409,23 +411,27 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   
-  # df <- data.numcat
-  # map <- data.frame('id' = c('entity.numcat2', 'entity.numcat1'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  # dt <- mosaic.dt(df, map)
-  # outJson <- getJSON(dt, FALSE)
-  # jsonList <- jsonlite::fromJSON(outJson)
+
+  map <- data.frame('id' = c('entity.int6', 'entity.int7'),
+                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  dt <- mosaic.dt(df, map)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
   
-  # expect_equal(names(jsonList),c('mosaic','sampleSizeTable','statsTable','completeCasesTable'))
-  # expect_equal(names(jsonList$mosaic),c('data','config'))
-  # expect_equal(names(jsonList$mosaic$data),c('xLabel','yLabel','value'))
-  # expect_equal(names(jsonList$mosaic$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
-  # expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
-  # expect_equal(jsonList$mosaic$config$xVariableDetails$variableId, 'numcat1')
-  # expect_equal(names(jsonList$sampleSizeTable),c('xVariableDetails','size'))
-  # expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
-  # expect_equal(names(jsonList$statsTable),c('chisq','pvalue','degreesFreedom'))
-  # expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
-  # expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList),c('mosaic','sampleSizeTable','statsTable','completeCasesTable'))
+  expect_equal(names(jsonList$mosaic),c('data','config'))
+  expect_equal(names(jsonList$mosaic$data),c('xLabel','yLabel','value'))
+  expect_equal(names(jsonList$mosaic$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$mosaic$config$xVariableDetails$variableId, 'int7')
+  expect_equal(names(jsonList$sampleSizeTable),c('xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  expect_equal(names(jsonList$statsTable),c('chisq','pvalue','degreesFreedom'))
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   
 })
 
@@ -451,23 +457,31 @@ test_that("mosaic.dt() returns correct information about missing data", {
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.binB) & !is.na(df$entity.binA)))
 })
 
-# test_that("mosaic.dt() returns same shaped outputs for string cats and num cats.", {
+test_that("mosaic.dt() returns same shaped outputs for string cats and num cats.", {
   
-#   df <- data.numcat
+  df <- testDF
   
-#   map_string <- data.frame('id' = c('entity.strcat1', 'entity.strcat2', 'entity.myoverlay'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'STRING', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-#   dt_string <- mosaic.dt(df, map_string)
+  map_string <- data.frame('id' = c('entity.cat7', 'entity.cat6', 'entity.cat4'),
+                           'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                           'dataType' = c('STRING', 'STRING', 'STRING'),
+                           'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  dt_string <- mosaic.dt(df, map_string)
   
-#   map_num <- data.frame('id' = c('entity.numcat1', 'entity.numcat2', 'entity.myoverlay'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-#   dt_num <- mosaic.dt(df, map_num)
+  map_num <- data.frame('id' = c('entity.int7', 'entity.int6', 'entity.cat4'),
+                        'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                        'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
+                        'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+                        
+  dt_num <- mosaic.dt(df, map_num)
   
-#   expect_equal(nrow(dt_string), nrow(dt_num))
-#   expect_equal(names(dt_string), names(dt_num))
-#   expect_equal(length(dt_string$xLabel[[1]]), length(dt_num$xLabel[[1]]))
-#   expect_equal(length(dt_string$yLabel[[1]]), length(dt_num$yLabel[[1]]))
-#   expect_equal(length(dt_string$value[[1]]), length(dt_num$value[[1]]))
-#   expect_equal(dt_string$entity.cat4, dt_num$entity.cat4)
+  expect_equal(nrow(dt_string), nrow(dt_num))
+  expect_equal(names(dt_string), names(dt_num))
+  expect_equal(length(dt_string$xLabel[[1]]), length(dt_num$xLabel[[1]]))
+  expect_equal(length(dt_string$yLabel[[1]]), length(dt_num$yLabel[[1]]))
+  expect_equal(length(dt_string$value[[1]]), length(dt_num$value[[1]]))
+  expect_equal(dt_string$entity.cat4, dt_num$entity.cat4)
   
-# })
+})
 
 
