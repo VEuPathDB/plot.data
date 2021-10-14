@@ -119,14 +119,6 @@ getPDAttributes <- function(.pd) {
   return(attr)
 }
 
-#' POSIXct Test
-#'
-#' This function returns a logical value indicating if x is
-#' a POSIXct object.
-#' @param x an R object
-#' @return logical TRUE if x is a POSIXct object, FALSE otherwise
-#' @export
-is.POSIXct <- function(x) inherits(x, "POSIXct")
 
 getInteractionColsList <- function(data, group, panel) {
   if (is.null(panel)) {

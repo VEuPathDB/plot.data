@@ -320,3 +320,37 @@ test_that("findBinWidth returns sane results", {
   expect_equal(findBinWidth(x, na.rm = T), 1)
 })
 
+
+
+test_that("bin returns appropriate data with default binWidth", {
+  
+  # numbers
+  df <- testDF[['entity.contA']]
+  viewport <- list('xMin'= 0.1, 'xMax'=0.9)
+  dt <- bin(df, viewport=viewport)
+  expect_equal(class(dt), 'character')
+  expect_equal(length(dt), 33)
+  
+  # dates
+  df <- as.Date(testDF[['entity.dateA']])
+  viewport <- list('xMin' = min(df), 'xMax' = max(df))
+  dt <- bin(df, viewport=viewport)
+  expect_equal(class(dt), 'character')
+  expect_equal(length(df), length(dt))
+})
+
+test_that("breaks returns appropriate results", {
+  
+  df <- testDF[['entity.contA']]
+  
+  dt <- breaks(df, 'numbers', nbins=20)
+  expect_equal(length(dt), 21)
+  
+  dt <- breaks(df, 'numbers', binwidth=0.5)
+  expect_equal(length(dt), 3)
+  expect_equal(names(dt), c('0%','50%','100%'))
+  
+  dt <- breaks(df, 'width', binwidth=0.5)
+  expect_equal(length(dt), 59)
+})
+

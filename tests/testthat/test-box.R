@@ -227,7 +227,17 @@ test_that("box.dt() returns an appropriately sized data.table", {
   # expect_equal(nrow(dt),5)
   # expect_equal(names(dt),c('entity.numcat2', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'rawData', 'mean'))
   
+  # Test single outlier
+  df <- data.frame('entity.x' = c('group1'), 'entity.y'=c(35.1, 34.2, 36.2, 90.2))
+  map <- data.frame('id' = c('entity.y', 'entity.x'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  dt <- box.dt(df, map, 'outliers', FALSE, computeStats = T)
+  expect_equal(names(dt),c('label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'outliers'))
+  expect_equal(class(dt$label[[1]]), 'character')
+  expect_equal(class(dt$min[[1]]), 'numeric')
+  expect_equal(class(dt$outliers[[1]]), 'list')
+  
   # With factors
+  df <- testDF
   map <- data.frame('id' = c('entity.factor3', 'entity.contB', 'entity.cat4'),
                   'plotRef' = c('facetVariable1', 'yAxisVariable', 'xAxisVariable'),
                   'dataType' = c('STRING', 'NUMBER', 'STRING'),
