@@ -79,22 +79,3 @@ test_that("binProportion() returns an appropriately sized data.table", {
   
 })
 
-# test_that("binProportion() returns consistent results", {
-#   viewport = list('xMin'=min(testDF$entity.contB), 'xMax'=max(testDF$entity.contB))
-
-#   df <- testDF[, 'entity.contB']
-#   dt <- binProportion(df,'entity.contB', binWidth=.1, barmode = 'overlay', viewport=viewport)
-#   # expect_equal_to_reference(dt,"proportion.rds")
-  
-#   df <- testDF[, c('entity.contB','entity.cat3')]
-#   dt <- binProportion(df, 'entity.contB','entity.cat3', binWidth=.1, barmode = 'overlay', viewport=viewport)
-#   # expect_equal_to_reference(dt,"proportion.group.rds")
-
-#   df <- testDF[, c('entity.contB','entity.cat4')]
-#   dt <- binProportion(df, 'entity.contB', NULL, 'entity.cat4', binWidth=.1, barmode = 'overlay', viewport=viewport)
-#   # expect_equal_to_reference(dt,"proportion.panel.rds")
-
-#   df <- testDF[, c('entity.contB','entity.cat3','entity.cat4')]
-#   dt <- binProportion(df, 'entity.contB', 'entity.cat3', 'entity.cat4', binWidth=.1, barmode = 'overlay', viewport=viewport)
-#   # expect_equal_to_reference(dt,"proportion.group.panel.rds")  
-# })

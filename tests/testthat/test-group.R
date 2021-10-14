@@ -89,36 +89,6 @@ test_that("groupDensity() returns an appropriately sized data.table", {
   expect_equal(names(dt), c('entity.cat3', 'entity.cat4', 'densityX', 'densityY'))
 })
 
-#my canaries
-# test_that("groupSmoothedMean() returns consistent results", {
-#   dt <- groupSmoothedMean(testDF, 'entity.contA', 'entity.contB')
-#   expect_equal_to_reference(dt,"loess.rds")
-#   dt <- groupSmoothedMean(testDF, 'entity.contA', 'entity.contB','entity.cat3')
-#   expect_equal_to_reference(dt,"loess.group.rds")
-#   dt <- groupSmoothedMean(testDF, 'entity.contA', 'entity.contB', NULL, 'entity.cat4')
-#   expect_equal_to_reference(dt,"loess.panel.rds")
-#   dt <- groupSmoothedMean(testDF, 'entity.contA', 'entity.contB', 'entity.cat3', 'entity.cat4')
-#   expect_equal_to_reference(dt,"loess.group.panel.rds")
-#   dt <- groupSmoothedMean(testDF, 'entity.contA', 'entity.contB')
-#   expect_equal_to_reference(dt,"gam.rds")
-#   dt <- groupSmoothedMean(testDF, 'entity.contA', 'entity.contB','entity.cat3')
-#   expect_equal_to_reference(dt,"gam.group.rds")
-#   dt <- groupSmoothedMean(testDF, 'entity.contA', 'entity.contB', NULL, 'entity.cat4')
-#   expect_equal_to_reference(dt,"gam.panel.rds")
-#   dt <- groupSmoothedMean(testDF, 'entity.contA', 'entity.contB', 'entity.cat3', 'entity.cat4')
-#   expect_equal_to_reference(dt,"gam.group.panel.rds")
-# })
-
-# test_that("groupDensity() returns consistent results", {
-#   dt <- groupDensity(testDF, x=NULL, 'entity.contB')
-#   expect_equal_to_reference(dt,"density.rds")
-#   dt <- groupDensity(testDF, x=NULL, 'entity.contB','entity.cat3')
-#   expect_equal_to_reference(dt,"density.group.rds")
-#   dt <- groupDensity(testDF, x=NULL, 'entity.contB', group=NULL, 'entity.cat4')
-#   expect_equal_to_reference(dt,"density.panel.rds")
-#   dt <- groupDensity(testDF, x=NULL, 'entity.contB', 'entity.cat3', 'entity.cat4')
-#   expect_equal_to_reference(dt,"density.group.panel.rds")
-# })
 
 test_that("groupProportion() returns values that sum to 1", {
   df <- data.table::data.table("labels"=c("a","a","b","b","c"), "counts"=c(1,1, 1, 1, 1), "group"=c("g1","g2","g1","g2","g1"))
