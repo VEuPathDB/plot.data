@@ -118,7 +118,7 @@ findBinWidth.numeric <- function(x, na.rm = c(FALSE, TRUE)) {
     # binWidth should also be an integer
     avgDigits <- 0
     binWidth <- nonZeroRound(binWidth, avgDigits)
-    if (binWidth == 0) { binWidth <- 1}
+    if (binWidth < 1) { binWidth <- 1}
   } else {
     # binWidth can be any float
     avgDigits <- floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))

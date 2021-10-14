@@ -101,8 +101,8 @@ plotRefMapToList <- function(map, plotRef) {
 #' @importFrom lubridate is.Date
 #' @importFrom lubridate as_date
 updateType <- function(x, xType, xShape='') {
-  if (xType == 'NUMBER' & xShape != 'CATEGORICAL' & !is.numeric(x)) { x <- as.numeric(x) }
-  if (xType == 'NUMBER' & xShape == 'CATEGORICAL' & !is.character(x)) { x <- as.character(x) }
+  if (xType %in% c('NUMBER', 'INTEGER') & xShape != 'CATEGORICAL' & !is.numeric(x)) { x <- as.numeric(x) }
+  if (xType %in% c('NUMBER', 'INTEGER') & xShape == 'CATEGORICAL' & !is.character(x)) { x <- as.character(x) }
   if (xType == 'DATE' & !lubridate::is.Date(x)) { x <- lubridate::as_date(x) }
   if (xType == 'STRING' & !is.character(x)) { x <- as.character(x) }
 
@@ -493,8 +493,8 @@ validateListVar <- function(listVariable) {
   }
 
   # Ensure all variables are numbers
-  if (!all(listVariable$dataType == 'NUMBER')){
-    stop("listVar error: All vars must be of type NUMBER.")
+  if (!all(listVariable$dataType %in% c('NUMBER', 'INTEGER'))){
+    stop("listVar error: All vars must be of type NUMBER or INTEGER.")
   }
 
   # Ensure all variables are continuous
