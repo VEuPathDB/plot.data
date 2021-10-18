@@ -135,9 +135,15 @@ groupOutliers <- function(data, x = NULL, y, group = NULL, panel = NULL, collaps
 
   dt$outliers <- lapply(dt$outliers, FUN=function(x){if (is.null(x)) x <- list(); return(x)})
 
+  # Ensure single outliers in a list if not already.
+  if (NROW(dt) == 1 && length(dt$outliers[[1]]) == 1) {
+        dt$outliers[[1]] <- list(dt$outliers[[1]])
+  }
+  
   if (collapse) {
     dt <- collapseByGroup(dt, group, panel)
   }
+  
   
   indexCols <- c(panel, group)
   setkeyv(dt, indexCols)
@@ -229,6 +235,7 @@ groupBestFitLine <- function(data, x, y, group = NULL, panel = NULL, collapse = 
 # think we want table col reformatted to be two cols, 'label' and 'value'. the second will be a list.
 # can we use collapseByGroup for the second task ??
 
+#' @importFrom stats as.formula
 groupSplit <- function(data, x, y, z, group, panel, longToWide = FALSE) {
   aggStr <- getAggStr(c(group, panel, y), x)
 

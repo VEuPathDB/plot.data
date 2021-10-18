@@ -4,10 +4,12 @@
 \alias{findBinWidth}
 \title{Calculate Bin Width}
 \usage{
-findBinWidth(x)
+findBinWidth(x, na.rm = c(FALSE, TRUE))
 }
 \arguments{
 \item{x}{Numeric or Date vector}
+
+\item{na.rm}{boolean indicating if missing values should be removed}
 }
 \value{
 Numeric or character bin width
