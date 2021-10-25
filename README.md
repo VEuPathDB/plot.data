@@ -15,6 +15,14 @@ remotes::install_github('VEuPathDB/plot.data', 'v1.2.3')
 <br/>
 
 ## Usage
+
+All `plot.data` functions require at least the following arguments:
+1. A data frame or data table with columns corresponding to variables and rows to samples.
+2. A `map` that associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns:
+    - `id` the variable name. Must match column name in the data exactly.
+    - `plotRef` The plot element to which that variable will be mapped. Options are `xAxisVariable`, `yAxisVariable`, `zAxisVariable`, `overlayVariable`, `facetVariable1`, `facetVariable2`. 
+    - `dataType` Options are `NUMBER`, `INTEGER`, `STRING`, or `DATE`. Optional.
+    - `dataShape` Options are `CONTINUOUS`, `CATEGORICAL`, `ORDINAL`, `BINARY`. Optional.
 ### Example 1: Histogram
 ```R
 # Data object is a data.table of raw values to bin and count
@@ -84,7 +92,7 @@ Please make sure to update tests as appropriate.
 
 ## Development
 Before we begin, a few definitions:
-- *Variable:* A collection of related values, which may represent either a category or a measurement. For example, a "Days of the Week" variable has values "Monday", "Tuesday", ... "Sunday". A variable can be categorical, date or numeric, and must have at least one value.
+- *Variable:* A collection of related values, which may represent either a category or a measurement. For example, a "Days of the Week" variable has values "Monday", "Tuesday", ... "Sunday". A "tree height" variable takes values on the postive real line. Statistically, a variable can be either categorical or numeric, see above `dataType` and `dataShape` for more about variable types used in this package.
 - *Axis variable:* A variable mapped to the independent (x) or dependent (y, z) axes.
 - *Strata variable:* A variable used to partition the axis variables into groups. Strata variables include overlay (often color), and facets.
 - *Group:* A partition of axes variable values labelled by combinations of strata variable values. For example, in a boxplot with an overlay variable with four values, we would see four groups - one for all the data associated with all boxes of the same color.
@@ -101,21 +109,22 @@ Let's take the beeswarm plot as an illustrative example. Is a beeswarm a plot ty
 ***plot.data class files***  
 Each `plot.data` class has a similar set up within their "class-plotdata-{plot name}.R" file:
 - A function that creates a new instance of the class. These constructors are named "new{plot name}PD" (ex. `newBeeswarmPD`). Each constructor begins by creating a `plotdata` object (`newPlotdata`).
-- A function that takes data and returns plot-ready data along with any statistics or other additional information requested. These functions are named "{plot name}.dt" (ex. `beeswarm.dt`). This function calls the class constructor.
+- A function that takes data and returns plot-ready data along with any statistics or other additional information requested. These functions are named "{plot name}.dt" (ex. `beeswarm.dt`). This function calls the class constructor. The resulting data table has columns corresponding to plottable elements and rows corresponding to groups. For example, the output of `box.dt` with one facet variable will have as many rows as unique facet variable values, and columns such as "labels", "min", "median", and so on.
 - A function that takes data and returns a json file containing the above plot-ready data. We name these functions "{plot name}" (ex. `beeswarm`).
 - Validation functions. For each class, we include at least one validation function that ensures the created plot-ready data adheres to the appropriate variable constraints, for example. We name these functions "validate{plot name}PD" (ex. `validateBeeswarmPD`).
 
 ***Testing***  
-Each plotdata class should have a corresponding test context, i.e file called "test-{plot name}.R" in the tests/testthat directory. Tests written in this file should be basic unit tests, for example checking that the created object is of the appropriate class and size. See `test-beeswarm.R` for an example.
+This package uses the `testthat` [package](https://testthat.r-lib.org/) for testing. Each plotdata class should have a corresponding test context, i.e file called "test-{plot name}.R" in the tests/testthat directory. Tests written in this file should be basic unit tests, for example checking that the created object is of the appropriate class and size. See `test-beeswarm.R` for an example.
 
 The tests should follow the below general organization:
 1. Check the returned object is of the appropriate size and shape.
 2. Test that types are as expected.
-3. Ensure a valid data.table is returned with expected dimensions, even when inputs are not idea (ex. factors, numeric categorical variables).
+3. Ensure a valid data.table is returned with expected dimensions, even when inputs are not ideal (ex. factors, numeric categorical variables).
 4. Validate the `getJSON` output structure.
 5. Test that missing data is handled appropriately.
 6. Vizualization-specific tests such as statistics.
 
+Use `devtools::test()` to run all unit tests in this package. See [devtools documentation](https://devtools.r-lib.org/reference/test.html) for more details.
 
 ***Helpers***  
 Helper functions are organized into those that compute values per group (`group.R`), per panel (`panel.R`), handle binning (`bin.R`), or various other categories (see `utils` and `utils-*.R`). Using the beeswarm as an example, we can add `groupMedian` to `group.R`, which computes the median of the dataset per group (overlay, panel).

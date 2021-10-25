@@ -176,6 +176,8 @@ validateScatterPD <- function(.scatter, verbose) {
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
+#' @examples
+#' scattergl.dt(df,map,value='bestFitLineWithRaw')
 #' @export
 scattergl.dt <- function(data, 
                          map, 
@@ -304,6 +306,8 @@ scattergl.dt <- function(data,
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
+#' @examples
+#' scattergl.dt(df,map,value='bestFitLineWithRaw')
 #' @export
 scattergl <- function(data,
                       map,

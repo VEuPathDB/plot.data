@@ -59,3 +59,6 @@ An `evilMode` exists. It will do the following: \cr
 - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 }
 
+\examples{
+scattergl.dt(df,map,value='bestFitLineWithRaw')
+}
