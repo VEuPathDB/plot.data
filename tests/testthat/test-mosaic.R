@@ -308,6 +308,28 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   sampleSizeTable <- sampleSizeTable(dt)
   expect_equal(names(sampleSizeTable),c('entity.factor3','entity.cat7','size'))
   expect_equal(class(sampleSizeTable$entity.cat7[[1]]), 'character')
+
+
+  map <- data.frame('id' = c('entity.cat3', 'entity.int6', 'entity.factor3', 'entity.factor6'),
+                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2'),
+                    'dataType' = c('STRING', 'STRING', 'STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  dt <- mosaic.dt(df, map)
+  expect_is(dt, 'data.table')
+  expect_is(dt$value, 'list')
+  expect_is(dt$value[[1]], 'list')
+  expect_equal(nrow(dt),18)
+  expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'panel'))
+  expect_equal(dt$xLabel[[1]],as.character(1:6))
+  expect_equal(dt$yLabel[[1]][[1]],paste0("cat3_", letters[1:3]))
+  expect_equal(length(dt$value[[1]]),6)
+  expect_equal(length(dt$value[[1]][[1]]),3)
+  statsTable <- statsTable(dt)
+  expect_equal(names(statsTable), c(c('chisq', 'pvalue', 'degreesFreedom', 'panel')))
+  sampleSizeTable <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizeTable),c('panel','entity.int6','size'))
+  expect_equal(class(sampleSizeTable$entity.int6[[1]]), 'character')
   
   
   map <- data.frame('id' = c('entity.int6', 'entity.int7', 'entity.cat5'),

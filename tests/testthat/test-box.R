@@ -96,7 +96,7 @@ test_that("box.dt() returns plot data and config of the appropriate types", {
                     'dataType' = c('STRING', 'NUMBER', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  df <- testDF[testDF$entity.cat3 == 'cat3_a' & testDF$entity.cat4 == 'cat4_a',] #### ANN REVISIT
+  df <- testDF[testDF$entity.cat3 == 'cat3_a' & testDF$entity.cat4 == 'cat4_a',]
 
   dt <- box.dt(df, map, 'none', TRUE)
   expect_equal(class(dt$min[[1]]), 'numeric')

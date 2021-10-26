@@ -21,16 +21,21 @@ test_that("histogram.dt() returns requested numBins/ binWidth", {
 
   binReportValue <- 'numBins'
   binWidth <- numBinsToBinWidth(df$entity.contA, 5)
-   dt <- histogram.dt(df, map, binWidth = binWidth, value='count', barmode = 'overlay', binReportValue, viewport)
-  expect_equal(as.numeric(binSpec(dt)$value), 5)
-  ####expect_equal(round(getMode(as.numeric(unlist(dt$binEnd)) - as.numeric(unlist(dt$binStart))),4), round(binWidth,4))
+  dt <- histogram.dt(df, map, binWidth = binWidth, value='count', barmode = 'overlay', binReportValue, viewport)
+  expect_equal(as.numeric(binSpec(dt)$value), 5) # ensure we get the correct number of bins
+  expect_true(max(as.numeric(unlist(dt$binEnd)) - as.numeric(unlist(dt$binStart)) - binWidth) < 0.1) # Tolerance 0.1
+  numericLabelsStart <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[")[[1]][2])))
+  numericLabelsEnd <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[")[[1]][3])))
+  expect_true(max(numericLabelsEnd - numericLabelsStart) - binWidth < 0.1) # Label tolerance
 
   binReportValue <- 'numBins'
   binWidth <- numBinsToBinWidth(df$entity.contA, 15)
-   dt <- histogram.dt(df, map, binWidth = binWidth, value='count', barmode = 'overlay', binReportValue, viewport)
-  expect_equal(as.numeric(binSpec(dt)$value), 15)
-  #fairly low precision bc its lost w the conversion numBins -> binWidth and back
-  ####expect_equal(round(getMode(as.numeric(unlist(dt$binEnd)) - as.numeric(unlist(dt$binStart))),2), round(binWidth,2))
+  dt <- histogram.dt(df, map, binWidth = binWidth, value='count', barmode = 'overlay', binReportValue, viewport)
+  expect_equal(as.numeric(binSpec(dt)$value), 15) # ensure we get the correct number of bins
+  expect_true(max(as.numeric(unlist(dt$binEnd)) - as.numeric(unlist(dt$binStart)) - binWidth) < 0.1) # Tolerance 0.1
+  numericLabelsStart <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[")[[1]][2])))
+  numericLabelsEnd <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[")[[1]][3])))
+  expect_true(max(numericLabelsEnd - numericLabelsStart) - binWidth < 0.1) # Label tolerance
 })
 
 test_that("histogram.dt() returns a valid plot.data histogram object", {
@@ -59,7 +64,7 @@ test_that("histogram.dt() returns a valid plot.data histogram object", {
   expect_equal(names(viewport(dt)), c('xMin','xMax'))
   expect_equal(names(binSlider(dt)), c('min','max','step'))
   expect_equal(names(namedAttrList$binSpec), c('type','value')) 
-  #### expect_equal(round(as.numeric(namedAttrList$binSpec$value),4), 0.2681)
+  expect_equal(round(as.numeric(namedAttrList$binSpec$value),4), 1.8032)
   expect_equal(as.character(namedAttrList$binSpec$type), 'binWidth')
   
   
