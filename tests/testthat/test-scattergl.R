@@ -108,7 +108,6 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
 
 
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  df <- data.xy
 
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')
@@ -138,7 +137,6 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('entity.group', 'entity.panel', 'densityX', 'densityY'))
 
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS'), stringsAsFactors = FALSE)
-  df <- data.xy
 
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')
@@ -167,7 +165,6 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
 
 
   map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.panel'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors = FALSE)
-  df <- data.xy
 
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')
@@ -196,7 +193,6 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   
 
   map <- data.frame('id' = c('entity.y', 'entity.x'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS'), stringsAsFactors = FALSE)
-  df <- data.xy
 
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')
