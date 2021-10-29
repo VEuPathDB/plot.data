@@ -108,6 +108,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
 
 
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- data.xy
 
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')
