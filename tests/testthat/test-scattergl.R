@@ -56,8 +56,24 @@ test_that("scattergl.dt() returns plot data and config of the appropriate types"
 })
 
 test_that("scattergl.dt() returns an appropriately sized data.table", {
-  
+
   map <- data.frame('id' = c('entityA.group', 'entityB.contVar', 'entityC.date', 'entityD.panel', ''), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2'), 'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING', ''), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', ''), stringsAsFactors=FALSE)
+  df <- rbind(data.dates, data.dates, data.dates)
+  df$entity.contVar <- rnorm(3000)
+  names(df) <- c('entityA.group','entityD.panel','entityC.date','entityB.contVar')
+
+  dt <- scattergl.dt(df, map, 'mean')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),16)
+  expect_equal(names(dt),c('entityA.group', 'entityD.panel', 'seriesX', 'seriesY'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+  
+  dt <- scattergl.dt(df, map, 'median')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),16)
+  expect_equal(names(dt),c('entityA.group', 'entityD.panel', 'seriesX', 'seriesY'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+
   df <- data.dates
   names(df) <- c('entityA.group','entityD.panel','entityC.date','entityB.contVar')
   
@@ -108,6 +124,21 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
 
 
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- rbind(data.xy, data.xy, data.xy)
+  df$entity.y <- rnorm(1500)
+
+  dt <- scattergl.dt(df, map, 'mean')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),16)
+  expect_equal(names(dt),c('entity.group', 'entity.panel', 'seriesX', 'seriesY'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+  
+  dt <- scattergl.dt(df, map, 'median')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),16)
+  expect_equal(names(dt),c('entity.group', 'entity.panel', 'seriesX', 'seriesY'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+  
   df <- data.xy
 
   dt <- scattergl.dt(df, map, 'raw')
@@ -138,6 +169,22 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('entity.group', 'entity.panel', 'densityX', 'densityY'))
 
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS'), stringsAsFactors = FALSE)
+  df <- rbind(data.xy, data.xy, data.xy)
+  df$entity.y <- rnorm(1500)
+
+  dt <- scattergl.dt(df, map, 'mean')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),4)
+  expect_equal(names(dt),c('entity.group', 'seriesX', 'seriesY'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+
+  dt <- scattergl.dt(df, map, 'median')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),4)
+  expect_equal(names(dt),c('entity.group', 'seriesX', 'seriesY'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+
+  df <- data.xy
 
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')
@@ -166,6 +213,22 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
 
 
   map <- data.frame('id' = c('entity.y', 'entity.x', 'entity.panel'), 'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors = FALSE)
+  df <- rbind(data.xy, data.xy, data.xy)
+  df$entity.y <- rnorm(1500)
+
+  dt <- scattergl.dt(df, map, 'mean')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),4)
+  expect_equal(names(dt),c('entity.panel', 'seriesX', 'seriesY'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+
+  dt <- scattergl.dt(df, map, 'median')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),4)
+  expect_equal(names(dt),c('entity.panel', 'seriesX', 'seriesY'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+
+  df <- data.xy
 
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')
@@ -194,6 +257,22 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   
 
   map <- data.frame('id' = c('entity.y', 'entity.x'), 'plotRef' = c('yAxisVariable', 'xAxisVariable'), 'dataType' = c('NUMBER', 'NUMBER'), 'dataShape' = c('CONTINUOUS', 'CONTINUOUS'), stringsAsFactors = FALSE)
+  df <- rbind(data.xy, data.xy, data.xy)
+  df$entity.y <- rnorm(1500)
+
+  dt <- scattergl.dt(df, map, 'mean')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt),c('seriesX', 'seriesY'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+
+  dt <- scattergl.dt(df, map, 'median')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt),c('seriesX', 'seriesY'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+
+  df <- data.xy
 
   dt <- scattergl.dt(df, map, 'raw')
   expect_is(dt, 'data.table')
@@ -268,6 +347,29 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
 })
 
 test_that("scattergl() returns appropriately formatted json", {
+  map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- rbind(data.xy, data.xy, data.xy)
+  df$entity.y <- rnorm(1500)
+  dt <- scattergl.dt(df, map, 'mean')
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+
+  expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
+  expect_equal(names(jsonList$scatterplot),c('data','config'))
+  expect_equal(names(jsonList$scatterplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY'))
+  expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
+  expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 16)
+  expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'panel')
+  expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$scatterplot$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$scatterplot$config$xVariableDetails$variableId, 'x')
+  expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('x', 'y', 'group', 'panel'))
+
   map <- data.frame('id' = c('entity.group', 'entity.y', 'entity.x', 'entity.panel'), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   dt <- scattergl.dt(data.xy, map, 'smoothedMeanWithRaw')
   outJson <- getJSON(dt, FALSE)

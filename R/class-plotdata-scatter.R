@@ -102,7 +102,24 @@ newScatterPD <- function(.dt = data.table::data.table(),
     
     density <- groupDensity(.pd, NULL, x, group, panel)
     .pd <- density
-    logWithTime('Kernel density estimated calculated from raw data.', verbose)
+    logWithTime('Kernel density estimate calculated from raw data.', verbose)
+
+  #these two are for line plot/ time series only
+  #scattergl should be subclassed at some point probably
+  #line might even be a separate rather than subclass?
+  } else if (value == 'mean') {
+    
+    mean <- groupMean(.pd, x, y, group, panel)
+    data.table::setnames(mean, c(group, panel, 'seriesX', 'seriesY'))
+    .pd <- mean
+    logWithTime('Mean calculated per X-axis value.', verbose)
+
+  } else if (value == 'median') {
+
+     median <- groupMedian(.pd, x, y, group, panel)
+     data.table::setnames(median, c(group, panel, 'seriesX', 'seriesY'))
+    .pd <- median
+    logWithTime('Median calculated per X-axis value.', verbose)
 
   } else {
     .pd <- series
@@ -162,24 +179,42 @@ validateScatterPD <- function(.scatter, verbose) {
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete cases 
+#' for the axes vars \cr
 #' - not return statsTables \cr
-#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data 
+#' for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
-#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, 
+#' mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable 
+#' sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 
+#' 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw'
+#'  or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' 
+#' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous 
+#' overlay variable.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
-#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
-#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
-#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
+#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. 
+#' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
+#' variables should be interpreted as a listVariable.
+#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to 
+#' the repeated variable.
+#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned 
+#' to the inferred variable.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
 scattergl.dt <- function(data, 
                          map, 
-                         value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
+                         value = c('smoothedMean', 
+                                   'smoothedMeanWithRaw', 
+                                   'bestFitLineWithRaw', 
+                                   'density', 
+                                   'raw',
+                                   'mean',
+                                   'median'),
                          evilMode = c(FALSE, TRUE),
                          listVarPlotRef = NULL,
                          listVarDisplayLabel = NULL,
@@ -242,10 +277,14 @@ scattergl.dt <- function(data,
                          'listVarPlotRef' = listVarPlotRef,
                          'listVarDisplayLabel' = listVarDisplayLabel)
   if (!is.null(listVarPlotRef)) {
-    if (identical(listVarPlotRef, 'overlayVariable')) { inferredVarEntityId <- unique(overlayVariable$entityId)
-    } else if (identical(listVarPlotRef, 'facetVariable1')) { inferredVarEntityId <- unique(facetVariable1$entityId)
-    } else if (identical(listVarPlotRef, 'facetVariable2')) { inferredVarEntityId <- unique(facetVariable2$entityId)
-    } else { stop('listVar error: listVarPlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for scatter.')
+    if (identical(listVarPlotRef, 'overlayVariable')) { 
+      inferredVarEntityId <- unique(overlayVariable$entityId)
+    } else if (identical(listVarPlotRef, 'facetVariable1')) { 
+      inferredVarEntityId <- unique(facetVariable1$entityId)
+    } else if (identical(listVarPlotRef, 'facetVariable2')) { 
+      inferredVarEntityId <- unique(facetVariable2$entityId)
+    } else { 
+      stop('listVar error: listVarPlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for scatter.')
     }
 
     listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
@@ -290,24 +329,41 @@ scattergl.dt <- function(data,
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - return 'No data' as a regular value for strata vars but will discard incomplete 
+#' cases for the axes vars \cr
 #' - not return statsTables \cr
-#' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+#' - allow smoothed means and agg values etc over axes values where we have no data for 
+#' the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
-#' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+#' - represent missingness poorly, conflate the stories of completeness and missingness, 
+#' mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId 
+#' and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 
+#' 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 
+#' 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw 
+#' data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
-#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
-#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
-#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
+#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. 
+#' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables 
+#' should be interpreted as a listVariable.
+#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to 
+#' the repeated variable.
+#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned 
+#' to the inferred variable.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
 scattergl <- function(data,
                       map,
-                      value = c('smoothedMean', 'smoothedMeanWithRaw', 'bestFitLineWithRaw', 'density', 'raw'),
+                      value = c('smoothedMean', 
+                                'smoothedMeanWithRaw', 
+                                'bestFitLineWithRaw', 
+                                'density', 
+                                'raw', 
+                                'mean', 
+                                'median'),
                       evilMode = c(FALSE, TRUE),
                       listVarPlotRef = NULL,
                       listVarDisplayLabel = NULL,

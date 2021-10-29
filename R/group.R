@@ -49,6 +49,20 @@ groupMean <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T)
   return(dt)
 }
 
+groupMedian <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
+  byCols <- colnames(data)[colnames(data) %in% c(x, group, panel)]
+  dt <- data[, list(median=roundedMedian(get(..y))), keyby=eval(byCols)]
+
+  if(collapse) {
+    dt <- collapseByGroup(dt, group, panel)
+  }
+
+  indexCols <- c(panel, group)
+  setkeyv(dt, indexCols)
+
+  return(dt)
+}
+
 groupSD <- function(data, x = NULL, y, group = NULL, panel = NULL, collapse=T) {
   byCols <- colnames(data)[colnames(data) %in% c(x, group, panel)]
   dt <- data[, list(sd=roundedSD(get(..y))), keyby=eval(byCols)]
