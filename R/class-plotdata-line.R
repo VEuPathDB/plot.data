@@ -1,4 +1,4 @@
-newScatterPD <- function(.dt = data.table::data.table(),
+newLinePD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
@@ -43,7 +43,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                      evilMode = evilMode,
                      listVarDetails = listVarDetails,
                      verbose = verbose,
-                     class = "scatterplot")
+                     class = "lineplot")
 
   attr <- attributes(.pd)
 
@@ -52,60 +52,30 @@ newScatterPD <- function(.dt = data.table::data.table(),
   group <- toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-  #if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
-  #  series <- collapseByGroup(.pd, group = NULL, panel)
-  #  data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale'))
-  #} else {
-    series <- collapseByGroup(.pd, group, panel)
-    data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
-  #}
- 
+  if (value == 'mean') {
+    
+    mean <- groupMean(.pd, x, y, group, panel)
+    data.table::setnames(mean, c(group, panel, 'seriesX', 'seriesY'))
+    .pd <- mean
+    logWithTime('Mean calculated per X-axis value.', verbose)
+
+  } else if (value == 'median') {
+
+     median <- groupMedian(.pd, x, y, group, panel)
+     data.table::setnames(median, c(group, panel, 'seriesX', 'seriesY'))
+    .pd <- median
+    logWithTime('Median calculated per X-axis value.', verbose)
+
+  }
   if (attr$xAxisVariable$dataType == 'DATE') {
-    series$seriesX <- lapply(series$seriesX, format, '%Y-%m-%d')
+    .pd$seriesX <- lapply(.pd$seriesX, format, '%Y-%m-%d')
   } else { 
-    series$seriesX <- lapply(series$seriesX, as.character)
+    .pd$seriesX <- lapply(.pd$seriesX, as.character)
   }
   if (attr$yAxisVariable$dataType == 'DATE') {
-    series$seriesY <- lapply(series$seriesY, format, '%Y-%m-%d')
+    .pd$seriesY <- lapply(.pd$seriesY, format, '%Y-%m-%d')
   } else {
-    series$seriesY <- lapply(series$seriesY, as.character)
-  }
-  logWithTime('Collected raw scatter plot data.', verbose)
-
-  if (value == 'smoothedMean') {
-
-    smoothedMean <- groupSmoothedMean(.pd, x, y, group, panel)
-    .pd <- smoothedMean
-    logWithTime('Calculated smoothed means.', verbose)
-
-  } else if (value == 'smoothedMeanWithRaw') {
-    
-    smoothedMean <- groupSmoothedMean(.pd, x, y, group, panel)
-    if (!is.null(key(series))) {
-      .pd <- merge(series, smoothedMean)
-    } else {
-      .pd <- cbind(series, smoothedMean)
-    }
-    logWithTime('Calculated smoothed means.', verbose)
-
-  } else if (value == 'bestFitLineWithRaw') {
-  
-    bestFitLine <- groupBestFitLine(.pd, x, y, group, panel)
-    if (!is.null(key(series))) {
-      .pd <- merge(series, bestFitLine)
-    } else {
-      .pd <- cbind(series, bestFitLine)
-    }
-    logWithTime('Calculated best fit line.', verbose)
-
-  } else if (value == 'density') {
-    
-    density <- groupDensity(.pd, NULL, x, group, panel)
-    .pd <- density
-    logWithTime('Kernel density estimate calculated from raw data.', verbose)
-
-  } else {
-    .pd <- series
+    .pd$seriesY <- lapply(.pd$seriesY, as.character)
   }
   attr$names <- names(.pd)
 
@@ -114,51 +84,45 @@ newScatterPD <- function(.dt = data.table::data.table(),
   return(.pd)
 }
 
-validateScatterPD <- function(.scatter, verbose) {
-#  xAxisVariable <- attr(.scatter, 'xAxisVariable')
+validateLinePD <- function(.line, verbose) {
+#  xAxisVariable <- attr(.line, 'xAxisVariable')
 #  if (!xAxisVariable$dataShape %in% c('CONTINUOUS','ORDINAL')) {
-#    stop('The independent axis must be continuous or ordinal for scatterplot.')
+#    stop('The independent axis must be continuous or ordinal for lineplot.')
 #  }
-#  yAxisVariable <- attr(.scatter, 'yAxisVariable')
+#  yAxisVariable <- attr(.line, 'yAxisVariable')
 #  if (!yAxisVariable$dataShape %in% c('CONTINUOUS')) {
-#    stop('The dependent axis must be continuous for scatterplot.')
+#    stop('The dependent axis must be continuous for lineplot.')
 #  }
-#  overlayVariable <- attr(.scatter, 'overlayVariable')
+#  overlayVariable <- attr(.line, 'overlayVariable')
 #  if (!is.null(overlayVariable)) {
 #    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL', 'CONTINUOUS')) {
 #      stop('The overlay variable must be binary, ordinal, categorical, or continuous.')
 #    }
 #  }
-#  facetVariable1 <- attr(.scatter, 'facetVariable1')
+#  facetVariable1 <- attr(.line, 'facetVariable1')
 #  if (!is.null(facetVariable1)) {
 #    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
 #      stop('The first facet variable must be binary, ordinal or categorical.')
 #    }
 #  }
-#  facetVariable2 <- attr(.scatter, 'facetVariable2')
+#  facetVariable2 <- attr(.line, 'facetVariable2')
 #  if (!is.null(facetVariable2)) {
 #    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
 #      stop('The second facet variable must be binary, ordinal or categorical.')
 #    }
 #  }
-  logWithTime('Scatter plot request has been validated!', verbose)
+  logWithTime('Line plot request has been validated!', verbose)
 
-  return(.scatter)
+  return(.line)
 }
 
-#' Scatter Plot as data.table
+#' Line Plot as data.table
 #'
 #' This function returns a data.table of  
 #' plot-ready data with one row per group (per panel). Columns 
 #' 'seriesX' and 'seriesY' contain the raw data for the 
-#' scatter plot. Column 'group' and 'panel' specify the group the 
-#' series data belongs to. Optionally, columns 'smoothedMeanX', 
-#' 'smoothedMeanY' and 'smoothedMeanSE' specify the x, y and 
-#' standard error respectively of the smoothed conditional mean 
-#' for the group. Columns 'densityX' and 'densityY' contain the 
-#' calculated kernel density estimates. Column 
-#' 'seriesGradientColorscale' contains values to be used with a 
-#' gradient colorscale when plotting.
+#' line plot. Column 'group' and 'panel' specify the group the 
+#' series data belongs to.
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
@@ -174,10 +138,7 @@ validateScatterPD <- function(.scatter, verbose) {
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable 
 #' sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 
 #' 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw'
-#'  or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' 
-#' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous 
-#' overlay variable.
+#' @param value character indicating whether to calculate 'mean', 'median' for y-axis
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
@@ -189,13 +150,10 @@ validateScatterPD <- function(.scatter, verbose) {
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
-scattergl.dt <- function(data, 
+lineplot.dt <- function(data, 
                          map, 
-                         value = c('smoothedMean', 
-                                   'smoothedMeanWithRaw', 
-                                   'bestFitLineWithRaw', 
-                                   'density', 
-                                   'raw'),
+                         value = c('mean',
+                                   'median'),
                          evilMode = c(FALSE, TRUE),
                          listVarPlotRef = NULL,
                          listVarDisplayLabel = NULL,
@@ -227,28 +185,15 @@ scattergl.dt <- function(data,
 
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   if (is.null(xAxisVariable$variableId)) {
-    stop("Must provide xAxisVariable for plot type scatter.")
-  } else {
-    if (!xAxisVariable$dataType %in% c('NUMBER','INTEGER') & value == 'density') {
-      stop('Density curves can only be provided for numeric independent axes.')
-    }
+    stop("Must provide xAxisVariable for plot type line.")
   }
   yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
   if (is.null(yAxisVariable$variableId)) {
     if (is.null(listVarPlotRef)) {
-      stop("Must provide xAxisVariable for plot type scatter.")
-    }
-  } else {
-    if (!yAxisVariable$dataType %in% c('NUMBER', 'INTEGER') & value != 'raw') {
-      stop('Trend lines can only be provided for numeric dependent axes.')
+      stop("Must provide yAxisVariable for plot type line.")
     }
   } 
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  if (!is.null(overlayVariable$variableId) & !identical(listVarPlotRef, 'overlayVariable')) {
-    #if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
-    #  stop('Continuous overlay variables cannot be used with trend lines.')
-    #}
-  }
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
@@ -265,7 +210,7 @@ scattergl.dt <- function(data,
     } else if (identical(listVarPlotRef, 'facetVariable2')) { 
       inferredVarEntityId <- unique(facetVariable2$entityId)
     } else { 
-      stop('listVar error: listVarPlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for scatter.')
+      stop('listVar error: listVarPlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for line.')
     }
 
     listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
@@ -277,7 +222,7 @@ scattergl.dt <- function(data,
     logWithTime('Created inferred variable from listVariable.', verbose)
   }
 
-  .scatter <- newScatterPD(.dt = data,
+  .line <- newLinePD(.dt = data,
                             xAxisVariable = xAxisVariable,
                             yAxisVariable = yAxisVariable,
                             overlayVariable = overlayVariable,
@@ -288,25 +233,19 @@ scattergl.dt <- function(data,
                             listVarDetails = listVarDetails,
                             verbose = verbose)
 
-  .scatter <- validateScatterPD(.scatter, verbose)
-  logWithTime(paste('New scatter plot object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  .line <- validateLinePD(.line, verbose)
+  logWithTime(paste('New line plot object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
-  return(.scatter)
+  return(.line)
 }
 
-#' Scatter Plot data file
+#' Line Plot data file
 #'
 #' This function returns the name of a json file containing 
 #' plot-ready data with one row per group (per panel). Columns 
 #' 'seriesX' and 'seriesY' contain the raw data for the 
-#' scatter plot. Column 'group' and 'panel' specify the group the 
-#' series data belongs to. Optionally, columns 'smoothedMeanX', 
-#' 'smoothedMeanY' and 'smoothedMeanSE' specify the x, y and 
-#' standard error respectively of the smoothed conditional mean 
-#' for the group. Columns 'densityX' and 'densityY' contain the 
-#' calculated kernel density estimates. Column 
-#' 'seriesGradientColorscale' contains values to be used with a 
-#' gradient colorscale when plotting.
+#' line plot. Column 'group' and 'panel' specify the group the 
+#' series data belongs to.
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
@@ -322,9 +261,7 @@ scattergl.dt <- function(data,
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId 
 #' and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 
 #' 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 
-#' 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw 
-#' data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
+#' @param value character indicating whether to calculate 'mean', 'median' for y-axis
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables 
@@ -336,13 +273,10 @@ scattergl.dt <- function(data,
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
-scattergl <- function(data,
+lineplot <- function(data,
                       map,
-                      value = c('smoothedMean', 
-                                'smoothedMeanWithRaw', 
-                                'bestFitLineWithRaw', 
-                                'density', 
-                                'raw'),
+                      value = c('mean', 
+                                'median'),
                       evilMode = c(FALSE, TRUE),
                       listVarPlotRef = NULL,
                       listVarDisplayLabel = NULL,
@@ -351,7 +285,7 @@ scattergl <- function(data,
 
   verbose <- matchArg(verbose)
 
-  .scatter <- scattergl.dt(data,
+  .line <- lineplot.dt(data,
                            map,
                            value = value,
                            evilMode = evilMode,
@@ -360,7 +294,7 @@ scattergl <- function(data,
                            inferredVarDisplayLabel = inferredVarDisplayLabel,
                            verbose = verbose)
                            
-  outFileName <- writeJSON(.scatter, evilMode, 'scattergl', verbose)
+  outFileName <- writeJSON(.line, evilMode, 'lineplot', verbose)
 
   return(outFileName)
 }
