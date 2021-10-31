@@ -56,7 +56,7 @@ test_that("scattergl.dt() returns plot data and config of the appropriate types"
 })
 
 test_that("scattergl.dt() returns an appropriately sized data.table", {
-  
+
   map <- data.frame('id' = c('entityA.group', 'entityB.contVar', 'entityC.date', 'entityD.panel', ''), 'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2'), 'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING', ''), 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', ''), stringsAsFactors=FALSE)
   df <- data.dates
   names(df) <- c('entityA.group','entityD.panel','entityC.date','entityB.contVar')
