@@ -16,6 +16,6 @@ data.table with the follwing columns x, y (best fit line) and r2 (R-squared)
 This function returns for the range of x values the line of best
 fit and corresponding R-squared measure.
 Calculation is performed by the (currently undocumented)
-`predictdf()` generic and its methods. `stats::lm` is used to build
-the regression model w formula `y~x`.
+\code{predictdf()} generic and its methods. \code{stats::lm} is used to build
+the regression model w formula \code{y~x}.
 }

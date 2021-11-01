@@ -27,24 +27,28 @@ heatmap.dt(
 data.table plot-ready data
 }
 \description{
-This function returns a data.table of 
+This function returns a data.table of
 plot-ready data with one row per group (per panel). Column 'table'
- contains a nested data.table of z-values for plotting. This 
-table has a column for each x-axis entry and a row for each 
-y-axis entry. Columns 'group' and 'panel' specify the group the 
-series data belongs to. 
+contains a nested data.table of z-values for plotting. This
+table has a column for each x-axis entry and a row for each
+y-axis entry. Columns 'group' and 'panel' specify the group the
+series data belongs to.
 There are two ways to calculate z-values for the heatmap. \cr
-1) 'collection' of numeric variables vs single categorical \cr
-2) single numeric vs single categorical on a 'series' of dates
+\enumerate{
+\item 'collection' of numeric variables vs single categorical \cr
+\item single numeric vs single categorical on a 'series' of dates
 where yAxisVariable = categorical, xAxisVariable = date and zaxis = numeric
+}
 }
 \section{Evil Mode}{
 
-An `evilMode` exists. It will do the following: \cr
-- return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
-- not return statsTables \cr
-- allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
-- return a total count of plotted incomplete cases \cr
-- represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+An \code{evilMode} exists. It will do the following: \cr
+\itemize{
+\item return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+\item not return statsTables \cr
+\item allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+\item return a total count of plotted incomplete cases \cr
+\item represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+}
 }
 

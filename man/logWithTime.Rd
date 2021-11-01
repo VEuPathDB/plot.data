@@ -7,7 +7,7 @@
 logWithTime(message, verbose)
 }
 \arguments{
-\item{message}{character to pass to `message`}
+\item{message}{character to pass to \code{message}}
 
 \item{verbose}{boolean indicating if timed logging is desired}
 }

@@ -15,14 +15,14 @@ matchArg(arg, choices)
 The unabbreviated version of the exact match
 }
 \description{
-`matchArg` matches `arg` against a table of candidates values as
-specified by `choices`, where `NULL` means to take the first one.
+\code{matchArg} matches \code{arg} against a table of candidates values as
+specified by \code{choices}, where \code{NULL} means to take the first one.
 }
 \details{
-In the one-argument form `matchArg(arg)`, the choices are
-obtained from a default setting for the formal argument `arg` of
-the function from which `matchArg` was called.  (Since default
-argument matching will set `arg` to `choices`, this is allowed as
-an exception to the "length one unless `several.ok` is `TRUE`"
+In the one-argument form \code{matchArg(arg)}, the choices are
+obtained from a default setting for the formal argument \code{arg} of
+the function from which \code{matchArg} was called.  (Since default
+argument matching will set \code{arg} to \code{choices}, this is allowed as
+an exception to the "length one unless \code{several.ok} is \code{TRUE}"
 rule, and returns the first element.)
 }

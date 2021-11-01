@@ -13,7 +13,7 @@ outliers(x)
 Numeric vector of outliers
 }
 \description{
-This function returns those entries which fall outside the lower 
-and upper fences given a numeric vector. The lower fence is 
-calculated as `q1 - 1.5*IQR` and the upper as `q3 + 1.5*IQR`.
+This function returns those entries which fall outside the lower
+and upper fences given a numeric vector. The lower fence is
+calculated as \code{q1 - 1.5*IQR} and the upper as \code{q3 + 1.5*IQR}.
 }

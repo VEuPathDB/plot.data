@@ -16,10 +16,10 @@ data.table with the follwing columns x, y (predicted mean), ymin, ymax (lower an
 }
 \description{
 This function returns for the range of x values the predicted mean,
-95% confidence interval and standard error.
+95\% confidence interval and standard error.
 Calculation is performed by the (currently undocumented)
-`predictdf()` generic and its methods. `loess`, uses a t-based 
-approximation, and for `gam` the normal confidence interval is 
-constructed on the link scale and then back-transformed to 
+\code{predictdf()} generic and its methods. \code{loess}, uses a t-based
+approximation, and for \code{gam} the normal confidence interval is
+constructed on the link scale and then back-transformed to
 the response scale.
 }

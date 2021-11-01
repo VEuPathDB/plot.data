@@ -27,18 +27,20 @@ mosaic(
 character name of json file containing plot-ready data
 }
 \description{
-This function returns the name of a json file containing 
-plot-ready data with one row per panel. Columns 
-'x' and 'y' contain the raw data for plotting. Column 'panel' 
+This function returns the name of a json file containing
+plot-ready data with one row per panel. Columns
+'x' and 'y' contain the raw data for plotting. Column 'panel'
 specifies the panel the data belongs to.
 }
 \section{Evil Mode}{
 
-An `evilMode` exists. It will do the following: \cr
-- return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
-- not return statsTables \cr
-- allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
-- return a total count of plotted incomplete cases \cr
-- represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+An \code{evilMode} exists. It will do the following: \cr
+\itemize{
+\item return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+\item not return statsTables \cr
+\item allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+\item return a total count of plotted incomplete cases \cr
+\item represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+}
 }
 
