@@ -54,7 +54,7 @@ addStrataVariableDetails <- function(.pd) {
 
   if (!is.null(facet1) & !is.null(facet2)) {
     names(.pd)[names(.pd) == 'panel'] <- 'facetVariableDetails'
-    .pd$facetVariableDetails <- Map(list, lapply(strSplit(.pd$facetVariableDetails, '.||.'), makeVariableDetails, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId, namedAttrList$facetVariable1$displayLabel), lapply(strSplit(.pd$facetVariableDetails, '.||.', index=2), makeVariableDetails, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel))
+    .pd$facetVariableDetails <- Map(list, lapply(veupathUtils::strSplit(.pd$facetVariableDetails, '.||.'), makeVariableDetails, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId, namedAttrList$facetVariable1$displayLabel), lapply(veupathUtils::strSplit(.pd$facetVariableDetails, '.||.', index=2), makeVariableDetails, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel))
   } else {
     if (!is.null(facet1)) {
       names(.pd)[names(.pd) == facet1] <- 'facetVariableDetails'
@@ -76,10 +76,10 @@ getJSON <- function(.pd, evilMode) {
     statsTable <- statsTable(.pd)
     namedAttrList$statsTable <- NULL
     attr <- attributes(statsTable)
-    statsTable <- setAttrFromList(statsTable, namedAttrList, removeExtraAttrs=F)
+    statsTable <- veupathUtils::setAttrFromList(statsTable, namedAttrList, removeExtraAttrs=F)
     statsTable <- addStrataVariableDetails(statsTable)
     attr$names <- names(statsTable)
-    statsTable <- setAttrFromList(statsTable, attr)
+    statsTable <- veupathUtils::setAttrFromList(statsTable, attr)
     if (toColNameOrNull(namedAttrList$xAxisVariable) %in% names(statsTable)) {
       x <- toColNameOrNull(namedAttrList$xAxisVariable)
       names(statsTable)[names(statsTable) == x] <- 'xVariableDetails'
@@ -91,10 +91,10 @@ getJSON <- function(.pd, evilMode) {
     sampleSizeTable <- sampleSizeTable(.pd)
     namedAttrList$sampleSizeTable <- NULL
     attr <- attributes(sampleSizeTable)
-    sampleSizeTable <- setAttrFromList(sampleSizeTable, namedAttrList, removeExtraAttrs=F)
+    sampleSizeTable <- veupathUtils::setAttrFromList(sampleSizeTable, namedAttrList, removeExtraAttrs=F)
     sampleSizeTable <- addStrataVariableDetails(sampleSizeTable)
     attr$names <- names(sampleSizeTable)
-    sampleSizeTable <- setAttrFromList(sampleSizeTable, attr)
+    sampleSizeTable <- veupathUtils::setAttrFromList(sampleSizeTable, attr)
     if ('xAxisVariable' %in% names(namedAttrList)) {
       if (namedAttrList$xAxisVariable$dataShape != "CONTINUOUS") {
         x <- toColNameOrNull(namedAttrList$xAxisVariable)
@@ -108,10 +108,10 @@ getJSON <- function(.pd, evilMode) {
     completeCasesTable <- completeCasesTable(.pd)
     namedAttrList$completeCasesTable <- NULL
     attr <- attributes(completeCasesTable)
-    completeCasesTable <- setAttrFromList(completeCasesTable, namedAttrList, removeExtraAttrs = F)
+    completeCasesTable <- veupathUtils::setAttrFromList(completeCasesTable, namedAttrList, removeExtraAttrs = F)
     completeCasesTable <- addVariableDetailsToColumn(completeCasesTable, 'variableDetails')
     attr$names <- names(completeCasesTable)
-    completeCasesTable <- setAttrFromList(completeCasesTable, attr)
+    completeCasesTable <- veupathUtils::setAttrFromList(completeCasesTable, attr)
   }
 
   if ('xAxisVariable' %in% names(namedAttrList)) {
@@ -173,7 +173,7 @@ getJSON <- function(.pd, evilMode) {
 #' @importFrom jsonlite prettify
 #' @export
 writeJSON <- function(.pd, evilMode, pattern = NULL, verbose = c(TRUE, FALSE)) {
-  verbose <- matchArg(verbose)
+  verbose <- veupathUtils::matchArg(verbose)
 
   outJson <- getJSON(.pd, evilMode)
   if (is.null(pattern)) { 
@@ -184,7 +184,7 @@ writeJSON <- function(.pd, evilMode, pattern = NULL, verbose = c(TRUE, FALSE)) {
   }
   outFileName <- basename(tempfile(pattern = pattern, tmpdir = tempdir(), fileext = ".json"))
   write(outJson, outFileName)
-  logWithTime(paste('New output file written:', outFileName), verbose)
+  veupathUtils::logWithTime(paste('New output file written:', outFileName), verbose)
 
   return(outFileName)
 }

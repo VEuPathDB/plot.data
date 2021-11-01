@@ -54,7 +54,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   summary <- lapply(summary, as.character)
   summary <- lapply(summary, jsonlite::unbox)
   attr$summary <- summary
-  logWithTime('Supporting summary statistics calculated for histogram.', verbose)
+  veupathUtils::logWithTime('Supporting summary statistics calculated for histogram.', verbose)
 
   if (is.null(viewport)) {
     if (xType %in% c('NUMBER', 'INTEGER')) {
@@ -62,7 +62,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     } else {
       viewport <- list('xMin' = min(.pd[[x]]), 'xMax' = max(.pd[[x]]))
     }
-    logWithTime('Determined default viewport.', verbose)
+    veupathUtils::logWithTime('Determined default viewport.', verbose)
   } else {
     if (xType %in% c('NUMBER', 'INTEGER')) {
       viewport$xMin <- as.numeric(viewport$xMin)
@@ -71,7 +71,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       viewport$xMin <- as.Date(viewport$xMin, format='%Y-%m-%d')
       viewport$xMax <- as.Date(viewport$xMax, format='%Y-%m-%d')
     }
-    logWithTime('Using provided viewport.', verbose)
+    veupathUtils::logWithTime('Using provided viewport.', verbose)
   }
   attr$viewport <- lapply(viewport, as.character)
   attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
@@ -80,15 +80,15 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   if (binReportValue == 'binWidth') {
     if (is.null(binWidth)) {
       binWidth <- findBinWidth(xVP)
-      logWithTime('Determined ideal bin width.', verbose)
+      veupathUtils::logWithTime('Determined ideal bin width.', verbose)
     }
   } else {
     if (is.null(binWidth)) {
       numBins <- findNumBins(xVP)
-      logWithTime('Determined ideal number of bins.', verbose)
+      veupathUtils::logWithTime('Determined ideal number of bins.', verbose)
     } else {
       numBins <- binWidthToNumBins(xVP, binWidth)
-      logWithTime('Converted provided bin width to number of bins.', verbose)
+      veupathUtils::logWithTime('Converted provided bin width to number of bins.', verbose)
     }
   }
 
@@ -100,9 +100,9 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     binSliderMin <- as.numeric((max(xVP) - min(xVP)) / 1000)
     if (xType %in% c('NUMBER', 'INTEGER')) {
       avgDigits <- floor(mean(stringi::stri_count_regex(as.character(xVP), "[[:digit:]]")))
-      binSliderMax <- nonZeroRound(binSliderMax, avgDigits)
-      binSliderMin <- nonZeroRound(binSliderMin, avgDigits)
-      binSliderStep <- nonZeroRound(((binSliderMax - binSliderMin) / 1000), avgDigits)
+      binSliderMax <- veupathUtils::nonZeroRound(binSliderMax, avgDigits)
+      binSliderMin <- veupathUtils::nonZeroRound(binSliderMin, avgDigits)
+      binSliderStep <- veupathUtils::nonZeroRound(((binSliderMax - binSliderMin) / 1000), avgDigits)
       binSliderMin <- ifelse(binSliderMin == 0, .1, binSliderMin)
       binSliderStep <- ifelse(binSliderStep == 0, binSliderMin, binSliderStep)
       binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
@@ -112,7 +112,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       }
       numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
       if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
-      unit <- trim(gsub("^[[:digit:]].", "", binWidth))
+      unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
       if (unit %in% c('day', 'days')) {
         binSliderMin <- floor(binSliderMin)
         binSliderMax <- ceiling(binSliderMax)
@@ -125,7 +125,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
         binSliderMin <- floor(numMonths/1000)
         binSliderMax <- ceiling(numMonths/2) 
       } else if (unit %in% c('year', 'years')) {
-        numYears <- uniqueN(strSplit(as.character(xVP), '-', 3))
+        numYears <- uniqueN(veupathUtils::strSplit(as.character(xVP), '-', 3))
         binSliderMin <- floor(numYears/1000)
         binSliderMax <- ceiling(numYears/2)
       } else {
@@ -139,21 +139,21 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   }
   attr$binSlider <- binSlider
   attr$binSpec <- binSpec
-  logWithTime('Determined bin width slider min, max and step values.', verbose)
+  veupathUtils::logWithTime('Determined bin width slider min, max and step values.', verbose)
 
   if (value == 'count') {
     .pd <- binSize(.pd, x, group, panel, binWidth, viewport)
-    logWithTime('Value is set to `count`. Resulting histogram object will represent counts of unique x-axis bins per group.', verbose)
+    veupathUtils::logWithTime('Value is set to `count`. Resulting histogram object will represent counts of unique x-axis bins per group.', verbose)
   } else if (value == 'proportion' ) {
     .pd <- binProportion(.pd, x, group, panel, binWidth, barmode, viewport)
-    logWithTime('Value is set to `proportion`. If barmode is `group` the resulting histogram object will represent the relative proportions of unique x-axis bins across groups. If barmode is `stack` the resulting histogram object will represent the proportions of unique x-axis bins relative to the total x-axis bins in that panel.', verbose)
+    veupathUtils::logWithTime('Value is set to `proportion`. If barmode is `group` the resulting histogram object will represent the relative proportions of unique x-axis bins across groups. If barmode is `stack` the resulting histogram object will represent the proportions of unique x-axis bins relative to the total x-axis bins in that panel.', verbose)
   } else {
     stop('Unrecognized argument to "value".')
   }
   
   attr$names <- names(.pd)
 
-  setAttrFromList(.pd, attr)
+  veupathUtils::setAttrFromList(.pd, attr)
 
   return(.pd)
 }
@@ -223,7 +223,7 @@ validateHistogramPD <- function(.histo, verbose) {
       stop("binWidth must be numeric for histograms of numeric values.")
     }
   }
-  logWithTime('Histogram request has been validated!', verbose)
+  veupathUtils::logWithTime('Histogram request has been validated!', verbose)
   
   return(.histo)
 }
@@ -266,11 +266,11 @@ histogram.dt <- function(data,
                          evilMode = c(FALSE, TRUE),
                          verbose = c(TRUE, FALSE)) {
 
-  value <- matchArg(value)
-  barmode <- matchArg(barmode)
-  binReportValue <- matchArg(binReportValue)
-  evilMode <- matchArg(evilMode)
-  verbose <- matchArg(verbose)
+  value <- veupathUtils::matchArg(value)
+  barmode <- veupathUtils::matchArg(barmode)
+  binReportValue <- veupathUtils::matchArg(binReportValue)
+  evilMode <- veupathUtils::matchArg(evilMode)
+  verbose <- veupathUtils::matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -305,7 +305,7 @@ histogram.dt <- function(data,
                            verbose = verbose)
 
   .histo <- validateHistogramPD(.histo, verbose)
-  logWithTime(paste('New histogram object created with parameters viewport min =', viewport$xMin, ', viewport max =', viewport$xMax, ', binWidth =', binWidth, ', binReportValue =', binReportValue, ', value =', value, ', barmode =', barmode, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New histogram object created with parameters viewport min =', viewport$xMin, ', viewport max =', viewport$xMax, ', binWidth =', binWidth, ', binReportValue =', binReportValue, ', value =', value, ', barmode =', barmode, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.histo)
 }
@@ -347,7 +347,7 @@ histogram <- function(data,
                       evilMode = c(FALSE, TRUE),
                       verbose = c(TRUE, FALSE)) {
 
-  verbose <- matchArg(verbose)
+  verbose <- veupathUtils::matchArg(verbose)
 
   .histo <- histogram.dt(data, map, binWidth, value, binReportValue, barmode, viewport, evilMode, verbose)
   outFileName <- writeJSON(.histo, evilMode, 'histogram', verbose)
