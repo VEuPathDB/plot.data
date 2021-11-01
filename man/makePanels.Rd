@@ -18,6 +18,6 @@ list of length 2: list(data, panel)
 }
 \description{
 This function returns a list where the first entry is a data.table
-with one column representing a list of plot panels and the second
+with one column representing a list of plot panels and the second 
 entry is the name of the column specifying the plot panels.
 }

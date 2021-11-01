@@ -13,7 +13,7 @@ densityCurve(x)
 data.table with two columns: x) the coordinates of the points where the density is estimated and y) the estimated density values. These will be non-negative, but can be zero.
 }
 \description{
-This function computes gaussian kernal density estimates.
-The kernels are scaled such that the bandwidth is the standard
+This function computes gaussian kernal density estimates. 
+The kernels are scaled such that the bandwidth is the standard 
 deviation of the smoothing kernel.
 }

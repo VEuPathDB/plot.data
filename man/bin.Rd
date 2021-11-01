@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils-bin.R
 \name{bin}
 \alias{bin}
-\title{This function divides the range of ‘x’ into intervals and codes
+\title{This function divides the range of ‘x’ into intervals and codes 
 the values in ‘x’ according to which interval they fall}
 \usage{
 bin(x, binWidth, viewport)
@@ -16,6 +16,6 @@ bin(x, binWidth, viewport)
 Character vector of coded values
 }
 \description{
-This function divides the range of ‘x’ into intervals and codes
+This function divides the range of ‘x’ into intervals and codes 
 the values in ‘x’ according to which interval they fall
 }

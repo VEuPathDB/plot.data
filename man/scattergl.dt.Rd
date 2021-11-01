@@ -19,25 +19,25 @@ scattergl.dt(
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
 
-\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable
-sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable',
+\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable 
+sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 
 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'}
 
 \item{value}{character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw'
-or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw'
-to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous
+ or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' 
+to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous 
 overlay variable.}
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
 
-\item{listVarPlotRef}{string indicating the plotRef to be considered as a listVariable.
-Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of
+\item{listVarPlotRef}{string indicating the plotRef to be considered as a listVariable. 
+Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
 variables should be interpreted as a listVariable.}
 
-\item{listVarDisplayLabel}{string indicating the final displayLabel to be assigned to
+\item{listVarDisplayLabel}{string indicating the final displayLabel to be assigned to 
 the repeated variable.}
 
-\item{inferredVarDisplayLabel}{string indicated the final displayLabel to be assigned
+\item{inferredVarDisplayLabel}{string indicated the final displayLabel to be assigned 
 to the inferred variable.}
 
 \item{verbose}{boolean indicating if timed logging is desired}
@@ -46,30 +46,28 @@ to the inferred variable.}
 data.table plot-ready data
 }
 \description{
-This function returns a data.table of
-plot-ready data with one row per group (per panel). Columns
-'seriesX' and 'seriesY' contain the raw data for the
-scatter plot. Column 'group' and 'panel' specify the group the
-series data belongs to. Optionally, columns 'smoothedMeanX',
-'smoothedMeanY' and 'smoothedMeanSE' specify the x, y and
-standard error respectively of the smoothed conditional mean
-for the group. Columns 'densityX' and 'densityY' contain the
-calculated kernel density estimates. Column
-'seriesGradientColorscale' contains values to be used with a
+This function returns a data.table of  
+plot-ready data with one row per group (per panel). Columns 
+'seriesX' and 'seriesY' contain the raw data for the 
+scatter plot. Column 'group' and 'panel' specify the group the 
+series data belongs to. Optionally, columns 'smoothedMeanX', 
+'smoothedMeanY' and 'smoothedMeanSE' specify the x, y and 
+standard error respectively of the smoothed conditional mean 
+for the group. Columns 'densityX' and 'densityY' contain the 
+calculated kernel density estimates. Column 
+'seriesGradientColorscale' contains values to be used with a 
 gradient colorscale when plotting.
 }
 \section{Evil Mode}{
 
-An \code{evilMode} exists. It will do the following: \cr
-\itemize{
-\item return 'No data' as a regular value for strata vars but will discard incomplete cases
+An `evilMode` exists. It will do the following: \cr
+- return 'No data' as a regular value for strata vars but will discard incomplete cases 
 for the axes vars \cr
-\item not return statsTables \cr
-\item allow smoothed means and agg values etc over axes values where we have no data
+- not return statsTables \cr
+- allow smoothed means and agg values etc over axes values where we have no data 
 for the strata vars \cr
-\item return a total count of plotted incomplete cases \cr
-\item represent missingness poorly, conflate the stories of completeness and missingness,
+- return a total count of plotted incomplete cases \cr
+- represent missingness poorly, conflate the stories of completeness and missingness, 
 mislead you and steal your soul \cr
-}
 }
 

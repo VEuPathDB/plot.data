@@ -55,7 +55,6 @@ outliers <- function(x) {
 #' @param x Numeric vector to calculate smoothed density estimates for
 #' @return data.table with two columns: x) the coordinates of the points where the density is estimated and y) the estimated density values. These will be non-negative, but can be zero. 
 #' @export
-#' @import data.table
 densityCurve <- function(x) {
   curve <- stats::density(x)
   return(list("densityX" = c(curve$x), "densityY" = c(curve$y)))
@@ -71,7 +70,7 @@ densityCurve <- function(x) {
 predictdf <- function(model, xseq, se, level) UseMethod("predictdf")
 
 predictdf.default <- function(model, xseq, se = FALSE, level = .95) {
-  pred <- stats::predict(model, newdata = new_data_frame(list(x = xseq)), se.fit = se,
+  pred <- stats::predict(model, newdata = veupathUtils::new_data_frame(list(x = xseq)), se.fit = se,
     level = level, interval = if (se) "confidence" else "none")
 
   if (se) {
@@ -84,7 +83,7 @@ predictdf.default <- function(model, xseq, se = FALSE, level = .95) {
 }
 
 predictdf.loess <- function(model, xseq, se = TRUE, level = .95) {
-  pred <- stats::predict(model, newdata = data_frame(x = xseq), se = se)
+  pred <- stats::predict(model, newdata = veupathUtils::data_frame(x = xseq), se = se)
 
   if (se) {
     y = pred$fit
@@ -98,7 +97,7 @@ predictdf.loess <- function(model, xseq, se = TRUE, level = .95) {
 }
 
 predictdf.gam <- function(model, xseq, se = TRUE, level = .95) {
-  pred <- stats::predict(model, newdata = data_frame(x = xseq), se.fit = se,
+  pred <- stats::predict(model, newdata = veupathUtils::data_frame(x = xseq), se.fit = se,
     type = "link")
 
   if (se) {
@@ -171,7 +170,7 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
     stop('Unrecognized smoothing method.')
   }
 
-  if (any(is.error(smoothed))) {
+  if (any(veupathUtils::is.error(smoothed))) {
     dt <- data.table::data.table("smoothedMeanX" = list(numeric()), "smoothedMeanY" = list(numeric()), "smoothedMeanSE" = list(numeric()), "smoothedMeanError" = jsonlite::unbox(as.character(smoothed[1])))
   } else {
     smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
@@ -332,7 +331,7 @@ nonparametricTest <- function(values, groups) {
     testResult <- try(kruskal.test(values, groups), silent = TRUE)
   }
   
-  if (is.error(testResult)){
+  if (veupathUtils::is.error(testResult)){
     testResult <- list("statistic" = numeric(),
       "pvalue" = numeric(),
       "parameter" = numeric(),

@@ -39,21 +39,19 @@ histogram.dt(
 data.table plot-ready data
 }
 \description{
-This function returns a data.table of
-plot-ready data with one row per group (per panel). Columns
-'x' and 'y' contain the bin label and count respectively.
-Column 'group' and 'panel' specify the group the series data
-belongs to. It is possible to plot missingness in the stratification variables as an explicit 'No data' value using \code{evilMode}.
+This function returns a data.table of 
+plot-ready data with one row per group (per panel). Columns 
+'x' and 'y' contain the bin label and count respectively. 
+Column 'group' and 'panel' specify the group the series data 
+belongs to. It is possible to plot missingness in the stratification variables as an explicit 'No data' value using `evilMode`.
 }
 \section{Evil Mode}{
 
-An \code{evilMode} exists. It will do the following: \cr
-\itemize{
-\item return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
-\item not return statsTables \cr
-\item allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
-\item return a total count of plotted incomplete cases \cr
-\item represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
-}
+An `evilMode` exists. It will do the following: \cr
+- return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+- not return statsTables \cr
+- allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+- return a total count of plotted incomplete cases \cr
+- represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 }
 

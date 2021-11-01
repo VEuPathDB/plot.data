@@ -15,6 +15,6 @@ adjustToViewport(x, viewport)
 Character vector of coded values
 }
 \description{
-This function will adjust the range of numeric vector \code{x}
+This function will adjust the range of numeric vector `x` 
 the values in ‘x’ according to which interval they fall
 }

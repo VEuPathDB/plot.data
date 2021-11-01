@@ -237,7 +237,7 @@ groupBestFitLine <- function(data, x, y, group = NULL, panel = NULL, collapse = 
 
 #' @importFrom stats as.formula
 groupSplit <- function(data, x, y, z, group, panel, longToWide = FALSE) {
-  aggStr <- getAggStr(c(group, panel, y), x)
+  aggStr <- veupathUtils::getAggStr(c(group, panel, y), x)
 
   if (!is.null(group) & !is.null(panel)) {
     if (longToWide) {

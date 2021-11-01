@@ -30,26 +30,22 @@ bar.dt(
 data.table plot-ready data
 }
 \description{
-This function returns a data.table of
-plot-ready data with one row per group (per panel). Columns
-'label' and 'value' contain the raw data for plotting. Column
+This function returns a data.table of 
+plot-ready data with one row per group (per panel). Columns 
+'label' and 'value' contain the raw data for plotting. Column 
 'group' and 'panel' specify the group the series data belongs to.
 There are three options to calculate y-values for plotting. \cr
-\enumerate{
-\item raw 'identity' of values from data.table input \cr
-\item 'count' occurrences of values from data.table input \cr
-\item 'proportion' of occurrences of values from data.table input \cr
-}
+1) raw 'identity' of values from data.table input \cr
+2) 'count' occurrences of values from data.table input \cr 
+3) 'proportion' of occurrences of values from data.table input \cr
 }
 \section{Evil Mode}{
 
-An \code{evilMode} exists. It will do the following: \cr
-\itemize{
-\item return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
-\item not return statsTables \cr
-\item allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
-\item return a total count of plotted incomplete cases \cr
-\item represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
-}
+An `evilMode` exists. It will do the following: \cr
+- return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+- not return statsTables \cr
+- allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
+- return a total count of plotted incomplete cases \cr
+- represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 }
 

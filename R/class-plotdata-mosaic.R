@@ -42,17 +42,17 @@ newMosaicPD <- function(.dt = data.table::data.table(),
 
   if (statistic == 'chiSq') {
     statsTable <- panelChiSq(.pd, x, y, panel)
-    logWithTime('Calculated chi-squared statistic.', verbose)
+    veupathUtils::logWithTime('Calculated chi-squared statistic.', verbose)
   } else {
     statsTable <- panelBothRatios(.pd, x, y, panel)
-    logWithTime('Calculated odds ratio and relative risk.', verbose)
+    veupathUtils::logWithTime('Calculated odds ratio and relative risk.', verbose)
   }
   .pd <- panelTable(.pd, x, y, panel)
 
   attr$names <- names(.pd)
   attr$statsTable <- statsTable
 
-  setAttrFromList(.pd, attr)
+  veupathUtils::setAttrFromList(.pd, attr)
 
   return(.pd)
 }
@@ -78,7 +78,7 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #      stop('The second facet variable must be binary, ordinal or categorical.')
 #    }
 #  }
-  logWithTime('Mosaic plot request has been validated!', verbose)
+  veupathUtils::logWithTime('Mosaic plot request has been validated!', verbose)
 
   return(.mosaic)
 }
@@ -109,8 +109,8 @@ mosaic.dt <- function(data, map,
                       statistic = NULL, 
                       evilMode = c(FALSE, TRUE),
                       verbose = c(TRUE, FALSE)) {
-  evilMode <- matchArg(evilMode)
-  verbose <- matchArg(verbose)
+  evilMode <- veupathUtils::matchArg(evilMode)
+  verbose <- veupathUtils::matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -142,7 +142,7 @@ mosaic.dt <- function(data, map,
     } else {
       statistic <- 'bothRatios'
     }
-    logWithTime(paste('No statistic specified, using:', ifelse(statistic=='chiSq', 'chi-squared', 'odds ratio and relative risk')), verbose)
+    veupathUtils::logWithTime(paste('No statistic specified, using:', ifelse(statistic=='chiSq', 'chi-squared', 'odds ratio and relative risk')), verbose)
   }
   
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
@@ -158,7 +158,7 @@ mosaic.dt <- function(data, map,
                             verbose = verbose)
 
   .mosaic <- validateMosaicPD(.mosaic, verbose)
-  logWithTime(paste('New mosaic plot object created with parameters statistic =', statistic, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New mosaic plot object created with parameters statistic =', statistic, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.mosaic)
 }
@@ -188,7 +188,7 @@ mosaic <- function(data, map,
                    statistic = NULL, 
                    evilMode = c(FALSE, TRUE),
                    verbose = c(TRUE, FALSE)) {
-  verbose <- matchArg(verbose)
+  verbose <- veupathUtils::matchArg(verbose)
 
   .mosaic <- mosaic.dt(data, map, statistic, evilMode, verbose)
   outFileName <- writeJSON(.mosaic, evilMode, 'mosaic', verbose)
