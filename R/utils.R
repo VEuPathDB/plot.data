@@ -44,11 +44,11 @@ plotRefMapToList <- function(map, plotRef) {
   entityId <- lapply(map$id[map$plotRef == plotRef], veupathUtils::strSplit, ".", 4, 1)
 
   # If there are no variable
-  variableId <- veupathUtils::emptyStringToNull(variableId)
-  entityId <- veupathUtils::emptyStringToNull(entityId)
-  dataType <- veupathUtils::emptyStringToNull(map$dataType[map$plotRef == plotRef])
-  dataShape <- veupathUtils::emptyStringToNull(map$dataShape[map$plotRef == plotRef])
-  displayLabel <- veupathUtils::emptyStringToNull(map$displayLabel[map$plotRef == plotRef])
+  variableId <- veupathUtils::toStringOrNull(variableId)
+  entityId <- veupathUtils::toStringOrNull(entityId)
+  dataType <- veupathUtils::toStringOrNull(map$dataType[map$plotRef == plotRef])
+  dataShape <- veupathUtils::toStringOrNull(map$dataShape[map$plotRef == plotRef])
+  displayLabel <- veupathUtils::toStringOrNull(map$displayLabel[map$plotRef == plotRef])
 
   if (!is.null(variableId) & !is.null(entityId)) {
     if (all(variableId == entityId)) { entityId <- NULL }
@@ -164,13 +164,6 @@ makePanels <- function(data, facet1 = NULL, facet2 = NULL) {
   }
 
   return(list(data,panel))
-}
-
-emptyStringToPoint <- function(x) {
-  if (length(x) == 0) { return(".") }
-  if (x == "") { return(".") }
-
-  return(x)
 }
 
 toColNameOrNull <- function(varDetailsList) {
