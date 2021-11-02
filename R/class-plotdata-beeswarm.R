@@ -1,4 +1,4 @@
-newBoxPD <- function(.dt = data.table::data.table(),
+newBeeswarmPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
@@ -24,9 +24,8 @@ newBoxPD <- function(.dt = data.table::data.table(),
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL),
-                         points = character(),
-                         mean = logical(),
-                         computeStats = logical(),
+                         jitter = NULL,
+                         median = logical(),
                          evilMode = logical(),
                          listVarDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
@@ -45,7 +44,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                      evilMode = evilMode,
                      listVarDetails = listVarDetails,
                      verbose = verbose,
-                     class = "boxplot")
+                     class = "beeswarm")
 
   attr <- attributes(.pd)
 
@@ -54,123 +53,82 @@ newBoxPD <- function(.dt = data.table::data.table(),
   group <- toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-  #remove after sorting out #88, fixing updateTypes
-  .pd[[y]] <- as.numeric(.pd[[y]])
-  summary <- groupSummary(.pd, x, y, group, panel)
-  fences <- groupFences(.pd, x, y, group, panel)
-  fences <- fences[, -x, with = FALSE]
-  veupathUtils::logWithTime('Calculated five-number summaries and upper and lower fences for boxplot.', verbose)
 
-  if (computeStats) {
-    
-    if (is.null(group)) {
-      # If no overlay, then compute across x per panel
-      statsTable <- nonparametricByGroup(.pd, numericCol=y, levelsCol=x, byCols=panel)
-      
-    } else {
-      # compute across overlay values per panel
-      statsTable <- nonparametricByGroup(.pd, numericCol=y, levelsCol=group, byCols=c(x, panel))
-    }
-    
-    attr$statsTable <- statsTable
-    veupathUtils::logWithTime('Calculated boxplot supporting statistics.', verbose)
-  }
+  # Organize raw data and compute jittered values. Keeping all jittered values centered at 0 so that the front end can reorder if necessary.
+  byCols <- colnames(.pd)[colnames(.pd) %in% c(x, group, panel)]
+  rawWithJitter <- .pd[, list(rawData=lapply(.SD, as.vector),
+                        jitteredValues=lapply(.SD, function(x, jitter) runif(length(x), min=(-jitter), max=jitter), jitter=jitter)), keyby=byCols]
   
+  byColValues <- unique(.pd[, byCols, with=FALSE])
+  rawWithJitter <- merge(rawWithJitter, byColValues, by=byCols, all=TRUE)
 
-  if (!is.null(key(summary))) {
-    .pd.base <- merge(summary, fences)
-  } else {
-    .pd.base <- cbind(summary, fences)
-  }
+  rawWithJitter <- collapseByGroup(rawWithJitter, group, panel)
+  # indexCols <- c(panel, group)
+  # setkeyv(rawWithJitter, indexCols)
+  
+  .pd.base <- rawWithJitter
+  logWithTime('Returning all points for beeswarm.', verbose)
 
-  if (points == 'outliers') {
-    outliers <- groupOutliers(.pd, x, y, group, panel)
-    outliers[[x]] <- NULL
-    if (!is.null(key(outliers))) {
-      .pd.base <- merge(.pd.base, outliers)
+  if (median) {
+    median <- groupMedian(.pd, x, y, group, panel)
+    median[[x]] <- NULL
+    if (!is.null(key(median))) {
+      .pd.base <- merge(.pd.base, median)
     } else {
-      .pd.base <- cbind(.pd.base, outliers)
+      .pd.base <- cbind(.pd.base, median)
     }
-    veupathUtils::logWithTime('Identified outliers for boxplot.', verbose)
-  } else if (points == 'all') {
-    byCols <- colnames(.pd)[colnames(.pd) %in% c(x, group, panel)]
-    rawData <- .pd[, list(rawData=lapply(.SD, as.vector)), keyby=byCols]
-    byColValues <- unique(.pd[, byCols, with=FALSE])
-    rawData <- merge(rawData, byColValues, by=byCols, all=TRUE)
-
-    rawData <- collapseByGroup(rawData, group, panel)
-    rawData[[x]] <- NULL
-    indexCols <- c(panel, group)
-    setkeyv(rawData, indexCols)
-
-    if (!is.null(key(rawData))) {
-      .pd.base <- merge(.pd.base, rawData)
-    } else {
-      .pd.base <- cbind(.pd.base, rawData)
-    }
-    veupathUtils::logWithTime('Returning all points for boxplot.', verbose)
-  }
-
-  if (mean) {
-    mean <- groupMean(.pd, x, y, group, panel)
-    mean[[x]] <- NULL
-    if (!is.null(key(mean))) {
-      .pd.base <- merge(.pd.base, mean)
-    } else {
-      .pd.base <- cbind(.pd.base, mean)
-    }
-    veupathUtils::logWithTime('Calculated means for boxplot.', verbose)
+    logWithTime('Calculated medians for beeswarm.', verbose)
   }
   
   .pd <- .pd.base
   data.table::setnames(.pd, x, 'label')
   attr$names <- names(.pd)
-  veupathUtils::setAttrFromList(.pd, attr)
+  setAttrFromList(.pd, attr)
 
   return(.pd)
 }
 
-validateBoxPD <- function(.box, verbose) {
-  xAxisVariable <- attr(.box, 'xAxisVariable')
+validateBeeswarmPD <- function(.beeswarm, verbose) {
+  xAxisVariable <- attr(.beeswarm, 'xAxisVariable')
   #if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-  #  stop('The independent axis must be binary, ordinal or categorical for boxplot.')
+  #  stop('The independent axis must be binary, ordinal or categorical for beeswarm.')
   #}
-  yAxisVariable <- attr(.box, 'yAxisVariable')
-  if (!yAxisVariable$dataType %in% c('NUMBER', 'INTEGER')) {
-    stop('The dependent axis must be of type number or integer for boxplot.')
+  yAxisVariable <- attr(.beeswarm, 'yAxisVariable')
+  if (!yAxisVariable$dataType %in% c('NUMBER')) {
+    stop('The dependent axis must be of type number for beeswarm.')
   }
-  overlayVariable <- attr(.box, 'overlayVariable')
+  overlayVariable <- attr(.beeswarm, 'overlayVariable')
   #if (!is.null(overlayVariable)) {
   #  if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
   #    stop('The overlay variable must be binary, ordinal or categorical.')
   #  }
   #}
-  facetVariable1 <- attr(.box, 'facetVariable1')
+  facetVariable1 <- attr(.beeswarm, 'facetVariable1')
   #if (!is.null(facetVariable1)) {
   #  if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
   #    stop('The first facet variable must be binary, ordinal or categorical.')
   #  }
   #}
-  facetVariable2 <- attr(.box, 'facetVariable2')
+  facetVariable2 <- attr(.beeswarm, 'facetVariable2')
   #if (!is.null(facetVariable2)) {
   #  if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
   #    stop('The second facet variable must be binary, ordinal or categorical.')
   #  }
   #}
-  veupathUtils::logWithTime('Boxplot request has been validated!', verbose)
+  logWithTime('Beeswarm request has been validated!', verbose)
 
-  return(.box)
+  return(.beeswarm)
 }
 
 
-#' Box Plot as data.table
+#' Beeswarm Plot as data.table
 #'
 #' This function returns a data.table of 
 #' plot-ready data with one row per group (per panel). Columns 
-#' 'x', 'min', 'q1', 'median', 'q3' and 'max' represent the 
-#' pre-computed values per group. Columns 'group' and 'panel' specify
+#' 'label' and 'jitteredValues' represent the x axis tick label and a random offset (one per y value), repsectively.
+#' The 'rawData' column lists the y values to be plotted above each x axis tick. Columns 'group' and 'panel' specify
 #' the group the data belong to. 
-#' Optionally, can return columns 'outliers' and 'mean' as well.
+#' Optionally, can return median values per group
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
@@ -187,9 +145,8 @@ validateBoxPD <- function(.box, verbose) {
 #' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param points character vector indicating which points to return 'outliers' or 'all'
-#' @param mean boolean indicating whether to return mean value per group (per panel)
-#' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
+#' @param jitter numeric indicating the maximum width by which to randomly offset points.
+#' @param median boolean indicating whether to return median value per group (per panel)
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
 #' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
@@ -209,31 +166,34 @@ validateBoxPD <- function(.box, verbose) {
 #'                  'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 #' 
 #' # Returns a data table with plot-ready data
-#' dt <- box.dt(df, map, points = 'outliers', mean=F, computeStats=T)
+#' dt <- beeswarm.dt(df, map, jitter=0.3)
 #' @export
-
-box.dt <- function(data, map, 
-                   points = c('outliers', 'all', 'none'), 
-                   mean = c(FALSE, TRUE), 
-                   computeStats = c(FALSE, TRUE), 
+beeswarm.dt <- function(data, map,
+                   jitter = NULL, 
+                   median = c(FALSE, TRUE), 
                    evilMode = c(FALSE, TRUE),
                    listVarPlotRef = NULL,
                    listVarDisplayLabel = NULL,
                    inferredVarDisplayLabel = NULL,
                    verbose = c(TRUE, FALSE)) {
 
-  points <- veupathUtils::matchArg(points)
-  mean <- veupathUtils::matchArg(mean)
-  computeStats <- veupathUtils::matchArg(computeStats)
-  evilMode <- veupathUtils::matchArg(evilMode)
-  verbose <- veupathUtils::matchArg(verbose)
+  median <- matchArg(median)
+  evilMode <- matchArg(evilMode)
+  verbose <- matchArg(verbose)
+
+  # Set default jitter to 0.1 (should also test is numeric)
+  if (is.null(jitter)) {
+    jitter <- 0.1
+  } else if (!is.numeric(jitter)) {
+    stop('jitter must be numeric for beeswarm plots.')
+  }
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
 
   map <- validateMap(map)
-  veupathUtils::logWithTime('Map has been validated.', verbose)
+  logWithTime('Map has been validated.', verbose)
 
   # If there is a duplicated plotRef in map, it must match listVarPlotRef
   if (any(duplicated(map$plotRef))) {
@@ -249,11 +209,11 @@ box.dt <- function(data, map,
 
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   if (is.null(xAxisVariable$variableId)) {
-    stop("Must provide xAxisVariable for plot type box.")
+    stop("Must provide xAxisVariable for plot type beeswarm.")
   }
   yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
   if (is.null(yAxisVariable$variableId) & is.null(listVarPlotRef)) {
-    stop("Must provide yAxisVariable for plot type box.")
+    stop("Must provide yAxisVariable for plot type beeswarm.")
   }
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
@@ -269,7 +229,7 @@ box.dt <- function(data, map,
     if (identical(listVarPlotRef, 'xAxisVariable')) { inferredVarEntityId <- unique(xAxisVariable$entityId)
     } else if (identical(listVarPlotRef, 'facetVariable1')) { inferredVarEntityId <- unique(facetVariable1$entityId)
     } else if (identical(listVarPlotRef, 'facetVariable2')) { inferredVarEntityId <- unique(facetVariable2$entityId)
-    } else { stop('listVar error: listVarPlotRef must be either xAxisVariable, facetVariable1, or facetVariable2 for box.')
+    } else { stop('listVar error: listVarPlotRef must be either xAxisVariable, facetVariable1, or facetVariable2 for beeswarm.')
     }
 
     listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
@@ -278,37 +238,35 @@ box.dt <- function(data, map,
                                           'dataShape' = 'CONTINUOUS',
                                           'displayLabel' = inferredVarDisplayLabel)
 
-    veupathUtils::logWithTime('Created inferred variable from listVariable.', verbose)
+    logWithTime('Created inferred variable from listVariable.', verbose)
   }
 
-  .box <- newBoxPD(.dt = data,
+  .beeswarm <- newBeeswarmPD(.dt = data,
                     xAxisVariable = xAxisVariable,
                     yAxisVariable = yAxisVariable,
                     overlayVariable = overlayVariable,
                     facetVariable1 = facetVariable1,
                     facetVariable2 = facetVariable2,
-                    points = points,
-                    mean = mean,
-                    computeStats = computeStats,
+                    jitter = jitter,
+                    median = median,
                     evilMode = evilMode,
                     listVarDetails = listVarDetails,
                     verbose = verbose)
 
-  .box <- validateBoxPD(.box, verbose)
-  veupathUtils::logWithTime(paste('New boxplot object created with parameters points =', points, ', mean =', mean, ', computeStats =', computeStats, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  .beeswarm <- validateBeeswarmPD(.beeswarm, verbose)
+  logWithTime(paste('New beeswarm object created with parameters jitter=', jitter, ', median =', median, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
-  return(.box) 
+  return(.beeswarm) 
 
 }
 
-#' Box Plot data file
+#' Beeswarm Plot data file
 #'
 #' This function returns the name of a json file containing 
 #' plot-ready data with one row per group (per panel). Columns 
-#' 'x', 'min', 'q1', 'median', 'q3' and 'max' represent the 
-#' pre-computed values per group. Columns 'group' and 'panel' specify
+#' 'label' and 'jitteredValues' represent the x axis tick label and a random offset (one per y value), repsectively.
+#' The 'rawData' column lists the y values to be plotted above each x axis tick. Columns 'group' and 'panel' specify
 #' the group the data belong to. 
-#' Optionally, can return columns 'outliers' and 'mean' as well.
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
@@ -325,9 +283,8 @@ box.dt <- function(data, map,
 #' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
-#' @param points character vector indicating which points to return 'outliers' or 'all'
-#' @param mean boolean indicating whether to return mean value per group (per panel)
-#' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
+#' @param jitter numeric indicating the maximum width by which to randomly offset points.
+#' @param median boolean indicating whether to return median value per group (per panel)
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
 #' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
@@ -347,31 +304,29 @@ box.dt <- function(data, map,
 #'                  'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 #' 
 #' # Returns the name of a json file
-#' box(df, map, points = 'outliers', mean=F, computeStats=T)
+#' beeswarm(df,map,jitter=0.3)
 #' @export
-box <- function(data, map, 
-                points = c('outliers', 'all', 'none'), 
-                mean = c(FALSE, TRUE), 
-                computeStats = c(FALSE, TRUE), 
+beeswarm <- function(data, map, 
+                jitter = NULL, 
+                median = c(FALSE, TRUE), 
                 evilMode = c(FALSE, TRUE),
                 listVarPlotRef = NULL,
                 listVarDisplayLabel = NULL,
                 inferredVarDisplayLabel = NULL,
                 verbose = c(TRUE, FALSE)) {
 
-  verbose <- veupathUtils::matchArg(verbose)
+  verbose <- matchArg(verbose)
 
-  .box <- box.dt(data,
+  .beeswarm <- beeswarm.dt(data,
                  map,
-                 points = points,
-                 mean = mean,
-                 computeStats = computeStats,
+                 jitter = jitter,
+                 median = median,
                  evilMode = evilMode,
                  listVarPlotRef = listVarPlotRef,
                  listVarDisplayLabel = listVarDisplayLabel,
                  inferredVarDisplayLabel = inferredVarDisplayLabel,
                  verbose = verbose)
-  outFileName <- writeJSON(.box, evilMode, 'boxplot', verbose)
+  outFileName <- writeJSON(.beeswarm, evilMode, 'beeswarm', verbose)
 
   return(outFileName)
 }

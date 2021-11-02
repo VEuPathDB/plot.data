@@ -42,3 +42,26 @@ An `evilMode` exists. It will do the following: \cr
 - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 }
 
+\section{Map Structure}{
+
+The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
+- id: the variable name. Must match column name in the data exactly. \cr
+- plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+- dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
+- dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
+}
+
+\examples{
+# Construct example data
+df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
+                 'yvar' = sample(c('1','2','3'), 100, replace=T), stringsAsFactors = F)
+
+# Create map that specifies variable role in the plot and supplies variable metadata
+map <- data.frame('id' = c('xvar', 'yvar'),
+                 'plotRef' = c('xAxisVariable', 'yAxisVariable'),
+                 'dataType' = c('STRING', 'STRING'),
+                 'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+# Returns a data table with plot-ready data
+dt <- mosaic.dt(df, map)
+}
