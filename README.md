@@ -17,7 +17,7 @@ remotes::install_github('VEuPathDB/plot.data', 'v1.2.3')
 ## Usage
 
 All `plot.data` functions require at least the following arguments:
-1. A data frame or data table with columns corresponding to variables and rows to samples.
+1. A data frame or data table with columns corresponding to variables and rows to records (for example, observations, samples, etc.).
 2. A `map` that associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns:
     - `id` the variable name. Must match column name in the data exactly.
     - `plotRef` The plot element to which that variable will be mapped. Options are `xAxisVariable`, `yAxisVariable`, `zAxisVariable`, `overlayVariable`, `facetVariable1`, `facetVariable2`. 
@@ -29,7 +29,7 @@ All `plot.data` functions require at least the following arguments:
 df <- data.table('xvar' = rnorm(100))
 
 #map is a data.table mapping column names from data object to 'xAxisVariable', 'overlayVariable', etc
-map <- data.frame(id = c('xvar'),
+map <- data.frame('id' = c('xvar'),
                   'plotRef' = c('xAxisVariable'),
                   'dataType' = c('NUMBER'),
                   'dataShape' = c('CONTINUOUS'), stringsAsFactors=FALSE)
@@ -51,7 +51,7 @@ df <- data.table('xvar' = rnorm(100),
                  'overlay' = sample(c('red','green','blue'), 100, replace=T))
 
 # Create map that specifies variable role in the plot, and supplies variable metadata
-map <- data.frame(id = c('xvar', 'yvar', 'overlay'),
+map <- data.frame('id' = c('xvar', 'yvar', 'overlay'),
                   'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'),
                   'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
                   'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)

@@ -70,6 +70,27 @@ the strata vars \cr
 mislead you and steal your soul \cr
 }
 
+\section{Map Structure}{
+
+The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
+- id: the variable name. Must match column name in the data exactly. \cr
+- plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+- dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
+- dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
+}
+
 \examples{
-scattergl.dt(df,map,value='bestFitLineWithRaw')
+# Construct example data
+df <- data.table('xvar' = rnorm(100),
+                 'yvar' = rnorm(100),
+                 'overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
+
+# Create map that specifies variable role in the plot and supplies variable metadata
+map <- data.frame('id' = c('xvar', 'yvar', 'overlay'),
+                 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'),
+                 'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
+                 'dataShape' = c('CONTINUOUT', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+# Returns the name of a json file
+scattergl(df, map, value = 'bestFitLineWithRaw')
 }

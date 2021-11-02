@@ -179,6 +179,12 @@ validateBoxPD <- function(.box, verbose) {
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+#' @section Map Structure:
+#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
+#' - id: the variable name. Must match column name in the data exactly. \cr
+#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
+#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param points character vector indicating which points to return 'outliers' or 'all'
@@ -190,6 +196,20 @@ validateBoxPD <- function(.box, verbose) {
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
+#' @examples
+#' # Construct example data
+#' df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'yvar' = rnorm(100),
+#'                  'overlay' = sample(c('red','green','blue'), 100, replace=T))
+#' 
+#' # Create map that specifies variable role in the plot and supplies variable metadata
+#' map <- data.frame('id' = c('xvar', 'yvar', 'overlay'),
+#'                  'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'),
+#'                  'dataType' = c('STRING', 'NUMBER', 'STRING'),
+#'                  'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' 
+#' # Returns a data table with plot-ready data
+#' dt <- box.dt(df, map, points = 'outliers', mean=F, computeStats=T)
 #' @export
 
 box.dt <- function(data, map, 
@@ -297,6 +317,12 @@ box.dt <- function(data, map,
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+#' @section Map Structure:
+#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
+#' - id: the variable name. Must match column name in the data exactly. \cr
+#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
+#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param points character vector indicating which points to return 'outliers' or 'all'
@@ -308,6 +334,20 @@ box.dt <- function(data, map,
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
+#' @examples
+#' # Construct example data
+#' df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'yvar' = rnorm(100),
+#'                  'overlay' = sample(c('red','green','blue'), 100, replace=T))
+#' 
+#' # Create map that specifies variable role in the plot and supplies variable metadata
+#' map <- data.frame('id' = c('xvar', 'yvar', 'overlay'),
+#'                  'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'),
+#'                  'dataType' = c('STRING', 'NUMBER', 'STRING'),
+#'                  'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' 
+#' # Returns the name of a json file
+#' box(df, map, points = 'outliers', mean=F, computeStats=T)
 #' @export
 box <- function(data, map, 
                 points = c('outliers', 'all', 'none'), 

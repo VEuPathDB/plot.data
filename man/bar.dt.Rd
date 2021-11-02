@@ -53,23 +53,22 @@ An `evilMode` exists. It will do the following: \cr
 
 The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
 - id: the variable name. Must match column name in the data exactly. \cr
-- plotRef: The plot element to which that variable will be mapped. Options for barplot are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+- plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
 - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
 - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
 }
 
 \examples{
 # Construct example data
-df <- data.table('xvar' = rnorm(100),
-                 'yvar' = sample(c('a','b','c'), 100, replace=T),
+df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
                  'overlay' = sample(c('red','green','blue'), 100, replace=T))
 
-# Create map that specifies variable role in the plot, and supplies variable metadata
-map <- data.frame(id = c('xvar', 'yvar', 'overlay'),
-                 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'),
-                 'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
-                 'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+# Create map that specifies variable role in the plot and supplies variable metadata
+map <- data.frame('id' = c('xvar', 'overlay'),
+                 'plotRef' = c('xAxisVariable', 'overlayVariable'),
+                 'dataType' = c('STRING', 'STRING'),
+                 'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
 # Returns a data table with plot-ready data
-bar.dt(df,map,value='count')
+dt <- bar.dt(df,map,value='count')
 }
