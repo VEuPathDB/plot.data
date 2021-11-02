@@ -67,7 +67,7 @@ breaks <- function(x, equal, nbins = NULL, binwidth = NULL) {
   rng <- range(x, na.rm = TRUE, finite = TRUE)
   if (equal == "width") {
     if (!is.null(binwidth)) {
-      fullseq(rng, binwidth)
+      scales::fullseq(rng, binwidth)
     } else {
       seq(rng[1], rng[2], length.out = nbins + 1)
     }

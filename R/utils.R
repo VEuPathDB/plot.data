@@ -121,6 +121,7 @@ contingencyDT <- function(data, labels = TRUE) {
   return(data.table::setDT(dt))
 }
 
+
 findPanelColName <- function(facet1 = NULL, facet2 = NULL) {
   if (!is.null(facet1$variableId) & !is.null(facet2$variableId)) {
     panel <- 'panel'
@@ -247,44 +248,6 @@ findBinEnd <- function(x) {
 
   return(x)
 }
-
-remapListVar <- function(map, listVarPlotRef, newValuePlotRef, newVarId = 'meltedVariable', newValueId = 'meltedValue', newVarDisplayLabel = NULL, newValueDisplayLabel = NULL) {
-  
-  listVarEntity <- unique(map$entityId[map$plotRef == listVarPlotRef])
-  listVarType <- unique(map$dataType[map$plotRef == listVarPlotRef])
-  listVarShape <- unique(map$dataShape[map$plotRef == listVarPlotRef])
-
-  newVar <- list('id' = newVarId, 'plotRef' = listVarPlotRef)
-  newValue <- list('id' = newValueId, 'plotRef' = newValuePlotRef)
-  if (!is.null(listVarEntity)) {
-    newVar$entityId <- listVarEntity
-    newValue$entityId <- listVarEntity
-  }
-  if (!is.null(listVarType)) {
-    newVar$dataType <- 'STRING'
-    newValue$dataType <- listVarType
-  }
-  if (!is.null(listVarShape)) {
-    newVar$dataShape <- 'CATEGORICAL'
-    newValue$dataShape <- listVarShape
-  }
-
-  # Add displayLabels
-  if (!is.null(map$displayLabel)) {
-    newVar$displayLabel <- if(!is.null(newVarDisplayLabel)) {newVarDisplayLabel} else {''}
-    newValue$displayLabel <- if(!is.null(newValueDisplayLabel)) {newValueDisplayLabel} else {''}
-  }
-  
-  # Remove all repeated variables from map
-  map <- map[!(map$plotRef == listVarPlotRef), ]
-  
-  # Add new variables
-  map <- rbind(map, newVar)
-  map <- rbind(map, newValue)
-  
-  return(map)
-}
-
 
 validateListVar <- function(listVariable) {
 
