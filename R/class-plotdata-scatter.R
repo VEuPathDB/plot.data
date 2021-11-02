@@ -70,13 +70,13 @@ newScatterPD <- function(.dt = data.table::data.table(),
   } else {
     series$seriesY <- lapply(series$seriesY, as.character)
   }
-  logWithTime('Collected raw scatter plot data.', verbose)
+  veupathUtils::logWithTime('Collected raw scatter plot data.', verbose)
 
   if (value == 'smoothedMean') {
 
     smoothedMean <- groupSmoothedMean(.pd, x, y, group, panel)
     .pd <- smoothedMean
-    logWithTime('Calculated smoothed means.', verbose)
+    veupathUtils::logWithTime('Calculated smoothed means.', verbose)
 
   } else if (value == 'smoothedMeanWithRaw') {
     
@@ -86,7 +86,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
     } else {
       .pd <- cbind(series, smoothedMean)
     }
-    logWithTime('Calculated smoothed means.', verbose)
+    veupathUtils::logWithTime('Calculated smoothed means.', verbose)
 
   } else if (value == 'bestFitLineWithRaw') {
   
@@ -96,20 +96,20 @@ newScatterPD <- function(.dt = data.table::data.table(),
     } else {
       .pd <- cbind(series, bestFitLine)
     }
-    logWithTime('Calculated best fit line.', verbose)
+    veupathUtils::logWithTime('Calculated best fit line.', verbose)
 
   } else if (value == 'density') {
     
     density <- groupDensity(.pd, NULL, x, group, panel)
     .pd <- density
-    logWithTime('Kernel density estimate calculated from raw data.', verbose)
+    veupathUtils::logWithTime('Kernel density estimate calculated from raw data.', verbose)
 
   } else {
     .pd <- series
   }
   attr$names <- names(.pd)
 
-  setAttrFromList(.pd, attr)
+  veupathUtils::setAttrFromList(.pd, attr)
 
   return(.pd)
 }
@@ -141,7 +141,7 @@ validateScatterPD <- function(.scatter, verbose) {
 #      stop('The second facet variable must be binary, ordinal or categorical.')
 #    }
 #  }
-  logWithTime('Scatter plot request has been validated!', verbose)
+  veupathUtils::logWithTime('Scatter plot request has been validated!', verbose)
 
   return(.scatter)
 }
@@ -204,16 +204,16 @@ scattergl.dt <- function(data,
                          inferredVarDisplayLabel = NULL,
                          verbose = c(TRUE, FALSE)) {
 
-  value <- matchArg(value)
-  evilMode <- matchArg(evilMode) 
-  verbose <- matchArg(verbose)  
+  value <- veupathUtils::matchArg(value)
+  evilMode <- veupathUtils::matchArg(evilMode) 
+  verbose <- veupathUtils::matchArg(verbose)  
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
 
   map <- validateMap(map)
-  logWithTime('Map has been validated.', verbose)
+  veupathUtils::logWithTime('Map has been validated.', verbose)
 
   # If there is a duplicated plotRef in map, it must match listVarPlotRef
   if (any(duplicated(map$plotRef))) {
@@ -276,7 +276,7 @@ scattergl.dt <- function(data,
                                           'dataShape' = 'CONTINUOUS',
                                           'displayLabel' = inferredVarDisplayLabel)
 
-    logWithTime('Created inferred variable from listVariable.', verbose)
+    veupathUtils::logWithTime('Created inferred variable from listVariable.', verbose)
   }
 
   .scatter <- newScatterPD(.dt = data,
@@ -291,7 +291,7 @@ scattergl.dt <- function(data,
                             verbose = verbose)
 
   .scatter <- validateScatterPD(.scatter, verbose)
-  logWithTime(paste('New scatter plot object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New scatter plot object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.scatter)
 }
@@ -353,7 +353,7 @@ scattergl <- function(data,
                       inferredVarDisplayLabel = NULL,
                       verbose = c(TRUE, FALSE)) {
 
-  verbose <- matchArg(verbose)
+  verbose <- veupathUtils::matchArg(verbose)
 
   .scatter <- scattergl.dt(data,
                            map,

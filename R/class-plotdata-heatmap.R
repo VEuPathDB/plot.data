@@ -68,7 +68,7 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
   } 
   attr$names <- names(.pd)
 
-  setAttrFromList(.pd, attr)
+  veupathUtils::setAttrFromList(.pd, attr)
   
   return(.pd)
 }
@@ -114,9 +114,9 @@ heatmap.dt <- function(data, map,
                        evilMode = c(FALSE, TRUE),
                        verbose = c(TRUE, FALSE)) {
 
-  value <- matchArg(value)
-  evilMode <- matchArg(evilMode)
-  verbose <- matchArg(verbose)
+  value <- veupathUtils::matchArg(value)
+  evilMode <- veupathUtils::matchArg(evilMode)
+  verbose <- veupathUtils::matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -147,7 +147,7 @@ heatmap.dt <- function(data, map,
                             verbose = verbose)
 
   .heatmap <- validateHeatmapPD(.heatmap, verbose)
-  logWithTime(paste('New heatmap object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New heatmap object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.heatmap)
 
@@ -183,7 +183,7 @@ heatmap.dt <- function(data, map,
 heatmap <- function(data, map, 
                     value = c('series','collection'), 
                     evilMode = c(FALSE, TRUE)) {
-  verbose <- matchArg(verbose)
+  verbose <- veupathUtils::matchArg(verbose)
  
   .heatmap <- heatmap.dt(data, map, value, evilMode, verbose)
   outFileName <- writeJSON(.heatmap, evilMode, 'heatmap', verbose)

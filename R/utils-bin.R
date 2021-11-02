@@ -48,7 +48,7 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
 
   if (grepl("^[[:digit:]].", binWidth) & gsub("[^0-9.-]", "", binWidth) != '1') {
     #works bc we assume a single space between the binWidth and unit
-    unit <- trim(gsub("^[[:digit:]]*", "", binWidth))
+    unit <- veupathUtils::trim(gsub("^[[:digit:]]*", "", binWidth))
     numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
     if (unit %in% c('day','days')) {
       binEnd <- as.Date(binStart + lubridate::days(numericBinWidth))
@@ -97,7 +97,7 @@ findBinWidth.logical <- function(x, na.rm = c(FALSE, TRUE)) { NA }
 
 #' @export
 findBinWidth.numeric <- function(x, na.rm = c(FALSE, TRUE)) {
-  na.rm <- matchArg(na.rm)
+  na.rm <- veupathUtils::matchArg(na.rm)
   if (na.rm) {
     x <- x[complete.cases(x)]
   } else if (any(is.na(x))) {
@@ -117,12 +117,12 @@ findBinWidth.numeric <- function(x, na.rm = c(FALSE, TRUE)) {
   if (isInteger) {
     # binWidth should also be an integer
     avgDigits <- 0
-    binWidth <- nonZeroRound(binWidth, avgDigits)
+    binWidth <- veupathUtils::nonZeroRound(binWidth, avgDigits)
     if (binWidth < 1) { binWidth <- 1}
   } else {
     # binWidth can be any float
     avgDigits <- floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
-    binWidth <- nonZeroRound(binWidth, avgDigits)
+    binWidth <- veupathUtils::nonZeroRound(binWidth, avgDigits)
   }
 
   return(binWidth)
@@ -130,7 +130,7 @@ findBinWidth.numeric <- function(x, na.rm = c(FALSE, TRUE)) {
 
 #' @export
 findBinWidth.Date <- function(x, na.rm = c(FALSE, TRUE)) {
-  na.rm <- matchArg(na.rm)
+  na.rm <- veupathUtils::matchArg(na.rm)
   if (na.rm) {
     x <- x[complete.cases(x)]
   } else if (any(is.na(x))) {

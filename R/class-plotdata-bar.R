@@ -44,22 +44,22 @@ newBarPD <- function(.dt = data.table::data.table(),
 
   if (value == 'identity') {
     .pd <- collapseByGroup(.pd, group, panel)
-    logWithTime('Value is set to `identity`. Resulting barplot object will represent raw values.', verbose)
+    veupathUtils::logWithTime('Value is set to `identity`. Resulting barplot object will represent raw values.', verbose)
   } else if (value == 'count' ) {
     .pd$dummy <- 1
     .pd <- groupSize(.pd, x, 'dummy', group, panel, collapse = T)
     data.table::setnames(.pd, c(group, panel, 'label', 'value'))
-    logWithTime('Value is set to `count`. Resulting barplot object will represent counts of unique x-axis values per group.', verbose)
+    veupathUtils::logWithTime('Value is set to `count`. Resulting barplot object will represent counts of unique x-axis values per group.', verbose)
   } else if (value == 'proportion') {
     .pd$dummy <- 1
     .pd <- groupProportion(.pd, x, 'dummy', group, panel, barmode, collapse = T)
     data.table::setnames(.pd, c(group, panel, 'label', 'value'))
-    logWithTime('Value is set to `proportion`. If barmode is `group` the resulting barplot object will represent the relative proportions of unique x-axis values across groups. If barmode is `stack` the resulting barplot object will represent the proportions of unique x-axis values relative to the total x-axis values in that panel.', verbose)
+    veupathUtils::logWithTime('Value is set to `proportion`. If barmode is `group` the resulting barplot object will represent the relative proportions of unique x-axis values across groups. If barmode is `stack` the resulting barplot object will represent the proportions of unique x-axis values relative to the total x-axis values in that panel.', verbose)
   }
   
   attr$names <- names(.pd)
   
-  setAttrFromList(.pd, attr)
+  veupathUtils::setAttrFromList(.pd, attr)
 
   return(.pd)
 }
@@ -87,7 +87,7 @@ validateBarPD <- function(.bar, verbose) {
 #      stop('The second facet variable must be binary, ordinal or categorical.')
 #    }
 #  }
-  logWithTime('Barplot request has been validated!', verbose)
+  veupathUtils::logWithTime('Barplot request has been validated!', verbose)
 
   return(.bar)
 }
@@ -145,10 +145,10 @@ bar.dt <- function(data,
                    evilMode = c(FALSE, TRUE),
                    verbose = c(TRUE, FALSE)) {
 
-  value <- matchArg(value)
-  barmode <- matchArg(barmode)
-  evilMode <- matchArg(evilMode)
-  verbose <- matchArg(verbose)
+  value <- veupathUtils::matchArg(value)
+  barmode <- veupathUtils::matchArg(barmode)
+  evilMode <- veupathUtils::matchArg(evilMode)
+  verbose <- veupathUtils::matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -173,7 +173,7 @@ bar.dt <- function(data,
                     verbose = verbose)
 
   .bar <- validateBarPD(.bar, verbose)
-  logWithTime(paste('New barplot object created with parameters value =', value, ', barmode =', barmode, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New barplot object created with parameters value =', value, ', barmode =', barmode, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.bar)
 }
@@ -231,7 +231,7 @@ bar <- function(data,
                 evilMode = c(FALSE, TRUE),
                 verbose = c(TRUE, FALSE)) {
 
-  verbose <- matchArg(verbose)
+  verbose <- veupathUtils::matchArg(verbose)
 
   .bar <- bar.dt(data, map, value, barmode, evilMode, verbose)
   outFileName <- writeJSON(.bar, evilMode, 'barplot', verbose)

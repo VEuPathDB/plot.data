@@ -59,7 +59,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   summary <- groupSummary(.pd, x, y, group, panel)
   fences <- groupFences(.pd, x, y, group, panel)
   fences <- fences[, -x, with = FALSE]
-  logWithTime('Calculated five-number summaries and upper and lower fences for boxplot.', verbose)
+  veupathUtils::logWithTime('Calculated five-number summaries and upper and lower fences for boxplot.', verbose)
 
   if (computeStats) {
     
@@ -73,7 +73,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
     }
     
     attr$statsTable <- statsTable
-    logWithTime('Calculated boxplot supporting statistics.', verbose)
+    veupathUtils::logWithTime('Calculated boxplot supporting statistics.', verbose)
   }
   
 
@@ -91,7 +91,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
     } else {
       .pd.base <- cbind(.pd.base, outliers)
     }
-    logWithTime('Identified outliers for boxplot.', verbose)
+    veupathUtils::logWithTime('Identified outliers for boxplot.', verbose)
   } else if (points == 'all') {
     byCols <- colnames(.pd)[colnames(.pd) %in% c(x, group, panel)]
     rawData <- .pd[, list(rawData=lapply(.SD, as.vector)), keyby=byCols]
@@ -108,7 +108,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
     } else {
       .pd.base <- cbind(.pd.base, rawData)
     }
-    logWithTime('Returning all points for boxplot.', verbose)
+    veupathUtils::logWithTime('Returning all points for boxplot.', verbose)
   }
 
   if (mean) {
@@ -119,13 +119,13 @@ newBoxPD <- function(.dt = data.table::data.table(),
     } else {
       .pd.base <- cbind(.pd.base, mean)
     }
-    logWithTime('Calculated means for boxplot.', verbose)
+    veupathUtils::logWithTime('Calculated means for boxplot.', verbose)
   }
   
   .pd <- .pd.base
   data.table::setnames(.pd, x, 'label')
   attr$names <- names(.pd)
-  setAttrFromList(.pd, attr)
+  veupathUtils::setAttrFromList(.pd, attr)
 
   return(.pd)
 }
@@ -157,7 +157,7 @@ validateBoxPD <- function(.box, verbose) {
   #    stop('The second facet variable must be binary, ordinal or categorical.')
   #  }
   #}
-  logWithTime('Boxplot request has been validated!', verbose)
+  veupathUtils::logWithTime('Boxplot request has been validated!', verbose)
 
   return(.box)
 }
@@ -202,18 +202,18 @@ box.dt <- function(data, map,
                    inferredVarDisplayLabel = NULL,
                    verbose = c(TRUE, FALSE)) {
 
-  points <- matchArg(points)
-  mean <- matchArg(mean)
-  computeStats <- matchArg(computeStats)
-  evilMode <- matchArg(evilMode)
-  verbose <- matchArg(verbose)
+  points <- veupathUtils::matchArg(points)
+  mean <- veupathUtils::matchArg(mean)
+  computeStats <- veupathUtils::matchArg(computeStats)
+  evilMode <- veupathUtils::matchArg(evilMode)
+  verbose <- veupathUtils::matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
 
   map <- validateMap(map)
-  logWithTime('Map has been validated.', verbose)
+  veupathUtils::logWithTime('Map has been validated.', verbose)
 
   # If there is a duplicated plotRef in map, it must match listVarPlotRef
   if (any(duplicated(map$plotRef))) {
@@ -258,7 +258,7 @@ box.dt <- function(data, map,
                                           'dataShape' = 'CONTINUOUS',
                                           'displayLabel' = inferredVarDisplayLabel)
 
-    logWithTime('Created inferred variable from listVariable.', verbose)
+    veupathUtils::logWithTime('Created inferred variable from listVariable.', verbose)
   }
 
   .box <- newBoxPD(.dt = data,
@@ -275,7 +275,7 @@ box.dt <- function(data, map,
                     verbose = verbose)
 
   .box <- validateBoxPD(.box, verbose)
-  logWithTime(paste('New boxplot object created with parameters points =', points, ', mean =', mean, ', computeStats =', computeStats, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New boxplot object created with parameters points =', points, ', mean =', mean, ', computeStats =', computeStats, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.box) 
 
@@ -319,7 +319,7 @@ box <- function(data, map,
                 inferredVarDisplayLabel = NULL,
                 verbose = c(TRUE, FALSE)) {
 
-  verbose <- matchArg(verbose)
+  verbose <- veupathUtils::matchArg(verbose)
 
   .box <- box.dt(data,
                  map,

@@ -2,123 +2,93 @@ context('group')
 
 #test one simple one
 test_that("groupSummary() returns an appropriately sized data.table", {
-  dt <- groupSummary(data.xy, NULL, 'entity.y')
+  dt <- groupSummary(testDF, NULL, 'entity.contB')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt), c('min', 'q1', 'median', 'q3', 'max'))
  
-  dt <- groupSummary(data.xy, NULL, 'entity.y', 'entity.group')
+  dt <- groupSummary(testDF, NULL, 'entity.contB', 'entity.cat3')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),3)
+  expect_equal(names(dt), c('entity.cat3', 'min', 'q1', 'median', 'q3', 'max'))
+
+  dt <- groupSummary(testDF, NULL, 'entity.contB', NULL, 'entity.cat4')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('entity.group', 'min', 'q1', 'median', 'q3', 'max'))
+  expect_equal(names(dt), c('entity.cat4', 'min', 'q1', 'median', 'q3', 'max'))
 
-  dt <- groupSummary(data.xy, NULL, 'entity.y', NULL, 'entity.panel')
+  dt <- groupSummary(testDF, NULL, 'entity.contB', 'entity.cat3', 'entity.cat4')
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('entity.panel', 'min', 'q1', 'median', 'q3', 'max'))
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt), c('entity.cat3', 'entity.cat4', 'min', 'q1', 'median', 'q3', 'max'))
 
-  dt <- groupSummary(data.xy, NULL, 'entity.y', 'entity.group', 'entity.panel')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
-  expect_equal(names(dt), c('entity.group', 'entity.panel', 'min', 'q1', 'median', 'q3', 'max'))
-
-  dt <- groupSummary(data.catXcontY, 'entity.x', 'entity.y')
+  dt <- groupSummary(testDF, 'entity.cat6', 'entity.contB')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt), c('entity.x', 'min', 'q1', 'median', 'q3', 'max'))
+  expect_equal(names(dt), c('entity.cat6', 'min', 'q1', 'median', 'q3', 'max'))
 
-  dt <- groupSummary(data.catXcontY, 'entity.x', 'entity.y', 'entity.group')
+  dt <- groupSummary(testDF, 'entity.cat6', 'entity.contB', 'entity.cat3')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),3)
+  expect_equal(names(dt), c('entity.cat3', 'entity.cat6', 'min', 'q1', 'median', 'q3', 'max'))
+
+  dt <- groupSummary(testDF, 'entity.cat6', 'entity.contB', NULL, 'entity.cat4')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('entity.group', 'entity.x', 'min', 'q1', 'median', 'q3', 'max'))
+  expect_equal(names(dt), c('entity.cat4', 'entity.cat6', 'min', 'q1', 'median', 'q3', 'max'))
 
-  dt <- groupSummary(data.catXcontY, 'entity.x', 'entity.y', NULL, 'entity.panel')
+  dt <- groupSummary(testDF, 'entity.cat6', 'entity.contB', 'entity.cat3', 'entity.cat4')
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('entity.panel', 'entity.x', 'min', 'q1', 'median', 'q3', 'max'))
-
-  dt <- groupSummary(data.catXcontY, 'entity.x', 'entity.y', 'entity.group', 'entity.panel')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
-  expect_equal(names(dt), c('entity.group', 'entity.panel', 'entity.x', 'min', 'q1', 'median', 'q3', 'max'))
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt), c('entity.cat3', 'entity.cat4', 'entity.cat6', 'min', 'q1', 'median', 'q3', 'max'))
 })
 
 #test the more complicated ones
 test_that("groupSmoothedMean() returns an appropriately sized data.table", {
 
-  dt <- groupSmoothedMean(data.xy, 'entity.x', 'entity.y')
+  dt <- groupSmoothedMean(testDF, 'entity.contA', 'entity.contB')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt), c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
 
-  dt <- groupSmoothedMean(data.xy, 'entity.x', 'entity.y', 'entity.group')
+  dt <- groupSmoothedMean(testDF, 'entity.contA', 'entity.contB', 'entity.cat3')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),3)
+  expect_equal(names(dt), c('entity.cat3', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
+
+  dt <- groupSmoothedMean(testDF, 'entity.contA', 'entity.contB', NULL, 'entity.cat4')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('entity.group', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
+  expect_equal(names(dt), c('entity.cat4', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
 
-  dt <- groupSmoothedMean(data.xy, 'entity.x', 'entity.y', NULL, 'entity.panel')
+  dt <- groupSmoothedMean(testDF, 'entity.contA', 'entity.contB', 'entity.cat3', 'entity.cat4')
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('entity.panel', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
-
-  dt <- groupSmoothedMean(data.xy, 'entity.x', 'entity.y', 'entity.group', 'entity.panel')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
-  expect_equal(names(dt), c('entity.group', 'entity.panel', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt), c('entity.cat3', 'entity.cat4', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
 })
 
 test_that("groupDensity() returns an appropriately sized data.table", {
-  dt <- groupDensity(data.xy, y='entity.x')
+  dt <- groupDensity(testDF, y='entity.contA')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt), c('densityX', 'densityY'))
 
-  dt <- groupDensity(data.xy, y='entity.y', group='entity.group')
+  dt <- groupDensity(testDF, y='entity.contB', group='entity.cat3')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),3)
+  expect_equal(names(dt), c('entity.cat3', 'densityX', 'densityY'))
+
+  dt <- groupDensity(testDF, y='entity.contB', group=NULL, panel='entity.cat4')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('entity.group', 'densityX', 'densityY'))
+  expect_equal(names(dt), c('entity.cat4', 'densityX', 'densityY'))
 
-  dt <- groupDensity(data.xy, y='entity.y', group=NULL, panel='entity.panel')
+  dt <- groupDensity(testDF, y='entity.contB', group='entity.cat3', panel='entity.cat4')
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),4)
-  expect_equal(names(dt), c('entity.panel', 'densityX', 'densityY'))
-
-  dt <- groupDensity(data.xy, y='entity.y', group='entity.group', panel='entity.panel')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
-  expect_equal(names(dt), c('entity.group', 'entity.panel', 'densityX', 'densityY'))
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt), c('entity.cat3', 'entity.cat4', 'densityX', 'densityY'))
 })
 
-#my canaries
-test_that("groupSmoothedMean() returns consistent results", {
-  dt <- groupSmoothedMean(data.xy, 'entity.x', 'entity.y')
-  expect_equal_to_reference(dt,"loess.rds")
-  dt <- groupSmoothedMean(data.xy, 'entity.x', 'entity.y','entity.group')
-  expect_equal_to_reference(dt,"loess.group.rds")
-  dt <- groupSmoothedMean(data.xy, 'entity.x', 'entity.y', NULL, 'entity.panel')
-  expect_equal_to_reference(dt,"loess.panel.rds")
-  dt <- groupSmoothedMean(data.xy, 'entity.x', 'entity.y', 'entity.group', 'entity.panel')
-  expect_equal_to_reference(dt,"loess.group.panel.rds")
-  dt <- groupSmoothedMean(bigData.xy, 'entity.x', 'entity.y')
-  expect_equal_to_reference(dt,"gam.rds")
-  dt <- groupSmoothedMean(bigData.xy, 'entity.x', 'entity.y','entity.group')
-  expect_equal_to_reference(dt,"gam.group.rds")
-  dt <- groupSmoothedMean(bigData.xy, 'entity.x', 'entity.y', NULL, 'entity.panel')
-  expect_equal_to_reference(dt,"gam.panel.rds")
-  dt <- groupSmoothedMean(bigData.xy, 'entity.x', 'entity.y', 'entity.group', 'entity.panel')
-  expect_equal_to_reference(dt,"gam.group.panel.rds")
-})
-
-test_that("groupDensity() returns consistent results", {
-  dt <- groupDensity(data.xy, x=NULL, 'entity.y')
-  expect_equal_to_reference(dt,"density.rds")
-  dt <- groupDensity(data.xy, x=NULL, 'entity.y','entity.group')
-  expect_equal_to_reference(dt,"density.group.rds")
-  dt <- groupDensity(data.xy, x=NULL, 'entity.y', group=NULL, 'entity.panel')
-  expect_equal_to_reference(dt,"density.panel.rds")
-  dt <- groupDensity(data.xy, x=NULL, 'entity.y', 'entity.group', 'entity.panel')
-  expect_equal_to_reference(dt,"density.group.panel.rds")
-})
 
 test_that("groupProportion() returns values that sum to 1", {
   df <- data.table::data.table("labels"=c("a","a","b","b","c"), "counts"=c(1,1, 1, 1, 1), "group"=c("g1","g2","g1","g2","g1"))

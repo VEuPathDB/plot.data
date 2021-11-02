@@ -137,6 +137,7 @@ Now that we've created a new plot, we'd like to use it! Add relevant functions t
 ## License
 [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
+## Github Actions
 <!-- badges: start -->
   [![R-CMD-check](https://github.com/VEuPathDB/plot.data/workflows/R-CMD-check/badge.svg)](https://github.com/VEuPathDB/plot.data/actions)
 [![Codecov test coverage](https://codecov.io/gh/VEuPathDB/plot.data/branch/main/graph/badge.svg)](https://codecov.io/gh/VEuPathDB/plot.data?branch=main)

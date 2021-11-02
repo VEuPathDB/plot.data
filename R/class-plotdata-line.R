@@ -57,14 +57,14 @@ newLinePD <- function(.dt = data.table::data.table(),
     mean <- groupMean(.pd, x, y, group, panel)
     data.table::setnames(mean, c(group, panel, 'seriesX', 'seriesY'))
     .pd <- mean
-    logWithTime('Mean calculated per X-axis value.', verbose)
+    veupathUtils::logWithTime('Mean calculated per X-axis value.', verbose)
 
   } else if (value == 'median') {
 
      median <- groupMedian(.pd, x, y, group, panel)
      data.table::setnames(median, c(group, panel, 'seriesX', 'seriesY'))
     .pd <- median
-    logWithTime('Median calculated per X-axis value.', verbose)
+    veupathUtils::logWithTime('Median calculated per X-axis value.', verbose)
 
   }
   if (attr$xAxisVariable$dataType == 'DATE') {
@@ -79,7 +79,7 @@ newLinePD <- function(.dt = data.table::data.table(),
   }
   attr$names <- names(.pd)
 
-  setAttrFromList(.pd, attr)
+  veupathUtils::setAttrFromList(.pd, attr)
 
   return(.pd)
 }
@@ -111,7 +111,7 @@ validateLinePD <- function(.line, verbose) {
 #      stop('The second facet variable must be binary, ordinal or categorical.')
 #    }
 #  }
-  logWithTime('Line plot request has been validated!', verbose)
+  veupathUtils::logWithTime('Line plot request has been validated!', verbose)
 
   return(.line)
 }
@@ -160,16 +160,16 @@ lineplot.dt <- function(data,
                          inferredVarDisplayLabel = NULL,
                          verbose = c(TRUE, FALSE)) {
 
-  value <- matchArg(value)
-  evilMode <- matchArg(evilMode) 
-  verbose <- matchArg(verbose)  
+  value <- veupathUtils::matchArg(value)
+  evilMode <- veupathUtils::matchArg(evilMode) 
+  verbose <- veupathUtils::matchArg(verbose)  
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
 
   map <- validateMap(map)
-  logWithTime('Map has been validated.', verbose)
+  veupathUtils::logWithTime('Map has been validated.', verbose)
 
   # If there is a duplicated plotRef in map, it must match listVarPlotRef
   if (any(duplicated(map$plotRef))) {
@@ -219,7 +219,7 @@ lineplot.dt <- function(data,
                                           'dataShape' = 'CONTINUOUS',
                                           'displayLabel' = inferredVarDisplayLabel)
 
-    logWithTime('Created inferred variable from listVariable.', verbose)
+    veupathUtils::logWithTime('Created inferred variable from listVariable.', verbose)
   }
 
   .line <- newLinePD(.dt = data,
@@ -234,7 +234,7 @@ lineplot.dt <- function(data,
                             verbose = verbose)
 
   .line <- validateLinePD(.line, verbose)
-  logWithTime(paste('New line plot object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New line plot object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.line)
 }
@@ -283,7 +283,7 @@ lineplot <- function(data,
                       inferredVarDisplayLabel = NULL,
                       verbose = c(TRUE, FALSE)) {
 
-  verbose <- matchArg(verbose)
+  verbose <- veupathUtils::matchArg(verbose)
 
   .line <- lineplot.dt(data,
                            map,
