@@ -47,7 +47,6 @@ newBeeswarmPD <- function(.dt = data.table::data.table(),
                      class = "beeswarm")
 
   attr <- attributes(.pd)
-  print(jitter)
 
   x <- toColNameOrNull(attr$xAxisVariable)
   y <- toColNameOrNull(attr$yAxisVariable)
