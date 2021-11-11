@@ -481,7 +481,26 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$statsTable),c('chisq','pvalue','degreesFreedom'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+
+  map <- data.frame('id' = c('entity.int6', 'entity.int7'),
+                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  dt <- mosaic.dt(df, map, evilMode = TRUE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
   
+  expect_equal(names(jsonList),c('mosaic','sampleSizeTable','completeCasesTable'))
+  expect_equal(names(jsonList$mosaic),c('data','config'))
+  expect_equal(names(jsonList$mosaic$data),c('xLabel','yLabel','value'))
+  expect_equal(names(jsonList$mosaic$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$mosaic$config$xVariableDetails$variableId, 'int7')
+  expect_equal(names(jsonList$sampleSizeTable),c('xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId')) 
 })
 
 test_that("mosaic.dt() returns correct information about missing data", {
