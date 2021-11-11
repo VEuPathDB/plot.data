@@ -357,24 +357,21 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
 })
 
 test_that("mosaic() returns appropriately formatted json", {
-  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat4'),
+  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat1'),
                     'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('STRING', 'STRING', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  df <- testDF[testDF$entity.cat4 == 'cat4_a',]
-
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(testDF, map)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
 
-  # make sure we test facetVariableDetails is an array here, consider a test above too?
   expect_equal(names(jsonList),c('mosaic','sampleSizeTable','statsTable','completeCasesTable'))
   expect_equal(names(jsonList$mosaic),c('data','config'))
   expect_equal(names(jsonList$mosaic$data),c('xLabel','yLabel','value','facetVariableDetails'))
   expect_equal(names(jsonList$mosaic$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$mosaic$data$facetVariableDetails), 1)
-  expect_equal(jsonList$mosaic$data$facetVariableDetails[[1]]$variableId, 'cat4')
+  expect_equal(jsonList$mosaic$data$facetVariableDetails[[1]]$variableId, 'cat1')
   expect_equal(names(jsonList$mosaic$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(jsonList$mosaic$config$xVariableDetails$variableId, 'binA')
@@ -385,7 +382,7 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','facetVariableDetails'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
-  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('binA', 'binB', 'cat4'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('binA', 'binB', 'cat1'))
 
   map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat4'),
                     'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),

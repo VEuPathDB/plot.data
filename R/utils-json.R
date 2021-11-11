@@ -76,7 +76,6 @@ getJSON <- function(.pd, evilMode) {
   namedAttrList <- getPDAttributes(.pd)
   class <- attr(.pd, 'class')[1] 
 
-  # why do we care about evilMode here??
   if (!evilMode && 'statsTable' %in% names(namedAttrList)) {
     statsTable <- statsTable(.pd)
     namedAttrList$statsTable <- NULL
