@@ -49,6 +49,7 @@ addStrataVariableDetails <- function(.pd) {
     if (group %in% names(.pd)) {
       names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
       .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
+      if (nrow(.pd) == 1) { .pd$overlayVariableDetails <- list(list(.pd$overlayVariableDetails)) }
     }
   }
 
@@ -62,7 +63,10 @@ addStrataVariableDetails <- function(.pd) {
     } else if (!is.null(facet2)) {
       names(.pd)[names(.pd) == facet2] <- 'facetVariableDetails'
       .pd$facetVariableDetails <- lapply(lapply(.pd$facetVariableDetails, makeVariableDetails, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel), list)
-    }
+    } 
+  }
+  if (nrow(.pd) == 1 && 'facetVariableDetails' %in% names(.pd)) { 
+    .pd$facetVariableDetails <- list(list(.pd$facetVariableDetails)) 
   }
 
   return(.pd)
