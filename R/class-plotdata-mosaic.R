@@ -135,6 +135,10 @@ mosaic.dt <- function(data, map,
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
 
+  if (evilMode && length(statistic)) {
+    warning('evilMode and statistic are not compatible! Requested statistic will be ignored!')
+  }
+
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }

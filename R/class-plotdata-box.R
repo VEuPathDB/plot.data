@@ -228,6 +228,10 @@ box.dt <- function(data, map,
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
 
+  if (evilMode && computeStats) {
+    warning('evilMode and computeStats are not compatible! computeStats will be ignored!')
+  }
+
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
   }
