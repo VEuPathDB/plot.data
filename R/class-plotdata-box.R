@@ -49,9 +49,9 @@ newBoxPD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
 
-  x <- toColNameOrNull(attr$xAxisVariable)
-  y <- toColNameOrNull(attr$yAxisVariable)
-  group <- toColNameOrNull(attr$overlayVariable)
+  x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
+  y <- veupathUtils::toColNameOrNull(attr$yAxisVariable)
+  group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
   #remove after sorting out #88, fixing updateTypes

@@ -46,22 +46,22 @@ newPlotdata <- function(.dt = data.table(),
                          ...,
                          class = character()) {
 
-  x <- toColNameOrNull(xAxisVariable)
+  x <- veupathUtils::toColNameOrNull(xAxisVariable)
   xType <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataType))
   xShape <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataShape))
-  y <- toColNameOrNull(yAxisVariable)
+  y <- veupathUtils::toColNameOrNull(yAxisVariable)
   yType <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataType))
   yShape <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataShape))
-  z <- toColNameOrNull(zAxisVariable)
+  z <- veupathUtils::toColNameOrNull(zAxisVariable)
   zType <- veupathUtils::toStringOrNull(as.character(zAxisVariable$dataType))
   zShape <- veupathUtils::toStringOrNull(as.character(zAxisVariable$dataShape))
-  group <- toColNameOrNull(overlayVariable)
+  group <- veupathUtils::toColNameOrNull(overlayVariable)
   groupType <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataType))
   groupShape <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataShape))
-  facet1 <- toColNameOrNull(facetVariable1)
+  facet1 <- veupathUtils::toColNameOrNull(facetVariable1)
   facetType1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataType))
   facetShape1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataShape))
-  facet2 <- toColNameOrNull(facetVariable2)
+  facet2 <- veupathUtils::toColNameOrNull(facetVariable2)
   facetType2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataType))
   facetShape2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataShape))
 
@@ -116,7 +116,7 @@ newPlotdata <- function(.dt = data.table(),
     }
 
     # Reshape data
-    .dt <- data.table::melt(.dt, measure.vars = toColNameOrNull(listVariable),
+    .dt <- data.table::melt(.dt, measure.vars = veupathUtils::toColNameOrNull(listVariable),
                         variable.factor = FALSE,
                         variable.name= variable.name,
                         value.name=value.name)
@@ -135,21 +135,21 @@ newPlotdata <- function(.dt = data.table(),
 
     if (listVarDetails$listVarPlotRef == 'xAxisVariable') {
       xAxisVariable <- newCatVariable
-      x <- toColNameOrNull(xAxisVariable)
+      x <- veupathUtils::toColNameOrNull(xAxisVariable)
       xType <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataType))
       xShape <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataShape))
       .dt[[x]] <- updateType(.dt[[x]], xType, xShape)
 
     } else if (listVarDetails$listVarPlotRef == 'overlayVariable') {
       overlayVariable <- newCatVariable
-      group <- toColNameOrNull(overlayVariable)
+      group <- veupathUtils::toColNameOrNull(overlayVariable)
       groupType <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataType))
       groupShape <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataShape))
       .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape)
 
     } else if (listVarDetails$listVarPlotRef == 'facetVariable1') {
       facetVariable1 <- newCatVariable
-      facet1 <- toColNameOrNull(facetVariable1)
+      facet1 <- veupathUtils::toColNameOrNull(facetVariable1)
       facetType1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataType))
       facetShape1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataShape))
       .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) 
@@ -160,7 +160,7 @@ newPlotdata <- function(.dt = data.table(),
 
     } else if (listVarDetails$listVarPlotRef == 'facetVariable2') {
       facetVariable2 <- newCatVariable
-      facet2 <- toColNameOrNull(facetVariable2)
+      facet2 <- veupathUtils::toColNameOrNull(facetVariable2)
       facetType2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataType))
       facetShape2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataShape))
       .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2, facetShape2) 
@@ -173,7 +173,7 @@ newPlotdata <- function(.dt = data.table(),
 
     # Assume inferredVarPlotRef = yAxisVariable always.
     yAxisVariable <- listVarDetails$inferredVariable
-    y <- toColNameOrNull(yAxisVariable)
+    y <- veupathUtils::toColNameOrNull(yAxisVariable)
     yType <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataType))
     yShape <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataShape))
     .dt[[y]] <- updateType(.dt[[y]], yType, yShape) 
@@ -265,7 +265,7 @@ validatePlotdata <- function(.pd) {
   .dt <- unclass(.pd)
   xAxisVariable <- attr(.pd, 'xAxisVariable')
   stopifnot(validateVariableAttr(xAxisVariable))
-  stopifnot(toColNameOrNull(xAxisVariable) %in% names(.dt))
+  stopifnot(veupathUtils::toColNameOrNull(xAxisVariable) %in% names(.dt))
   class <- attr(.pd, 'class')
   stopifnot(is.character(class))
 

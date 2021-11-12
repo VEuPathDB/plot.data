@@ -36,8 +36,8 @@ newMosaicPD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
 
-  x <- toColNameOrNull(attr$xAxisVariable)
-  y <- toColNameOrNull(attr$yAxisVariable)
+  x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
+  y <- veupathUtils::toColNameOrNull(attr$yAxisVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
   if (!evilMode) {
@@ -152,8 +152,8 @@ mosaic.dt <- function(data, map,
     stop("Must provide yAxisVariable for plot type mosaic.")
   }
 
-  x <- toColNameOrNull(xAxisVariable)
-  y <- toColNameOrNull(yAxisVariable)
+  x <- veupathUtils::toColNameOrNull(xAxisVariable)
+  y <- veupathUtils::toColNameOrNull(yAxisVariable)
 
   if (!is.null(statistic)) {
     if (!statistic %in% c('chiSq','bothRatios')) {

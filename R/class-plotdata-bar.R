@@ -37,8 +37,8 @@ newBarPD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
 
-  x <- toColNameOrNull(attr$xAxisVariable)
-  group <- toColNameOrNull(attr$overlayVariable)
+  x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
+  group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
   .pd[[x]] <- as.character(.pd[[x]])
 

@@ -41,9 +41,9 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                      class = "histogram")
 
   attr <- attributes(.pd)
-  x <- toColNameOrNull(attr$xAxisVariable)
+  x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
   xType <- attr$xAxisVariable$dataType
-  group <- toColNameOrNull(attr$overlayVariable)
+  group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
   #NOTE as.numeric here shouldnt be necessary really, thanks to updateTypes. 

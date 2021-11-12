@@ -25,22 +25,22 @@ addVariableDetailsToColumn <- function(.pd, variableIdColName) {
   namedAttrList <- getPDAttributes(.pd)
    
   # Add variable details for any variable in the variableIdCol
-  if ('xAxisVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == toColNameOrNull(namedAttrList$xAxisVariable)] <- list(makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel))
-  if ('yAxisVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == toColNameOrNull(namedAttrList$yAxisVariable)] <- list(makeVariableDetails(NULL, namedAttrList$yAxisVariable$variableId, namedAttrList$yAxisVariable$entityId, namedAttrList$yAxisVariable$displayLabel))
-  if ('zAxisVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == toColNameOrNull(namedAttrList$zAxisVariable)] <- list(makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId, namedAttrList$zAxisVariable$displayLabel))
-  if ('overlayVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == toColNameOrNull(namedAttrList$overlayVariable)] <- list(makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel))
-  if ('facetVariable1' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == toColNameOrNull(namedAttrList$facetVariable1)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId, namedAttrList$facetVariable1$displayLabel))
-  if ('facetVariable2' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == toColNameOrNull(namedAttrList$facetVariable2)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel))
-  if ('listVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] %in% toColNameOrNull(namedAttrList$listVariable)] <- lapply(seq_along(namedAttrList$listVariable$variableId), function(varInd) {makeVariableDetails(NULL, namedAttrList$listVariable$variableId[varInd], namedAttrList$listVariable$entityId[varInd], namedAttrList$listVariable$displayLabel[varInd])})
+  if ('xAxisVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable)] <- list(makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel))
+  if ('yAxisVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$yAxisVariable)] <- list(makeVariableDetails(NULL, namedAttrList$yAxisVariable$variableId, namedAttrList$yAxisVariable$entityId, namedAttrList$yAxisVariable$displayLabel))
+  if ('zAxisVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$zAxisVariable)] <- list(makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId, namedAttrList$zAxisVariable$displayLabel))
+  if ('overlayVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$overlayVariable)] <- list(makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel))
+  if ('facetVariable1' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$facetVariable1)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId, namedAttrList$facetVariable1$displayLabel))
+  if ('facetVariable2' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$facetVariable2)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel))
+  if ('listVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] %in% veupathUtils::toColNameOrNull(namedAttrList$listVariable)] <- lapply(seq_along(namedAttrList$listVariable$variableId), function(varInd) {makeVariableDetails(NULL, namedAttrList$listVariable$variableId[varInd], namedAttrList$listVariable$entityId[varInd], namedAttrList$listVariable$displayLabel[varInd])})
   
   return(.pd)
 }
 
 addStrataVariableDetails <- function(.pd) {
   namedAttrList <- getPDAttributes(.pd)
-  group <- toColNameOrNull(namedAttrList$overlayVariable)
-  facet1 <- toColNameOrNull(namedAttrList$facetVariable1)
-  facet2 <- toColNameOrNull(namedAttrList$facetVariable2)
+  group <- veupathUtils::toColNameOrNull(namedAttrList$overlayVariable)
+  facet1 <- veupathUtils::toColNameOrNull(namedAttrList$facetVariable1)
+  facet2 <- veupathUtils::toColNameOrNull(namedAttrList$facetVariable2)
  
   # !!!!! work off a copy while writing json
   # since we have two exported fxns, dont want calling one changing the result of the other
@@ -84,8 +84,8 @@ getJSON <- function(.pd, evilMode) {
     statsTable <- addStrataVariableDetails(statsTable)
     attr$names <- names(statsTable)
     statsTable <- veupathUtils::setAttrFromList(statsTable, attr)
-    if (toColNameOrNull(namedAttrList$xAxisVariable) %in% names(statsTable)) {
-      x <- toColNameOrNull(namedAttrList$xAxisVariable)
+    if (veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable) %in% names(statsTable)) {
+      x <- veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable)
       names(statsTable)[names(statsTable) == x] <- 'xVariableDetails'
       statsTable$xVariableDetails <- lapply(statsTable$xVariableDetails, makeVariableDetails, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
     }
@@ -101,7 +101,7 @@ getJSON <- function(.pd, evilMode) {
     sampleSizeTable <- veupathUtils::setAttrFromList(sampleSizeTable, attr)
     if ('xAxisVariable' %in% names(namedAttrList)) {
       if (namedAttrList$xAxisVariable$dataShape != "CONTINUOUS") {
-        x <- toColNameOrNull(namedAttrList$xAxisVariable)
+        x <- veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable)
         names(sampleSizeTable)[names(sampleSizeTable) == x] <- 'xVariableDetails'
         sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
       }

@@ -126,9 +126,9 @@ findPanelColName <- function(facet1 = NULL, facet2 = NULL) {
   if (!is.null(facet1$variableId) & !is.null(facet2$variableId)) {
     panel <- 'panel'
   } else if (!is.null(facet1)) {
-    panel <- toColNameOrNull(facet1)
+    panel <- veupathUtils::toColNameOrNull(facet1)
   } else if (!is.null(facet2)) {
-    panel <- toColNameOrNull(facet2)
+    panel <- veupathUtils::toColNameOrNull(facet2)
   } else {
     panel <- NULL
   }
@@ -165,22 +165,6 @@ makePanels <- function(data, facet1 = NULL, facet2 = NULL) {
   }
 
   return(list(data,panel))
-}
-
-toColNameOrNull <- function(varDetailsList) {
-  if (is.null(varDetailsList)) {
-    return(NULL)
-  }
-
-  if (is.null(varDetailsList$variableId)) {
-    return(NULL)
-  }
-
-  if (is.null(varDetailsList$entityId)) {
-    return(varDetailsList$variableId)
-  }
-
-  return(paste0(varDetailsList$entityId, ".", varDetailsList$variableId))
 }
 
 #' Adjust Data Range to Viewport
@@ -304,7 +288,7 @@ validateMap <- function(map) {
 }
 
 toIdOrDisplayLabel <- function(colName, plotRef) {
-      varIndex <- which(toColNameOrNull(plotRef) == colName)
+      varIndex <- which(veupathUtils::toColNameOrNull(plotRef) == colName)
       if (is.null(plotRef$displayLabel[varIndex]) || identical(plotRef$displayLabel[varIndex], '')) {
         name <- plotRef$variableId[varIndex]
       } else {
