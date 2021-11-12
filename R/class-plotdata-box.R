@@ -61,7 +61,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   fences <- fences[, -x, with = FALSE]
   veupathUtils::logWithTime('Calculated five-number summaries and upper and lower fences for boxplot.', verbose)
 
-  if (computeStats) {
+  if (!evilMode && computeStats) {
     
     if (is.null(group)) {
       # If no overlay, then compute across x per panel
@@ -227,6 +227,10 @@ box.dt <- function(data, map,
   computeStats <- veupathUtils::matchArg(computeStats)
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
+
+  if (evilMode && computeStats) {
+    warning('evilMode and computeStats are not compatible! computeStats will be ignored!')
+  }
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)

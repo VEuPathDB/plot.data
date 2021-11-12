@@ -40,18 +40,22 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   y <- toColNameOrNull(attr$yAxisVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-  if (statistic == 'chiSq') {
-    statsTable <- panelChiSq(.pd, x, y, panel)
-    veupathUtils::logWithTime('Calculated chi-squared statistic.', verbose)
+  if (!evilMode) {
+    if (statistic == 'chiSq') {
+      statsTable <- panelChiSq(.pd, x, y, panel)
+      veupathUtils::logWithTime('Calculated chi-squared statistic.', verbose)
+    } else {
+      statsTable <- panelBothRatios(.pd, x, y, panel)
+      veupathUtils::logWithTime('Calculated odds ratio and relative risk.', verbose)
+    }
+    attr$statsTable <- statsTable
   } else {
-    statsTable <- panelBothRatios(.pd, x, y, panel)
-    veupathUtils::logWithTime('Calculated odds ratio and relative risk.', verbose)
+    veupathUtils::logWithTime('No statistics calculated when evilMode = TRUE.', verbose)
   }
+  
   .pd <- panelTable(.pd, x, y, panel)
 
-  attr$names <- names(.pd)
-  attr$statsTable <- statsTable
-
+  attr$names <- names(.pd)  
   veupathUtils::setAttrFromList(.pd, attr)
 
   return(.pd)
@@ -130,6 +134,10 @@ mosaic.dt <- function(data, map,
                       verbose = c(TRUE, FALSE)) {
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
+
+  if (evilMode && length(statistic)) {
+    warning('evilMode and statistic are not compatible! Requested statistic will be ignored!')
+  }
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)

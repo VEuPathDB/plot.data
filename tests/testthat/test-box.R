@@ -489,6 +489,24 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.cat4'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'),
+                    'displayLabel' = c('','','panelLabel'), stringsAsFactors=FALSE)
+
+  dt <- box.dt(df, map, 'none', FALSE, TRUE, TRUE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  # no stats table even if requested, when evilMode is TRUE
+  expect_equal(names(jsonList), c('boxplot', 'sampleSizeTable', 'completeCasesTable'))
+  expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId','displayLabel'))
+  expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$boxplot$data$overlayVariableDetails), c('variableId','entityId','value'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId','displayLabel'))
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+
   map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.binA'),
                     'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
                     'dataType' = c('STRING', 'NUMBER', 'STRING'),

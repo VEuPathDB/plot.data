@@ -76,7 +76,7 @@ getJSON <- function(.pd, evilMode) {
   namedAttrList <- getPDAttributes(.pd)
   class <- attr(.pd, 'class')[1] 
 
-  if (!evilMode && 'statsTable' %in% names(namedAttrList)) {
+  if ('statsTable' %in% names(namedAttrList)) {
     statsTable <- statsTable(.pd)
     namedAttrList$statsTable <- NULL
     attr <- attributes(statsTable)
