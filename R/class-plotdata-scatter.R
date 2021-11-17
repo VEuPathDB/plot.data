@@ -194,6 +194,8 @@ validateScatterPD <- function(.scatter, verbose) {
 #' the repeated variable.
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned 
 #' to the inferred variable.
+#' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
+#' Metadata can include 'displayLabel' and 'defaultRange'.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @examples
@@ -363,6 +365,8 @@ scattergl.dt <- function(data,
 #' the repeated variable.
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned 
 #' to the inferred variable.
+#' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
+#' Metadata can include 'displayLabel' and 'defaultRange'.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @examples

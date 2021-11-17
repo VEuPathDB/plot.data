@@ -146,8 +146,15 @@ getJSON <- function(.pd, evilMode) {
   namedAttrList$facetVariable2 <- NULL
   namedAttrList$overlayVariable <- NULL
 
-  
+  # Ensure computedVariableMetadata meets api
+  if ('computedVariableMetadata' %in% names(namedAttrList)) {
 
+    computedVariableMetadata <- namedAttrList$computedVariableMetadata
+    if ('defaultRange' %in% names(computedVariableMetadata)) {computedVariableMetadata$defaultRange <- as.numeric(computedVariableMetadata$defaultRange)}
+    if ('displayLabel' %in% names(computedVariableMetadata)) {computedVariableMetadata$displayLabel <- as.character(computedVariableMetadata$displayLabel)}
+    
+    namedAttrList$computedVariableMetadata <- computedVariableMetadata
+  }
   
   outList <- list(class = list('data'=.pd, 'config'=namedAttrList))
   if (!inherits(sampleSizeTable, 'function')) {

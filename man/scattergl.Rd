@@ -13,6 +13,7 @@ scattergl(
   listVarPlotRef = NULL,
   listVarDisplayLabel = NULL,
   inferredVarDisplayLabel = NULL,
+  computedVariableMetadata = NULL,
   verbose = c(TRUE, FALSE)
 )
 }

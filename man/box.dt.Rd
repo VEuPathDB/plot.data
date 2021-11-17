@@ -14,6 +14,7 @@ box.dt(
   listVarPlotRef = NULL,
   listVarDisplayLabel = NULL,
   inferredVarDisplayLabel = NULL,
+  computedVariableMetadata = NULL,
   verbose = c(TRUE, FALSE)
 )
 }
