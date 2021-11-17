@@ -329,7 +329,9 @@ test_that("box.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  computedVariableMetadata = list('defaultRange' = c(0, 1))
+  
+  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName', computedVariableMetadata = computedVariableMetadata)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 12)
   expect_equal(names(dt),c('panel', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
@@ -339,6 +341,8 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
   expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
   expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
+  expect_equal(names(attr(dt, 'computedVariableMetadata')), c('defaultRange'))
+  expect_equal(attr(dt, 'computedVariableMetadata')$defaultRange, c(0, 1))
 
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.cat3', 'entity.cat4'),
                     'plotRef' = c('facetVariable2', 'facetVariable2', 'facetVariable2', 'xAxisVariable', 'facetVariable1'),
@@ -388,6 +392,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
   expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
+  
 })
 
 test_that("box() returns appropriately formatted json", {

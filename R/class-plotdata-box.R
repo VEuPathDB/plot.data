@@ -32,6 +32,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                                                'inferredVarPlotRef' = NULL,
                                                'listVarPlotRef' = NULL,
                                                'listVarDisplayLabel' = NULL),
+                         computedVariableMetadata = NULL,
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -44,6 +45,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
                      listVarDetails = listVarDetails,
+                     computedVariableMetadata = computedVariableMetadata,
                      verbose = verbose,
                      class = "boxplot")
 
@@ -220,6 +222,7 @@ box.dt <- function(data, map,
                    listVarPlotRef = NULL,
                    listVarDisplayLabel = NULL,
                    inferredVarDisplayLabel = NULL,
+                   computedVariableMetadata = NULL,
                    verbose = c(TRUE, FALSE)) {
 
   points <- veupathUtils::matchArg(points)
@@ -285,6 +288,7 @@ box.dt <- function(data, map,
     veupathUtils::logWithTime('Created inferred variable from listVariable.', verbose)
   }
 
+
   .box <- newBoxPD(.dt = data,
                     xAxisVariable = xAxisVariable,
                     yAxisVariable = yAxisVariable,
@@ -296,6 +300,7 @@ box.dt <- function(data, map,
                     computeStats = computeStats,
                     evilMode = evilMode,
                     listVarDetails = listVarDetails,
+                    computedVariableMetadata = computedVariableMetadata,
                     verbose = verbose)
 
   .box <- validateBoxPD(.box, verbose)
@@ -361,6 +366,7 @@ box <- function(data, map,
                 listVarPlotRef = NULL,
                 listVarDisplayLabel = NULL,
                 inferredVarDisplayLabel = NULL,
+                computedVariableMetadata = NULL,
                 verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
@@ -374,6 +380,7 @@ box <- function(data, map,
                  listVarPlotRef = listVarPlotRef,
                  listVarDisplayLabel = listVarDisplayLabel,
                  inferredVarDisplayLabel = inferredVarDisplayLabel,
+                 computedVariableMetadata = computedVariableMetadata,
                  verbose = verbose)
   outFileName <- writeJSON(.box, evilMode, 'boxplot', verbose)
 

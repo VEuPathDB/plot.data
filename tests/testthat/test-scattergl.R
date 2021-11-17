@@ -327,13 +327,16 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
   
+  # With computed var
+  computedVariableMetadata = list('defaultRange' = c(0, 1),
+                                  'displayLabel' = 'Pielou\'s Evenness')
   
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
                     'plotRef' = c('overlayVariable', 'overlayVariable', 'overlayVariable', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('Y','X','Z','',''), stringsAsFactors=FALSE)
   
-  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'overlayVariable', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'overlayVariable', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName', 'computedVariableMetadata' = computedVariableMetadata)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('entity.overlayVariable', 'entity.cat3', 'seriesX', 'seriesY'))
@@ -342,6 +345,9 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(attr(dt, 'overlayVariable')$displayLabel, 'listVarName')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
   expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
+  expect_equal(names(attr(dt, 'computedVariableMetadata')), c('defaultRange', 'displayLabel'))
+  expect_equal(attr(dt, 'computedVariableMetadata')$defaultRange, c(0, 1))
+  expect_equal(attr(dt, 'computedVariableMetadata')$displayLabel, 'Pielou\'s Evenness')
   
   # Only one var in the listVar
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat3'),

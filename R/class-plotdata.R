@@ -42,6 +42,7 @@ newPlotdata <- function(.dt = data.table(),
                                                'inferredVarPlotRef' = NULL,
                                                'listVarPlotRef' = NULL,
                                                'listVarDisplayLabel' = NULL),
+                         computedVariableMetadata = NULL,
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -241,6 +242,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(facet1)) { attr$facetVariable1 <- facetVariable1 }
   if (!is.null(facet2)) { attr$facetVariable2 <- facetVariable2 }
   if (!is.null(listVariable)) { attr$listVariable <- listVariable }
+  if (!is.null(computedVariableMetadata)) { attr$computedVariableMetadata <- computedVariableMetadata}
 
   veupathUtils::setAttrFromList(.dt, attr)
   .pd <- validatePlotdata(.dt)

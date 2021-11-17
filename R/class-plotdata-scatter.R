@@ -30,6 +30,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                                                'inferredVarPlotRef' = NULL,
                                                'listVarPlotRef' = NULL,
                                                'listVarDisplayLabel' = NULL),
+                         computedVariableMetadata = NULL,
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -42,6 +43,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
                      listVarDetails = listVarDetails,
+                     computedVariableMetadata = computedVariableMetadata,
                      verbose = verbose,
                      class = "scatterplot")
 
@@ -220,6 +222,7 @@ scattergl.dt <- function(data,
                          listVarPlotRef = NULL,
                          listVarDisplayLabel = NULL,
                          inferredVarDisplayLabel = NULL,
+                         computedVariableMetadata = NULL,
                          verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
@@ -306,6 +309,7 @@ scattergl.dt <- function(data,
                             value = value,
                             evilMode = evilMode,
                             listVarDetails = listVarDetails,
+                            computedVariableMetadata = computedVariableMetadata,
                             verbose = verbose)
 
   .scatter <- validateScatterPD(.scatter, verbose)
@@ -387,6 +391,7 @@ scattergl <- function(data,
                       listVarPlotRef = NULL,
                       listVarDisplayLabel = NULL,
                       inferredVarDisplayLabel = NULL,
+                      computedVariableMetadata = NULL,
                       verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
@@ -398,6 +403,7 @@ scattergl <- function(data,
                            listVarPlotRef = listVarPlotRef,
                            listVarDisplayLabel = listVarDisplayLabel,
                            inferredVarDisplayLabel = inferredVarDisplayLabel,
+                           computedVariableMetadata = computedVariableMetadata,
                            verbose = verbose)
                            
   outFileName <- writeJSON(.scatter, evilMode, 'scattergl', verbose)
