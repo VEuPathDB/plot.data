@@ -28,8 +28,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                          evilMode = logical(),
                          listVarDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
-                                               'listVarPlotRef' = NULL,
-                                               'listVarDisplayLabel' = NULL),
+                                               'listVarPlotRef' = NULL),
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -188,10 +187,6 @@ validateScatterPD <- function(.scatter, verbose) {
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
 #' variables should be interpreted as a listVariable.
-#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to 
-#' the repeated variable.
-#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned 
-#' to the inferred variable.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @examples
@@ -218,8 +213,6 @@ scattergl.dt <- function(data,
                                    'raw'),
                          evilMode = c(FALSE, TRUE),
                          listVarPlotRef = NULL,
-                         listVarDisplayLabel = NULL,
-                         inferredVarDisplayLabel = NULL,
                          verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
@@ -238,11 +231,6 @@ scattergl.dt <- function(data,
     if (!identical(listVarPlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
       stop('listVar error: duplicated map plotRef does not match listVarPlotRef.')
     }
-  }
-
-  # If listVar and inferredVar labels are provided, must also provide listVarPlotRef
-  if ((!is.null(listVarDisplayLabel) | !is.null(inferredVarDisplayLabel)) & is.null(listVarPlotRef)) {
-    stop('listVar error: listVarPlotRef must be specified in order to use inferredVarDisplayLabel or listVarDisplayLabel')
   }
 
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
@@ -275,8 +263,7 @@ scattergl.dt <- function(data,
   # Handle listVars
   listVarDetails <- list('inferredVariable' = NULL,
                          'inferredVarPlotRef' = 'yAxisVariable',
-                         'listVarPlotRef' = listVarPlotRef,
-                         'listVarDisplayLabel' = listVarDisplayLabel)
+                         'listVarPlotRef' = listVarPlotRef)
   if (!is.null(listVarPlotRef)) {
     if (identical(listVarPlotRef, 'overlayVariable')) { 
       inferredVarEntityId <- unique(overlayVariable$entityId)
@@ -291,8 +278,7 @@ scattergl.dt <- function(data,
     listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                           'entityId' = inferredVarEntityId,
                                           'dataType' = 'NUMBER',
-                                          'dataShape' = 'CONTINUOUS',
-                                          'displayLabel' = inferredVarDisplayLabel)
+                                          'dataShape' = 'CONTINUOUS')
 
     veupathUtils::logWithTime('Created inferred variable from listVariable.', verbose)
   }
@@ -355,10 +341,6 @@ scattergl.dt <- function(data,
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables 
 #' should be interpreted as a listVariable.
-#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to 
-#' the repeated variable.
-#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned 
-#' to the inferred variable.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @examples
@@ -385,8 +367,6 @@ scattergl <- function(data,
                                 'raw'),
                       evilMode = c(FALSE, TRUE),
                       listVarPlotRef = NULL,
-                      listVarDisplayLabel = NULL,
-                      inferredVarDisplayLabel = NULL,
                       verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
@@ -396,8 +376,6 @@ scattergl <- function(data,
                            value = value,
                            evilMode = evilMode,
                            listVarPlotRef = listVarPlotRef,
-                           listVarDisplayLabel = listVarDisplayLabel,
-                           inferredVarDisplayLabel = inferredVarDisplayLabel,
                            verbose = verbose)
                            
   outFileName <- writeJSON(.scatter, evilMode, 'scattergl', verbose)

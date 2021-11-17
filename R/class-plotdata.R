@@ -40,8 +40,7 @@ newPlotdata <- function(.dt = data.table(),
                          evilMode = logical(),
                          listVarDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
-                                               'listVarPlotRef' = NULL,
-                                               'listVarDisplayLabel' = NULL),
+                                               'listVarPlotRef' = NULL),
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -130,8 +129,7 @@ newPlotdata <- function(.dt = data.table(),
     newCatVariable <- list('variableId' = listVarDetails$listVarPlotRef,
                    'entityId' = unique(listVariable$entityId),
                    'dataType' = 'STRING',
-                   'dataShape' = 'CATEGORICAL',
-                   'displayLabel' = listVarDetails$listVarDisplayLabel)
+                   'dataShape' = 'CATEGORICAL')
 
     if (listVarDetails$listVarPlotRef == 'xAxisVariable') {
       xAxisVariable <- newCatVariable

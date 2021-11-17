@@ -284,15 +284,13 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('entity.cat3', 'entity.facetVariable1', 'seriesX', 'seriesY'))
   expect_equal(unique(dt$entity.facetVariable1), c('contA','contB','contC'))
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
-  expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   
   
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
@@ -300,15 +298,13 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('Y','X','Z','',''), stringsAsFactors=FALSE)
   
-  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('panel', 'seriesX', 'seriesY'))
   expect_equal(dt$panel[1], 'X.||.cat3_a')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
-  expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
   
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
@@ -316,15 +312,13 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable2', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable2')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('panel', 'seriesX', 'seriesY'))
   expect_equal(dt$panel[1], 'cat3_a.||.contA')
   expect_equal(attr(dt, 'facetVariable2')$variableId, 'facetVariable2')
-  expect_equal(attr(dt, 'facetVariable2')$displayLabel, 'listVarName')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
   
   
@@ -333,15 +327,13 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('Y','X','Z','',''), stringsAsFactors=FALSE)
   
-  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'overlayVariable', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'overlayVariable')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('entity.overlayVariable', 'entity.cat3', 'seriesX', 'seriesY'))
   expect_equal(unique(dt$entity.overlayVariable), c('X','Y','Z'))
   expect_equal(attr(dt, 'overlayVariable')$variableId, 'overlayVariable')
-  expect_equal(attr(dt, 'overlayVariable')$displayLabel, 'listVarName')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   
   # Only one var in the listVar
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat3'),
@@ -349,30 +341,26 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'overlayVariable', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'overlayVariable')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt), c('entity.overlayVariable', 'entity.cat3', 'seriesX', 'seriesY'))
   expect_equal(unique(dt$entity.overlayVariable), c('contB'))
   expect_equal(attr(dt, 'overlayVariable')$variableId, 'overlayVariable')
-  expect_equal(attr(dt, 'overlayVariable')$displayLabel, 'listVarName')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat3'),
                     'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'),
                     'dataType' = c('NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt), c('entity.cat3', 'entity.facetVariable1', 'seriesX', 'seriesY'))
   expect_equal(unique(dt$entity.facetVariable1), c('contB'))
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
-  expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   
   
   # With factors
@@ -547,7 +535,7 @@ test_that("scattergl() returns appropriately formatted json", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable1')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
@@ -569,14 +557,14 @@ test_that("scattergl() returns appropriately formatted json", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable2', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable2')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
   expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY'))
-  expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value','displayLabel'))
+  expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails','listVariableDetails'))
   expect_equal(names(jsonList$scatterplot$config$listVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
@@ -591,14 +579,14 @@ test_that("scattergl() returns appropriately formatted json", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'overlayVariable', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'overlayVariable')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
   expect_equal(names(jsonList$scatterplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY'))
-  expect_equal(names(jsonList$scatterplot$data$overlayVariableDetails),c('variableId','entityId','value','displayLabel'))
+  expect_equal(names(jsonList$scatterplot$data$overlayVariableDetails),c('variableId','entityId','value'))
   expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails','listVariableDetails'))
   expect_equal(names(jsonList$scatterplot$config$listVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails','size'))
