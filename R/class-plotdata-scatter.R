@@ -30,7 +30,9 @@ newScatterPD <- function(.dt = data.table::data.table(),
                                                'inferredVarPlotRef' = NULL,
                                                'listVarPlotRef' = NULL,
                                                'listVarDisplayLabel' = NULL),
-                         computedVariableMetadata = NULL,
+                         computedVariableMetadata = list(
+                                               'defaultRange' = NULL,
+                                               'displayLabel' = NULL),
                          verbose = logical(),
                          ...,
                          class = character()) {

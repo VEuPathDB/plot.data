@@ -150,8 +150,8 @@ getJSON <- function(.pd, evilMode) {
   if ('computedVariableMetadata' %in% names(namedAttrList)) {
 
     computedVariableMetadata <- namedAttrList$computedVariableMetadata
-    if ('defaultRange' %in% names(computedVariableMetadata)) {computedVariableMetadata$defaultRange <- as.numeric(computedVariableMetadata$defaultRange)}
-    if ('displayLabel' %in% names(computedVariableMetadata)) {computedVariableMetadata$displayLabel <- as.character(computedVariableMetadata$displayLabel)}
+    if (!is.null(computedVariableMetadata$defaultRange)) {computedVariableMetadata$defaultRange <- as.numeric(computedVariableMetadata$defaultRange)}
+    if (!is.null(computedVariableMetadata$displayLabel)) {computedVariableMetadata$displayLabel <- as.character(computedVariableMetadata$displayLabel)}
     
     namedAttrList$computedVariableMetadata <- computedVariableMetadata
   }

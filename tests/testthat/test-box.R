@@ -677,7 +677,7 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId', 'displayLabel'))
   expect_equal(names(jsonList$boxplot$config$listVariableDetails), c('variableId','entityId'))
-    expect_equal(names(jsonList$boxplot$config$computedVariableMetadata), c('defaultRange'))
+  expect_equal(names(jsonList$boxplot$config$computedVariableMetadata), c('defaultRange'))
   expect_equal(jsonList$boxplot$config$computedVariableMetadata$defaultRange, c(0, 1))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
