@@ -131,32 +131,10 @@ newBoxPD <- function(.dt = data.table::data.table(),
 }
 
 validateBoxPD <- function(.box, verbose) {
-  xAxisVariable <- attr(.box, 'xAxisVariable')
-  #if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-  #  stop('The independent axis must be binary, ordinal or categorical for boxplot.')
-  #}
   yAxisVariable <- attr(.box, 'yAxisVariable')
   if (!yAxisVariable$dataType %in% c('NUMBER', 'INTEGER')) {
     stop('The dependent axis must be of type number or integer for boxplot.')
   }
-  overlayVariable <- attr(.box, 'overlayVariable')
-  #if (!is.null(overlayVariable)) {
-  #  if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-  #    stop('The overlay variable must be binary, ordinal or categorical.')
-  #  }
-  #}
-  facetVariable1 <- attr(.box, 'facetVariable1')
-  #if (!is.null(facetVariable1)) {
-  #  if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-  #    stop('The first facet variable must be binary, ordinal or categorical.')
-  #  }
-  #}
-  facetVariable2 <- attr(.box, 'facetVariable2')
-  #if (!is.null(facetVariable2)) {
-  #  if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-  #    stop('The second facet variable must be binary, ordinal or categorical.')
-  #  }
-  #}
   veupathUtils::logWithTime('Boxplot request has been validated!', verbose)
 
   return(.box)
