@@ -45,8 +45,7 @@ addStrataVariableDetails <- function(.pd) {
   # !!!!! work off a copy while writing json
   # since we have two exported fxns, dont want calling one changing the result of the other
   if (!is.null(group)) {
-    #if (!identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS') & (group %in% names(.pd))) {
-    if (group %in% names(.pd)) {
+    if (!identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS') & (group %in% names(.pd))) {
       names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
       .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
       if (nrow(.pd) == 1) { .pd$overlayVariableDetails <- list(list(.pd$overlayVariableDetails)) }
@@ -138,9 +137,9 @@ getJSON <- function(.pd, evilMode) {
   
   .pd <- addStrataVariableDetails(.pd)
   # If overlay is continuous, handle similarly to x, y, z vars.
-  #if ('overlayVariable' %in% names(namedAttrList) & identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS')) {
-  #  namedAttrList$overlayVariableDetails <- makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
-  #}
+  if ('overlayVariable' %in% names(namedAttrList) & identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS')) {
+    namedAttrList$overlayVariableDetails <- makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
+  }
   
   namedAttrList$facetVariable1 <- NULL
   namedAttrList$facetVariable2 <- NULL

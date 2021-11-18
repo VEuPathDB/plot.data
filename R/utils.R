@@ -66,6 +66,8 @@ plotRefMapToList <- function(map, plotRef) {
 #' @importFrom lubridate is.Date
 #' @importFrom lubridate as_date
 updateType <- function(x, xType, xShape='') {
+  # once forceStringType is fully implemented we wont need the dataShape check here
+  # all numbers will truly be numbers. not sure when thatll happen though.
   if (xType %in% c('NUMBER', 'INTEGER') & xShape != 'CATEGORICAL' & !is.numeric(x)) { x <- as.numeric(x) }
   if (xType %in% c('NUMBER', 'INTEGER') & xShape == 'CATEGORICAL' & !is.character(x)) { x <- as.character(x) }
   if (xType == 'DATE' & !lubridate::is.Date(x)) { x <- lubridate::as_date(x) }
