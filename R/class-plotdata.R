@@ -42,9 +42,9 @@ newPlotdata <- function(.dt = data.table(),
                                                'inferredVarPlotRef' = NULL,
                                                'listVarPlotRef' = NULL,
                                                'listVarDisplayLabel' = NULL),
-                         computedVariableMetadata = list(
-                                               'defaultRange' = NULL,
-                                               'displayLabel' = NULL),
+                         computedVariableMetadata = list('displayRangeMin' = NULL,
+                                                         'displayRangeMax' = NULL,
+                                                         'displayName' = NULL),
                          verbose = logical(),
                          ...,
                          class = character()) {

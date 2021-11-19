@@ -37,7 +37,7 @@ box(
 
 \item{inferredVarDisplayLabel}{string indicated the final displayLabel to be assigned to the inferred variable.}
 
-\item{computedVariableMetadata}{named list containing metadata about a computed variable(s) involved in a plot. Metadata can include 'displayLabel' and 'defaultRange'. Will be included as an attribute of the returned plot object.}
+\item{computedVariableMetadata}{named list containing metadata about a computed variable(s) involved in a plot. Metadata can include 'displayName', 'displayRangeMin', and 'displayRangeMax'. Will be included as an attribute of the returned plot object.}
 
 \item{verbose}{boolean indicating if timed logging is desired}
 }

@@ -32,9 +32,9 @@ newBoxPD <- function(.dt = data.table::data.table(),
                                                'inferredVarPlotRef' = NULL,
                                                'listVarPlotRef' = NULL,
                                                'listVarDisplayLabel' = NULL),
-                         computedVariableMetadata = list(
-                                               'defaultRange' = NULL,
-                                               'displayLabel' = NULL),
+                         computedVariableMetadata = list('displayRangeMin' = NULL,
+                                                         'displayRangeMax' = NULL,
+                                                         'displayName' = NULL),
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -198,7 +198,7 @@ validateBoxPD <- function(.box, verbose) {
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
 #' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
-#' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. Metadata can include 'displayLabel' and 'defaultRange'. Will be included as an attribute of the returned plot object.
+#' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. Metadata can include 'displayName', 'displayRangeMin', and 'displayRangeMax'. Will be included as an attribute of the returned plot object.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @examples
@@ -344,7 +344,7 @@ box.dt <- function(data, map,
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
 #' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
 #' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
-#' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. Metadata can include 'displayLabel' and 'defaultRange'. Will be included as an attribute of the returned plot object.
+#' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. Metadata can include 'displayName', 'displayRangeMin', and 'displayRangeMax'. Will be included as an attribute of the returned plot object.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @examples
