@@ -329,8 +329,8 @@ test_that("box.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  computedVariableMetadata = list('displayRangeMin' = 0,
-                                  'displayRangeMax' = 1)
+  computedVariableMetadata = list('displayRangeMin' = '0',
+                                  'displayRangeMax' = '1')
   
   dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName', computedVariableMetadata = computedVariableMetadata)
   expect_is(dt, 'data.table')
@@ -343,7 +343,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
   expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
   expect_equal(names(attr(dt, 'computedVariableMetadata')), c('displayRangeMin','displayRangeMax'))
-  expect_equal(attr(dt, 'computedVariableMetadata')$displayRangeMin, computedVariableMetadata$displayRangeMin) # Type remains constant
+  expect_equal(attr(dt, 'computedVariableMetadata')$displayRangeMin, computedVariableMetadata$displayRangeMin)
   expect_equal(attr(dt, 'computedVariableMetadata')$displayRangeMax, computedVariableMetadata$displayRangeMax)
 
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.cat3', 'entity.cat4'),
@@ -610,8 +610,8 @@ test_that("box() returns appropriately formatted json", {
                     'dataType' = c('NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  computedVariableMetadata = list('displayRangeMin' = 0.5,
-                                  'displayRangeMax' = 1.5,
+  computedVariableMetadata = list('displayRangeMin' = '0.5',
+                                  'displayRangeMax' = '1.5',
                                   'displayName' = c('VarLabel1','VarLabel2'))
   
   dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'xAxisVariable', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName', computedVariableMetadata = computedVariableMetadata)
@@ -625,8 +625,8 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId', 'displayLabel'))
   expect_equal(names(jsonList$boxplot$config$listVariableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$boxplot$config$computedVariableMetadata), c('displayRangeMin', 'displayRangeMax', 'displayName'))
-  expect_equal(jsonList$boxplot$config$computedVariableMetadata$displayRangeMin, '0.5') # getJSON changes type
-  expect_equal(jsonList$boxplot$config$computedVariableMetadata$displayRangeMax, '1.5')
+  expect_equal(jsonList$boxplot$config$computedVariableMetadata$displayRangeMin, computedVariableMetadata$displayRangeMin)
+  expect_equal(jsonList$boxplot$config$computedVariableMetadata$displayRangeMax, computedVariableMetadata$displayRangeMax)
   expect_equal(jsonList$boxplot$config$computedVariableMetadata$displayName, computedVariableMetadata$displayName)
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')

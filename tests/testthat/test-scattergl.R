@@ -328,8 +328,8 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
   
   # With computed var
-  computedVariableMetadata = list('displayRangeMin' = 0,
-                                  'displayRangeMax' = 1,
+  computedVariableMetadata = list('displayRangeMin' = '0',
+                                  'displayRangeMax' = '1',
                                   'displayName' = 'Pielou\'s Evenness')
   
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
@@ -556,8 +556,8 @@ test_that("scattergl() returns appropriately formatted json", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  computedVariableMetadata = list('displayRangeMin' = 0,
-                                  'displayRangeMax' = 1,
+  computedVariableMetadata = list('displayRangeMin' = '0',
+                                  'displayRangeMax' = '1',
                                   'displayName' = c('VarLabel1','VarLabel2'))
 
   dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName',computedVariableMetadata = computedVariableMetadata)
@@ -571,8 +571,8 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','xVariableDetails','yVariableDetails','listVariableDetails'))
   expect_equal(names(jsonList$scatterplot$config$listVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$scatterplot$config$computedVariableMetadata), c('displayRangeMin','displayRangeMax','displayName'))
-  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayRangeMin, '0')
-  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayRangeMax, '1')
+  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayRangeMin, computedVariableMetadata$displayRangeMin)
+  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayRangeMax, computedVariableMetadata$displayRangeMax)
   expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayName, computedVariableMetadata$displayName)
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
@@ -586,8 +586,8 @@ test_that("scattergl() returns appropriately formatted json", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  computedVariableMetadata = list('displayRangeMin' = 0.5,
-                                  'displayRangeMax' = 1.5)
+  computedVariableMetadata = list('displayRangeMin' = '0.5',
+                                  'displayRangeMax' = '1.5')
 
   dt <- scattergl.dt(df, map, 'raw', listVarPlotRef = 'facetVariable2', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
@@ -600,8 +600,8 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','xVariableDetails','yVariableDetails','listVariableDetails'))
   expect_equal(names(jsonList$scatterplot$config$listVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$scatterplot$config$computedVariableMetadata), c('displayRangeMin','displayRangeMax'))
-  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayRangeMin, '0.5')
-  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayRangeMax, '1.5')
+  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayRangeMin, computedVariableMetadata$displayRangeMin)
+  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayRangeMax, computedVariableMetadata$displayRangeMax)
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
