@@ -152,9 +152,9 @@ getJSON <- function(.pd, evilMode) {
     computedVariableMetadata <- namedAttrList$computedVariableMetadata
 
     # Note - returning range min and max as strings in order to better handle dates.
+    if (!is.null(computedVariableMetadata$displayName)) {computedVariableMetadata$displayName <- as.character(computedVariableMetadata$displayName)}
     if (!is.null(computedVariableMetadata$displayRangeMin)) {computedVariableMetadata$displayRangeMin <- jsonlite::unbox(as.character(computedVariableMetadata$displayRangeMin))}
     if (!is.null(computedVariableMetadata$displayRangeMax)) {computedVariableMetadata$displayRangeMax <- jsonlite::unbox(as.character(computedVariableMetadata$displayRangeMax))}
-    if (!is.null(computedVariableMetadata$displayName)) {computedVariableMetadata$displayName <- as.character(computedVariableMetadata$displayName)}
     
     namedAttrList$computedVariableMetadata <- computedVariableMetadata
   }
