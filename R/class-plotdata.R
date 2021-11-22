@@ -133,8 +133,7 @@ newPlotdata <- function(.dt = data.table(),
     newCatVariable <- list('variableId' = listVarDetails$listVarPlotRef,
                    'entityId' = unique(listVariable$entityId),
                    'dataType' = 'STRING',
-                   'dataShape' = 'CATEGORICAL',
-                   'displayLabel' = listVarDetails$listVarDisplayLabel)
+                   'dataShape' = 'CATEGORICAL')
 
     if (listVarDetails$listVarPlotRef == 'xAxisVariable') {
       xAxisVariable <- newCatVariable

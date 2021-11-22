@@ -192,10 +192,6 @@ validateScatterPD <- function(.scatter, verbose) {
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
 #' variables should be interpreted as a listVariable.
-#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to 
-#' the repeated variable.
-#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned 
-#' to the inferred variable.
 #' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
 #' Metadata can include 'displayName', 'displayRangeMin', and 'displayRangeMax'. Will be included as an attribute of the returned plot object.
 #' @param verbose boolean indicating if timed logging is desired
@@ -224,8 +220,6 @@ scattergl.dt <- function(data,
                                    'raw'),
                          evilMode = c(FALSE, TRUE),
                          listVarPlotRef = NULL,
-                         listVarDisplayLabel = NULL,
-                         inferredVarDisplayLabel = NULL,
                          computedVariableMetadata = NULL,
                          verbose = c(TRUE, FALSE)) {
 
@@ -245,11 +239,6 @@ scattergl.dt <- function(data,
     if (!identical(listVarPlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
       stop('listVar error: duplicated map plotRef does not match listVarPlotRef.')
     }
-  }
-
-  # If listVar and inferredVar labels are provided, must also provide listVarPlotRef
-  if ((!is.null(listVarDisplayLabel) | !is.null(inferredVarDisplayLabel)) & is.null(listVarPlotRef)) {
-    stop('listVar error: listVarPlotRef must be specified in order to use inferredVarDisplayLabel or listVarDisplayLabel')
   }
 
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
@@ -282,8 +271,7 @@ scattergl.dt <- function(data,
   # Handle listVars
   listVarDetails <- list('inferredVariable' = NULL,
                          'inferredVarPlotRef' = 'yAxisVariable',
-                         'listVarPlotRef' = listVarPlotRef,
-                         'listVarDisplayLabel' = listVarDisplayLabel)
+                         'listVarPlotRef' = listVarPlotRef)
   if (!is.null(listVarPlotRef)) {
     if (identical(listVarPlotRef, 'overlayVariable')) { 
       inferredVarEntityId <- unique(overlayVariable$entityId)
@@ -298,8 +286,7 @@ scattergl.dt <- function(data,
     listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                           'entityId' = inferredVarEntityId,
                                           'dataType' = 'NUMBER',
-                                          'dataShape' = 'CONTINUOUS',
-                                          'displayLabel' = inferredVarDisplayLabel)
+                                          'dataShape' = 'CONTINUOUS')
 
     veupathUtils::logWithTime('Created inferred variable from listVariable.', verbose)
   }
@@ -363,10 +350,6 @@ scattergl.dt <- function(data,
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables 
 #' should be interpreted as a listVariable.
-#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to 
-#' the repeated variable.
-#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned 
-#' to the inferred variable.
 #' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
 #' Metadata can include 'displayName', 'displayRangeMin', and 'displayRangeMax'. Will be included as an attribute of the returned plot object.
 #' @param verbose boolean indicating if timed logging is desired
@@ -395,8 +378,6 @@ scattergl <- function(data,
                                 'raw'),
                       evilMode = c(FALSE, TRUE),
                       listVarPlotRef = NULL,
-                      listVarDisplayLabel = NULL,
-                      inferredVarDisplayLabel = NULL,
                       computedVariableMetadata = NULL,
                       verbose = c(TRUE, FALSE)) {
 
@@ -407,8 +388,6 @@ scattergl <- function(data,
                            value = value,
                            evilMode = evilMode,
                            listVarPlotRef = listVarPlotRef,
-                           listVarDisplayLabel = listVarDisplayLabel,
-                           inferredVarDisplayLabel = inferredVarDisplayLabel,
                            computedVariableMetadata = computedVariableMetadata,
                            verbose = verbose)
                            

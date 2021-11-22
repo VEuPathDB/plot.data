@@ -196,9 +196,8 @@ validateBoxPD <- function(.box, verbose) {
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
-#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
-#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
 #' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. Metadata can include 'displayName', 'displayRangeMin', and 'displayRangeMax'. Will be included as an attribute of the returned plot object.
+#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @examples
@@ -223,8 +222,6 @@ box.dt <- function(data, map,
                    computeStats = c(FALSE, TRUE), 
                    evilMode = c(FALSE, TRUE),
                    listVarPlotRef = NULL,
-                   listVarDisplayLabel = NULL,
-                   inferredVarDisplayLabel = NULL,
                    computedVariableMetadata = NULL,
                    verbose = c(TRUE, FALSE)) {
 
@@ -252,11 +249,6 @@ box.dt <- function(data, map,
     }
   }
 
-  # If listVar and inferredVar labels are provided, must also provide listVarPlotRef
-  if ((!is.null(listVarDisplayLabel) | !is.null(inferredVarDisplayLabel)) & is.null(listVarPlotRef)) {
-    stop('listVar error: listVarPlotRef must be specified in order to use inferredVarDisplayLabel or listVarDisplayLabel')
-  }
-
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
   if (is.null(xAxisVariable$variableId)) {
     stop("Must provide xAxisVariable for plot type box.")
@@ -272,8 +264,7 @@ box.dt <- function(data, map,
   # Handle listVars
   listVarDetails <- list('inferredVariable' = NULL,
                          'inferredVarPlotRef' = 'yAxisVariable',
-                         'listVarPlotRef' = listVarPlotRef,
-                         'listVarDisplayLabel' = listVarDisplayLabel)
+                         'listVarPlotRef' = listVarPlotRef)
 
   if (!is.null(listVarPlotRef)) {
     if (identical(listVarPlotRef, 'xAxisVariable')) { inferredVarEntityId <- unique(xAxisVariable$entityId)
@@ -285,8 +276,7 @@ box.dt <- function(data, map,
     listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                           'entityId' = inferredVarEntityId,
                                           'dataType' = 'NUMBER',
-                                          'dataShape' = 'CONTINUOUS',
-                                          'displayLabel' = inferredVarDisplayLabel)
+                                          'dataShape' = 'CONTINUOUS')
 
     veupathUtils::logWithTime('Created inferred variable from listVariable.', verbose)
   }
@@ -342,8 +332,6 @@ box.dt <- function(data, map,
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
-#' @param listVarDisplayLabel string indicating the final displayLabel to be assigned to the repeated variable.
-#' @param inferredVarDisplayLabel string indicated the final displayLabel to be assigned to the inferred variable.
 #' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. Metadata can include 'displayName', 'displayRangeMin', and 'displayRangeMax'. Will be included as an attribute of the returned plot object.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
@@ -368,8 +356,6 @@ box <- function(data, map,
                 computeStats = c(FALSE, TRUE), 
                 evilMode = c(FALSE, TRUE),
                 listVarPlotRef = NULL,
-                listVarDisplayLabel = NULL,
-                inferredVarDisplayLabel = NULL,
                 computedVariableMetadata = NULL,
                 verbose = c(TRUE, FALSE)) {
 
@@ -382,8 +368,6 @@ box <- function(data, map,
                  computeStats = computeStats,
                  evilMode = evilMode,
                  listVarPlotRef = listVarPlotRef,
-                 listVarDisplayLabel = listVarDisplayLabel,
-                 inferredVarDisplayLabel = inferredVarDisplayLabel,
                  computedVariableMetadata = computedVariableMetadata,
                  verbose = verbose)
   outFileName <- writeJSON(.box, evilMode, 'boxplot', verbose)
