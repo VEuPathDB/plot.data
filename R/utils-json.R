@@ -155,8 +155,9 @@ getJSON <- function(.pd, evilMode) {
     if (!is.null(computedVariableMetadata$displayName)) {computedVariableMetadata$displayName <- as.character(computedVariableMetadata$displayName)}
     if (!is.null(computedVariableMetadata$displayRangeMin)) {computedVariableMetadata$displayRangeMin <- jsonlite::unbox(as.character(computedVariableMetadata$displayRangeMin))}
     if (!is.null(computedVariableMetadata$displayRangeMax)) {computedVariableMetadata$displayRangeMax <- jsonlite::unbox(as.character(computedVariableMetadata$displayRangeMax))}
+    if (!is.null(computedVariableMetadata$collectionVariable$collectionType)) {computedVariableMetadata$collectionVariable$collectionType <- jsonlite::unbox(as.character(computedVariableMetadata$collectionVariable$collectionType))}
     
-    # Include list variable details in compute metadata for now
+    # Include collection variable details in compute metadata for now
     if ('collectionVariable' %in% names(namedAttrList)) {
       computedVariableMetadata$collectionVariable$collectionVariablePlotRef <- jsonlite::unbox(namedAttrList$collectionVariable$collectionVariablePlotRef)
       computedVariableMetadata$collectionVariable$collectionValuePlotRef <- jsonlite::unbox(namedAttrList$collectionVariable$collectionValuePlotRef)
