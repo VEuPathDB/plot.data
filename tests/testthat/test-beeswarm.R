@@ -179,13 +179,8 @@ test_that("beeswarm.dt() returns an appropriately sized data.table", {
                     'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'overlayVariable'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-
-  computedVariableMetadata = list('displayName' = c('VarLabel1','VarLabel2'),
-                                'displayRangeMin' = '0',
-                                'displayRangeMax' = '1',
-                                'collectionVariable' = list('collectionType' = 'abundance'))
   
-  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVarPlotRef = 'xAxisVariable', computedVariableMetadata = computedVariableMetadata)
+  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVariablePlotRef = 'xAxisVariable')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt),c('entity.cat3', 'label', 'rawData', 'jitteredValues'))
@@ -201,7 +196,7 @@ test_that("beeswarm.dt() returns an appropriately sized data.table", {
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'),
                     'displayLabel' = c('Y','X','Z'), stringsAsFactors=FALSE)
   
-  dt <- beeswarm.dt(df, map, 0.1, TRUE, collectionVarPlotRef = 'xAxisVariable')
+  dt <- beeswarm.dt(df, map, 0.1, TRUE, collectionVariablePlotRef = 'xAxisVariable')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 1)
   expect_equal(names(dt),c('label', 'rawData', 'jitteredValues', 'median'))
@@ -217,7 +212,7 @@ test_that("beeswarm.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVarPlotRef = 'facetVariable1')
+  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVariablePlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt),c('entity.facetVariable1', 'label', 'rawData', 'jitteredValues'))
@@ -232,7 +227,12 @@ test_that("beeswarm.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- beeswarm.dt(df, map, 0.1, TRUE, collectionVarPlotRef = 'facetVariable1')
+  computedVariableMetadata = list('displayName' = c('VarLabel1','VarLabel2'),
+                                  'displayRangeMin' = '0',
+                                  'displayRangeMax' = '1',
+                                  'collectionVariable' = list('collectionType' = 'abundance'))
+
+  dt <- beeswarm.dt(df, map, 0.1, TRUE, collectionVariablePlotRef = 'facetVariable1', computedVariableMetadata = computedVariableMetadata)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 12)
   expect_equal(names(dt),c('panel', 'label', 'rawData', 'jitteredValues', 'median'))
@@ -241,13 +241,19 @@ test_that("beeswarm.dt() returns an appropriately sized data.table", {
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
   expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
+  expect_equal(names(attr(dt, 'computedVariableMetadata')), c('displayName','displayRangeMin','displayRangeMax','collectionVariable'))
+  expect_equal(attr(dt, 'computedVariableMetadata')$displayName, computedVariableMetadata$displayName)
+  expect_equal(attr(dt, 'computedVariableMetadata')$displayRangeMin, computedVariableMetadata$displayRangeMin)
+  expect_equal(attr(dt, 'computedVariableMetadata')$displayRangeMax, computedVariableMetadata$displayRangeMax)
+  expect_equal(attr(dt, 'computedVariableMetadata')$collectionVariable$collectionType, computedVariableMetadata$collectionVariable$collectionType)
+
 
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.cat3', 'entity.cat4'),
                     'plotRef' = c('facetVariable2', 'facetVariable2', 'facetVariable2', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVarPlotRef = 'facetVariable2')
+  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVariablePlotRef = 'facetVariable2')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 12)
   expect_equal(names(dt),c('panel', 'label', 'rawData', 'jitteredValues'))
@@ -264,7 +270,7 @@ test_that("beeswarm.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS','CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVarPlotRef = 'xAxisVariable')
+  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVariablePlotRef = 'xAxisVariable')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt),c('entity.cat3', 'label', 'rawData', 'jitteredValues'))
@@ -279,7 +285,7 @@ test_that("beeswarm.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS','CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVarPlotRef = 'facetVariable1')
+  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVariablePlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 1)
   expect_equal(names(dt),c('entity.facetVariable1', 'label', 'rawData', 'jitteredValues'))
@@ -442,22 +448,33 @@ test_that("beeswarm() returns appropriately formatted json", {
   expect_equal(class(jsonList$beeswarm$data$label[[1]]), 'character')
   
   
-  # Multiple vars for x
+  # Multiple vars for x and computed variable metadata
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat3'),
                     'plotRef' = c('xAxisVariable', 'xAxisVariable', 'overlayVariable'),
                     'dataType' = c('NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  computedVariableMetadata = list('displayName' = c('VarLabel1','VarLabel2'),
+                                  'displayRangeMin' = '0.5',
+                                  'displayRangeMax' = '1.5',
+                                  'collectionVariable' = list('collectionType' = 'abundance'))
   
-  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVarPlotRef = 'xAxisVariable')
+  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVariablePlotRef = 'xAxisVariable', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('beeswarm','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$beeswarm), c('data','config'))
   expect_equal(names(jsonList$beeswarm$data), c('overlayVariableDetails','label','rawData', 'jitteredValues'))
-  expect_equal(names(jsonList$beeswarm$config), c('completeCasesAllVars','completeCasesAxesVars','collectionVariable','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$beeswarm$config), c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$beeswarm$config$xVariableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$beeswarm$config$yVariableDetails), c('variableId','entityId'))
-  expect_equal(names(jsonList$beeswarm$config$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$beeswarm$config$computedVariableMetadata), c('displayName', 'displayRangeMin', 'displayRangeMax','collectionVariable'))
+  expect_equal(jsonList$beeswarm$config$computedVariableMetadata$displayRangeMin, computedVariableMetadata$displayRangeMin)
+  expect_equal(jsonList$beeswarm$config$computedVariableMetadata$displayRangeMax, computedVariableMetadata$displayRangeMax)
+  expect_equal(jsonList$beeswarm$config$computedVariableMetadata$displayName, computedVariableMetadata$displayName)
+  expect_equal(names(jsonList$beeswarm$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
+  expect_equal(names(jsonList$beeswarm$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
+  expect_equal(nrow(jsonList$beeswarm$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 2)
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
@@ -470,17 +487,25 @@ test_that("beeswarm() returns appropriately formatted json", {
                     'plotRef' = c('facetVariable1', 'facetVariable1', 'xAxisVariable'),
                     'dataType' = c('NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  computedVariableMetadata = list('displayName' = c('VarLabel1','VarLabel2'),
+                                  'collectionVariable' = list('collectionType' = 'abundance'))
   
-  dt <- beeswarm.dt(df, map, 0.1, TRUE, collectionVarPlotRef = 'facetVariable1')
+  
+  dt <- beeswarm.dt(df, map, 0.1, TRUE, collectionVariablePlotRef = 'facetVariable1', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('beeswarm','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$beeswarm), c('data','config'))
   expect_equal(names(jsonList$beeswarm$data), c('facetVariableDetails','label','rawData', 'jitteredValues', 'median'))
-  expect_equal(names(jsonList$beeswarm$config), c('completeCasesAllVars','completeCasesAxesVars','collectionVariable','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$beeswarm$config), c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$beeswarm$config$xVariableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$beeswarm$config$yVariableDetails), c('variableId','entityId'))
-  expect_equal(names(jsonList$beeswarm$config$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$beeswarm$config$computedVariableMetadata), c('displayName','collectionVariable'))
+  expect_equal(jsonList$beeswarm$config$computedVariableMetadata$displayName, computedVariableMetadata$displayName)
+  expect_equal(names(jsonList$beeswarm$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
+  expect_equal(names(jsonList$beeswarm$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
+  expect_equal(nrow(jsonList$beeswarm$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 2)
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$sampleSizeTable), c('facetVariableDetails','xVariableDetails','size'))
@@ -494,16 +519,25 @@ test_that("beeswarm() returns appropriately formatted json", {
                     'dataType' = c('NUMBER', 'NUMBER','STRING','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-dt <- beeswarm.dt(df, map, 0.2, FALSE, collectionVarPlotRef = 'facetVariable2')
+  computedVariableMetadata = list('displayRangeMin' = '2002-08-28 EST',
+                                  'displayRangeMax' = '2002-09-28 EST',
+                                  'collectionVariable' = list('collectionType' = 'abundance'))
+  
+  dt <- beeswarm.dt(df, map, 0.2, FALSE, collectionVariablePlotRef = 'facetVariable2', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('beeswarm','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$beeswarm), c('data','config'))
   expect_equal(names(jsonList$beeswarm$data), c('facetVariableDetails','label','rawData', 'jitteredValues'))
-  expect_equal(names(jsonList$beeswarm$config), c('completeCasesAllVars','completeCasesAxesVars','collectionVariable','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$beeswarm$config), c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$beeswarm$config$xVariableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$beeswarm$config$yVariableDetails), c('variableId','entityId'))
-  expect_equal(names(jsonList$beeswarm$config$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$beeswarm$config$computedVariableMetadata), c('displayRangeMin', 'displayRangeMax','collectionVariable'))
+  expect_equal(jsonList$beeswarm$config$computedVariableMetadata$displayRangeMin, computedVariableMetadata$displayRangeMin)
+  expect_equal(jsonList$beeswarm$config$computedVariableMetadata$displayRangeMax, computedVariableMetadata$displayRangeMax)
+  expect_equal(names(jsonList$beeswarm$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
+  expect_equal(names(jsonList$beeswarm$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
+  expect_equal(nrow(jsonList$beeswarm$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 2)
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$sampleSizeTable), c('facetVariableDetails','xVariableDetails','size'))

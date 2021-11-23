@@ -278,13 +278,13 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   # expect_equal(names(dt), c('entity.cat4', 'seriesX', 'seriesY', 'seriesGradientColorscale'))
   # expect_equal(length(dt$seriesGradientColorscale[[1]]), length(dt$seriesX[[1]]))
 
-  ## List vars
+  ## Collection vars
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
                     'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'overlayVariable'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- scattergl.dt(df, map, 'raw', collectionVarPlotRef = 'facetVariable1')
+  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('entity.cat3', 'entity.facetVariable1', 'seriesX', 'seriesY'))
@@ -298,7 +298,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('Y','X','Z','',''), stringsAsFactors=FALSE)
   
-  dt <- scattergl.dt(df, map, 'raw', collectionVarPlotRef = 'facetVariable1')
+  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('panel', 'seriesX', 'seriesY'))
@@ -312,7 +312,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- scattergl.dt(df, map, 'raw', collectionVarPlotRef = 'facetVariable2')
+  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable2')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('panel', 'seriesX', 'seriesY'))
@@ -332,7 +332,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('Y','X','Z','',''), stringsAsFactors=FALSE)
   
-  dt <- scattergl.dt(df, map, 'raw', collectionVarPlotRef = 'overlayVariable', computedVariableMetadata = computedVariableMetadata)
+  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'overlayVariable', computedVariableMetadata = computedVariableMetadata)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('entity.overlayVariable', 'entity.cat3', 'seriesX', 'seriesY'))
@@ -351,7 +351,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- scattergl.dt(df, map, 'raw', collectionVarPlotRef = 'overlayVariable')
+  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'overlayVariable')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt), c('entity.overlayVariable', 'entity.cat3', 'seriesX', 'seriesY'))
@@ -364,7 +364,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- scattergl.dt(df, map, 'raw', collectionVarPlotRef = 'facetVariable1')
+  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt), c('entity.cat3', 'entity.facetVariable1', 'seriesX', 'seriesY'))
@@ -551,7 +551,7 @@ test_that("scattergl() returns appropriately formatted json", {
                                   'displayRangeMax' = '1',
                                   'collectionVariable' = list('collectionType' = 'abundance'))
 
-  dt <- scattergl.dt(df, map, 'raw', collectionVarPlotRef = 'facetVariable1', computedVariableMetadata = computedVariableMetadata)
+  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable1', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
@@ -583,7 +583,7 @@ test_that("scattergl() returns appropriately formatted json", {
                                   'displayRangeMax' = '1.5',
                                   'collectionVariable' = list('collectionType' ='abundance'))
 
-  dt <- scattergl.dt(df, map, 'raw', collectionVarPlotRef = 'facetVariable2', computedVariableMetadata = computedVariableMetadata)
+  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable2', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
@@ -613,7 +613,7 @@ test_that("scattergl() returns appropriately formatted json", {
   computedVariableMetadata = list('displayName' = c('VarLabel1','VarLabel2'),
                                   'collectionVariable' = list('collectionType' = 'abundance'))
 
-  dt <- scattergl.dt(df, map, 'raw', collectionVarPlotRef = 'overlayVariable', computedVariableMetadata = computedVariableMetadata)
+  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'overlayVariable', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   

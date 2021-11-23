@@ -11,7 +11,7 @@ box(
   mean = c(FALSE, TRUE),
   computeStats = c(FALSE, TRUE),
   evilMode = c(FALSE, TRUE),
-  collectionVarPlotRef = NULL,
+  collectionVariablePlotRef = NULL,
   computedVariableMetadata = NULL,
   verbose = c(TRUE, FALSE)
 )
@@ -29,7 +29,7 @@ box(
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
 
-\item{collectionVarPlotRef}{string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.}
+\item{collectionVariablePlotRef}{string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.}
 
 \item{computedVariableMetadata}{named list containing metadata about a computed variable(s) involved in a plot. 
 Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.}

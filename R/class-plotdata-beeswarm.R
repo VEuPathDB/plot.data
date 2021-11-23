@@ -27,9 +27,9 @@ newBeeswarmPD <- function(.dt = data.table::data.table(),
                          jitter = NULL,
                          median = logical(),
                          evilMode = logical(),
-                         collectionVarDetails = list('inferredVariable' = NULL,
+                         collectionVariableDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
-                                               'collectionVarPlotRef' = NULL,
+                                               'collectionVariablePlotRef' = NULL,
                                                'collectionVarDisplayLabel' = NULL),
                          computedVariableMetadata = list('displayName' = NULL,
                                                          'displayRangeMin' = NULL,
@@ -46,7 +46,8 @@ newBeeswarmPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
-                     collectionVarDetails = collectionVarDetails,
+                     collectionVariableDetails = collectionVariableDetails,
+                     computedVariableMetadata = computedVariableMetadata,
                      verbose = verbose,
                      class = "beeswarm")
 
@@ -151,7 +152,7 @@ validateBeeswarmPD <- function(.beeswarm, verbose) {
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param jitter numeric indicating the maximum width by which to randomly offset points.
 #' @param median boolean indicating whether to return median value per group (per panel)
-#' @param collectionVarPlotRef string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.
+#' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.
 #' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
 #' Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
@@ -176,9 +177,8 @@ beeswarm.dt <- function(data, map,
                    jitter = NULL, 
                    median = c(FALSE, TRUE), 
                    evilMode = c(FALSE, TRUE),
-                   collectionVarPlotRef = NULL,
-                   collectionVarDisplayLabel = NULL,
-                   inferredVarDisplayLabel = NULL,
+                   collectionVariablePlotRef = NULL,
+                   computedVariableMetadata = NULL,
                    verbose = c(TRUE, FALSE)) {
 
   median <- matchArg(median)
@@ -199,16 +199,11 @@ beeswarm.dt <- function(data, map,
   map <- validateMap(map)
   logWithTime('Map has been validated.', verbose)
 
-  # If there is a duplicated plotRef in map, it must match collectionVarPlotRef
+  # If there is a duplicated plotRef in map, it must match collectionVariablePlotRef
   if (any(duplicated(map$plotRef))) {
-    if (!identical(collectionVarPlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
-      stop('collectionVar error: duplicated map plotRef does not match collectionVarPlotRef.')
+    if (!identical(collectionVariablePlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
+      stop('collectionVar error: duplicated map plotRef does not match collectionVariablePlotRef.')
     }
-  }
-
-  # If collectionVar and inferredVar labels are provided, must also provide collectionVarPlotRef
-  if ((!is.null(collectionVarDisplayLabel) | !is.null(inferredVarDisplayLabel)) & is.null(collectionVarPlotRef)) {
-    stop('collectionVar error: collectionVarPlotRef must be specified in order to use inferredVarDisplayLabel or collectionVarDisplayLabel')
   }
 
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
@@ -216,7 +211,7 @@ beeswarm.dt <- function(data, map,
     stop("Must provide xAxisVariable for plot type beeswarm.")
   }
   yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  if (is.null(yAxisVariable$variableId) & is.null(collectionVarPlotRef)) {
+  if (is.null(yAxisVariable$variableId) & is.null(collectionVariablePlotRef)) {
     stop("Must provide yAxisVariable for plot type beeswarm.")
   }
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
@@ -224,23 +219,21 @@ beeswarm.dt <- function(data, map,
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   
   # Handle collectionVars
-  collectionVarDetails <- list('inferredVariable' = NULL,
+  collectionVariableDetails <- list('inferredVariable' = NULL,
                          'inferredVarPlotRef' = 'yAxisVariable',
-                         'collectionVarPlotRef' = collectionVarPlotRef,
-                         'collectionVarDisplayLabel' = collectionVarDisplayLabel)
+                         'collectionVariablePlotRef' = collectionVariablePlotRef)
 
-  if (!is.null(collectionVarPlotRef)) {
-    if (identical(collectionVarPlotRef, 'xAxisVariable')) { inferredVarEntityId <- unique(xAxisVariable$entityId)
-    } else if (identical(collectionVarPlotRef, 'facetVariable1')) { inferredVarEntityId <- unique(facetVariable1$entityId)
-    } else if (identical(collectionVarPlotRef, 'facetVariable2')) { inferredVarEntityId <- unique(facetVariable2$entityId)
-    } else { stop('collectionVar error: collectionVarPlotRef must be either xAxisVariable, facetVariable1, or facetVariable2 for beeswarm.')
+  if (!is.null(collectionVariablePlotRef)) {
+    if (identical(collectionVariablePlotRef, 'xAxisVariable')) { inferredVarEntityId <- unique(xAxisVariable$entityId)
+    } else if (identical(collectionVariablePlotRef, 'facetVariable1')) { inferredVarEntityId <- unique(facetVariable1$entityId)
+    } else if (identical(collectionVariablePlotRef, 'facetVariable2')) { inferredVarEntityId <- unique(facetVariable2$entityId)
+    } else { stop('collectionVar error: collectionVariablePlotRef must be either xAxisVariable, facetVariable1, or facetVariable2 for beeswarm.')
     }
 
-    collectionVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
+    collectionVariableDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                           'entityId' = inferredVarEntityId,
                                           'dataType' = 'NUMBER',
-                                          'dataShape' = 'CONTINUOUS',
-                                          'displayLabel' = inferredVarDisplayLabel)
+                                          'dataShape' = 'CONTINUOUS')
 
     logWithTime('Created inferred variable from collectionVariable.', verbose)
   }
@@ -254,7 +247,8 @@ beeswarm.dt <- function(data, map,
                     jitter = jitter,
                     median = median,
                     evilMode = evilMode,
-                    collectionVarDetails = collectionVarDetails,
+                    collectionVariableDetails = collectionVariableDetails,
+                    computedVariableMetadata = computedVariableMetadata,
                     verbose = verbose)
 
   .beeswarm <- validateBeeswarmPD(.beeswarm, verbose)
@@ -290,7 +284,7 @@ beeswarm.dt <- function(data, map,
 #' @param jitter numeric indicating the maximum width by which to randomly offset points.
 #' @param median boolean indicating whether to return median value per group (per panel)
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
-#' @param collectionVarPlotRef string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.
+#' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.
 #' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
 #' Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.
 #' @param verbose boolean indicating if timed logging is desired
@@ -314,9 +308,8 @@ beeswarm <- function(data, map,
                 jitter = NULL, 
                 median = c(FALSE, TRUE), 
                 evilMode = c(FALSE, TRUE),
-                collectionVarPlotRef = NULL,
-                collectionVarDisplayLabel = NULL,
-                inferredVarDisplayLabel = NULL,
+                collectionVariablePlotRef = NULL,
+                computedVariableMetadata = NULL,
                 verbose = c(TRUE, FALSE)) {
 
   verbose <- matchArg(verbose)
@@ -326,9 +319,8 @@ beeswarm <- function(data, map,
                  jitter = jitter,
                  median = median,
                  evilMode = evilMode,
-                 collectionVarPlotRef = collectionVarPlotRef,
-                 collectionVarDisplayLabel = collectionVarDisplayLabel,
-                 inferredVarDisplayLabel = inferredVarDisplayLabel,
+                 collectionVariablePlotRef = collectionVariablePlotRef,
+                 computedVariableMetadata = computedVariableMetadata,
                  verbose = verbose)
   outFileName <- writeJSON(.beeswarm, evilMode, 'beeswarm', verbose)
 

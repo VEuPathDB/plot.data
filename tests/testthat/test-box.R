@@ -272,14 +272,14 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('panel', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'rawData', 'mean'))
   expect_equal(class(dt$panel), 'character')
   
-  ## List vars
+  ## Collection vars
   # Multiple vars to x
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.cat3'),
                     'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'overlayVariable'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- box.dt(df, map, 'none', FALSE, collectionVarPlotRef = 'xAxisVariable')
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'xAxisVariable')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt),c('entity.cat3', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
@@ -294,7 +294,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'),
                     'displayLabel' = c('Y','X','Z'), stringsAsFactors=FALSE)
   
-  dt <- box.dt(df, map, 'none', FALSE, collectionVarPlotRef = 'xAxisVariable')
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'xAxisVariable')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 1)
   expect_equal(names(dt),c('label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
@@ -309,7 +309,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- box.dt(df, map, 'none', FALSE, collectionVarPlotRef = 'facetVariable1')
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt),c('entity.facetVariable1', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
@@ -328,7 +328,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
                                   'displayRangeMax' = '1',
                                   'collectionVariable' = list('collectionType' = 'abundance'))
   
-  dt <- box.dt(df, map, 'none', FALSE, collectionVarPlotRef = 'facetVariable1', computedVariableMetadata = computedVariableMetadata)
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'facetVariable1', computedVariableMetadata = computedVariableMetadata)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 12)
   expect_equal(names(dt),c('panel', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
@@ -347,7 +347,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- box.dt(df, map, 'none', FALSE, collectionVarPlotRef = 'facetVariable2')
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'facetVariable2')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 12)
   expect_equal(names(dt),c('panel', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
@@ -363,7 +363,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS','CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- box.dt(df, map, 'none', FALSE, collectionVarPlotRef = 'xAxisVariable')
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'xAxisVariable')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt),c('entity.cat3', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
@@ -377,7 +377,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS','CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- box.dt(df, map, 'none', FALSE, collectionVarPlotRef = 'facetVariable1')
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 1)
   expect_equal(names(dt),c('entity.facetVariable1', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
@@ -604,7 +604,7 @@ test_that("box() returns appropriately formatted json", {
                                   'displayRangeMax' = '1.5',
                                   'collectionVariable' = list('collectionType' = 'abundance'))
   
-  dt <- box.dt(df, map, 'none', FALSE, collectionVarPlotRef = 'xAxisVariable', computedVariableMetadata = computedVariableMetadata)
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'xAxisVariable', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('boxplot','sampleSizeTable','completeCasesTable'))
@@ -636,7 +636,7 @@ test_that("box() returns appropriately formatted json", {
   computedVariableMetadata = list('displayName' = c('VarLabel1','VarLabel2'),
                                   'collectionVariable' = list('collectionType' = 'abundance'))
   
-  dt <- box.dt(df, map, 'none', FALSE, computeStats=T, collectionVarPlotRef = 'facetVariable1', computedVariableMetadata = computedVariableMetadata)
+  dt <- box.dt(df, map, 'none', FALSE, computeStats=T, collectionVariablePlotRef = 'facetVariable1', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('boxplot','sampleSizeTable','statsTable','completeCasesTable'))
@@ -668,7 +668,7 @@ test_that("box() returns appropriately formatted json", {
                                   'displayRangeMax' = '2002-09-28 EST',
                                   'collectionVariable' = list('collectionType' = 'abundance'))
   
-  dt <- box.dt(df, map, 'none', FALSE, computeStats=T, collectionVarPlotRef = 'facetVariable2', computedVariableMetadata = computedVariableMetadata)
+  dt <- box.dt(df, map, 'none', FALSE, computeStats=T, collectionVariablePlotRef = 'facetVariable2', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('boxplot','sampleSizeTable','statsTable','completeCasesTable'))

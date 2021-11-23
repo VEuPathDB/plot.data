@@ -26,9 +26,9 @@ newLinePD <- function(.dt = data.table::data.table(),
                                               'displayLabel' = NULL),
                          value = character(),
                          evilMode = logical(),
-                         collectionVarDetails = list('inferredVariable' = NULL,
+                         collectionVariableDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
-                                               'collectionVarPlotRef' = NULL,
+                                               'collectionVariablePlotRef' = NULL,
                                                'collectionVarDisplayLabel' = NULL),
                          computedVariableMetadata = list('displayName' = NULL,
                                                          'displayRangeMin' = NULL,
@@ -45,7 +45,8 @@ newLinePD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
-                     collectionVarDetails = collectionVarDetails,
+                     collectionVariableDetails = collectionVariableDetails,
+                     computedVariableMetadata = computedVariableMetadata,
                      verbose = verbose,
                      class = "lineplot")
 
@@ -150,7 +151,7 @@ validateLinePD <- function(.line, verbose) {
 #' 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'mean', 'median' for y-axis
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
-#' @param collectionVarPlotRef string indicating the plotRef to be considered as a collectionVariable. 
+#' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
 #' variables should be interpreted as a collectionVariable.
 #' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
@@ -176,9 +177,8 @@ lineplot.dt <- function(data,
                          value = c('mean',
                                    'median'),
                          evilMode = c(FALSE, TRUE),
-                         collectionVarPlotRef = NULL,
-                         collectionVarDisplayLabel = NULL,
-                         inferredVarDisplayLabel = NULL,
+                         collectionVariablePlotRef = NULL,
+                         computedVariableMetadata = NULL,
                          verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
@@ -192,16 +192,11 @@ lineplot.dt <- function(data,
   map <- validateMap(map)
   veupathUtils::logWithTime('Map has been validated.', verbose)
 
-  # If there is a duplicated plotRef in map, it must match collectionVarPlotRef
+  # If there is a duplicated plotRef in map, it must match collectionVariablePlotRef
   if (any(duplicated(map$plotRef))) {
-    if (!identical(collectionVarPlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
-      stop('collectionVar error: duplicated map plotRef does not match collectionVarPlotRef.')
+    if (!identical(collectionVariablePlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
+      stop('collectionVar error: duplicated map plotRef does not match collectionVariablePlotRef.')
     }
-  }
-
-  # If collectionVar and inferredVar labels are provided, must also provide collectionVarPlotRef
-  if ((!is.null(collectionVarDisplayLabel) | !is.null(inferredVarDisplayLabel)) & is.null(collectionVarPlotRef)) {
-    stop('collectionVar error: collectionVarPlotRef must be specified in order to use inferredVarDisplayLabel or collectionVarDisplayLabel')
   }
 
   xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
@@ -210,7 +205,7 @@ lineplot.dt <- function(data,
   }
   yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
   if (is.null(yAxisVariable$variableId)) {
-    if (is.null(collectionVarPlotRef)) {
+    if (is.null(collectionVariablePlotRef)) {
       stop("Must provide yAxisVariable for plot type line.")
     }
   } 
@@ -219,26 +214,24 @@ lineplot.dt <- function(data,
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
   # Handle collectionVars
-  collectionVarDetails <- list('inferredVariable' = NULL,
+  collectionVariableDetails <- list('inferredVariable' = NULL,
                          'inferredVarPlotRef' = 'yAxisVariable',
-                         'collectionVarPlotRef' = collectionVarPlotRef,
-                         'collectionVarDisplayLabel' = collectionVarDisplayLabel)
-  if (!is.null(collectionVarPlotRef)) {
-    if (identical(collectionVarPlotRef, 'overlayVariable')) { 
+                         'collectionVariablePlotRef' = collectionVariablePlotRef)
+  if (!is.null(collectionVariablePlotRef)) {
+    if (identical(collectionVariablePlotRef, 'overlayVariable')) { 
       inferredVarEntityId <- unique(overlayVariable$entityId)
-    } else if (identical(collectionVarPlotRef, 'facetVariable1')) { 
+    } else if (identical(collectionVariablePlotRef, 'facetVariable1')) { 
       inferredVarEntityId <- unique(facetVariable1$entityId)
-    } else if (identical(collectionVarPlotRef, 'facetVariable2')) { 
+    } else if (identical(collectionVariablePlotRef, 'facetVariable2')) { 
       inferredVarEntityId <- unique(facetVariable2$entityId)
     } else { 
-      stop('collectionVar error: collectionVarPlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for line.')
+      stop('collectionVar error: collectionVariablePlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for line.')
     }
 
-    collectionVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
+    collectionVariableDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                           'entityId' = inferredVarEntityId,
                                           'dataType' = 'NUMBER',
-                                          'dataShape' = 'CONTINUOUS',
-                                          'displayLabel' = inferredVarDisplayLabel)
+                                          'dataShape' = 'CONTINUOUS')
 
     veupathUtils::logWithTime('Created inferred variable from collectionVariable.', verbose)
   }
@@ -251,7 +244,8 @@ lineplot.dt <- function(data,
                             facetVariable2 = facetVariable2,
                             value = value,
                             evilMode = evilMode,
-                            collectionVarDetails = collectionVarDetails,
+                            collectionVariableDetails = collectionVariableDetails,
+                            computedVariableMetadata = computedVariableMetadata,
                             verbose = verbose)
 
   .line <- validateLinePD(.line, verbose)
@@ -290,7 +284,7 @@ lineplot.dt <- function(data,
 #' 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value character indicating whether to calculate 'mean', 'median' for y-axis
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
-#' @param collectionVarPlotRef string indicating the plotRef to be considered as a collectionVariable. 
+#' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables 
 #' should be interpreted as a collectionVariable.
 #' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
@@ -316,9 +310,8 @@ lineplot <- function(data,
                       value = c('mean', 
                                 'median'),
                       evilMode = c(FALSE, TRUE),
-                      collectionVarPlotRef = NULL,
-                      collectionVarDisplayLabel = NULL,
-                      inferredVarDisplayLabel = NULL,
+                      collectionVariablePlotRef = NULL,
+                      computedVariableMetadata = NULL,
                       verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
@@ -327,9 +320,8 @@ lineplot <- function(data,
                            map,
                            value = value,
                            evilMode = evilMode,
-                           collectionVarPlotRef = collectionVarPlotRef,
-                           collectionVarDisplayLabel = collectionVarDisplayLabel,
-                           inferredVarDisplayLabel = inferredVarDisplayLabel,
+                           collectionVariablePlotRef = collectionVariablePlotRef,
+                           computedVariableMetadata = computedVariableMetadata,
                            verbose = verbose)
                            
   outFileName <- writeJSON(.line, evilMode, 'lineplot', verbose)

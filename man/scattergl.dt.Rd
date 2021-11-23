@@ -10,7 +10,7 @@ scattergl.dt(
   value = c("smoothedMean", "smoothedMeanWithRaw", "bestFitLineWithRaw", "density",
     "raw"),
   evilMode = c(FALSE, TRUE),
-  collectionVarPlotRef = NULL,
+  collectionVariablePlotRef = NULL,
   computedVariableMetadata = NULL,
   verbose = c(TRUE, FALSE)
 )
@@ -29,7 +29,7 @@ overlay variable.}
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
 
-\item{collectionVarPlotRef}{string indicating the plotRef to be considered as a collectionVariable. 
+\item{collectionVariablePlotRef}{string indicating the plotRef to be considered as a collectionVariable. 
 Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
 variables should be interpreted as a collectionVariable.}
 

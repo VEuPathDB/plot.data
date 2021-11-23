@@ -10,9 +10,8 @@ beeswarm.dt(
   jitter = NULL,
   median = c(FALSE, TRUE),
   evilMode = c(FALSE, TRUE),
-  collectionVarPlotRef = NULL,
-  collectionVarDisplayLabel = NULL,
-  inferredVarDisplayLabel = NULL,
+  collectionVariablePlotRef = NULL,
+  computedVariableMetadata = NULL,
   verbose = c(TRUE, FALSE)
 )
 }
@@ -27,12 +26,12 @@ beeswarm.dt(
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
 
-\item{collectionVarPlotRef}{string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.}
-
-\item{verbose}{boolean indicating if timed logging is desired}
+\item{collectionVariablePlotRef}{string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.}
 
 \item{computedVariableMetadata}{named list containing metadata about a computed variable(s) involved in a plot. 
 Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.}
+
+\item{verbose}{boolean indicating if timed logging is desired}
 }
 \value{
 data.table plot-ready data
