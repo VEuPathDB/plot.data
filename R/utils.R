@@ -233,29 +233,29 @@ findBinEnd <- function(x) {
   return(x)
 }
 
-validateListVar <- function(listVariable) {
+validatecollectionVar <- function(collectionVariable) {
 
   # Require all repeated vars to have the same type, shape, and entity
-  if (length(unique(listVariable$entityId)) > 1 | length(unique(listVariable$dataType)) > 1 | length(unique(listVariable$dataShape)) > 1) {
-    stop("listVar error: all vars in a listVar must have the same entity id, type, and shape.")
+  if (length(unique(collectionVariable$entityId)) > 1 | length(unique(collectionVariable$dataType)) > 1 | length(unique(collectionVariable$dataShape)) > 1) {
+    stop("collectionVar error: all vars in a collectionVar must have the same entity id, type, and shape.")
   }
 
   # Ensure all variables are numbers
-  if (!all(listVariable$dataType %in% c('NUMBER', 'INTEGER'))){
-    stop("listVar error: All vars must be of type NUMBER or INTEGER.")
+  if (!all(collectionVariable$dataType %in% c('NUMBER', 'INTEGER'))){
+    stop("collectionVar error: All vars must be of type NUMBER or INTEGER.")
   }
 
   # Ensure all variables are continuous
-  if (!all(listVariable$dataShape == 'CONTINUOUS')){
-    stop("listVar error: All vars must be CONTINUOUS.")
+  if (!all(collectionVariable$dataShape == 'CONTINUOUS')){
+    stop("collectionVar error: All vars must be CONTINUOUS.")
   }
 
   # Ensure no to variables are the same
-  if (any(duplicated(listVariable$variableId))) {
-    stop("listVar error: No duplicate vars allowed.")
+  if (any(duplicated(collectionVariable$variableId))) {
+    stop("collectionVar error: No duplicate vars allowed.")
   }
 
-  return(listVariable)
+  return(collectionVariable)
 }
 
 validateMap <- function(map) {
@@ -274,13 +274,13 @@ validateMap <- function(map) {
     nVars <- sum(duplicated(map$plotRef))
 
     if (repeatedPlotRef == 'xAxisVariable' & nVars > 10) {
-      stop("Too many values specified with listVar: maximum number of x axis values is 10.")
+      stop("Too many values specified with collectionVar: maximum number of x axis values is 10.")
     } else if (repeatedPlotRef == 'overlayVariable' & nVars > 8) {
-      stop("Too many values specified with listVar: maximum number of overlay values is 8.")
+      stop("Too many values specified with collectionVar: maximum number of overlay values is 8.")
     } else if (repeatedPlotRef == 'facetVariable1' & nVars > 25) {
-      stop("Too many values specified with listVar: maximum number of facet1 values allowed is 25.")
+      stop("Too many values specified with collectionVar: maximum number of facet1 values allowed is 25.")
     } else if (repeatedPlotRef == 'facetVariable2' & nVars > 25) {
-      stop("Too many values specified with listVar: maximum number of facet2 values allowed is 25.")
+      stop("Too many values specified with collectionVar: maximum number of facet2 values allowed is 25.")
     }
   }
 

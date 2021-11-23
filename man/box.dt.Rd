@@ -11,9 +11,7 @@ box.dt(
   mean = c(FALSE, TRUE),
   computeStats = c(FALSE, TRUE),
   evilMode = c(FALSE, TRUE),
-  listVarPlotRef = NULL,
-  listVarDisplayLabel = NULL,
-  inferredVarDisplayLabel = NULL,
+  collectionVarPlotRef = NULL,
   computedVariableMetadata = NULL,
   verbose = c(TRUE, FALSE)
 )
@@ -31,13 +29,10 @@ box.dt(
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
 
-\item{listVarPlotRef}{string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.}
+\item{collectionVarPlotRef}{string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.}
 
-\item{listVarDisplayLabel}{string indicating the final displayLabel to be assigned to the repeated variable.}
-
-\item{inferredVarDisplayLabel}{string indicated the final displayLabel to be assigned to the inferred variable.}
-
-\item{computedVariableMetadata}{named list containing metadata about a computed variable(s) involved in a plot. Metadata can include 'displayName', 'displayRangeMin', and 'displayRangeMax'. Will be included as an attribute of the returned plot object.}
+\item{computedVariableMetadata}{named list containing metadata about a computed variable(s) involved in a plot. 
+Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.}
 
 \item{verbose}{boolean indicating if timed logging is desired}
 }

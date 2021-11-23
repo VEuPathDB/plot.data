@@ -31,7 +31,7 @@ addVariableDetailsToColumn <- function(.pd, variableIdColName) {
   if ('overlayVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$overlayVariable)] <- list(makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel))
   if ('facetVariable1' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$facetVariable1)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId, namedAttrList$facetVariable1$displayLabel))
   if ('facetVariable2' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$facetVariable2)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel))
-  if ('listVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] %in% veupathUtils::toColNameOrNull(namedAttrList$listVariable)] <- lapply(seq_along(namedAttrList$listVariable$variableId), function(varInd) {makeVariableDetails(NULL, namedAttrList$listVariable$variableId[varInd], namedAttrList$listVariable$entityId[varInd], namedAttrList$listVariable$displayLabel[varInd])})
+  if ('collectionVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] %in% veupathUtils::toColNameOrNull(namedAttrList$collectionVariable)] <- lapply(seq_along(namedAttrList$collectionVariable$variableId), function(varInd) {makeVariableDetails(NULL, namedAttrList$collectionVariable$variableId[varInd], namedAttrList$collectionVariable$entityId[varInd], namedAttrList$collectionVariable$displayLabel[varInd])})
   
   return(.pd)
 }
@@ -131,10 +131,10 @@ getJSON <- function(.pd, evilMode) {
     namedAttrList$zVariableDetails <- makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId, namedAttrList$zAxisVariable$displayLabel)
     namedAttrList$zAxisVariable <- NULL
   }
-  if ('listVariable' %in% names(namedAttrList)) {
-    namedAttrList$listVariableDetails <- makeVariableDetails(NULL, namedAttrList$listVariable$variableId, namedAttrList$listVariable$entityId, namedAttrList$listVariable$displayLabel)
-    namedAttrList$listVariable <- NULL
-  }
+  # if ('collectionVariable' %in% names(namedAttrList)) {
+  #   namedAttrList$collectionVariableDetails <- makeVariableDetails(NULL, namedAttrList$collectionVariable$variableId, namedAttrList$collectionVariable$entityId, namedAttrList$collectionVariable$displayLabel)
+  #   namedAttrList$collectionVariable <- NULL
+  # }
   
   .pd <- addStrataVariableDetails(.pd)
   # If overlay is continuous, handle similarly to x, y, z vars.
@@ -156,6 +156,16 @@ getJSON <- function(.pd, evilMode) {
     if (!is.null(computedVariableMetadata$displayRangeMin)) {computedVariableMetadata$displayRangeMin <- jsonlite::unbox(as.character(computedVariableMetadata$displayRangeMin))}
     if (!is.null(computedVariableMetadata$displayRangeMax)) {computedVariableMetadata$displayRangeMax <- jsonlite::unbox(as.character(computedVariableMetadata$displayRangeMax))}
     
+    # Include list variable details in compute metadata for now
+    if ('collectionVariable' %in% names(namedAttrList)) {
+      computedVariableMetadata$collectionVariable$collectionVariablePlotRef <- jsonlite::unbox(namedAttrList$collectionVariable$collectionVariablePlotRef)
+      computedVariableMetadata$collectionVariable$collectionValuePlotRef <- jsonlite::unbox(namedAttrList$collectionVariable$collectionValuePlotRef)
+      
+      computedVariableMetadata$collectionVariable$collectionVariableDetails <- lapply(seq_along(namedAttrList$collectionVariable$variableId), function(varInd) {makeVariableDetails(NULL, namedAttrList$collectionVariable$variableId[varInd], namedAttrList$collectionVariable$entityId[varInd], namedAttrList$collectionVariable$displayLabel[varInd])})
+
+      namedAttrList$collectionVariable <- NULL
+    }
+
     namedAttrList$computedVariableMetadata <- computedVariableMetadata
   }
   

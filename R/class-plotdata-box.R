@@ -28,13 +28,14 @@ newBoxPD <- function(.dt = data.table::data.table(),
                          mean = logical(),
                          computeStats = logical(),
                          evilMode = logical(),
-                         listVarDetails = list('inferredVariable' = NULL,
+                         collectionVarDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
-                                               'listVarPlotRef' = NULL,
-                                               'listVarDisplayLabel' = NULL),
+                                               'collectionVarPlotRef' = NULL,
+                                               'collectionVarDisplayLabel' = NULL),
                          computedVariableMetadata = list('displayName' = NULL,
                                                          'displayRangeMin' = NULL,
-                                                         'displayRangeMax' = NULL),
+                                                         'displayRangeMax' = NULL,
+                                                         'collectionVariable' = NULL),
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -46,7 +47,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
-                     listVarDetails = listVarDetails,
+                     collectionVarDetails = collectionVarDetails,
                      computedVariableMetadata = computedVariableMetadata,
                      verbose = verbose,
                      class = "boxplot")
@@ -195,8 +196,9 @@ validateBoxPD <- function(.box, verbose) {
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
-#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
-#' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. Metadata can include 'displayName', 'displayRangeMin', and 'displayRangeMax'. Will be included as an attribute of the returned plot object.
+#' @param collectionVarPlotRef string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.
+#' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
+#' Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
@@ -221,7 +223,7 @@ box.dt <- function(data, map,
                    mean = c(FALSE, TRUE), 
                    computeStats = c(FALSE, TRUE), 
                    evilMode = c(FALSE, TRUE),
-                   listVarPlotRef = NULL,
+                   collectionVarPlotRef = NULL,
                    computedVariableMetadata = NULL,
                    verbose = c(TRUE, FALSE)) {
 
@@ -242,10 +244,10 @@ box.dt <- function(data, map,
   map <- validateMap(map)
   veupathUtils::logWithTime('Map has been validated.', verbose)
 
-  # If there is a duplicated plotRef in map, it must match listVarPlotRef
+  # If there is a duplicated plotRef in map, it must match collectionVarPlotRef
   if (any(duplicated(map$plotRef))) {
-    if (!identical(listVarPlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
-      stop('listVar error: duplicated map plotRef does not match listVarPlotRef.')
+    if (!identical(collectionVarPlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
+      stop('collectionVar error: duplicated map plotRef does not match collectionVarPlotRef.')
     }
   }
 
@@ -254,31 +256,31 @@ box.dt <- function(data, map,
     stop("Must provide xAxisVariable for plot type box.")
   }
   yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  if (is.null(yAxisVariable$variableId) & is.null(listVarPlotRef)) {
+  if (is.null(yAxisVariable$variableId) & is.null(collectionVarPlotRef)) {
     stop("Must provide yAxisVariable for plot type box.")
   }
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   
-  # Handle listVars
-  listVarDetails <- list('inferredVariable' = NULL,
+  # Handle collectionVars
+  collectionVarDetails <- list('inferredVariable' = NULL,
                          'inferredVarPlotRef' = 'yAxisVariable',
-                         'listVarPlotRef' = listVarPlotRef)
+                         'collectionVarPlotRef' = collectionVarPlotRef)
 
-  if (!is.null(listVarPlotRef)) {
-    if (identical(listVarPlotRef, 'xAxisVariable')) { inferredVarEntityId <- unique(xAxisVariable$entityId)
-    } else if (identical(listVarPlotRef, 'facetVariable1')) { inferredVarEntityId <- unique(facetVariable1$entityId)
-    } else if (identical(listVarPlotRef, 'facetVariable2')) { inferredVarEntityId <- unique(facetVariable2$entityId)
-    } else { stop('listVar error: listVarPlotRef must be either xAxisVariable, facetVariable1, or facetVariable2 for box.')
+  if (!is.null(collectionVarPlotRef)) {
+    if (identical(collectionVarPlotRef, 'xAxisVariable')) { inferredVarEntityId <- unique(xAxisVariable$entityId)
+    } else if (identical(collectionVarPlotRef, 'facetVariable1')) { inferredVarEntityId <- unique(facetVariable1$entityId)
+    } else if (identical(collectionVarPlotRef, 'facetVariable2')) { inferredVarEntityId <- unique(facetVariable2$entityId)
+    } else { stop('collectionVar error: collectionVarPlotRef must be either xAxisVariable, facetVariable1, or facetVariable2 for box.')
     }
 
-    listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
+    collectionVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                           'entityId' = inferredVarEntityId,
                                           'dataType' = 'NUMBER',
                                           'dataShape' = 'CONTINUOUS')
 
-    veupathUtils::logWithTime('Created inferred variable from listVariable.', verbose)
+    veupathUtils::logWithTime('Created inferred variable from collectionVariable.', verbose)
   }
 
 
@@ -292,7 +294,7 @@ box.dt <- function(data, map,
                     mean = mean,
                     computeStats = computeStats,
                     evilMode = evilMode,
-                    listVarDetails = listVarDetails,
+                    collectionVarDetails = collectionVarDetails,
                     computedVariableMetadata = computedVariableMetadata,
                     verbose = verbose)
 
@@ -331,8 +333,9 @@ box.dt <- function(data, map,
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
-#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.
-#' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. Metadata can include 'displayName', 'displayRangeMin', and 'displayRangeMax'. Will be included as an attribute of the returned plot object.
+#' @param collectionVarPlotRef string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.
+#' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
+#' Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @examples
@@ -355,7 +358,7 @@ box <- function(data, map,
                 mean = c(FALSE, TRUE), 
                 computeStats = c(FALSE, TRUE), 
                 evilMode = c(FALSE, TRUE),
-                listVarPlotRef = NULL,
+                collectionVarPlotRef = NULL,
                 computedVariableMetadata = NULL,
                 verbose = c(TRUE, FALSE)) {
 
@@ -367,7 +370,7 @@ box <- function(data, map,
                  mean = mean,
                  computeStats = computeStats,
                  evilMode = evilMode,
-                 listVarPlotRef = listVarPlotRef,
+                 collectionVarPlotRef = collectionVarPlotRef,
                  computedVariableMetadata = computedVariableMetadata,
                  verbose = verbose)
   outFileName <- writeJSON(.box, evilMode, 'boxplot', verbose)

@@ -26,13 +26,14 @@ newScatterPD <- function(.dt = data.table::data.table(),
                                               'displayLabel' = NULL),
                          value = character(),
                          evilMode = logical(),
-                         listVarDetails = list('inferredVariable' = NULL,
+                         collectionVarDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
-                                               'listVarPlotRef' = NULL,
-                                               'listVarDisplayLabel' = NULL),
+                                               'collectionVarPlotRef' = NULL,
+                                               'collectionVarDisplayLabel' = NULL),
                          computedVariableMetadata = list('displayName' = NULL,
                                                          'displayRangeMin' = NULL,
-                                                         'displayRangeMax' = NULL),
+                                                         'displayRangeMax' = NULL,
+                                                         'collectionVariable' = NULL),
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -44,7 +45,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
                      evilMode = evilMode,
-                     listVarDetails = listVarDetails,
+                     collectionVarDetails = collectionVarDetails,
                      computedVariableMetadata = computedVariableMetadata,
                      verbose = verbose,
                      class = "scatterplot")
@@ -189,11 +190,11 @@ validateScatterPD <- function(.scatter, verbose) {
 #' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous 
 #' overlay variable.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
-#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. 
+#' @param collectionVarPlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
-#' variables should be interpreted as a listVariable.
+#' variables should be interpreted as a collectionVariable.
 #' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
-#' Metadata can include 'displayName', 'displayRangeMin', and 'displayRangeMax'. Will be included as an attribute of the returned plot object.
+#' Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @examples
@@ -219,7 +220,7 @@ scattergl.dt <- function(data,
                                    'density', 
                                    'raw'),
                          evilMode = c(FALSE, TRUE),
-                         listVarPlotRef = NULL,
+                         collectionVarPlotRef = NULL,
                          computedVariableMetadata = NULL,
                          verbose = c(TRUE, FALSE)) {
 
@@ -234,10 +235,10 @@ scattergl.dt <- function(data,
   map <- validateMap(map)
   veupathUtils::logWithTime('Map has been validated.', verbose)
 
-  # If there is a duplicated plotRef in map, it must match listVarPlotRef
+  # If there is a duplicated plotRef in map, it must match collectionVarPlotRef
   if (any(duplicated(map$plotRef))) {
-    if (!identical(listVarPlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
-      stop('listVar error: duplicated map plotRef does not match listVarPlotRef.')
+    if (!identical(collectionVarPlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
+      stop('collectionVar error: duplicated map plotRef does not match collectionVarPlotRef.')
     }
   }
 
@@ -251,7 +252,7 @@ scattergl.dt <- function(data,
   }
   yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
   if (is.null(yAxisVariable$variableId)) {
-    if (is.null(listVarPlotRef)) {
+    if (is.null(collectionVarPlotRef)) {
       stop("Must provide xAxisVariable for plot type scatter.")
     }
   } else {
@@ -260,7 +261,7 @@ scattergl.dt <- function(data,
     }
   } 
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  if (!is.null(overlayVariable$variableId) & !identical(listVarPlotRef, 'overlayVariable')) {
+  if (!is.null(overlayVariable$variableId) & !identical(collectionVarPlotRef, 'overlayVariable')) {
     #if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
     #  stop('Continuous overlay variables cannot be used with trend lines.')
     #}
@@ -268,27 +269,27 @@ scattergl.dt <- function(data,
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
-  # Handle listVars
-  listVarDetails <- list('inferredVariable' = NULL,
+  # Handle collectionVars
+  collectionVarDetails <- list('inferredVariable' = NULL,
                          'inferredVarPlotRef' = 'yAxisVariable',
-                         'listVarPlotRef' = listVarPlotRef)
-  if (!is.null(listVarPlotRef)) {
-    if (identical(listVarPlotRef, 'overlayVariable')) { 
+                         'collectionVarPlotRef' = collectionVarPlotRef)
+  if (!is.null(collectionVarPlotRef)) {
+    if (identical(collectionVarPlotRef, 'overlayVariable')) { 
       inferredVarEntityId <- unique(overlayVariable$entityId)
-    } else if (identical(listVarPlotRef, 'facetVariable1')) { 
+    } else if (identical(collectionVarPlotRef, 'facetVariable1')) { 
       inferredVarEntityId <- unique(facetVariable1$entityId)
-    } else if (identical(listVarPlotRef, 'facetVariable2')) { 
+    } else if (identical(collectionVarPlotRef, 'facetVariable2')) { 
       inferredVarEntityId <- unique(facetVariable2$entityId)
     } else { 
-      stop('listVar error: listVarPlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for scatter.')
+      stop('collectionVar error: collectionVarPlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for scatter.')
     }
 
-    listVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
+    collectionVarDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
                                           'entityId' = inferredVarEntityId,
                                           'dataType' = 'NUMBER',
                                           'dataShape' = 'CONTINUOUS')
 
-    veupathUtils::logWithTime('Created inferred variable from listVariable.', verbose)
+    veupathUtils::logWithTime('Created inferred variable from collectionVariable.', verbose)
   }
 
   .scatter <- newScatterPD(.dt = data,
@@ -299,7 +300,7 @@ scattergl.dt <- function(data,
                             facetVariable2 = facetVariable2,
                             value = value,
                             evilMode = evilMode,
-                            listVarDetails = listVarDetails,
+                            collectionVarDetails = collectionVarDetails,
                             computedVariableMetadata = computedVariableMetadata,
                             verbose = verbose)
 
@@ -347,11 +348,11 @@ scattergl.dt <- function(data,
 #' 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw 
 #' data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
-#' @param listVarPlotRef string indicating the plotRef to be considered as a listVariable. 
+#' @param collectionVarPlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables 
-#' should be interpreted as a listVariable.
+#' should be interpreted as a collectionVariable.
 #' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
-#' Metadata can include 'displayName', 'displayRangeMin', and 'displayRangeMax'. Will be included as an attribute of the returned plot object.
+#' Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @examples
@@ -377,7 +378,7 @@ scattergl <- function(data,
                                 'density', 
                                 'raw'),
                       evilMode = c(FALSE, TRUE),
-                      listVarPlotRef = NULL,
+                      collectionVarPlotRef = NULL,
                       computedVariableMetadata = NULL,
                       verbose = c(TRUE, FALSE)) {
 
@@ -387,7 +388,7 @@ scattergl <- function(data,
                            map,
                            value = value,
                            evilMode = evilMode,
-                           listVarPlotRef = listVarPlotRef,
+                           collectionVarPlotRef = collectionVarPlotRef,
                            computedVariableMetadata = computedVariableMetadata,
                            verbose = verbose)
                            
