@@ -90,32 +90,10 @@ newLinePD <- function(.dt = data.table::data.table(),
 }
 
 validateLinePD <- function(.line, verbose) {
-#  xAxisVariable <- attr(.line, 'xAxisVariable')
-#  if (!xAxisVariable$dataShape %in% c('CONTINUOUS','ORDINAL')) {
-#    stop('The independent axis must be continuous or ordinal for lineplot.')
-#  }
-#  yAxisVariable <- attr(.line, 'yAxisVariable')
-#  if (!yAxisVariable$dataShape %in% c('CONTINUOUS')) {
-#    stop('The dependent axis must be continuous for lineplot.')
-#  }
-#  overlayVariable <- attr(.line, 'overlayVariable')
-#  if (!is.null(overlayVariable)) {
-#    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL', 'CONTINUOUS')) {
-#      stop('The overlay variable must be binary, ordinal, categorical, or continuous.')
-#    }
-#  }
-#  facetVariable1 <- attr(.line, 'facetVariable1')
-#  if (!is.null(facetVariable1)) {
-#    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-#      stop('The first facet variable must be binary, ordinal or categorical.')
-#    }
-#  }
-#  facetVariable2 <- attr(.line, 'facetVariable2')
-#  if (!is.null(facetVariable2)) {
-#    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-#      stop('The second facet variable must be binary, ordinal or categorical.')
-#    }
-#  }
+  xAxisVariable <- attr(.line, 'xAxisVariable')
+  if (!xAxisVariable$dataShape %in% c('CONTINUOUS','ORDINAL')) {
+    stop('The independent axis must be continuous or ordinal for lineplot.')
+  }
   veupathUtils::logWithTime('Line plot request has been validated!', verbose)
 
   return(.line)

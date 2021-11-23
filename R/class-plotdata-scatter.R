@@ -57,13 +57,13 @@ newScatterPD <- function(.dt = data.table::data.table(),
   group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-  #if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
-  #  series <- collapseByGroup(.pd, group = NULL, panel)
-  #  data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale'))
-  #} else {
+  if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
+    series <- collapseByGroup(.pd, group = NULL, panel)
+    data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale'))
+  } else {
     series <- collapseByGroup(.pd, group, panel)
     data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
-  #}
+  }
  
   if (attr$xAxisVariable$dataType == 'DATE') {
     series$seriesX <- lapply(series$seriesX, format, '%Y-%m-%d')
@@ -120,32 +120,14 @@ newScatterPD <- function(.dt = data.table::data.table(),
 }
 
 validateScatterPD <- function(.scatter, verbose) {
-#  xAxisVariable <- attr(.scatter, 'xAxisVariable')
-#  if (!xAxisVariable$dataShape %in% c('CONTINUOUS','ORDINAL')) {
-#    stop('The independent axis must be continuous or ordinal for scatterplot.')
-#  }
-#  yAxisVariable <- attr(.scatter, 'yAxisVariable')
-#  if (!yAxisVariable$dataShape %in% c('CONTINUOUS')) {
-#    stop('The dependent axis must be continuous for scatterplot.')
-#  }
-#  overlayVariable <- attr(.scatter, 'overlayVariable')
-#  if (!is.null(overlayVariable)) {
-#    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL', 'CONTINUOUS')) {
-#      stop('The overlay variable must be binary, ordinal, categorical, or continuous.')
-#    }
-#  }
-#  facetVariable1 <- attr(.scatter, 'facetVariable1')
-#  if (!is.null(facetVariable1)) {
-#    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-#      stop('The first facet variable must be binary, ordinal or categorical.')
-#    }
-#  }
-#  facetVariable2 <- attr(.scatter, 'facetVariable2')
-#  if (!is.null(facetVariable2)) {
-#    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-#      stop('The second facet variable must be binary, ordinal or categorical.')
-#    }
-#  }
+  xAxisVariable <- attr(.scatter, 'xAxisVariable')
+  if (!xAxisVariable$dataShape %in% c('CONTINUOUS')) {
+    stop('The independent axis must be continuous for scatterplot.')
+  }
+  yAxisVariable <- attr(.scatter, 'yAxisVariable')
+  if (!yAxisVariable$dataShape %in% c('CONTINUOUS')) {
+    stop('The dependent axis must be continuous for scatterplot.')
+  }
   veupathUtils::logWithTime('Scatter plot request has been validated!', verbose)
 
   return(.scatter)
@@ -261,10 +243,11 @@ scattergl.dt <- function(data,
     }
   } 
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
+
   if (!is.null(overlayVariable$variableId) & !identical(collectionVariablePlotRef, 'overlayVariable')) {
-    #if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
-    #  stop('Continuous overlay variables cannot be used with trend lines.')
-    #}
+    if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
+      stop('Continuous overlay variables cannot be used with trend lines.')
+    }
   }
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
