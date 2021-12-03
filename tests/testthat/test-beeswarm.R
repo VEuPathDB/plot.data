@@ -173,7 +173,7 @@ test_that("beeswarm.dt() returns an appropriately sized data.table", {
   expect_equal(class(dt$panel), 'character')
   expect_equal(length(dt$rawData[[1]][[1]]), length(dt$jitteredValues[[1]][[1]]))
   
-  ## List vars
+  ## Collection vars
   # Multiple vars to x
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.cat3'),
                     'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'overlayVariable'),
