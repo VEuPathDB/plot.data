@@ -38,10 +38,13 @@ newPlotdata <- function(.dt = data.table(),
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL),
                          evilMode = logical(),
-                         listVarDetails = list('inferredVariable' = NULL,
+                         collectionVariableDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
-                                               'listVarPlotRef' = NULL,
-                                               'listVarDisplayLabel' = NULL),
+                                               'collectionVariablePlotRef' = NULL),
+                         computedVariableMetadata = list('displayName' = NULL,
+                                                         'displayRangeMin' = NULL,
+                                                         'displayRangeMax' = NULL,
+                                                         'collectionVariable' = NULL),
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -73,7 +76,7 @@ newPlotdata <- function(.dt = data.table(),
   
   veupathUtils::logWithTime('Determined the number of complete cases per variable.', verbose)
   
-  if (!identical(listVarDetails$listVarPlotRef, 'facetVariable1') & !identical(listVarDetails$listVarPlotRef, 'facetVariable2')) {
+  if (!identical(collectionVariableDetails$collectionVariablePlotRef, 'facetVariable1') & !identical(collectionVariableDetails$collectionVariablePlotRef, 'facetVariable2')) {
     panelData <- makePanels(.dt, facet1, facet2)
     .dt <- data.table::setDT(panelData[[1]])
     panel <- panelData[[2]]
@@ -88,66 +91,67 @@ newPlotdata <- function(.dt = data.table(),
   .dt <- .dt[, myCols, with=FALSE]
   veupathUtils::logWithTime('Identified facet intersections.', verbose)
 
-  # Reshape data and remap variables if listVar is specified
-  listVariable <- NULL
-  if (!is.null(listVarDetails$listVarPlotRef)) {
+  # Reshape data and remap variables if collectionVar is specified
+  collectionVariable <- NULL
+  if (!is.null(collectionVariableDetails$collectionVariablePlotRef)) {
 
-    if (listVarDetails$listVarPlotRef == 'xAxisVariable') { listVariable <- xAxisVariable
-    } else if (listVarDetails$listVarPlotRef == 'overlayVariable') { listVariable <- overlayVariable
-    } else if (listVarDetails$listVarPlotRef == 'facetVariable1') {listVariable <- facetVariable1
-    } else if (listVarDetails$listVarPlotRef == 'facetVariable2') {listVariable <- facetVariable2
-    } else { stop('listVar error: unaccepted value passed as listVarPlotRef')}
-    listValue <- listVarDetails$inferredVariable
-    veupathUtils::logWithTime('Identified listVariable.', verbose)
+    if (collectionVariableDetails$collectionVariablePlotRef == 'xAxisVariable') { collectionVariable <- xAxisVariable
+    } else if (collectionVariableDetails$collectionVariablePlotRef == 'overlayVariable') { collectionVariable <- overlayVariable
+    } else if (collectionVariableDetails$collectionVariablePlotRef == 'facetVariable1') {collectionVariable <- facetVariable1
+    } else if (collectionVariableDetails$collectionVariablePlotRef == 'facetVariable2') {collectionVariable <- facetVariable2
+    } else { stop('collectionVar error: unaccepted value passed as collectionVariablePlotRef')}
+    collectionVariable$collectionVariablePlotRef <- collectionVariableDetails$collectionVariablePlotRef
+    collectionVariable$collectionValuePlotRef <- 'yAxisVariable'
+    listValue <- collectionVariableDetails$inferredVariable
+    veupathUtils::logWithTime('Identified collectionVariable.', verbose)
 
     # Validation
-    if (is.null(listVarDetails$inferredVariable$variableId)) stop('listVar error: listValue variableId must not be NULL')
-    if (listVarDetails$listVarPlotRef != 'xAxisVariable' & evilMode) stop('listVar error: evilMode not compatible.')
-    listVariable <- validateListVar(listVariable)
-    veupathUtils::logWithTime('listVariable has been validated.', verbose)
+    if (is.null(collectionVariableDetails$inferredVariable$variableId)) stop('collectionVar error: listValue variableId must not be NULL')
+    if (collectionVariableDetails$collectionVariablePlotRef != 'xAxisVariable' & evilMode) stop('collectionVar error: evilMode not compatible.')
+    collectionVariable <- validatecollectionVar(collectionVariable)
+    veupathUtils::logWithTime('collectionVariable has been validated.', verbose)
 
     # Set variable, value names appropriately
-    if(is.null(unique(listVarDetails$inferredVariable$entityId))) {
-      variable.name <- listVarDetails$listVarPlotRef
-      value.name <- listVarDetails$inferredVariable$variableId
+    if(is.null(unique(collectionVariableDetails$inferredVariable$entityId))) {
+      variable.name <- collectionVariableDetails$collectionVariablePlotRef
+      value.name <- collectionVariableDetails$inferredVariable$variableId
     } else {
-      variable.name <- paste(unique(listVarDetails$inferredVariable$entityId),listVarDetails$listVarPlotRef, sep='.')
-      value.name <- paste(unique(listVarDetails$inferredVariable$entityId),listVarDetails$inferredVariable$variableId, sep='.')
+      variable.name <- paste(unique(collectionVariableDetails$inferredVariable$entityId),collectionVariableDetails$collectionVariablePlotRef, sep='.')
+      value.name <- paste(unique(collectionVariableDetails$inferredVariable$entityId),collectionVariableDetails$inferredVariable$variableId, sep='.')
     }
 
     # Reshape data
-    .dt <- data.table::melt(.dt, measure.vars = veupathUtils::toColNameOrNull(listVariable),
+    .dt <- data.table::melt(.dt, measure.vars = veupathUtils::toColNameOrNull(collectionVariable),
                         variable.factor = FALSE,
                         variable.name= variable.name,
                         value.name=value.name)
 
-    veupathUtils::logWithTime('Data reshaped according to listVariable.', verbose)
+    veupathUtils::logWithTime('Data reshaped according to collectionVariable.', verbose)
 
-    # Replace listVar values (previously column names) with display labels or variableId
-    .dt[[variable.name]] <- lapply(.dt[[variable.name]], toIdOrDisplayLabel, listVariable)
+    # Replace collectionVar values (previously column names) with display labels or variableId
+    .dt[[variable.name]] <- lapply(.dt[[variable.name]], toIdOrDisplayLabel, collectionVariable)
 
     # Assign new variable details for the created categorical variable
-    newCatVariable <- list('variableId' = listVarDetails$listVarPlotRef,
-                   'entityId' = unique(listVariable$entityId),
+    newCatVariable <- list('variableId' = collectionVariableDetails$collectionVariablePlotRef,
+                   'entityId' = unique(collectionVariable$entityId),
                    'dataType' = 'STRING',
-                   'dataShape' = 'CATEGORICAL',
-                   'displayLabel' = listVarDetails$listVarDisplayLabel)
+                   'dataShape' = 'CATEGORICAL')
 
-    if (listVarDetails$listVarPlotRef == 'xAxisVariable') {
+    if (collectionVariableDetails$collectionVariablePlotRef == 'xAxisVariable') {
       xAxisVariable <- newCatVariable
       x <- veupathUtils::toColNameOrNull(xAxisVariable)
       xType <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataType))
       xShape <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataShape))
       .dt[[x]] <- updateType(.dt[[x]], xType, xShape)
 
-    } else if (listVarDetails$listVarPlotRef == 'overlayVariable') {
+    } else if (collectionVariableDetails$collectionVariablePlotRef == 'overlayVariable') {
       overlayVariable <- newCatVariable
       group <- veupathUtils::toColNameOrNull(overlayVariable)
       groupType <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataType))
       groupShape <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataShape))
       .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape)
 
-    } else if (listVarDetails$listVarPlotRef == 'facetVariable1') {
+    } else if (collectionVariableDetails$collectionVariablePlotRef == 'facetVariable1') {
       facetVariable1 <- newCatVariable
       facet1 <- veupathUtils::toColNameOrNull(facetVariable1)
       facetType1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataType))
@@ -158,7 +162,7 @@ newPlotdata <- function(.dt = data.table(),
       .dt <- data.table::setDT(panelData[[1]])
       panel <- panelData[[2]]
 
-    } else if (listVarDetails$listVarPlotRef == 'facetVariable2') {
+    } else if (collectionVariableDetails$collectionVariablePlotRef == 'facetVariable2') {
       facetVariable2 <- newCatVariable
       facet2 <- veupathUtils::toColNameOrNull(facetVariable2)
       facetType2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataType))
@@ -172,7 +176,7 @@ newPlotdata <- function(.dt = data.table(),
     }
 
     # Assume inferredVarPlotRef = yAxisVariable always.
-    yAxisVariable <- listVarDetails$inferredVariable
+    yAxisVariable <- collectionVariableDetails$inferredVariable
     y <- veupathUtils::toColNameOrNull(yAxisVariable)
     yType <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataType))
     yShape <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataShape))
@@ -180,7 +184,7 @@ newPlotdata <- function(.dt = data.table(),
 
     data.table::setcolorder(.dt, c(x, y, z, group, panel))
 
-    veupathUtils::logWithTime('Handling of listVariables complete.', verbose)
+    veupathUtils::logWithTime('Handling of collectionVariables complete.', verbose)
 
   }
 
@@ -240,7 +244,8 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(group)) { attr$overlayVariable <- overlayVariable }
   if (!is.null(facet1)) { attr$facetVariable1 <- facetVariable1 }
   if (!is.null(facet2)) { attr$facetVariable2 <- facetVariable2 }
-  if (!is.null(listVariable)) { attr$listVariable <- listVariable }
+  if (!is.null(collectionVariable)) { attr$collectionVariable <- collectionVariable }
+  if (!all(unlist(lapply(computedVariableMetadata, is.null)))) { attr$computedVariableMetadata <- computedVariableMetadata}
 
   veupathUtils::setAttrFromList(.dt, attr)
   .pd <- validatePlotdata(.dt)

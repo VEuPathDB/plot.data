@@ -272,22 +272,20 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('panel', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence', 'rawData', 'mean'))
   expect_equal(class(dt$panel), 'character')
   
-  ## List vars
+  ## Collection vars
   # Multiple vars to x
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.cat3'),
                     'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'overlayVariable'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'xAxisVariable', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'xAxisVariable')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt),c('entity.cat3', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
   expect_equal(unique(dt$label)[[1]], c('contA','contB','contC'))
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   expect_equal(attr(dt, 'xAxisVariable')$variableId, 'xAxisVariable')
-  expect_equal(attr(dt, 'xAxisVariable')$displayLabel, 'listVarName')
   
   # Use displayLabels
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC'),
@@ -296,15 +294,13 @@ test_that("box.dt() returns an appropriately sized data.table", {
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'),
                     'displayLabel' = c('Y','X','Z'), stringsAsFactors=FALSE)
   
-  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'xAxisVariable', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'xAxisVariable')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 1)
   expect_equal(names(dt),c('label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
   expect_equal(unique(dt$label)[[1]], c('X','Y','Z'))
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   expect_equal(attr(dt, 'xAxisVariable')$variableId, 'xAxisVariable')
-  expect_equal(attr(dt, 'xAxisVariable')$displayLabel, 'listVarName')
 
   
   # Multiple vars to facet1
@@ -313,15 +309,13 @@ test_that("box.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt),c('entity.facetVariable1', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
   expect_equal(dt$entity.facetVariable1, c('contA','contB','contC'))
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
-  expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
   
   
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.cat3', 'entity.cat4'),
@@ -329,49 +323,53 @@ test_that("box.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  computedVariableMetadata = list('displayName' = c('VarLabel1','VarLabel2'),
+                                  'displayRangeMin' = '0',
+                                  'displayRangeMax' = '1',
+                                  'collectionVariable' = list('collectionType' = 'abundance'))
+  
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'facetVariable1', computedVariableMetadata = computedVariableMetadata)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 12)
   expect_equal(names(dt),c('panel', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
   expect_equal(dt$panel[1], 'contA.||.cat4_a')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
-  expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
   expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
+  expect_equal(names(attr(dt, 'computedVariableMetadata')), c('displayName','displayRangeMin','displayRangeMax','collectionVariable'))
+  expect_equal(attr(dt, 'computedVariableMetadata')$displayName, computedVariableMetadata$displayName)
+  expect_equal(attr(dt, 'computedVariableMetadata')$displayRangeMin, computedVariableMetadata$displayRangeMin)
+  expect_equal(attr(dt, 'computedVariableMetadata')$displayRangeMax, computedVariableMetadata$displayRangeMax)
+  expect_equal(attr(dt, 'computedVariableMetadata')$collectionVariable$collectionType, computedVariableMetadata$collectionVariable$collectionType)
 
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.cat3', 'entity.cat4'),
                     'plotRef' = c('facetVariable2', 'facetVariable2', 'facetVariable2', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'facetVariable2', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'facetVariable2')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 12)
   expect_equal(names(dt),c('panel', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
   expect_equal(dt$panel[1], 'cat4_a.||.contA')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   expect_equal(attr(dt, 'facetVariable2')$variableId, 'facetVariable2')
-  expect_equal(attr(dt, 'facetVariable2')$displayLabel, 'listVarName')
   expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
   
   
-  # Handle only one var sent as a listVar
+  # Handle only one var sent as a collectionVar
   map <- data.frame('id' = c('entity.contB','entity.cat3'),
                     'plotRef' = c('xAxisVariable','overlayVariable'),
                     'dataType' = c('NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS','CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'xAxisVariable', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'xAxisVariable')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt),c('entity.cat3', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
   expect_equal(unique(dt$label)[[1]], c('contB'))
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   expect_equal(attr(dt, 'xAxisVariable')$variableId, 'xAxisVariable')
-  expect_equal(attr(dt, 'xAxisVariable')$displayLabel, 'listVarName')
   
   
   map <- data.frame('id' = c('entity.contB','entity.cat3'),
@@ -379,15 +377,13 @@ test_that("box.dt() returns an appropriately sized data.table", {
                     'dataType' = c('NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS','CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 1)
   expect_equal(names(dt),c('entity.facetVariable1', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
   expect_equal(dt$entity.facetVariable1, c('contB'))
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$displayLabel, 'inferredVarName')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
-  expect_equal(attr(dt, 'facetVariable1')$displayLabel, 'listVarName')
 })
 
 test_that("box() returns appropriately formatted json", {
@@ -597,22 +593,33 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
   
   
-  # Multiple vars for x
+  # Multiple vars for x and computed variable metadata
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat3'),
                     'plotRef' = c('xAxisVariable', 'xAxisVariable', 'overlayVariable'),
                     'dataType' = c('NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  computedVariableMetadata = list('displayName' = c('VarLabel1','VarLabel2'),
+                                  'displayRangeMin' = '0.5',
+                                  'displayRangeMax' = '1.5',
+                                  'collectionVariable' = list('collectionType' = 'abundance'))
   
-  dt <- box.dt(df, map, 'none', FALSE, listVarPlotRef = 'xAxisVariable', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'xAxisVariable', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('boxplot','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$boxplot), c('data','config'))
   expect_equal(names(jsonList$boxplot$data), c('overlayVariableDetails','label','min','q1','median','q3','max','lowerfence','upperfence'))
-  expect_equal(names(jsonList$boxplot$config), c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails', 'listVariableDetails'))
-  expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId', 'displayLabel'))
-  expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId', 'displayLabel'))
-  expect_equal(names(jsonList$boxplot$config$listVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$boxplot$config), c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$boxplot$config$computedVariableMetadata), c('displayName', 'displayRangeMin', 'displayRangeMax','collectionVariable'))
+  expect_equal(jsonList$boxplot$config$computedVariableMetadata$displayRangeMin, computedVariableMetadata$displayRangeMin)
+  expect_equal(jsonList$boxplot$config$computedVariableMetadata$displayRangeMax, computedVariableMetadata$displayRangeMax)
+  expect_equal(jsonList$boxplot$config$computedVariableMetadata$displayName, computedVariableMetadata$displayName)
+  expect_equal(names(jsonList$boxplot$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
+  expect_equal(names(jsonList$boxplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
+  expect_equal(nrow(jsonList$boxplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 2)
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
@@ -620,22 +627,29 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
   
-  # Multiple vars to facet1
+  # Multiple vars to facet1 and computed variable metadata
   map <- data.frame('id' = c('entity.contB', 'entity.contA','entity.cat3'),
                     'plotRef' = c('facetVariable1', 'facetVariable1', 'xAxisVariable'),
                     'dataType' = c('NUMBER', 'NUMBER','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  computedVariableMetadata = list('displayName' = c('VarLabel1','VarLabel2'),
+                                  'collectionVariable' = list('collectionType' = 'abundance'))
   
-  dt <- box.dt(df, map, 'none', FALSE, computeStats=T, listVarPlotRef = 'facetVariable1', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- box.dt(df, map, 'none', FALSE, computeStats=T, collectionVariablePlotRef = 'facetVariable1', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('boxplot','sampleSizeTable','statsTable','completeCasesTable'))
   expect_equal(names(jsonList$boxplot), c('data','config'))
   expect_equal(names(jsonList$boxplot$data), c('facetVariableDetails','label','min','q1','median','q3','max','lowerfence','upperfence'))
-  expect_equal(names(jsonList$boxplot$config), c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails', 'listVariableDetails'))
+  expect_equal(names(jsonList$boxplot$config), c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId'))
-  expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId', 'displayLabel'))
-  expect_equal(names(jsonList$boxplot$config$listVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$boxplot$config$computedVariableMetadata), c('displayName', 'collectionVariable'))
+  expect_equal(jsonList$boxplot$config$computedVariableMetadata$displayName, computedVariableMetadata$displayName)
+  expect_equal(names(jsonList$boxplot$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
+  expect_equal(names(jsonList$boxplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
+  expect_equal(nrow(jsonList$boxplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 2)
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$sampleSizeTable), c('facetVariableDetails','xVariableDetails','size'))
@@ -644,22 +658,31 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$statsTable), c('facetVariableDetails','statistic','pvalue','parameter','method','statsError'))
   expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
 
-  # Multiple vars to facet2
+  # Multiple vars to facet2 and computed variable metadata
   map <- data.frame('id' = c('entity.contB', 'entity.contA','entity.cat3','entity.cat4'),
                     'plotRef' = c('facetVariable2', 'facetVariable2', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('NUMBER', 'NUMBER','STRING','STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  computedVariableMetadata = list('displayRangeMin' = '2002-08-28 EST',
+                                  'displayRangeMax' = '2002-09-28 EST',
+                                  'collectionVariable' = list('collectionType' = 'abundance'))
   
-  dt <- box.dt(df, map, 'none', FALSE, computeStats=T, listVarPlotRef = 'facetVariable2', listVarDisplayLabel = 'listVarName', inferredVarDisplayLabel = 'inferredVarName')
+  dt <- box.dt(df, map, 'none', FALSE, computeStats=T, collectionVariablePlotRef = 'facetVariable2', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('boxplot','sampleSizeTable','statsTable','completeCasesTable'))
   expect_equal(names(jsonList$boxplot), c('data','config'))
   expect_equal(names(jsonList$boxplot$data), c('facetVariableDetails','label','min','q1','median','q3','max','lowerfence','upperfence'))
-  expect_equal(names(jsonList$boxplot$config), c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails', 'listVariableDetails'))
+  expect_equal(names(jsonList$boxplot$config), c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId'))
-  expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId', 'displayLabel'))
-  expect_equal(names(jsonList$boxplot$config$listVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$boxplot$config$computedVariableMetadata), c('displayRangeMin','displayRangeMax','collectionVariable'))
+  expect_equal(jsonList$boxplot$config$computedVariableMetadata$displayRangeMin, computedVariableMetadata$displayRangeMin)
+  expect_equal(jsonList$boxplot$config$computedVariableMetadata$displayRangeMax, computedVariableMetadata$displayRangeMax)
+  expect_equal(names(jsonList$boxplot$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
+  expect_equal(names(jsonList$boxplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
+  expect_equal(nrow(jsonList$boxplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 2)
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$sampleSizeTable), c('facetVariableDetails','xVariableDetails','size'))
