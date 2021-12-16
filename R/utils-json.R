@@ -48,7 +48,7 @@ addStrataVariableDetails <- function(.pd) {
     if (!identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS') & (group %in% names(.pd))) {
       names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
       .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
-      if (nrow(.pd) == 1) { .pd$overlayVariableDetails <- list(list(.pd$overlayVariableDetails)) }
+      #if (nrow(.pd) == 1) { .pd$overlayVariableDetails <- list(list(.pd$overlayVariableDetails)) }
     }
   }
 
