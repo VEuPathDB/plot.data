@@ -77,6 +77,13 @@ newScatterPD <- function(.dt = data.table::data.table(),
   } else {
     series$seriesY <- lapply(series$seriesY, as.character)
   }
+  if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
+    if (identical(attr$overlayVariable$dataType,'DATE')) {
+      series$seriesGradientColorscale <- lapply(series$seriesGradientColorscale, format, '%Y-%m-%d')
+    } else {
+      series$seriesGradientColorscale <- lapply(series$seriesGradientColorscale, as.character)
+    }
+  }
   veupathUtils::logWithTime('Collected raw scatter plot data.', verbose)
 
   if (value == 'smoothedMean') {

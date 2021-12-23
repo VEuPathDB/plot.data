@@ -130,15 +130,12 @@ getJSON <- function(.pd, evilMode) {
     namedAttrList$zVariableDetails <- makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId, namedAttrList$zAxisVariable$displayLabel)
     namedAttrList$zAxisVariable <- NULL
   }
-  # if ('collectionVariable' %in% names(namedAttrList)) {
-  #   namedAttrList$collectionVariableDetails <- makeVariableDetails(NULL, namedAttrList$collectionVariable$variableId, namedAttrList$collectionVariable$entityId, namedAttrList$collectionVariable$displayLabel)
-  #   namedAttrList$collectionVariable <- NULL
-  # }
   
   .pd <- addStrataVariableDetails(.pd)
   # If overlay is continuous, handle similarly to x, y, z vars.
-  if ('overlayVariable' %in% names(namedAttrList) & identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS')) {
+  if ('overlayVariable' %in% names(namedAttrList) && identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS')) {
     namedAttrList$overlayVariableDetails <- makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
+    .pd$seriesGradientColorscale <- lapply(.pd$seriesGradientColorscale, function(x) {ifelse(is.na(x), 'NA', x)})
   }
   
   namedAttrList$facetVariable1 <- NULL
