@@ -24,6 +24,9 @@ newLinePD <- function(.dt = data.table::data.table(),
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL),
+                         viewport = list('xMin' = NULL,
+                                         'xMax' = NULL),
+                         binWidth,
                          value = character(),
                          evilMode = logical(),
                          collectionVariableDetails = list('inferredVariable' = NULL,
@@ -52,35 +55,51 @@ newLinePD <- function(.dt = data.table::data.table(),
   attr <- attributes(.pd)
 
   x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
+  xType <- attr$xAxisVariable$dataType
   y <- veupathUtils::toColNameOrNull(attr$yAxisVariable)
   group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
+  # think we need to take viewport as input, even if we dont want semantic zoom
+  # for consistent bins across the annotated range, we need a consistent range/ bin start
+  if (is.null(viewport)) {
+    viewport <- findViewport(.pd[[x]], xType)
+    veupathUtils::logWithTime('Determined default viewport.', verbose)
+  } else {
+    viewport <- validateViewport(viewport, xType)
+  }
+  attr$viewport <- lapply(viewport, as.character)
+  attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
+
+  # if no binWidth provided, should we find one or assume a binWidth of 0?
+  # does a binWidth of 0 really make sense, or do we need to make all of the binning stuff optional?
+  # ultimately the question is how to make binning optionaland whats the default behavior?
+  if (is.null(binWidth) && xType != 'STRING') {
+    # if we want semantic zoom, then use xVP here instead, see histogram as ex
+    binWidth <- findBinWidth(.pd[[x]])
+    veupathUtils::logWithTime('Determined ideal bin width.', verbose)
+    attr$binSlider <- findBinSliderValues(.pd[[x]], xType, binWidth, 'binWidth')
+  }
+  
+  veupathUtils::logWithTime('Determined bin width slider min, max and step values.', verbose)
+
   if (value == 'mean') {
     
-    mean <- groupMean(.pd, x, y, group, panel)
-    data.table::setnames(mean, c(group, panel, 'seriesX', 'seriesY'))
+    mean <- binMean(.pd, x, y, group, panel, binWidth, viewport)
+    data.table::setnames(mean, c(group, panel, 'seriesX', 'seriesY', 'binStart', 'binEnd'))
     .pd <- mean
     veupathUtils::logWithTime('Mean calculated per X-axis value.', verbose)
 
   } else if (value == 'median') {
 
-     median <- groupMedian(.pd, x, y, group, panel)
-     data.table::setnames(median, c(group, panel, 'seriesX', 'seriesY'))
+    median <- binMedian(.pd, x, y, group, panel, binWidth, viewport)
+    data.table::setnames(median, c(group, panel, 'seriesX', 'seriesY', 'binStart', 'binEnd'))
     .pd <- median
     veupathUtils::logWithTime('Median calculated per X-axis value.', verbose)
 
   }
-  if (attr$xAxisVariable$dataType == 'DATE') {
-    .pd$seriesX <- lapply(.pd$seriesX, format, '%Y-%m-%d')
-  } else { 
-    .pd$seriesX <- lapply(.pd$seriesX, as.character)
-  }
-  if (attr$yAxisVariable$dataType == 'DATE') {
-    .pd$seriesY <- lapply(.pd$seriesY, format, '%Y-%m-%d')
-  } else {
-    .pd$seriesY <- lapply(.pd$seriesY, as.character)
-  }
+
+  .pd$seriesY <- lapply(.pd$seriesY, as.character)
   attr$names <- names(.pd)
 
   veupathUtils::setAttrFromList(.pd, attr)
@@ -126,7 +145,9 @@ validateLinePD <- function(.line, verbose) {
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable 
 #' sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 
 #' 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
 #' @param value character indicating whether to calculate 'mean', 'median' for y-axis
+#' @param viewport List of min and max values to consider as the range of data
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
@@ -151,8 +172,10 @@ validateLinePD <- function(.line, verbose) {
 #' @export
 lineplot.dt <- function(data, 
                          map, 
+                         binWidth = NULL, 
                          value = c('mean',
                                    'median'),
+                         viewport = NULL,
                          evilMode = c(FALSE, TRUE),
                          collectionVariablePlotRef = NULL,
                          computedVariableMetadata = NULL,
@@ -219,6 +242,8 @@ lineplot.dt <- function(data,
                             overlayVariable = overlayVariable,
                             facetVariable1 = facetVariable1,
                             facetVariable2 = facetVariable2,
+                            viewport = viewport,
+                            binWidth,
                             value = value,
                             evilMode = evilMode,
                             collectionVariableDetails = collectionVariableDetails,
@@ -226,7 +251,7 @@ lineplot.dt <- function(data,
                             verbose = verbose)
 
   .line <- validateLinePD(.line, verbose)
-  veupathUtils::logWithTime(paste('New line plot object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New line plot object created with parameters viewport =', viewport, 'binWidth =', binWidth, 'value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.line)
 }
@@ -259,7 +284,9 @@ lineplot.dt <- function(data,
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId 
 #' and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 
 #' 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
 #' @param value character indicating whether to calculate 'mean', 'median' for y-axis
+#' @param viewport List of min and max values to consider as the range of data
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables 
@@ -284,8 +311,10 @@ lineplot.dt <- function(data,
 #' @export
 lineplot <- function(data,
                       map,
+                      binWidth = NULL,
                       value = c('mean', 
                                 'median'),
+                      viewport = NULL,
                       evilMode = c(FALSE, TRUE),
                       collectionVariablePlotRef = NULL,
                       computedVariableMetadata = NULL,
@@ -295,7 +324,9 @@ lineplot <- function(data,
 
   .line <- lineplot.dt(data,
                            map,
+                           binWidth,
                            value = value,
+                           viewport = viewport,
                            evilMode = evilMode,
                            collectionVariablePlotRef = collectionVariablePlotRef,
                            computedVariableMetadata = computedVariableMetadata,

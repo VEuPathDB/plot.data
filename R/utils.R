@@ -1,3 +1,12 @@
+findViewport <- function(x, xType) {
+  if (xType %in% c('NUMBER', 'INTEGER')) {
+    viewport <- list('xMin' = min(0,min(x)), 'xMax' = max(x))
+  } else {
+    viewport <- list('xMin' = min(x), 'xMax' = max(x))
+  }
+
+  return(viewport)
+}
 
 tableXY <- function(data) {
   table(data$x, data$y)

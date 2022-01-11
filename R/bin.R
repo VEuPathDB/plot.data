@@ -1,3 +1,37 @@
+binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport) {
+  data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
+  data$binLabel <- bin(data[[x]], binWidth, viewport)
+
+  byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
+  data <- data[, list(value=roundedMedian(get(..y))), by=eval(byCols)]
+
+  data$binStart <- findBinStart(data$binLabel)
+  data$binEnd <- findBinEnd(data$binLabel)
+  data <- data[order(data$binStart),]
+  data$binStart <- as.character(data$binStart)
+
+  data <- collapseByGroup(data, group, panel)
+
+  return(data)
+}
+
+binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport) {
+  data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
+  data$binLabel <- bin(data[[x]], binWidth, viewport)
+
+  byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
+  data <- data[, list(value=roundedMean(get(..y))), by=eval(byCols)]
+
+  data$binStart <- findBinStart(data$binLabel)
+  data$binEnd <- findBinEnd(data$binLabel)
+  data <- data[order(data$binStart),]
+  data$binStart <- as.character(data$binStart)
+
+  data <- collapseByGroup(data, group, panel)
+
+  return(data)
+}
+
 binSize <- function(data, col, group = NULL, panel = NULL, binWidth = NULL, viewport) {
   data <- data[data[[col]] >= viewport$xMin & data[[col]] <= viewport$xMax,]
   data$binLabel <- bin(data[[col]], binWidth, viewport)
