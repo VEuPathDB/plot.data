@@ -60,7 +60,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     viewport <- findViewport(.pd[[x]], xType)
     veupathUtils::logWithTime('Determined default viewport.', verbose)
   } else {
-    viewport <- validateViewport(viewport, xType)
+    viewport <- validateViewport(viewport, xType, verbose)
   }
   attr$viewport <- lapply(viewport, as.character)
   attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
@@ -74,6 +74,9 @@ newHistogramPD <- function(.dt = data.table::data.table(),
     if (xType %in% c('NUMBER', 'INTEGER')) {
       binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
     } else {
+      numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
+      if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
+      unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
       binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
     }
   } else {
@@ -129,7 +132,7 @@ validateBinSlider <- function(binSlider) {
 # at some point we should consider if viewport can be part of the parent class.
 # there are difficulties w it, (ex: stats based not on viewport in child) so ill hold off for now.
 # alt possibly to make viewport a class when we refactor for s4..
-validateViewport <- function(viewport, xType) {
+validateViewport <- function(viewport, xType, verbose) {
   if (!is.list(viewport)) {
     return(FALSE)
   } else{

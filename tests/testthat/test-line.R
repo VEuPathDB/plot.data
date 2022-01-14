@@ -12,7 +12,17 @@ test_that("lineplot.dt() returns a valid plot.data lineplot object", {
   expect_is(dt, 'plot.data')
   expect_is(dt, 'lineplot')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','overlayVariable', 'facetVariable1', 'viewport', 'binSlider'))
+  expect_equal(names(namedAttrList),c('xAxisVariable', 
+                                      'yAxisVariable',
+                                      'completeCasesAllVars',
+                                      'completeCasesAxesVars',
+                                      'completeCasesTable',
+                                      'sampleSizeTable',
+                                      'overlayVariable',
+                                      'facetVariable1',
+                                      'viewport',
+                                      'binSlider',
+                                      'binSpec'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 4)
@@ -321,7 +331,7 @@ test_that("lineplot() returns appropriately formatted json", {
   expect_equal(names(jsonList$lineplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$lineplot$data$facetVariableDetails), 12)
   expect_equal(jsonList$lineplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','viewport','binSlider','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','viewport','binSlider','binSpec','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$lineplot$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(jsonList$lineplot$config$xVariableDetails$variableId, 'repeatedContA')
   expect_equal(names(jsonList$lineplot$config$viewport),c('xMin','xMax'))
@@ -354,7 +364,7 @@ test_that("lineplot() returns appropriately formatted json", {
   expect_equal(names(jsonList$lineplot),c('data','config'))
   expect_equal(names(jsonList$lineplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY', 'binStart', 'binEnd'))
   expect_equal(names(jsonList$lineplot$data$overlayVariableDetails),c('variableId','entityId','value'))
-  expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','viewport','binSlider','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','viewport','binSlider','binSpec','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$lineplot$config$computedVariableMetadata), c('displayName','displayRangeMin','displayRangeMax','collectionVariable'))
   expect_equal(jsonList$lineplot$config$computedVariableMetadata$displayRangeMin, computedVariableMetadata$displayRangeMin)
   expect_equal(jsonList$lineplot$config$computedVariableMetadata$displayRangeMax, computedVariableMetadata$displayRangeMax)
@@ -390,7 +400,7 @@ test_that("lineplot() returns appropriately formatted json", {
   expect_equal(names(jsonList$lineplot),c('data','config'))
   expect_equal(names(jsonList$lineplot$data),c('facetVariableDetails','seriesX','seriesY', 'binStart', 'binEnd'))
   expect_equal(names(jsonList$lineplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
-  expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','viewport','binSlider','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','viewport','binSlider','binSpec','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$lineplot$config$computedVariableMetadata), c('displayRangeMin','displayRangeMax','collectionVariable'))
   expect_equal(jsonList$lineplot$config$computedVariableMetadata$displayRangeMin, computedVariableMetadata$displayRangeMin)
   expect_equal(jsonList$lineplot$config$computedVariableMetadata$displayRangeMax, computedVariableMetadata$displayRangeMax)
@@ -423,7 +433,7 @@ test_that("lineplot() returns appropriately formatted json", {
   expect_equal(names(jsonList$lineplot),c('data','config'))
   expect_equal(names(jsonList$lineplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY', 'binStart', 'binEnd'))
   expect_equal(names(jsonList$lineplot$data$overlayVariableDetails),c('variableId','entityId','value'))
-  expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','viewport','binSlider','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','viewport','binSlider','binSpec','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$lineplot$config$computedVariableMetadata), c('displayName','collectionVariable'))
   expect_equal(names(jsonList$lineplot$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
   expect_equal(names(jsonList$lineplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), c('variableId','entityId'))

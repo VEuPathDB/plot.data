@@ -66,7 +66,7 @@ newLinePD <- function(.dt = data.table::data.table(),
     viewport <- findViewport(.pd[[x]], xType)
     veupathUtils::logWithTime('Determined default viewport.', verbose)
   } else {
-    viewport <- validateViewport(viewport, xType)
+    viewport <- validateViewport(viewport, xType, verbose)
   }
   attr$viewport <- lapply(viewport, as.character)
   attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
@@ -74,11 +74,23 @@ newLinePD <- function(.dt = data.table::data.table(),
   # if no binWidth provided, should we find one or assume a binWidth of 0?
   # does a binWidth of 0 really make sense, or do we need to make all of the binning stuff optional?
   # ultimately the question is how to make binning optionaland whats the default behavior?
-  if (is.null(binWidth) && xType != 'STRING') {
-    # if we want semantic zoom, then use xVP here instead, see histogram as ex
-    binWidth <- findBinWidth(.pd[[x]])
-    veupathUtils::logWithTime('Determined ideal bin width.', verbose)
+  if (xType != 'STRING') {
+    if (is.null(binWidth)) {
+      # if we want semantic zoom, then use xVP here instead, see histogram as ex
+      binWidth <- findBinWidth(.pd[[x]])
+      veupathUtils::logWithTime('Determined ideal bin width.', verbose)
+    }
     attr$binSlider <- findBinSliderValues(.pd[[x]], xType, binWidth, 'binWidth')
+
+    if (xType %in% c('NUMBER', 'INTEGER')) {
+      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
+    } else {
+      numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
+      if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
+      unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
+      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
+    }
+    attr$binSpec <- binSpec
   }
   
   veupathUtils::logWithTime('Determined bin width slider min, max and step values.', verbose)
