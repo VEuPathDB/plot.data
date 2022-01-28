@@ -9,6 +9,7 @@ lineplot(
   map,
   binWidth = NULL,
   value = c("mean", "median"),
+  errorBars = c(TRUE, FALSE),
   viewport = NULL,
   evilMode = c(FALSE, TRUE),
   collectionVariablePlotRef = NULL,
@@ -26,6 +27,8 @@ and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yA
 \item{binWidth}{numeric value indicating width of bins, character (ex: 'year') if xaxis is a date}
 
 \item{value}{character indicating whether to calculate 'mean', 'median' for y-axis}
+
+\item{errorBars}{boolean indicating if we want 95% confidence intervals per x-axis tick}
 
 \item{viewport}{List of min and max values to consider as the range of data}
 

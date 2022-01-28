@@ -1,3 +1,33 @@
+medianCI <- function(x, conf.level=.95) {
+  w <- try(wilcox.test(x, conf.int=T, conf.level=conf.level))
+  if (veupathUtils::is.error(w)) {
+    ci <- list('lowerBound'=numeric(), 'upperBound'=numeric(), 'error'=jsonlite::unbox(w[1]))
+  } else {
+    ci <- list('lowerBound'=jsonlite::unbox(w$conf.int[1]), 'upperBound'=jsonlite::unbox(w$conf.int[2]), 'error'=jsonlite::unbox(""))
+  }
+
+  return(list(ci))
+}
+
+meanCI <- function(x, conf.level=.95) {
+  t <- try(t.test(x, conf.int=T, conf.level=conf.level))
+  if (veupathUtils::is.error(t)) {
+    ci <- list('lowerBound'=numeric(), 'upperBound'=numeric(), 'error'=jsonlite::unbox(t[1]))
+  } else {
+    ci <- list('lowerBound'=jsonlite::unbox(t$conf.int[1]), 'upperBound'=jsonlite::unbox(t$conf.int[2]), 'error'=jsonlite::unbox(""))
+  }
+
+  return(list(ci))
+}
+
+simpleSampleSize <- function(x) {
+  list(list("N" = jsonlite::unbox(length(x))))
+}
+
+proportionSampleSize <- function(numerator, denominator) {
+  list("numeratorN"=jsonlite::unbox(length(numerator)), "denominatorN"=jsonlite::unbox(length(denominator)))
+}
+
 roundedSD <- function(x, digits = 4, ...) {
   as.list(round(stats::sd(x, ...), digits))
 }

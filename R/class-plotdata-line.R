@@ -28,6 +28,7 @@ newLinePD <- function(.dt = data.table::data.table(),
                                          'xMax' = NULL),
                          binWidth,
                          value = character(),
+                         errorBars = logical(),
                          evilMode = logical(),
                          collectionVariableDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
@@ -97,15 +98,15 @@ newLinePD <- function(.dt = data.table::data.table(),
 
   if (value == 'mean') {
     
-    mean <- binMean(.pd, x, y, group, panel, binWidth, viewport)
-    data.table::setnames(mean, c(group, panel, 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+    mean <- binMean(.pd, x, y, group, panel, binWidth, viewport, errorBars)
+    data.table::setnames(mean, c('binLabel', 'value'), c('seriesX', 'seriesY'))
     .pd <- mean
     veupathUtils::logWithTime('Mean calculated per X-axis value.', verbose)
 
   } else if (value == 'median') {
 
-    median <- binMedian(.pd, x, y, group, panel, binWidth, viewport)
-    data.table::setnames(median, c(group, panel, 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+    median <- binMedian(.pd, x, y, group, panel, binWidth, viewport, errorBars)
+    data.table::setnames(median, c('binLabel', 'value'), c('seriesX', 'seriesY'))
     .pd <- median
     veupathUtils::logWithTime('Median calculated per X-axis value.', verbose)
 
@@ -159,6 +160,7 @@ validateLinePD <- function(.line, verbose) {
 #' 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
 #' @param value character indicating whether to calculate 'mean', 'median' for y-axis
+#' @param errorBars boolean indicating if we want 95% confidence intervals per x-axis tick
 #' @param viewport List of min and max values to consider as the range of data
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
@@ -187,6 +189,7 @@ lineplot.dt <- function(data,
                          binWidth = NULL, 
                          value = c('mean',
                                    'median'),
+                         errorBars = c(TRUE, FALSE),
                          viewport = NULL,
                          evilMode = c(FALSE, TRUE),
                          collectionVariablePlotRef = NULL,
@@ -194,6 +197,7 @@ lineplot.dt <- function(data,
                          verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
+  errorBars <- veupathUtils::matchArg(errorBars)
   evilMode <- veupathUtils::matchArg(evilMode) 
   verbose <- veupathUtils::matchArg(verbose)  
 
@@ -257,13 +261,14 @@ lineplot.dt <- function(data,
                             viewport = viewport,
                             binWidth,
                             value = value,
+                            errorBars = errorBars,
                             evilMode = evilMode,
                             collectionVariableDetails = collectionVariableDetails,
                             computedVariableMetadata = computedVariableMetadata,
                             verbose = verbose)
 
   .line <- validateLinePD(.line, verbose)
-  veupathUtils::logWithTime(paste('New line plot object created with parameters viewport =', viewport, 'binWidth =', binWidth, 'value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New line plot object created with parameters viewport =', viewport, ', binWidth =', binWidth, ', value =', value, ', errorBars =', errorBars, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.line)
 }
@@ -298,6 +303,7 @@ lineplot.dt <- function(data,
 #' 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
 #' @param value character indicating whether to calculate 'mean', 'median' for y-axis
+#' @param errorBars boolean indicating if we want 95% confidence intervals per x-axis tick
 #' @param viewport List of min and max values to consider as the range of data
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
@@ -326,6 +332,7 @@ lineplot <- function(data,
                       binWidth = NULL,
                       value = c('mean', 
                                 'median'),
+                      errorBars = c(TRUE, FALSE),
                       viewport = NULL,
                       evilMode = c(FALSE, TRUE),
                       collectionVariablePlotRef = NULL,
@@ -338,6 +345,7 @@ lineplot <- function(data,
                            map,
                            binWidth,
                            value = value,
+                           errorBars = errorBars,
                            viewport = viewport,
                            evilMode = evilMode,
                            collectionVariablePlotRef = collectionVariablePlotRef,

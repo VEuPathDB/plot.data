@@ -1,10 +1,17 @@
-binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport) {
+binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars) {
   data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
   data$binLabel <- bin(data[[x]], binWidth, viewport)
 
   byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
-  data <- data[, list(value=roundedMedian(get(..y))), by=eval(byCols)]
-
+  if (errorBars) {
+    data <- data[, list(value=roundedMedian(get(..y)),
+                      binSampleSize=simpleSampleSize(get(..y)),
+                      errorBars=medianCI(get(..y))), by=eval(byCols)]
+  } else {
+    data <- data[, list(value=roundedMedian(get(..y)),
+                      binSampleSize=simpleSampleSize(get(..y))), by=eval(byCols)]
+  }
+  
   data$binStart <- findBinStart(data$binLabel)
   data$binEnd <- findBinEnd(data$binLabel)
   data <- data[order(data$binStart),]
@@ -15,13 +22,20 @@ binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, v
   return(data)
 }
 
-binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport) {
+binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars) {
   data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
   data$binLabel <- bin(data[[x]], binWidth, viewport)
 
   byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
-  data <- data[, list(value=roundedMean(get(..y))), by=eval(byCols)]
-
+  if (errorBars) {
+    data <- data[, list(value=roundedMean(get(..y)),
+                      binSampleSize=simpleSampleSize(get(..y)),
+                      errorBars=meanCI(get(..y))), by=eval(byCols)]
+  } else {
+    data <- data[, list(value=roundedMean(get(..y)),
+                      binSampleSize=simpleSampleSize(get(..y))), by=eval(byCols)]
+  }
+  
   data$binStart <- findBinStart(data$binLabel)
   data$binEnd <- findBinEnd(data$binLabel)
   data <- data[order(data$binStart),]

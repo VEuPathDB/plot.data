@@ -92,16 +92,16 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
 
   df <- as.data.frame(testDF)
 
-  dt <- lineplot.dt(df, map, NULL, 'mean', NULL)
+  dt <- lineplot.dt(df, map, NULL, 'mean', TRUE, NULL)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
   
-  dt <- lineplot.dt(df, map, NULL, 'median', NULL)
+  dt <- lineplot.dt(df, map, NULL, 'median', TRUE, NULL)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
 
   map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.repeatedContA', 'entity.cat4'), 
@@ -113,13 +113,13 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   dt <- lineplot.dt(df, map, value = 'mean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
   
   dt <- lineplot.dt(df, map, value = 'median')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
   
   map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.repeatedContA'), 
@@ -131,13 +131,13 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   dt <- lineplot.dt(df, map, value = 'mean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),3)
-  expect_equal(names(dt),c('entity.cat3', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat3', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
 
   dt <- lineplot.dt(df, map, value = 'median')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),3)
-  expect_equal(names(dt),c('entity.cat3', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat3', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
   
   map <- data.frame('id' = c('entity.contB', 'entity.repeatedContA', 'entity.cat4'), 
@@ -149,13 +149,13 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   dt <- lineplot.dt(df, map, value = 'mean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.cat4', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat4', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
 
   dt <- lineplot.dt(df, map, value = 'median')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.cat4', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat4', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
 
   map <- data.frame('id' = c('entity.contB', 'entity.repeatedContA'), 
@@ -167,15 +167,33 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   dt <- lineplot.dt(df, map, value = 'mean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
 
   dt <- lineplot.dt(df, map, value = 'median')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
 
+  ## no error bars
+  map <- data.frame('id' = c('entity.contB', 'entity.repeatedContA'), 
+                    'plotRef' = c('yAxisVariable', 'xAxisVariable'), 
+                    'dataType' = c('NUMBER', 'NUMBER'), 
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS'), 
+                    stringsAsFactors = FALSE)
+
+  dt <- lineplot.dt(df, map, value = 'mean', errorBars=F)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt),c('seriesX', 'seriesY', 'binSampleSize', 'binStart', 'binEnd'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+
+  dt <- lineplot.dt(df, map, value = 'median', errorBars=F)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt),c('seriesX', 'seriesY', 'binSampleSize', 'binStart', 'binEnd'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
 
   ## Collection vars
   map <- data.frame('id' = c('entity.contB', 'entity.contC', 'entity.contD', 'entity.repeatedContA', 'entity.cat3'), 
@@ -187,7 +205,7 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   dt <- lineplot.dt(df, map, value = 'mean', collectionVariablePlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('entity.cat3', 'entity.facetVariable1', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt), c('entity.cat3', 'entity.facetVariable1', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(unique(dt$entity.facetVariable1), c('contB','contC','contD'))
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
@@ -202,7 +220,7 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   dt <- lineplot.dt(df, map, value = 'mean', collectionVariablePlotRef = 'facetVariable1',)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(dt$panel[1], 'X.||.cat3_a')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
@@ -217,7 +235,7 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   dt <- lineplot.dt(df, map, value = 'mean', collectionVariablePlotRef = 'facetVariable2')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(dt$panel[1], 'cat3_a.||.contB')
   expect_equal(attr(dt, 'facetVariable2')$variableId, 'facetVariable2')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
@@ -239,7 +257,7 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   dt <- lineplot.dt(df, map, value = 'median', collectionVariablePlotRef = 'overlayVariable', computedVariableMetadata = computedVariableMetadata)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('entity.overlayVariable', 'entity.cat3', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt), c('entity.overlayVariable', 'entity.cat3', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(unique(dt$entity.overlayVariable), c('X','Y','Z'))
   expect_equal(attr(dt, 'overlayVariable')$variableId, 'overlayVariable')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
@@ -260,7 +278,7 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   dt <- lineplot.dt(df, map, value = 'mean', collectionVariablePlotRef = 'overlayVariable')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
-  expect_equal(names(dt), c('entity.overlayVariable', 'entity.cat3', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt), c('entity.overlayVariable', 'entity.cat3', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(unique(dt$entity.overlayVariable), c('contB'))
   expect_equal(attr(dt, 'overlayVariable')$variableId, 'overlayVariable')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
@@ -274,7 +292,7 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   dt <- lineplot.dt(df, map, value = 'median', collectionVariablePlotRef = 'facetVariable1')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
-  expect_equal(names(dt), c('entity.cat3', 'entity.facetVariable1', 'seriesX', 'seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt), c('entity.cat3', 'entity.facetVariable1', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(unique(dt$entity.facetVariable1), c('contB'))
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
@@ -288,7 +306,7 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
                     stringsAsFactors=FALSE)
   dt <- lineplot.dt(df, map, value = 'mean')
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('entity.cat3', 'entity.factor3','seriesX','seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt), c('entity.cat3', 'entity.factor3','seriesX','seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(class(dt$entity.factor3), 'character')
   
   map <- data.frame('id' = c('entity.factor6', 'entity.contB', 'entity.repeatedContA', 'entity.factor3'), 
@@ -298,7 +316,7 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
                     stringsAsFactors=FALSE)
   dt <- lineplot.dt(df, map, value = 'median')
   expect_equal(nrow(dt), 18)
-  expect_equal(names(dt), c('panel','seriesX','seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt), c('panel','seriesX','seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(class(dt$panel), 'character')
 
   map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.repeatedContA', 'entity.factor3'), 
@@ -308,7 +326,7 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
                     stringsAsFactors=FALSE)
   dt <- lineplot.dt(df, map, value = 'mean')
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('panel','seriesX','seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(dt), c('panel','seriesX','seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(class(dt$panel), 'character')
 })
 
@@ -327,10 +345,12 @@ test_that("lineplot() returns appropriately formatted json", {
 
   expect_equal(names(jsonList),c('lineplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$lineplot),c('data','config'))
-  expect_equal(names(jsonList$lineplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(jsonList$lineplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(names(jsonList$lineplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$lineplot$data$facetVariableDetails), 12)
   expect_equal(jsonList$lineplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
+  expect_equal(names(jsonList$lineplot$data$binSampleSize[[1]]),"N")
+  expect_equal(names(jsonList$lineplot$data$errorBars[[1]]), c('lowerBound', 'upperBound', 'error'))
   expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','viewport','binSlider','binSpec','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$lineplot$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(jsonList$lineplot$config$xVariableDetails$variableId, 'repeatedContA')
@@ -362,8 +382,10 @@ test_that("lineplot() returns appropriately formatted json", {
   
   expect_equal(names(jsonList),c('lineplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$lineplot),c('data','config'))
-  expect_equal(names(jsonList$lineplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(jsonList$lineplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(names(jsonList$lineplot$data$overlayVariableDetails),c('variableId','entityId','value'))
+  expect_equal(names(jsonList$lineplot$data$binSampleSize[[1]]),"N")
+  expect_equal(names(jsonList$lineplot$data$errorBars[[1]]), c('lowerBound', 'upperBound', 'error'))
   expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','viewport','binSlider','binSpec','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$lineplot$config$computedVariableMetadata), c('displayName','displayRangeMin','displayRangeMax','collectionVariable'))
   expect_equal(jsonList$lineplot$config$computedVariableMetadata$displayRangeMin, computedVariableMetadata$displayRangeMin)
@@ -398,8 +420,10 @@ test_that("lineplot() returns appropriately formatted json", {
   
   expect_equal(names(jsonList),c('lineplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$lineplot),c('data','config'))
-  expect_equal(names(jsonList$lineplot$data),c('facetVariableDetails','seriesX','seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(jsonList$lineplot$data),c('facetVariableDetails','seriesX','seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(names(jsonList$lineplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
+  expect_equal(names(jsonList$lineplot$data$binSampleSize[[1]]),"N")
+  expect_equal(names(jsonList$lineplot$data$errorBars[[1]]), c('lowerBound', 'upperBound', 'error'))
   expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','viewport','binSlider','binSpec','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$lineplot$config$computedVariableMetadata), c('displayRangeMin','displayRangeMax','collectionVariable'))
   expect_equal(jsonList$lineplot$config$computedVariableMetadata$displayRangeMin, computedVariableMetadata$displayRangeMin)
@@ -431,8 +455,10 @@ test_that("lineplot() returns appropriately formatted json", {
   
   expect_equal(names(jsonList),c('lineplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$lineplot),c('data','config'))
-  expect_equal(names(jsonList$lineplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY', 'binStart', 'binEnd'))
+  expect_equal(names(jsonList$lineplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
   expect_equal(names(jsonList$lineplot$data$overlayVariableDetails),c('variableId','entityId','value'))
+  expect_equal(names(jsonList$lineplot$data$binSampleSize[[1]]),"N")
+  expect_equal(names(jsonList$lineplot$data$errorBars[[1]]), c('lowerBound', 'upperBound', 'error'))
   expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','viewport','binSlider','binSpec','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$lineplot$config$computedVariableMetadata), c('displayName','collectionVariable'))
   expect_equal(names(jsonList$lineplot$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
