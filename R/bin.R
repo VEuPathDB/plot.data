@@ -99,7 +99,7 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL
 }
 
 # finds specific ratios of values/ categories for y by bins+groups
-binCategoryRatio <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars, numeratorValues, denominatorValues) {
+binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars, numeratorValues, denominatorValues) {
   data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
   data$binLabel <- bin(data[[x]], binWidth, viewport)
 
@@ -124,7 +124,6 @@ binCategoryRatio <- function(data, x, y, group = NULL, panel = NULL, binWidth = 
   data <- data[order(data$binStart),]
   data$binStart <- as.character(data$binStart)
 
-  #data <- unique(data)
   data <- collapseByGroup(data, group, panel)
 
   return(data)

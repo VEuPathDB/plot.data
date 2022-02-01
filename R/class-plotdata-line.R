@@ -97,9 +97,8 @@ newLinePD <- function(.dt = data.table::data.table(),
   attr$viewport <- lapply(viewport, as.character)
   attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
 
-  # if no binWidth provided, should we find one or assume a binWidth of 0?
-  # does a binWidth of 0 really make sense, or do we need to make all of the binning stuff optional?
-  # ultimately the question is how to make binning optionaland whats the default behavior?
+  # if no binWidth is provided, find one. if the user doesnt want binning they can set binWidth to 0
+  # if someone complains about that well add a boolean param to indicate if binning is desired
   if (xType != 'STRING') {
     if (is.null(binWidth)) {
       # if we want semantic zoom, then use xVP here instead, see histogram as ex
@@ -137,10 +136,10 @@ newLinePD <- function(.dt = data.table::data.table(),
 
   } else if (value == 'proportion') {
 
-    ratio <- binCategoryRatio(.pd, x, y, group, panel, binWidth, viewport, errorBars, numeratorValues, denominatorValues)
-    data.table::setnames(ratio, c('binLabel', 'value'), c('seriesX', 'seriesY'))
-    .pd <- ratio
-    veupathUtils::logWithTime('Y-axis category ratios calculated per X-axis value.', verbose)
+    proportion <- binCategoryProportion(.pd, x, y, group, panel, binWidth, viewport, errorBars, numeratorValues, denominatorValues)
+    data.table::setnames(proportion, c('binLabel', 'value'), c('seriesX', 'seriesY'))
+    .pd <- proportion
+    veupathUtils::logWithTime('Y-axis category proportions calculated per X-axis value.', verbose)
 
   }
 
