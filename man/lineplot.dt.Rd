@@ -8,9 +8,11 @@ lineplot.dt(
   data,
   map,
   binWidth = NULL,
-  value = c("mean", "median"),
+  value = c("mean", "median", "proportion"),
   errorBars = c(TRUE, FALSE),
   viewport = NULL,
+  numeratorValues = NULL,
+  denominatorValues = NULL,
   evilMode = c(FALSE, TRUE),
   collectionVariablePlotRef = NULL,
   computedVariableMetadata = NULL,
@@ -26,11 +28,15 @@ sourceId and its position in the plot. Recognized plotRef values are 'xAxisVaria
 
 \item{binWidth}{numeric value indicating width of bins, character (ex: 'year') if xaxis is a date}
 
-\item{value}{character indicating whether to calculate 'mean', 'median' for y-axis}
+\item{value}{character indicating whether to calculate 'mean', 'median', 'proportion' for y-axis}
 
 \item{errorBars}{boolean indicating if we want 95% confidence intervals per x-axis tick}
 
 \item{viewport}{List of min and max values to consider as the range of data}
+
+\item{numeratorValues}{character vector of values from the y-axis variable to consider the numerator}
+
+\item{denominatorValues}{character vector of values from the y-axis variable to consider the denominator}
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
 

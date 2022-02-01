@@ -20,12 +20,34 @@ meanCI <- function(x, conf.level=.95) {
   return(list(ci))
 }
 
+proportionCI <- function(numerator, denominator, conf.level=.95) {
+  b <- try(binom.test(numerator, denominator, conf.level=conf.level))
+  if (veupathUtils::is.error(b)) {
+    ci <- list('lowerBound'=numeric(), 'upperBound'=numeric(), 'error'=jsonlite::unbox(b[1]))
+  } else {
+    ci <- list('lowerBound'=jsonlite::unbox(b$conf.int[1]), 'upperBound'=jsonlite::unbox(b$conf.int[2]), 'error'=jsonlite::unbox(""))
+  }
+
+  return(list(ci))
+}
+
+#not sure i like the heuristic here. maybe a class and methods could help us at some point..
 simpleSampleSize <- function(x) {
-  list(list("N" = jsonlite::unbox(length(x))))
+  if (length(x) == 1 & is.numeric(x)) {
+    list(list("N" = jsonlite::unbox(x)))
+  } else {
+    list(list("N" = jsonlite::unbox(length(x))))
+  }  
 }
 
 proportionSampleSize <- function(numerator, denominator) {
-  list("numeratorN"=jsonlite::unbox(length(numerator)), "denominatorN"=jsonlite::unbox(length(denominator)))
+  if (length(numerator) == 1 & length(denominator) == 1 & is.numeric(c(numerator, denominator))) {
+    list(list("numeratorN"=jsonlite::unbox(numerator), 
+         "denominatorN"=jsonlite::unbox(denominator)))
+  } else {
+    list(list("numeratorN"=jsonlite::unbox(length(numerator)), 
+         "denominatorN"=jsonlite::unbox(length(denominator))))
+  }
 }
 
 roundedSD <- function(x, digits = 4, ...) {
@@ -42,6 +64,13 @@ roundedMedian <- function(x, digits = 4, ...) {
 
 roundedQuantile <- function(x, digits = 4, ...) {
   as.list(round(stats::quantile(x, ...), digits))
+}
+
+roundedRatio <- function(numerator, denominator, digits = 4, ...) {
+  ratio <- numerator/denominator
+  ratio <- round(ratio, digits)
+  #ratio[is.nan(ratio)] <- NaNValue
+  return(as.list(ratio))
 }
 
 #' Fences

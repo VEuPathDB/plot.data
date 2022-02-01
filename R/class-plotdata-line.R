@@ -30,6 +30,8 @@ newLinePD <- function(.dt = data.table::data.table(),
                          value = character(),
                          errorBars = logical(),
                          evilMode = logical(),
+                         numeratorValues = character(),
+                         denominatorValues = character(),
                          collectionVariableDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
                                                'collectionVariablePlotRef' = NULL),
@@ -58,8 +60,31 @@ newLinePD <- function(.dt = data.table::data.table(),
   x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
   xType <- attr$xAxisVariable$dataType
   y <- veupathUtils::toColNameOrNull(attr$yAxisVariable)
+  yType <- attr$yAxisVariable$dataType
   group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
+
+  if (yType == 'STRING') {
+    if (is.null(numeratorValues)) {
+      stop("Numerator values must be specified for categorical y-axes.")
+    }
+    if (is.null(denominatorValues)) {
+      values <- unique(.pd[[y]])
+      denominatorValues <- values[values %ni% numeratorValues]
+    }
+    #validate num and denom values actually exist as part of the y values
+    validateValues(numeratorValues, .pd[[y]])
+    validateValues(denominatorValues, .pd[[y]])
+    veupathUtils::logWithTime('Numerator and denominator values have been validated.', verbose)
+
+    if (value != 'proportion') { stop('`value` parameter must be `proportion` for categorical y-axes.') }
+  } else {
+    if (!!length(c(numeratorValues,denominatorValues))) {
+      warning("Numerator and/ or denominator values supplied for non-categorical y-axis. These will be ignored.")
+    }
+
+    if (value %ni% c('mean', 'median')) { stop('`value` parameter must be `mean` or `median` for numeric or date y-axes.')}
+  } 
 
   # think we need to take viewport as input, even if we dont want semantic zoom
   # for consistent bins across the annotated range, we need a consistent range/ bin start
@@ -110,6 +135,13 @@ newLinePD <- function(.dt = data.table::data.table(),
     .pd <- median
     veupathUtils::logWithTime('Median calculated per X-axis value.', verbose)
 
+  } else if (value == 'proportion') {
+
+    ratio <- binCategoryRatio(.pd, x, y, group, panel, binWidth, viewport, errorBars, numeratorValues, denominatorValues)
+    data.table::setnames(ratio, c('binLabel', 'value'), c('seriesX', 'seriesY'))
+    .pd <- ratio
+    veupathUtils::logWithTime('Y-axis category ratios calculated per X-axis value.', verbose)
+
   }
 
   .pd$seriesY <- lapply(.pd$seriesY, as.character)
@@ -159,9 +191,11 @@ validateLinePD <- function(.line, verbose) {
 #' sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 
 #' 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
-#' @param value character indicating whether to calculate 'mean', 'median' for y-axis
+#' @param value character indicating whether to calculate 'mean', 'median', 'proportion' for y-axis
 #' @param errorBars boolean indicating if we want 95% confidence intervals per x-axis tick
 #' @param viewport List of min and max values to consider as the range of data
+#' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
+#' @param denominatorValues character vector of values from the y-axis variable to consider the denominator
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
@@ -188,9 +222,12 @@ lineplot.dt <- function(data,
                          map, 
                          binWidth = NULL, 
                          value = c('mean',
-                                   'median'),
+                                   'median',
+                                   'proportion'),
                          errorBars = c(TRUE, FALSE),
                          viewport = NULL,
+                         numeratorValues = NULL,
+                         denominatorValues = NULL,
                          evilMode = c(FALSE, TRUE),
                          collectionVariablePlotRef = NULL,
                          computedVariableMetadata = NULL,
@@ -224,7 +261,7 @@ lineplot.dt <- function(data,
     if (is.null(collectionVariablePlotRef)) {
       stop("Must provide yAxisVariable for plot type line.")
     }
-  } 
+  }
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
@@ -259,6 +296,8 @@ lineplot.dt <- function(data,
                             facetVariable1 = facetVariable1,
                             facetVariable2 = facetVariable2,
                             viewport = viewport,
+                            numeratorValues = numeratorValues,
+                            denominatorValues = denominatorValues,
                             binWidth,
                             value = value,
                             errorBars = errorBars,
@@ -268,7 +307,14 @@ lineplot.dt <- function(data,
                             verbose = verbose)
 
   .line <- validateLinePD(.line, verbose)
-  veupathUtils::logWithTime(paste('New line plot object created with parameters viewport =', viewport, ', binWidth =', binWidth, ', value =', value, ', errorBars =', errorBars, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New line plot object created with parameters viewport =', viewport, 
+                                                                             ', binWidth =', binWidth, 
+                                                                             ', value =', value, 
+                                                                             ', errorBars =', errorBars, 
+                                                                             ', evilMode =', evilMode, 
+                                                                             ', numeratorValues = ', numeratorValues, 
+                                                                             ', denominatorValues = ', denominatorValues, 
+                                                                             ', verbose = ', verbose), verbose)
 
   return(.line)
 }
@@ -302,9 +348,11 @@ lineplot.dt <- function(data,
 #' and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 
 #' 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
-#' @param value character indicating whether to calculate 'mean', 'median' for y-axis
+#' @param value character indicating whether to calculate 'mean', 'median', 'proportion' for y-axis
 #' @param errorBars boolean indicating if we want 95% confidence intervals per x-axis tick
 #' @param viewport List of min and max values to consider as the range of data
+#' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
+#' @param denominatorValues character vector of values from the y-axis variable to consider the denominator
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables 
@@ -331,9 +379,12 @@ lineplot <- function(data,
                       map,
                       binWidth = NULL,
                       value = c('mean', 
-                                'median'),
+                                'median',
+                                'proportion'),
                       errorBars = c(TRUE, FALSE),
                       viewport = NULL,
+                      numeratorValues = NULL,
+                      denominatorValues = NULL,
                       evilMode = c(FALSE, TRUE),
                       collectionVariablePlotRef = NULL,
                       computedVariableMetadata = NULL,
@@ -347,6 +398,8 @@ lineplot <- function(data,
                            value = value,
                            errorBars = errorBars,
                            viewport = viewport,
+                           numeratorValues = numeratorValues,
+                           denominatorValues = denominatorValues,
                            evilMode = evilMode,
                            collectionVariablePlotRef = collectionVariablePlotRef,
                            computedVariableMetadata = computedVariableMetadata,

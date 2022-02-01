@@ -63,6 +63,7 @@ binSize <- function(data, col, group = NULL, panel = NULL, binWidth = NULL, view
   return(data)
 }
 
+# essentially compares size of *groups* across bins
 binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL, barmode = 'stack', viewport) {
   data <- data[data[[col]] >= viewport$xMin & data[[col]] <= viewport$xMax,]
   data$binLabel <- bin(data[[col]], binWidth, viewport)
@@ -92,6 +93,38 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL
   data$binStart <- as.character(data$binStart)
 
   data <- unique(data)
+  data <- collapseByGroup(data, group, panel)
+
+  return(data)
+}
+
+# finds specific ratios of values/ categories for y by bins+groups
+binCategoryRatio <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars, numeratorValues, denominatorValues) {
+  data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
+  data$binLabel <- bin(data[[x]], binWidth, viewport)
+
+  byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
+  if (errorBars) {
+    data <- data[, { numeratorCount = sum(numeratorValues %in% get(..y)); 
+                     denominatorCount = sum(denominatorValues %in% get(..y));
+                     list(value=roundedRatio(numeratorCount, denominatorCount),
+                          binSampleSize=proportionSampleSize(numeratorCount, denominatorCount),
+                          errorBars=proportionCI(numeratorCount, denominatorCount))}, 
+                     by=eval(byCols)]
+  } else {
+    data <- data[, { numeratorCount = sum(numeratorValues %in% get(..y));
+                     denominatorCount = sum(denominatorValues %in% get(..y));
+                     list(value=roundedRatio(numeratorCount, denominatorCount),
+                          binSampleSize=proportionSampleSize(numeratorCount, denominatorCount))}, 
+                     by=eval(byCols)]
+  }
+
+  data$binStart <- findBinStart(data$binLabel)
+  data$binEnd <- findBinEnd(data$binLabel)
+  data <- data[order(data$binStart),]
+  data$binStart <- as.character(data$binStart)
+
+  #data <- unique(data)
   data <- collapseByGroup(data, group, panel)
 
   return(data)
