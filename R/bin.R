@@ -1,8 +1,13 @@
-binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE)) {
+binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), xType) {
   errorBars <- veupathUtils::matchArg(errorBars)
   
-  data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
-  data$binLabel <- bin(data[[x]], binWidth, viewport)
+  if (xType != 'STRING') {
+    data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
+    data$binLabel <- bin(data[[x]], binWidth, viewport)
+  } else {
+    data.table::setnames(data, x, 'binLabel')
+    data$binLabel <- as.character(data$binLabel)
+  }
 
   byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
   if (errorBars) {
@@ -14,22 +19,29 @@ binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, v
                       binSampleSize=simpleSampleSize(get(..y))), by=eval(byCols)]
   }
   
-  data$binStart <- findBinStart(data$binLabel)
-  data$binEnd <- findBinEnd(data$binLabel)
-  data <- data[order(data$binStart),]
-  data$binStart <- as.character(data$binStart)
+  if (xType != 'STRING') {
+    data$binStart <- findBinStart(data$binLabel)
+    data$binEnd <- findBinEnd(data$binLabel)
+    data <- data[order(data$binStart),]
+    data$binStart <- as.character(data$binStart)
+  }
 
   data <- collapseByGroup(data, group, panel)
 
   return(data)
 }
 
-binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE)) {
+binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), xType) {
   errorBars <- veupathUtils::matchArg(errorBars)
 
-  data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
-  data$binLabel <- bin(data[[x]], binWidth, viewport)
-
+  if (xType != 'STRING') {
+    data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
+    data$binLabel <- bin(data[[x]], binWidth, viewport)
+  } else {
+    data.table::setnames(data, x, 'binLabel')
+    data$binLabel <- as.character(data$binLabel)
+  }
+  
   byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
   if (errorBars) {
     data <- data[, list(value=roundedMean(get(..y)),
@@ -40,10 +52,12 @@ binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, vie
                       binSampleSize=simpleSampleSize(get(..y))), by=eval(byCols)]
   }
   
-  data$binStart <- findBinStart(data$binLabel)
-  data$binEnd <- findBinEnd(data$binLabel)
-  data <- data[order(data$binStart),]
-  data$binStart <- as.character(data$binStart)
+  if (xType != 'STRING') {
+    data$binStart <- findBinStart(data$binLabel)
+    data$binEnd <- findBinEnd(data$binLabel)
+    data <- data[order(data$binStart),]
+    data$binStart <- as.character(data$binStart)
+  }
 
   data <- collapseByGroup(data, group, panel)
 
@@ -103,12 +117,18 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL
 }
 
 # finds specific ratios of values/ categories for y by bins+groups
-binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), numeratorValues, denominatorValues) {
+binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), numeratorValues, denominatorValues, xType) {
   errorBars <- veupathUtils::matchArg(errorBars)
 
-  data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
-  data$binLabel <- bin(data[[x]], binWidth, viewport)
-
+  # TODO improve this as part of #127. shouldnt need an xType arg ideally, just a boolean bin arg.
+  if (xType != 'STRING') {
+    data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
+    data$binLabel <- bin(data[[x]], binWidth, viewport)
+  } else {
+    data.table::setnames(data, x, 'binLabel')
+    data$binLabel <- as.character(data$binLabel)
+  }
+  
   byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
   if (errorBars) {
     data <- data[, { numeratorCount = sum(numeratorValues %in% get(..y)); 
@@ -125,10 +145,12 @@ binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWid
                      by=eval(byCols)]
   }
 
-  data$binStart <- findBinStart(data$binLabel)
-  data$binEnd <- findBinEnd(data$binLabel)
-  data <- data[order(data$binStart),]
-  data$binStart <- as.character(data$binStart)
+  if (xType != 'STRING') {
+    data$binStart <- findBinStart(data$binLabel)
+    data$binEnd <- findBinEnd(data$binLabel)
+    data <- data[order(data$binStart),]
+    data$binStart <- as.character(data$binStart)
+  }  
 
   data <- collapseByGroup(data, group, panel)
 
