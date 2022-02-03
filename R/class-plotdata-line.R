@@ -69,8 +69,7 @@ newLinePD <- function(.dt = data.table::data.table(),
       stop("Numerator values must be specified for categorical y-axes.")
     }
     if (is.null(denominatorValues)) {
-      values <- unique(.pd[[y]])
-      denominatorValues <- values[values %ni% numeratorValues]
+      denominatorValues <- unique(.pd[[y]])
     }
     #validate num and denom values actually exist as part of the y values
     validateValues(numeratorValues, .pd[[y]])
@@ -116,10 +115,14 @@ newLinePD <- function(.dt = data.table::data.table(),
       binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
     }
     attr$binSpec <- binSpec
+    veupathUtils::logWithTime('Determined bin width slider min, max and step values.', verbose)
+  } else {
+    if (!is.null(binWidth)) {
+      warning("X-axis must be a continuous number or date in order to be binned. Ignoring `binWidth`.")
+    }
   }
   
-  veupathUtils::logWithTime('Determined bin width slider min, max and step values.', verbose)
-
+  # TODO unit tests for ordinal x-axis
   if (value == 'mean') {
     
     mean <- binMean(.pd, x, y, group, panel, binWidth, viewport, errorBars)

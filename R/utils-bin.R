@@ -181,10 +181,12 @@ findNumBins <- function(x) {
 }
 
 #NOTE: bc of the ceiling, cant depend on each other
+#' @export
 binWidthToNumBins <- function(x, binWidth) {
   ceiling(diff(range(x))/binWidth)
 }
 
+#' @export
 numBinsToBinWidth <- function(x, numBins) {
   diff(range(x))/numBins
 }

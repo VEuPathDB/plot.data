@@ -1,4 +1,6 @@
-binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars) {
+binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE)) {
+  errorBars <- veupathUtils::matchArg(errorBars)
+  
   data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
   data$binLabel <- bin(data[[x]], binWidth, viewport)
 
@@ -22,7 +24,9 @@ binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, v
   return(data)
 }
 
-binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars) {
+binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE)) {
+  errorBars <- veupathUtils::matchArg(errorBars)
+
   data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
   data$binLabel <- bin(data[[x]], binWidth, viewport)
 
@@ -99,7 +103,9 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL
 }
 
 # finds specific ratios of values/ categories for y by bins+groups
-binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars, numeratorValues, denominatorValues) {
+binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), numeratorValues, denominatorValues) {
+  errorBars <- veupathUtils::matchArg(errorBars)
+
   data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
   data$binLabel <- bin(data[[x]], binWidth, viewport)
 

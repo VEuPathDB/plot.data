@@ -66,11 +66,11 @@ roundedQuantile <- function(x, digits = 4, ...) {
   as.list(round(stats::quantile(x, ...), digits))
 }
 
-roundedRatio <- function(numerator, denominator, digits = 4, ...) {
+roundedRatio <- function(numerator, denominator, digits = 4, NaNValue = NA, ...) {
   ratio <- numerator/denominator
   ratio <- round(ratio, digits)
-  #ratio[is.nan(ratio)] <- NaNValue
-  return(as.list(ratio))
+  ratio[is.nan(ratio)] <- NaNValue
+  return(c(ratio))
 }
 
 #' Fences
