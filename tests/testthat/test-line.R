@@ -34,6 +34,28 @@ test_that("lineplot.dt() returns a valid plot.data lineplot object", {
 })
 
 test_that("lineplot.dt() returns plot data and config of the appropriate types", {
+  map <- data.frame('id' = c('entity.cat3', 'entity.cat5', 'entity.cat1', 'entity.cat4'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('STRING', 'STRING', 'STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'ORDINAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  df <- as.data.frame(testDF)
+
+  dt <- lineplot.dt(df, map, viewport = NULL, value = 'proportion', binWidth = NULL, numeratorValues = c('cat5_a', 'cat5_b'), denominatorValues = c('cat5_a', 'cat5_b', 'cat5_c', 'cat5_d'))
+  expect_equal(class(unlist(dt$entity.cat4)), 'character')
+  expect_equal(class(unlist(dt$entity.cat3)), 'character')
+  expect_equal(class(unlist(dt$seriesX)), 'character')
+  expect_equal(class(unlist(dt$seriesY)), 'character')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(class(namedAttrList$completeCasesAllVars),c('scalar', 'integer'))
+  expect_equal(class(namedAttrList$completeCasesAxesVars),c('scalar', 'integer'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(class(unlist(completeCases$variableDetails)), 'character')
+  expect_equal(class(unlist(completeCases$completeCases)), 'integer')
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(class(unlist(sampleSizes$entity.cat4)), 'character')
+  expect_equal(class(unlist(sampleSizes$size)), 'integer')
+  
   map <- data.frame('id' = c('entity.cat3', 'entity.cat5', 'entity.repeatedDateA', 'entity.cat4'),
                     'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('STRING', 'STRING', 'DATE', 'STRING'),
@@ -57,6 +79,9 @@ test_that("lineplot.dt() returns plot data and config of the appropriate types",
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
   expect_equal(class(namedAttrList$viewport$xMin),c('scalar', 'character'))
   expect_equal(class(namedAttrList$binSlider$min),c('scalar', 'numeric'))
+  #0:0 proportions should be NA entries in a numeric list
+  expect_equal(all(unlist(dt$binSampleSize[[12]][8]) == 0), TRUE)
+  expect_equal(is.na(dt$seriesY[[12]][8]), TRUE)
 
   map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.repeatedDateA', 'entity.cat4'),
                     'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
@@ -137,6 +162,17 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+
+  map <- data.frame('id' = c('entity.cat3', 'entity.cat5', 'entity.cat2', 'entity.cat4', ''),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2'),
+                    'dataType' = c('STRING', 'STRING', 'STRING', 'STRING', ''),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'ORDINAL', 'CATEGORICAL', ''), stringsAsFactors=FALSE)
+
+  dt <- lineplot.dt(df, map, NULL, 'proportion', TRUE, NULL, numeratorValues = c('cat5_a', 'cat5_b'), denominatorValues = c('cat5_a', 'cat5_b', 'cat5_c', 'cat5_d'))
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars'))
   expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
 
   map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.repeatedContA', 'entity.cat4'), 
@@ -426,6 +462,37 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
 })
 
 test_that("lineplot() returns appropriately formatted json", {
+  map <- data.frame('id' = c('entity.cat3', 'entity.cat5', 'entity.cat2', 'entity.cat4'), 
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('STRING', 'STRING', 'STRING', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'ORDINAL', 'CATEGORICAL'), 
+                    stringsAsFactors=FALSE)
+
+  df <- as.data.frame(testDF)
+
+  dt <- lineplot.dt(df, map, value = 'proportion', numeratorValues = c('cat5_a', 'cat5_b'), denominatorValues = c('cat5_a', 'cat5_b', 'cat5_c', 'cat5_d'))
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+
+  expect_equal(names(jsonList),c('lineplot','sampleSizeTable', 'completeCasesTable'))
+  expect_equal(names(jsonList$lineplot),c('data','config'))
+  expect_equal(names(jsonList$lineplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY', 'binSampleSize', 'errorBars'))
+  expect_equal(names(jsonList$lineplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
+  expect_equal(length(jsonList$lineplot$data$facetVariableDetails), 12)
+  expect_equal(jsonList$lineplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
+  expect_equal(names(jsonList$lineplot$data$binSampleSize[[1]]), c("numeratorN","denominatorN"))
+  expect_equal(names(jsonList$lineplot$data$errorBars[[1]]), c('lowerBound', 'upperBound', 'error'))
+  expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$lineplot$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$lineplot$config$xVariableDetails$variableId, 'cat2')
+  expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('cat2', 'cat5', 'cat3', 'cat4'))
+
+
   map <- data.frame('id' = c('entity.cat3', 'entity.cat5', 'entity.repeatedContA', 'entity.cat4'), 
                     'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'STRING', 'NUMBER', 'STRING'), 

@@ -85,20 +85,20 @@ newLinePD <- function(.dt = data.table::data.table(),
     if (value %ni% c('mean', 'median')) { stop('`value` parameter must be `mean` or `median` for numeric or date y-axes.')}
   } 
 
-  # think we need to take viewport as input, even if we dont want semantic zoom
-  # for consistent bins across the annotated range, we need a consistent range/ bin start
-  if (is.null(viewport)) {
-    viewport <- findViewport(.pd[[x]], xType)
-    veupathUtils::logWithTime('Determined default viewport.', verbose)
-  } else {
-    viewport <- validateViewport(viewport, xType, verbose)
-  }
-  attr$viewport <- lapply(viewport, as.character)
-  attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
-
   # if no binWidth is provided, find one. if the user doesnt want binning they can set binWidth to 0
   # if someone complains about that well add a boolean param to indicate if binning is desired
   if (xType != 'STRING') {
+    # think we need to take viewport as input, even if we dont want semantic zoom
+    # for consistent bins across the annotated range, we need a consistent range/ bin start
+    if (is.null(viewport)) {
+      viewport <- findViewport(.pd[[x]], xType)
+      veupathUtils::logWithTime('Determined default viewport.', verbose)
+    } else {
+      viewport <- validateViewport(viewport, xType, verbose)
+    }
+    attr$viewport <- lapply(viewport, as.character)
+    attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
+
     if (is.null(binWidth)) {
       # if we want semantic zoom, then use xVP here instead, see histogram as ex
       binWidth <- findBinWidth(.pd[[x]])
@@ -119,6 +119,9 @@ newLinePD <- function(.dt = data.table::data.table(),
   } else {
     if (!is.null(binWidth)) {
       warning("X-axis must be a continuous number or date in order to be binned. Ignoring `binWidth`.")
+    }
+    if (!is.null(viewport)) {
+      warning("X-axis must be a continuous number or date to apply a viewport range. Ignoring `viewport`.")
     }
   }
   

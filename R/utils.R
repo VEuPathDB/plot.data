@@ -1,7 +1,7 @@
 "%ni%" <- Negate("%in%")
 
 validateValues <- function(valuesOfInterest, valuesOfVariable) {
-  if (valuesOfInterest %ni% valuesOfVariable) {
+  if (any(valuesOfInterest %ni% valuesOfVariable)) {
     stop("Values of interest do not exist as real values of the specified variable.")
   }
 }
