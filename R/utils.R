@@ -37,7 +37,8 @@ plotRefMapToList <- function(map, plotRef) {
                 'entityId' = NULL,
                 'dataType' = NULL,
                 'dataShape' = NULL,
-                'displayLabel' = NULL))
+                'displayLabel' = NULL,
+                'naToZero' = NULL))
   }
 
   variableId <- lapply(map$id[map$plotRef == plotRef], veupathUtils::strSplit, ".", 4, 2)
@@ -49,6 +50,7 @@ plotRefMapToList <- function(map, plotRef) {
   dataType <- veupathUtils::toStringOrNull(map$dataType[map$plotRef == plotRef])
   dataShape <- veupathUtils::toStringOrNull(map$dataShape[map$plotRef == plotRef])
   displayLabel <- veupathUtils::toStringOrNull(map$displayLabel[map$plotRef == plotRef])
+  naToZero <- veupathUtils::toStringOrNull(map$naToZero[map$plotRef == plotRef])
 
   if (!is.null(variableId) & !is.null(entityId)) {
     if (all(variableId == entityId)) { entityId <- NULL }
@@ -58,7 +60,8 @@ plotRefMapToList <- function(map, plotRef) {
                   'entityId' = entityId,
                   'dataType' = dataType,
                   'dataShape' = dataShape,
-                  'displayLabel' = displayLabel)
+                  'displayLabel' = displayLabel,
+                  'naToZero' = naToZero)
 
   return(plotRef)
 }

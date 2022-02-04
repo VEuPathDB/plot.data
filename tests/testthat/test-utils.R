@@ -67,6 +67,26 @@ test_that("plotRefMapToList returns displayLabel only when defined", {
  
 })
 
+test_that("plotRefMapToNull returns naToZero only when defined", {
+    
+  # Set naToZero for some vars
+  map <- data.frame('id' = c('group', 'y', 'panel'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'),
+                    'naToZero' = c('TRUE','','FALSE'), stringsAsFactors=FALSE)
+  
+  xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
+  yVariableDetails <- plotRefMapToList(map, 'yAxisVariable')
+  overlayVariableDetails <- plotRefMapToList(map, 'overlayVariable')
+  
+  expect_equal(xVariableDetails$naToZero, 'FALSE')
+  expect_true(is.null(yVariableDetails$naToZero))
+  expect_equal(overlayVariableDetails$naToZero, 'TRUE')
+
+
+})
+
 test_that("toColNameOrNull works", {
   varDetailsList <- list('variableId' = 'var',
                          'entityId' = 'entity',

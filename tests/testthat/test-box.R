@@ -335,7 +335,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(dt$panel[1], 'contA.||.cat4_a')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
-  expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
+  expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel','naToZero'))
   expect_equal(names(attr(dt, 'computedVariableMetadata')), c('displayName','displayRangeMin','displayRangeMax','collectionVariable'))
   expect_equal(attr(dt, 'computedVariableMetadata')$displayName, computedVariableMetadata$displayName)
   expect_equal(attr(dt, 'computedVariableMetadata')$displayRangeMin, computedVariableMetadata$displayRangeMin)
@@ -354,7 +354,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(dt$panel[1], 'cat4_a.||.contA')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
   expect_equal(attr(dt, 'facetVariable2')$variableId, 'facetVariable2')
-  expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
+  expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel', 'naToZero'))
   
   
   # Handle only one var sent as a collectionVar

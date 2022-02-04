@@ -190,7 +190,7 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   expect_equal(dt$panel[1], 'X.||.cat3_a')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
+  expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel', 'naToZero'))
   
   map <- data.frame('id' = c('entity.contB', 'entity.contC', 'entity.contD', 'entity.repeatedContA', 'entity.cat3'), 
                     'plotRef' = c('facetVariable2', 'facetVariable2', 'facetVariable2', 'xAxisVariable', 'facetVariable1'), 
@@ -205,7 +205,7 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   expect_equal(dt$panel[1], 'cat3_a.||.contB')
   expect_equal(attr(dt, 'facetVariable2')$variableId, 'facetVariable2')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
+  expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel', 'naToZero'))
   
   # With computed var
   computedVariableMetadata = list('displayName' = 'Pielou\'s Evenness',

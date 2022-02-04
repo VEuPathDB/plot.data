@@ -1,4 +1,4 @@
-makeVariableDetails <- function(value, variableId, entityId, displayLabel = NULL) {
+makeVariableDetails <- function(value, variableId, entityId, displayLabel = NULL, naToZero = NULL) {
   if (!is.null(value)) {
     if (length(value) == 1) {
       variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=jsonlite::unbox(as.character(value)))
@@ -15,6 +15,10 @@ makeVariableDetails <- function(value, variableId, entityId, displayLabel = NULL
 
   if (!is.null(displayLabel)) {
     variableDetails$displayLabel <- jsonlite::unbox(displayLabel)
+  }
+
+  if (!is.null(naToZero)) {
+    variableDetails$naToZero <- jsonlite::unbox(naToZero)
   }
 
   return(variableDetails)

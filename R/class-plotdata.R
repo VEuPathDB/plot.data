@@ -11,32 +11,38 @@ newPlotdata <- function(.dt = data.table(),
                                               'entityId' = NULL,
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
                          yAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
                          zAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
                          overlayVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
                          facetVariable1 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
                          evilMode = logical(),
                          collectionVariableDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
@@ -49,25 +55,37 @@ newPlotdata <- function(.dt = data.table(),
                          ...,
                          class = character()) {
 
+  impute0cols <- c()
   x <- veupathUtils::toColNameOrNull(xAxisVariable)
   xType <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataType))
   xShape <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataShape))
+  if (identical(veupathUtils::toStringOrNull(as.character(xAxisVariable$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, x)}
   y <- veupathUtils::toColNameOrNull(yAxisVariable)
   yType <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataType))
   yShape <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataShape))
+  if (identical(veupathUtils::toStringOrNull(as.character(yAxisVariable$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, y)}
   z <- veupathUtils::toColNameOrNull(zAxisVariable)
   zType <- veupathUtils::toStringOrNull(as.character(zAxisVariable$dataType))
   zShape <- veupathUtils::toStringOrNull(as.character(zAxisVariable$dataShape))
+  if (identical(veupathUtils::toStringOrNull(as.character(zAxisVariable$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, z)}
   group <- veupathUtils::toColNameOrNull(overlayVariable)
   groupType <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataType))
   groupShape <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataShape))
+  if (identical(veupathUtils::toStringOrNull(as.character(overlayVariable$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, group)}
   facet1 <- veupathUtils::toColNameOrNull(facetVariable1)
   facetType1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataType))
   facetShape1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataShape))
+  if (identical(veupathUtils::toStringOrNull(as.character(facetVariable1$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, facet1)}
   facet2 <- veupathUtils::toColNameOrNull(facetVariable2)
   facetType2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataType))
   facetShape2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataShape))
+  if (identical(veupathUtils::toStringOrNull(as.character(facetVariable2$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, facet2)}
 
+  # Replace NAs with 0s if naToZero set
+  if (!!length(impute0cols)) {
+    veupathUtils::setNaToZero(.dt, cols=impute0cols)
+    veupathUtils::logWithTime(paste('Replaced NA with 0 in the following columns: ', impute0cols), verbose)
+  }
 
   varCols <- c(x, y, z, group, facet1, facet2)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
