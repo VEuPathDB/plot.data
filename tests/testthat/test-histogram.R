@@ -621,4 +621,24 @@ test_that("histogram.dt() returns correct information about missing data", {
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue = binReportValue, viewport = viewport, evilMode = TRUE)
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA)))
+
+
+  ## Using naToZero to change some NAs to 0
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
+                    'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
+                    'naToZero' = c('FALSE', 'TRUE', ''), stringsAsFactors=FALSE)
+
+
+  dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
+  completecasestable <- completeCasesTable(dt)
+  # Each entry except 'contB' should equal NROW(df) - nMissing
+  expect_equal(sum(completecasestable$completeCases == nrow(df)-nMissing), 2)
+  expect_equal(completecasestable[variableDetails=='entity.contA', completeCases], nrow(df))
+  # number of completeCases should be < complete cases for each var
+  expect_true(all(attr(dt, 'completeCasesAllVars')[1] < completecasestable$completeCases)) 
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] > attr(dt, 'completeCasesAllVars')[1])
+  dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue = binReportValue, viewport = viewport, evilMode = TRUE)
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1], nrow(df))
 })

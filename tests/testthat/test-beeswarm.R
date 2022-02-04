@@ -565,7 +565,27 @@ test_that("beeswarm.dt() returns correct information about missing data", {
   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
   dt <- beeswarm.dt(df, map, 0.1, TRUE, evilMode = TRUE)
-  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB) & !is.na(df$entity.cat4))) 
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB) & !is.na(df$entity.cat4)))
+
+
+  ## Using naToZero to change some NAs to 0
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.cat4'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'),
+                    'naToZero' = c('FALSE', 'TRUE', ''), stringsAsFactors=FALSE)
+
+
+  dt <- beeswarm.dt(df, map, 0.1, FALSE)
+  completecasestable <- completeCasesTable(dt)
+  # Each entry except 'contB' should equal NROW(df) - nMissing
+  expect_equal(sum(completecasestable$completeCases == nrow(df)-nMissing), 2)
+  expect_equal(completecasestable[variableDetails=='entity.contB', completeCases], nrow(df))
+  # number of completeCases should be < complete cases for each var
+  expect_true(all(attr(dt, 'completeCasesAllVars')[1] < completecasestable$completeCases)) 
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] > attr(dt, 'completeCasesAllVars')[1])
+  dt <- beeswarm.dt(df, map, 0.1, TRUE, evilMode = TRUE)
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.cat4)))
 })
 
 

@@ -444,4 +444,8 @@ test_that("lineplot.dt() returns correct information about missing data", {
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
   dt <- lineplot.dt(df, map, value = 'mean', evilMode=TRUE)
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.repeatedContA) & !is.na(df$entity.contB)))
+
+
+  ## Using naToZero to change some NAs to 0
+  #### TO DO
 })

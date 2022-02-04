@@ -655,4 +655,24 @@ test_that("scattergl.dt() returns correct information about missing data", {
   dt <- scattergl.dt(df, map, value = 'raw', evilMode=TRUE)
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA) & !is.na(df$entity.contB)))
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], length(unlist(dt$seriesX)))
+
+  ## Using naToZero to change some NAs to 0
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.contA', 'entity.cat4'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 
+                    'naToZero' = c('FALSE','', 'TRUE','FALSE'), stringsAsFactors=FALSE)
+
+
+  dt <- scattergl.dt(df, map, 'raw')
+  completecasestable <- completeCasesTable(dt)
+  # Each entry except 'contA' should equal NROW(df) - nMissing
+  expect_equal(sum(completecasestable$completeCases == nrow(df)-nMissing), 3)
+  expect_equal(completecasestable[variableDetails=='entity.contA', completeCases], nrow(df))
+  # number of completeCases should be < complete cases for each var
+  expect_true(all(attr(dt, 'completeCasesAllVars')[1] < completecasestable$completeCases)) 
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] > attr(dt, 'completeCasesAllVars')[1])
+  dt <- scattergl.dt(df, map, value = 'raw', evilMode=TRUE)
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB)))
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1], length(unlist(dt$seriesX)))
 })
