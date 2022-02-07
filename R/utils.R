@@ -1,3 +1,20 @@
+"%ni%" <- Negate("%in%")
+
+validateValues <- function(valuesOfInterest, valuesOfVariable) {
+  if (any(valuesOfInterest %ni% valuesOfVariable)) {
+    stop("Values of interest do not exist as real values of the specified variable.")
+  }
+}
+
+findViewport <- function(x, xType) {
+  if (xType %in% c('NUMBER', 'INTEGER')) {
+    viewport <- list('xMin' = min(0,min(x)), 'xMax' = max(x))
+  } else {
+    viewport <- list('xMin' = min(x), 'xMax' = max(x))
+  }
+
+  return(viewport)
+}
 
 tableXY <- function(data) {
   table(data$x, data$y)
