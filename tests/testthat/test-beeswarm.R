@@ -422,30 +422,31 @@ test_that("beeswarm() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   
 
-  map <- data.frame('id' = c('entity.int7', 'entity.contA', 'entity.int6'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  # w forceStringType we shouldnt see categorical numbers any more
+  #map <- data.frame('id' = c('entity.int7', 'entity.contA', 'entity.int6'),
+  #                  'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+  #                  'dataType' = c('NUMBER', 'NUMBER', 'NUMBER'),
+  #                  'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- beeswarm.dt(df, map, 0.1, FALSE)
-  outJson <- getJSON(dt, FALSE)
-  jsonList <- jsonlite::fromJSON(outJson)
-  expect_equal(names(jsonList), c('beeswarm','sampleSizeTable','completeCasesTable'))
-  expect_equal(names(jsonList$beeswarm), c('data','config'))
-  expect_equal(names(jsonList$beeswarm$data), c('overlayVariableDetails', 'label', 'rawData', 'jitteredValues'))
-  expect_equal(jsonList$beeswarm$data$overlayVariableDetails$variableId[[1]], 'int7')
-  expect_equal(names(jsonList$beeswarm$config), c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
-  expect_equal(names(jsonList$beeswarm$config$xVariableDetails), c('variableId','entityId'))
-  expect_equal(jsonList$beeswarm$config$xVariableDetails$variableId, 'int6')
-  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
-  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
-  expect_equal(jsonList$sampleSizeTable$xVariableDetails$variableId[[1]], 'int6')
-  expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
-  expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
-  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
-  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int6', 'contA', 'int7'))
-  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int6', 'contA', 'int7'))
-  expect_equal(class(jsonList$beeswarm$data$label[[1]]), 'character')
+  #dt <- beeswarm.dt(df, map, 0.1, FALSE)
+  #outJson <- getJSON(dt, FALSE)
+  #jsonList <- jsonlite::fromJSON(outJson)
+  #expect_equal(names(jsonList), c('beeswarm','sampleSizeTable','completeCasesTable'))
+  #expect_equal(names(jsonList$beeswarm), c('data','config'))
+  #expect_equal(names(jsonList$beeswarm$data), c('overlayVariableDetails', 'label', 'rawData', 'jitteredValues'))
+  #expect_equal(jsonList$beeswarm$data$overlayVariableDetails$variableId[[1]], 'int7')
+  #expect_equal(names(jsonList$beeswarm$config), c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
+  #expect_equal(names(jsonList$beeswarm$config$xVariableDetails), c('variableId','entityId'))
+  #expect_equal(jsonList$beeswarm$config$xVariableDetails$variableId, 'int6')
+  #expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  #expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  #expect_equal(jsonList$sampleSizeTable$xVariableDetails$variableId[[1]], 'int6')
+  #expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
+  #expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
+  #expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  #expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int6', 'contA', 'int7'))
+  #expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int6', 'contA', 'int7'))
+  #expect_equal(class(jsonList$beeswarm$data$label[[1]]), 'character')
   
   
   # Multiple vars for x and computed variable metadata

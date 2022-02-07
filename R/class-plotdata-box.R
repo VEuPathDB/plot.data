@@ -58,8 +58,6 @@ newBoxPD <- function(.dt = data.table::data.table(),
   group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-  #remove after sorting out #88, fixing updateTypes
-  .pd[[y]] <- as.numeric(.pd[[y]])
   summary <- groupSummary(.pd, x, y, group, panel)
   fences <- groupFences(.pd, x, y, group, panel)
   fences <- fences[, -x, with = FALSE]

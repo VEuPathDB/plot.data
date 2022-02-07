@@ -46,9 +46,6 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-  #NOTE as.numeric here shouldnt be necessary really, thanks to updateTypes. 
-  # should be removed once we sort out #88
-  if (xType != "DATE") { .pd[[x]] <- as.numeric(.pd[[x]]) }
   summary <- as.list(summary(.pd[[x]]))
   names(summary) <- c('min', 'q1', 'median', 'mean', 'q3', 'max')
   summary <- lapply(summary, as.character)
