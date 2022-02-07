@@ -332,26 +332,27 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(class(sampleSizeTable$entity.int6[[1]]), 'character')
   
   
-  map <- data.frame('id' = c('entity.int6', 'entity.int7', 'entity.cat5'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  # w forceStringType implemented we shouldnt see categorical numbers any longer
+  #map <- data.frame('id' = c('entity.int6', 'entity.int7', 'entity.cat5'),
+  #                  'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+  #                  'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
+  #                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
   
-  dt <- mosaic.dt(df, map)
-  expect_is(dt, 'data.table')
-  expect_is(dt$value, 'list')
-  expect_is(dt$value[[1]], 'list')
-  expect_equal(nrow(dt),5)
-  expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'entity.cat5'))
-  expect_equal(dt$xLabel[[1]],c('1','2','3','4','5','6','7'))
-  expect_equal(dt$yLabel[[1]][[1]],c('1','2','3','4','5','6'))
-  expect_equal(length(dt$value[[1]]),7)
-  expect_equal(length(dt$value[[1]][[1]]),6)
-  statsTable <- statsTable(dt)
-  expect_equal(names(statsTable), c(c('chisq', 'pvalue', 'degreesFreedom', 'entity.cat5')))
-  sampleSizeTable <- sampleSizeTable(dt)
-  expect_equal(names(sampleSizeTable),c('entity.cat5','entity.int7','size'))
-  expect_equal(class(sampleSizeTable$entity.int7[[1]]), 'character')
+  #dt <- mosaic.dt(df, map)
+  #expect_is(dt, 'data.table')
+  #expect_is(dt$value, 'list')
+  #expect_is(dt$value[[1]], 'list')
+  #expect_equal(nrow(dt),5)
+  #expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'entity.cat5'))
+  #expect_equal(dt$xLabel[[1]],c('1','2','3','4','5','6','7'))
+  #expect_equal(dt$yLabel[[1]][[1]],c('1','2','3','4','5','6'))
+  #expect_equal(length(dt$value[[1]]),7)
+  #expect_equal(length(dt$value[[1]][[1]]),6)
+  #statsTable <- statsTable(dt)
+  #expect_equal(names(statsTable), c(c('chisq', 'pvalue', 'degreesFreedom', 'entity.cat5')))
+  #sampleSizeTable <- sampleSizeTable(dt)
+  #expect_equal(names(sampleSizeTable),c('entity.cat5','entity.int7','size'))
+  #expect_equal(class(sampleSizeTable$entity.int7[[1]]), 'character')
 
   
 })
