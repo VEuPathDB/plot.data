@@ -1,7 +1,7 @@
 binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), xType) {
   errorBars <- veupathUtils::matchArg(errorBars)
   
-  if (xType != 'STRING') {
+  if (xType != 'STRING' && binWidth != 0) {
     data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
     data$binLabel <- bin(data[[x]], binWidth, viewport)
   } else {
@@ -19,7 +19,7 @@ binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, v
                       binSampleSize=simpleSampleSize(get(..y))), by=eval(byCols)]
   }
   
-  if (xType != 'STRING') {
+  if (xType != 'STRING' && binWidth != 0) {
     data$binStart <- findBinStart(data$binLabel)
     data$binEnd <- findBinEnd(data$binLabel)
     data <- data[order(data$binStart),]
@@ -34,7 +34,7 @@ binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, v
 binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), xType) {
   errorBars <- veupathUtils::matchArg(errorBars)
 
-  if (xType != 'STRING') {
+  if (xType != 'STRING' && binWidth != 0) {
     data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
     data$binLabel <- bin(data[[x]], binWidth, viewport)
   } else {
@@ -52,7 +52,7 @@ binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, vie
                       binSampleSize=simpleSampleSize(get(..y))), by=eval(byCols)]
   }
   
-  if (xType != 'STRING') {
+  if (xType != 'STRING' && binWidth != 0) {
     data$binStart <- findBinStart(data$binLabel)
     data$binEnd <- findBinEnd(data$binLabel)
     data <- data[order(data$binStart),]
@@ -121,7 +121,7 @@ binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWid
   errorBars <- veupathUtils::matchArg(errorBars)
 
   # TODO improve this as part of #127. shouldnt need an xType arg ideally, just a boolean bin arg.
-  if (xType != 'STRING') {
+  if (xType != 'STRING' && binWidth != 0) {
     data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
     data$binLabel <- bin(data[[x]], binWidth, viewport)
   } else {
@@ -145,7 +145,7 @@ binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWid
                      by=eval(byCols)]
   }
 
-  if (xType != 'STRING') {
+  if (xType != 'STRING' && binWidth != 0) {
     data$binStart <- findBinStart(data$binLabel)
     data$binEnd <- findBinEnd(data$binLabel)
     data <- data[order(data$binStart),]

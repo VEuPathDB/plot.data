@@ -525,6 +525,70 @@ test_that("lineplot() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('repeatedContA', 'cat5', 'cat3', 'cat4'))
 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.repeatedContA', 'entity.cat4'), 
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 
+                    stringsAsFactors=FALSE)
+
+  df <- as.data.frame(testDF)
+
+  dt <- lineplot.dt(df, map, value = 'mean', binWidth=0)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+
+  expect_equal(names(jsonList),c('lineplot','sampleSizeTable', 'completeCasesTable'))
+  expect_equal(names(jsonList$lineplot),c('data','config'))
+  expect_equal(names(jsonList$lineplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY', 'binSampleSize', 'errorBars'))
+  expect_equal(names(jsonList$lineplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
+  expect_equal(length(jsonList$lineplot$data$facetVariableDetails), 12)
+  expect_equal(jsonList$lineplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
+  expect_equal(names(jsonList$lineplot$data$binSampleSize[[1]]),"N")
+  expect_equal(names(jsonList$lineplot$data$errorBars[[1]]), c('lowerBound', 'upperBound', 'error'))
+  expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','viewport','binSlider','binSpec','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$lineplot$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$lineplot$config$xVariableDetails$variableId, 'repeatedContA')
+  expect_equal(names(jsonList$lineplot$config$viewport),c('xMin','xMax'))
+  expect_equal(names(jsonList$lineplot$config$binSlider),c('min','max','step'))
+  expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('repeatedContA', 'contB', 'cat3', 'cat4'))
+
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.repeatedDateA', 'entity.cat4'), 
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 
+                    stringsAsFactors=FALSE)
+
+  df <- as.data.frame(testDF)
+
+  dt <- lineplot.dt(df, map, value = 'mean', binWidth=0)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+
+  expect_equal(names(jsonList),c('lineplot','sampleSizeTable', 'completeCasesTable'))
+  expect_equal(names(jsonList$lineplot),c('data','config'))
+  expect_equal(names(jsonList$lineplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY', 'binSampleSize', 'errorBars'))
+  expect_equal(names(jsonList$lineplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
+  expect_equal(length(jsonList$lineplot$data$facetVariableDetails), 12)
+  expect_equal(jsonList$lineplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
+  expect_equal(names(jsonList$lineplot$data$binSampleSize[[1]]),"N")
+  expect_equal(names(jsonList$lineplot$data$errorBars[[1]]), c('lowerBound', 'upperBound', 'error'))
+  expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','viewport','binSlider','binSpec','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$lineplot$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$lineplot$config$xVariableDetails$variableId, 'repeatedDateA')
+  expect_equal(names(jsonList$lineplot$config$viewport),c('xMin','xMax'))
+  expect_equal(names(jsonList$lineplot$config$binSlider),c('min','max','step'))
+  expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('repeatedDateA', 'contB', 'cat3', 'cat4'))
+
 
   map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.repeatedContA', 'entity.cat4'), 
                     'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 

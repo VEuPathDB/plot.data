@@ -211,16 +211,19 @@ findBinSliderValues.numeric <- function(x, xType, binWidth = NULL, binReportValu
   return(list('min'=jsonlite::unbox(binSliderMin), 'max'=jsonlite::unbox(binSliderMax), 'step'=jsonlite::unbox(binSliderStep)))
 }
 
-findBinSliderValues.Date <- function(x, xType, binWidth, binReportValue = 'binWidth') {
+findBinSliderValues.Date <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth') {
   if (binReportValue == 'numBins') {
     list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
   }
   
   binSliderMax <- as.numeric((max(x) - min(x)) / 2)
   binSliderMin <- as.numeric((max(x) - min(x)) / 1000)
-  numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
-  if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
-  unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
+  if (!is.null(binWidth) & binWidth != 0) {
+    unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
+  } else {
+    unit <- 'day'
+  }
+  
   if (unit %in% c('day', 'days')) {
     binSliderMin <- floor(binSliderMin)
     binSliderMax <- ceiling(binSliderMax)
