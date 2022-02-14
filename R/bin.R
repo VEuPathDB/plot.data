@@ -6,7 +6,6 @@ binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, v
     data$binLabel <- bin(data[[x]], binWidth, viewport)
   } else {
     data.table::setnames(data, x, 'binLabel')
-    data$binLabel <- as.character(data$binLabel)
   }
 
   byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
@@ -24,7 +23,10 @@ binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, v
     data$binEnd <- findBinEnd(data$binLabel)
     data <- data[order(data$binStart),]
     data$binStart <- as.character(data$binStart)
+  } else {
+    data <- data[order(data$binLabel),]
   }
+  data$binLabel <- as.character(data$binLabel)
 
   data <- collapseByGroup(data, group, panel)
 
@@ -39,7 +41,6 @@ binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, vie
     data$binLabel <- bin(data[[x]], binWidth, viewport)
   } else {
     data.table::setnames(data, x, 'binLabel')
-    data$binLabel <- as.character(data$binLabel)
   }
   
   byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
@@ -57,7 +58,10 @@ binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, vie
     data$binEnd <- findBinEnd(data$binLabel)
     data <- data[order(data$binStart),]
     data$binStart <- as.character(data$binStart)
+  } else {
+    data <- data[order(data$binLabel),]
   }
+  data$binLabel <- as.character(data$binLabel)
 
   data <- collapseByGroup(data, group, panel)
 
@@ -126,7 +130,6 @@ binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWid
     data$binLabel <- bin(data[[x]], binWidth, viewport)
   } else {
     data.table::setnames(data, x, 'binLabel')
-    data$binLabel <- as.character(data$binLabel)
   }
   
   byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
@@ -150,7 +153,10 @@ binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWid
     data$binEnd <- findBinEnd(data$binLabel)
     data <- data[order(data$binStart),]
     data$binStart <- as.character(data$binStart)
-  }  
+  } else {
+    data <- data[order(data$binLabel),]
+  }
+  data$binLabel <- as.character(data$binLabel)
 
   data <- collapseByGroup(data, group, panel)
 
