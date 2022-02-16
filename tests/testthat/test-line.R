@@ -754,3 +754,59 @@ test_that("lineplot.dt() returns correct information about missing data", {
   dt <- lineplot.dt(df, map, value = 'mean', evilMode=TRUE)
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.repeatedContA) & !is.na(df$entity.contB)))
 })
+
+test_that("lineplot.dt() always returns data ordered by seriesX/ binStart", {
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.repeatedContA', 'entity.cat4'), 
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 
+                    stringsAsFactors=FALSE)
+
+  df <- as.data.frame(testDF)
+
+  dt <- lineplot.dt(df, map, value = 'mean')
+  expect_equal(dt$binStart[[1]], dt$binStart[[1]][order(as.numeric(dt$binStart[[1]]))])
+
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.repeatedDateA', 'entity.cat4'), 
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 
+                    stringsAsFactors=FALSE)
+
+  df <- as.data.frame(testDF)
+
+  dt <- lineplot.dt(df, map, value = 'mean')
+  expect_equal(dt$binStart[[1]], dt$binStart[[1]][order(as.Date(dt$binStart[[1]]))])
+
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.repeatedDateA', 'entity.cat4'), 
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 
+                    stringsAsFactors=FALSE)
+
+  df <- as.data.frame(testDF)
+
+  dt <- lineplot.dt(df, map, value = 'mean', binWidth=0)
+  expect_equal(dt$seriesX[[1]], dt$seriesX[[1]][order(as.Date(dt$seriesX[[1]]))])
+
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.repeatedContA', 'entity.cat4'), 
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 
+                    stringsAsFactors=FALSE)
+
+  df <- as.data.frame(testDF)
+
+  dt <- lineplot.dt(df, map, value = 'median', binWidth=0)
+  expect_equal(dt$seriesX[[1]], dt$seriesX[[1]][order(as.numeric(dt$seriesX[[1]]))])
+
+  map <- data.frame('id' = c('entity.cat3', 'entity.cat5', 'entity.cat4', 'entity.cat2'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('STRING', 'STRING', 'STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'ORDINAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  df <- as.data.frame(testDF)
+
+  dt <- lineplot.dt(df, map, viewport = NULL, value = 'proportion', binWidth = NULL, numeratorValues = c('cat5_a', 'cat5_b'), denominatorValues = c('cat5_a', 'cat5_b', 'cat5_c', 'cat5_d'))
+  expect_equal(dt$seriesX[[1]], dt$seriesX[[1]][order(dt$seriesX[[1]])])
+})
