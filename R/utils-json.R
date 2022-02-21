@@ -135,7 +135,6 @@ getJSON <- function(.pd, evilMode) {
   # If overlay is continuous, handle similarly to x, y, z vars.
   if ('overlayVariable' %in% names(namedAttrList) && identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS')) {
     namedAttrList$overlayVariableDetails <- makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
-    .pd$seriesGradientColorscale <- lapply(.pd$seriesGradientColorscale, function(x) {ifelse(is.na(x), 'NA', x)})
   }
   
   namedAttrList$facetVariable1 <- NULL

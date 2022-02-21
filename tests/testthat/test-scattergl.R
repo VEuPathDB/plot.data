@@ -642,6 +642,7 @@ test_that("scattergl.dt() returns correct information about missing data", {
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
   # Add nMissing missing values to each column
+  set.seed(123)
   nMissing <- 10
   df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
   
@@ -677,6 +678,27 @@ test_that("scattergl.dt() returns correct information about missing data", {
   dt <- scattergl.dt(df, map, 'raw', evilMode = T)
   expect_equal(names(dt), c('entity.cat4', 'seriesX', 'seriesY', 'seriesGradientColorscale'))
   expect_equal(lapply(dt$seriesGradientColorscale, length), lapply(dt$seriesX, length))
+  expect_true(all(is.na(dt$seriesGradientColorscale[[2]])))
 
+  # Testing json output with continuous overlay and no data
+  outJson <- getJSON(dt, TRUE)
+  jsonList <- jsonlite::fromJSON(outJson) # Turns all nulls in arrays to NA!!
+  
+  expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
+  expect_equal(names(jsonList$scatterplot),c('data','config'))
+  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY','seriesGradientColorscale'))
+  expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
+  expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 10)
+  expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
+  expect_true(all(is.na(jsonList$scatterplot$data$seriesGradientColorscale[[2]]))) # should be null in the json file, but fromJSON converts to NA
+  expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails','overlayVariableDetails'))
+  expect_equal(names(jsonList$scatterplot$config$overlayVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$scatterplot$config$overlayVariableDetails$variableId, 'contC')
+  expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(jsonList$sampleSizeTable$facetVariableDetails[[1]]$variableId, 'cat4')
+  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','contC','cat4'))
 
 })

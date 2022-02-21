@@ -192,7 +192,8 @@ newPlotdata <- function(.dt = data.table(),
   veupathUtils::logWithTime('Determined total number of complete cases across axes and strata vars.', verbose)
 
   if (evilMode) {
-    if (!is.null(group) && !is.numeric(.dt[[group]])) { .dt[[group]][is.na(.dt[[group]])] <- 'No data' }
+    # Assign NA strata values to 'No data', with the exception of continuous overlays which should stay numeric
+    if (!is.null(group) && !identical(overlayVariable$dataShape,'CONTINUOUS')) { .dt[[group]][is.na(.dt[[group]])] <- 'No data' }
     if (!is.null(panel)) { .dt[[panel]][is.na(.dt[[panel]])] <- 'No data' }
     axesCols <- c(x, y, z)
     axesDT <- .dt[, axesCols, with = FALSE]
