@@ -185,7 +185,7 @@ getJSON <- function(.pd, evilMode) {
   }
 
   names(outList)[1] <- class
-  outJson <- jsonlite::toJSON(outList)
+  outJson <- jsonlite::toJSON(outList, na='null')
 
   return(outJson)
 }

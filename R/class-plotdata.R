@@ -62,23 +62,18 @@ newPlotdata <- function(.dt = data.table(),
   if (identical(veupathUtils::toStringOrNull(as.character(xAxisVariable$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, x)}
   y <- veupathUtils::toColNameOrNull(yAxisVariable)
   yType <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataType))
-  yShape <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataShape))
   if (identical(veupathUtils::toStringOrNull(as.character(yAxisVariable$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, y)}
   z <- veupathUtils::toColNameOrNull(zAxisVariable)
   zType <- veupathUtils::toStringOrNull(as.character(zAxisVariable$dataType))
-  zShape <- veupathUtils::toStringOrNull(as.character(zAxisVariable$dataShape))
   if (identical(veupathUtils::toStringOrNull(as.character(zAxisVariable$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, z)}
   group <- veupathUtils::toColNameOrNull(overlayVariable)
   groupType <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataType))
-  groupShape <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataShape))
   if (identical(veupathUtils::toStringOrNull(as.character(overlayVariable$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, group)}
   facet1 <- veupathUtils::toColNameOrNull(facetVariable1)
   facetType1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataType))
-  facetShape1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataShape))
   if (identical(veupathUtils::toStringOrNull(as.character(facetVariable1$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, facet1)}
   facet2 <- veupathUtils::toColNameOrNull(facetVariable2)
   facetType2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataType))
-  facetShape2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataShape))
   if (identical(veupathUtils::toStringOrNull(as.character(facetVariable2$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, facet2)}
 
   # Replace NAs with 0s if naToZero set
@@ -160,21 +155,19 @@ newPlotdata <- function(.dt = data.table(),
       x <- veupathUtils::toColNameOrNull(xAxisVariable)
       xType <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataType))
       xShape <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataShape))
-      .dt[[x]] <- updateType(.dt[[x]], xType, xShape)
+      .dt[[x]] <- updateType(.dt[[x]], xType)
 
     } else if (collectionVariableDetails$collectionVariablePlotRef == 'overlayVariable') {
       overlayVariable <- newCatVariable
       group <- veupathUtils::toColNameOrNull(overlayVariable)
       groupType <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataType))
-      groupShape <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataShape))
-      .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape)
+      .dt[[group]] <- updateType(.dt[[group]], groupType)
 
     } else if (collectionVariableDetails$collectionVariablePlotRef == 'facetVariable1') {
       facetVariable1 <- newCatVariable
       facet1 <- veupathUtils::toColNameOrNull(facetVariable1)
       facetType1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataType))
-      facetShape1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataShape))
-      .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1, facetShape1) 
+      .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1) 
 
       panelData <- makePanels(.dt, facet1, facet2)
       .dt <- data.table::setDT(panelData[[1]])
@@ -184,8 +177,7 @@ newPlotdata <- function(.dt = data.table(),
       facetVariable2 <- newCatVariable
       facet2 <- veupathUtils::toColNameOrNull(facetVariable2)
       facetType2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataType))
-      facetShape2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataShape))
-      .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2, facetShape2) 
+      .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2) 
 
       panelData <- makePanels(.dt, facet1, facet2)
       .dt <- data.table::setDT(panelData[[1]])
@@ -197,8 +189,7 @@ newPlotdata <- function(.dt = data.table(),
     yAxisVariable <- collectionVariableDetails$inferredVariable
     y <- veupathUtils::toColNameOrNull(yAxisVariable)
     yType <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataType))
-    yShape <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataShape))
-    .dt[[y]] <- updateType(.dt[[y]], yType, yShape) 
+    .dt[[y]] <- updateType(.dt[[y]], yType) 
 
     data.table::setcolorder(.dt, c(x, y, z, group, panel))
 
@@ -207,11 +198,11 @@ newPlotdata <- function(.dt = data.table(),
   }
 
   # Update types
-  .dt[[x]] <- updateType(.dt[[x]], xType, xShape)
-  if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType, yShape) }
-  if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType, zShape) }
-  if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType, groupShape) }
-  if (!is.null(panel)) { .dt[[panel]] <- updateType(.dt[[panel]], 'STRING', 'CATEGORICAL') }
+  .dt[[x]] <- updateType(.dt[[x]], xType)
+  if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType) }
+  if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType) }
+  if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
+  if (!is.null(panel)) { .dt[[panel]] <- updateType(.dt[[panel]], 'STRING') }
   veupathUtils::logWithTime('Base data types updated for all columns as necessary.', verbose)
 
   completeCasesAllVars <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]))

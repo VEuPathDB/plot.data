@@ -563,34 +563,35 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(length(jsonList$statsTable$statistic), 1)
   expect_equal(class(jsonList$statsTable$statsError), 'character')
 
-  map <- data.frame('id' = c('entity.int7', 'entity.contA', 'entity.int6'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  # w forceStringType we shouldnt see categorical numbers any more
+  #map <- data.frame('id' = c('entity.int7', 'entity.contA', 'entity.int6'),
+  #                  'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+  #                  'dataType' = c('NUMBER', 'NUMBER', 'NUMBER'),
+  #                  'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- box.dt(df, map, 'none', FALSE, computeStats = T)
-  outJson <- getJSON(dt, FALSE)
-  jsonList <- jsonlite::fromJSON(outJson)
-  expect_equal(names(jsonList), c('boxplot','sampleSizeTable','statsTable','completeCasesTable'))
-  expect_equal(names(jsonList$boxplot), c('data','config'))
-  expect_equal(names(jsonList$boxplot$data), c('overlayVariableDetails','label','min','q1','median','q3','max','lowerfence','upperfence'))
-  expect_equal(jsonList$boxplot$data$overlayVariableDetails$variableId[[1]], 'int7')
-  expect_equal(names(jsonList$boxplot$config), c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
-  expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId'))
-  expect_equal(jsonList$boxplot$config$xVariableDetails$variableId, 'int6')
-  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
-  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
-  expect_equal(jsonList$sampleSizeTable$xVariableDetails$variableId[[1]], 'int6')
-  expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
-  expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
-  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
-  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int6', 'contA', 'int7'))
-  expect_equal(names(jsonList$statsTable), c('xVariableDetails','statistic','pvalue','parameter','method','statsError'))
-  expect_equal(jsonList$statsTable$xVariableDetails$variableId[1], 'int6')
-  expect_equal(class(jsonList$statsTable$statistic), 'numeric')
-  expect_equal(class(jsonList$statsTable$statsError), 'character')
-  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int6', 'contA', 'int7'))
-  expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
+  #dt <- box.dt(df, map, 'none', FALSE, computeStats = T)
+  #outJson <- getJSON(dt, FALSE)
+  #jsonList <- jsonlite::fromJSON(outJson)
+  #expect_equal(names(jsonList), c('boxplot','sampleSizeTable','statsTable','completeCasesTable'))
+  #expect_equal(names(jsonList$boxplot), c('data','config'))
+  #expect_equal(names(jsonList$boxplot$data), c('overlayVariableDetails','label','min','q1','median','q3','max','lowerfence','upperfence'))
+  #expect_equal(jsonList$boxplot$data$overlayVariableDetails$variableId[[1]], 'int7')
+  #expect_equal(names(jsonList$boxplot$config), c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
+  #expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId'))
+  #expect_equal(jsonList$boxplot$config$xVariableDetails$variableId, 'int6')
+  #expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  #expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  #expect_equal(jsonList$sampleSizeTable$xVariableDetails$variableId[[1]], 'int6')
+  #expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
+  #expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
+  #expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  #expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int6', 'contA', 'int7'))
+  #expect_equal(names(jsonList$statsTable), c('xVariableDetails','statistic','pvalue','parameter','method','statsError'))
+  #expect_equal(jsonList$statsTable$xVariableDetails$variableId[1], 'int6')
+  #expect_equal(class(jsonList$statsTable$statistic), 'numeric')
+  #expect_equal(class(jsonList$statsTable$statsError), 'character')
+  #expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int6', 'contA', 'int7'))
+  #expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
   
   
   # Multiple vars for x and computed variable metadata

@@ -46,9 +46,6 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-  #NOTE as.numeric here shouldnt be necessary really, thanks to updateTypes. 
-  # should be removed once we sort out #88
-  if (xType != "DATE") { .pd[[x]] <- as.numeric(.pd[[x]]) }
   summary <- as.list(summary(.pd[[x]]))
   names(summary) <- c('min', 'q1', 'median', 'mean', 'q3', 'max')
   summary <- lapply(summary, as.character)
@@ -57,21 +54,10 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   veupathUtils::logWithTime('Supporting summary statistics calculated for histogram.', verbose)
 
   if (is.null(viewport)) {
-    if (xType %in% c('NUMBER', 'INTEGER')) {
-      viewport <- list('xMin' = min(0,min(.pd[[x]])), 'xMax' = max(.pd[[x]]))
-    } else {
-      viewport <- list('xMin' = min(.pd[[x]]), 'xMax' = max(.pd[[x]]))
-    }
+    viewport <- findViewport(.pd[[x]], xType)
     veupathUtils::logWithTime('Determined default viewport.', verbose)
   } else {
-    if (xType %in% c('NUMBER', 'INTEGER')) {
-      viewport$xMin <- as.numeric(viewport$xMin)
-      viewport$xMax <- as.numeric(viewport$xMax)
-    } else if (xType == 'DATE') {
-      viewport$xMin <- as.Date(viewport$xMin, format='%Y-%m-%d')
-      viewport$xMax <- as.Date(viewport$xMax, format='%Y-%m-%d')
-    }
-    veupathUtils::logWithTime('Using provided viewport.', verbose)
+    viewport <- validateViewport(viewport, xType, verbose)
   }
   attr$viewport <- lapply(viewport, as.character)
   attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
@@ -82,6 +68,14 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       binWidth <- findBinWidth(xVP)
       veupathUtils::logWithTime('Determined ideal bin width.', verbose)
     }
+    if (xType %in% c('NUMBER', 'INTEGER')) {
+      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
+    } else {
+      numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
+      if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
+      unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
+      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
+    }
   } else {
     if (is.null(binWidth)) {
       numBins <- findNumBins(xVP)
@@ -90,55 +84,11 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       numBins <- binWidthToNumBins(xVP, binWidth)
       veupathUtils::logWithTime('Converted provided bin width to number of bins.', verbose)
     }
-  }
-
-  if (binReportValue == 'numBins') {
-    binSlider <- list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
     binSpec <- list('type'=jsonlite::unbox('numBins'), 'value'=jsonlite::unbox(numBins))
-  } else {
-    binSliderMax <- as.numeric((max(xVP) - min(xVP)) / 2)
-    binSliderMin <- as.numeric((max(xVP) - min(xVP)) / 1000)
-    if (xType %in% c('NUMBER', 'INTEGER')) {
-      avgDigits <- floor(mean(stringi::stri_count_regex(as.character(xVP), "[[:digit:]]")))
-      binSliderMax <- veupathUtils::nonZeroRound(binSliderMax, avgDigits)
-      binSliderMin <- veupathUtils::nonZeroRound(binSliderMin, avgDigits)
-      binSliderStep <- veupathUtils::nonZeroRound(((binSliderMax - binSliderMin) / 1000), avgDigits)
-      binSliderMin <- ifelse(binSliderMin == 0, .1, binSliderMin)
-      binSliderStep <- ifelse(binSliderStep == 0, binSliderMin, binSliderStep)
-      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
-    } else {
-      if (is.null(binWidth)) {
-        binWidth <- findBinWidth(xVP)
-      }
-      numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
-      if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
-      unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
-      if (unit %in% c('day', 'days')) {
-        binSliderMin <- floor(binSliderMin)
-        binSliderMax <- ceiling(binSliderMax)
-      } else if (unit %in% c('week', 'weeks')) {
-        numWeeks <- floor(as.numeric(difftime(max(xVP), min(xVP), units='weeks'))) 
-        binSliderMin <- floor(numWeeks/1000)
-        binSliderMax <- ceiling(numWeeks/2)
-      } else if (unit %in% c('month', 'months')) {
-        numMonths <- uniqueN(zoo::as.yearmon(xVP))
-        binSliderMin <- floor(numMonths/1000)
-        binSliderMax <- ceiling(numMonths/2) 
-      } else if (unit %in% c('year', 'years')) {
-        numYears <- uniqueN(veupathUtils::strSplit(as.character(xVP), '-', 3))
-        binSliderMin <- floor(numYears/1000)
-        binSliderMax <- ceiling(numYears/2)
-      } else {
-        stop("Unrecognized unit for date histogram.")
-      }
-      binSliderMin <- ifelse(binSliderMin == 0, 1, binSliderMin)
-      binSliderStep <- 1
-      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
-    }
-    binSlider <- list('min'=jsonlite::unbox(binSliderMin), 'max'=jsonlite::unbox(binSliderMax), 'step'=jsonlite::unbox(binSliderStep))
   }
-  attr$binSlider <- binSlider
+  
   attr$binSpec <- binSpec
+  attr$binSlider <- findBinSliderValues(xVP, xType, binWidth, binReportValue)
   veupathUtils::logWithTime('Determined bin width slider min, max and step values.', verbose)
 
   if (value == 'count') {
@@ -176,7 +126,10 @@ validateBinSlider <- function(binSlider) {
   return(TRUE)
 }
 
-validateViewport <- function(viewport) {
+# at some point we should consider if viewport can be part of the parent class.
+# there are difficulties w it, (ex: stats based not on viewport in child) so ill hold off for now.
+# alt possibly to make viewport a class when we refactor for s4..
+validateViewport <- function(viewport, xType, verbose) {
   if (!is.list(viewport)) {
     return(FALSE)
   } else{
@@ -185,14 +138,21 @@ validateViewport <- function(viewport) {
     }
   }
 
-  return(TRUE)
+  if (xType %in% c('NUMBER', 'INTEGER')) {
+    viewport$xMin <- as.numeric(viewport$xMin)
+    viewport$xMax <- as.numeric(viewport$xMax)
+  } else if (xType == 'DATE') {
+    viewport$xMin <- as.Date(viewport$xMin, format='%Y-%m-%d')
+    viewport$xMax <- as.Date(viewport$xMax, format='%Y-%m-%d')
+  }
+  veupathUtils::logWithTime('Provided viewport validated.', verbose)
+
+  return(viewport)
 }
 
 validateHistogramPD <- function(.histo, verbose) {
   binSlider <- attr(.histo, 'binSlider')
   stopifnot(validateBinSlider(binSlider))
-  viewport <- attr(.histo, 'viewport')
-  stopifnot(validateViewport(viewport))
   xAxisVariable <- attr(.histo, 'xAxisVariable')
   if (!xAxisVariable$dataShape == 'CONTINUOUS') {
     stop('The independent axis must be continuous for a histogram.')
