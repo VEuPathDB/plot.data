@@ -191,9 +191,10 @@ numBinsToBinWidth <- function(x, numBins) {
   diff(range(x))/numBins
 }
 
-
+#' @export
 findBinSliderValues <- function(x, xType, binWidth, binReportValue) UseMethod("findBinSliderValues")
 
+#' @export
 findBinSliderValues.numeric <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth') {
   if (binReportValue == 'numBins') {
     return(list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1)))
@@ -205,12 +206,17 @@ findBinSliderValues.numeric <- function(x, xType, binWidth = NULL, binReportValu
   binSliderMax <- veupathUtils::nonZeroRound(binSliderMax, avgDigits)
   binSliderMin <- veupathUtils::nonZeroRound(binSliderMin, avgDigits)
   binSliderStep <- veupathUtils::nonZeroRound(((binSliderMax - binSliderMin) / 1000), avgDigits)
+  binSliderMin <- ifelse(xType == 'INTEGER' && binSliderMin %% 1 != 0, ceiling(binSliderMin), binSliderMin)
+  binSliderStep <- ifelse(xType == 'INTEGER' && binSliderStep %% 1 != 0, ceiling(binSliderStep), binSliderStep)
+  binSliderMax <- ifelse(xType == 'INTEGER' && binSliderMax %% 1 != 0, ceiling(binSliderMax), binSliderMax)
+  ## these cases should be rare. theyd have to have a single value for x.
   binSliderMin <- ifelse(binSliderMin == 0, .1, binSliderMin)
   binSliderStep <- ifelse(binSliderStep == 0, binSliderMin, binSliderStep)
 
   return(list('min'=jsonlite::unbox(binSliderMin), 'max'=jsonlite::unbox(binSliderMax), 'step'=jsonlite::unbox(binSliderStep)))
 }
 
+#' @export
 findBinSliderValues.Date <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth') {
   if (binReportValue == 'numBins') {
     list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
