@@ -37,57 +37,35 @@ newBarPD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
 
-  x <- toColNameOrNull(attr$xAxisVariable)
-  group <- toColNameOrNull(attr$overlayVariable)
+  x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
+  group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
   .pd[[x]] <- as.character(.pd[[x]])
 
   if (value == 'identity') {
     .pd <- collapseByGroup(.pd, group, panel)
-    logWithTime('Value is set to `identity`. Resulting barplot object will represent raw values.', verbose)
+    veupathUtils::logWithTime('Value is set to `identity`. Resulting barplot object will represent raw values.', verbose)
   } else if (value == 'count' ) {
     .pd$dummy <- 1
     .pd <- groupSize(.pd, x, 'dummy', group, panel, collapse = T)
     data.table::setnames(.pd, c(group, panel, 'label', 'value'))
-    logWithTime('Value is set to `count`. Resulting barplot object will represent counts of unique x-axis values per group.', verbose)
+    veupathUtils::logWithTime('Value is set to `count`. Resulting barplot object will represent counts of unique x-axis values per group.', verbose)
   } else if (value == 'proportion') {
     .pd$dummy <- 1
     .pd <- groupProportion(.pd, x, 'dummy', group, panel, barmode, collapse = T)
     data.table::setnames(.pd, c(group, panel, 'label', 'value'))
-    logWithTime('Value is set to `proportion`. If barmode is `group` the resulting barplot object will represent the relative proportions of unique x-axis values across groups. If barmode is `stack` the resulting barplot object will represent the proportions of unique x-axis values relative to the total x-axis values in that panel.', verbose)
+    veupathUtils::logWithTime('Value is set to `proportion`. If barmode is `group` the resulting barplot object will represent the relative proportions of unique x-axis values across groups. If barmode is `stack` the resulting barplot object will represent the proportions of unique x-axis values relative to the total x-axis values in that panel.', verbose)
   }
   
   attr$names <- names(.pd)
   
-  setAttrFromList(.pd, attr)
+  veupathUtils::setAttrFromList(.pd, attr)
 
   return(.pd)
 }
 
 validateBarPD <- function(.bar, verbose) {
-#  xAxisVariable <- attr(.bar, 'xAxisVariable')
-#  if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-#    stop('The independent axis must be binary, ordinal or categorical for barplot.')
-#  }
-#  overlayVariable <- attr(.bar, 'overlayVariable')
-#  if (!is.null(overlayVariable)) {
-#    if (!overlayVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-#      stop('The overlay variable must be binary, ordinal or categorical.')
-#    }
-#  }
-#  facetVariable1 <- attr(.bar, 'facetVariable1')
-#  if (!is.null(facetVariable1)) {
-#    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-#      stop('The first facet variable must be binary, ordinal or categorical.')
-#    }
-#  }
-#  facetVariable2 <- attr(.bar, 'facetVariable2')
-#  if (!is.null(facetVariable2)) {
-#    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-#      stop('The second facet variable must be binary, ordinal or categorical.')
-#    }
-#  }
-  logWithTime('Barplot request has been validated!', verbose)
+  veupathUtils::logWithTime('Barplot request has been validated!', verbose)
 
   return(.bar)
 }
@@ -110,13 +88,32 @@ validateBarPD <- function(.bar, verbose) {
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+#' @section Map Structure:
+#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
+#' - id: the variable name. Must match column name in the data exactly. \cr
+#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
+#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
+#' @return data.table plot-ready data
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. See section below for organization.
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param verbose boolean indicating if timed logging is desired
-#' @return data.table plot-ready data
+#' @examples
+#' # Construct example data
+#' df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'overlay' = sample(c('red','green','blue'), 100, replace=T))
+#' 
+#' # Create map that specifies variable role in the plot and supplies variable metadata
+#' map <- data.frame('id' = c('xvar', 'overlay'),
+#'                  'plotRef' = c('xAxisVariable', 'overlayVariable'),
+#'                  'dataType' = c('STRING', 'STRING'),
+#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' 
+#' # Returns a data table with plot-ready data
+#' dt <- bar.dt(df,map,value='count')
 #' @export
 bar.dt <- function(data, 
                    map, 
@@ -125,10 +122,10 @@ bar.dt <- function(data,
                    evilMode = c(FALSE, TRUE),
                    verbose = c(TRUE, FALSE)) {
 
-  value <- matchArg(value)
-  barmode <- matchArg(barmode)
-  evilMode <- matchArg(evilMode)
-  verbose <- matchArg(verbose)
+  value <- veupathUtils::matchArg(value)
+  barmode <- veupathUtils::matchArg(barmode)
+  evilMode <- veupathUtils::matchArg(evilMode)
+  verbose <- veupathUtils::matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -153,7 +150,7 @@ bar.dt <- function(data,
                     verbose = verbose)
 
   .bar <- validateBarPD(.bar, verbose)
-  logWithTime(paste('New barplot object created with parameters value =', value, ', barmode =', barmode, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New barplot object created with parameters value =', value, ', barmode =', barmode, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.bar)
 }
@@ -176,12 +173,31 @@ bar.dt <- function(data,
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+#' @section Map Structure:
+#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
+#' - id: the variable name. Must match column name in the data exactly. \cr
+#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
+#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot.
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param verbose boolean indicating if timed logging is desired
+#' @examples
+#' # Construct example data
+#' df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'overlay' = sample(c('red','green','blue'), 100, replace=T))
+#' 
+#' # Create map that specifies variable role in the plot and supplies variable metadata
+#' map <- data.frame('id' = c('xvar', 'overlay'),
+#'                  'plotRef' = c('xAxisVariable', 'overlayVariable'),
+#'                  'dataType' = c('STRING', 'STRING'),
+#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#'
+#' # Returns the name of a json file
+#' bar(df,map,value='count')
 #' @return character name of json file containing plot-ready data
 #' @export
 bar <- function(data, 
@@ -191,7 +207,7 @@ bar <- function(data,
                 evilMode = c(FALSE, TRUE),
                 verbose = c(TRUE, FALSE)) {
 
-  verbose <- matchArg(verbose)
+  verbose <- veupathUtils::matchArg(verbose)
 
   .bar <- bar.dt(data, map, value, barmode, evilMode, verbose)
   outFileName <- writeJSON(.bar, evilMode, 'barplot', verbose)

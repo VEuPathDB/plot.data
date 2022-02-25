@@ -36,49 +36,33 @@ newMosaicPD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
 
-  x <- toColNameOrNull(attr$xAxisVariable)
-  y <- toColNameOrNull(attr$yAxisVariable)
+  x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
+  y <- veupathUtils::toColNameOrNull(attr$yAxisVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-  if (statistic == 'chiSq') {
-    statsTable <- panelChiSq(.pd, x, y, panel)
-    logWithTime('Calculated chi-squared statistic.', verbose)
+  if (!evilMode) {
+    if (statistic == 'chiSq') {
+      statsTable <- panelChiSq(.pd, x, y, panel)
+      veupathUtils::logWithTime('Calculated chi-squared statistic.', verbose)
+    } else {
+      statsTable <- panelBothRatios(.pd, x, y, panel)
+      veupathUtils::logWithTime('Calculated odds ratio and relative risk.', verbose)
+    }
+    attr$statsTable <- statsTable
   } else {
-    statsTable <- panelBothRatios(.pd, x, y, panel)
-    logWithTime('Calculated odds ratio and relative risk.', verbose)
+    veupathUtils::logWithTime('No statistics calculated when evilMode = TRUE.', verbose)
   }
+  
   .pd <- panelTable(.pd, x, y, panel)
 
-  attr$names <- names(.pd)
-  attr$statsTable <- statsTable
-
-  setAttrFromList(.pd, attr)
+  attr$names <- names(.pd)  
+  veupathUtils::setAttrFromList(.pd, attr)
 
   return(.pd)
 }
 
 validateMosaicPD <- function(.mosaic, verbose) {
-#  xAxisVariable <- attr(.mosaic, 'xAxisVariable')
-#  if (!xAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-#    stop('The independent axis must be binary, ordinal or categorical for mosaic.')
-#  }
-#  yAxisVariable <- attr(.mosaic, 'yAxisVariable')
-#  if (!yAxisVariable$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-#    stop('The dependent axis must be binary, ordinal or categorical for mosaic.')
-#  }
-#  facetVariable1 <- attr(.mosaic, 'facetVariable1')
-#  if (!is.null(facetVariable1)) {
-#    if (!facetVariable1$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-#      stop('The first facet variable must be binary, ordinal or categorical.')
-#    }
-#  }
-#  facetVariable2 <- attr(.mosaic, 'facetVariable2')
-#  if (!is.null(facetVariable2)) {
-#    if (!facetVariable2$dataShape %in% c('BINARY', 'ORDINAL', 'CATEGORICAL')) {
-#      stop('The second facet variable must be binary, ordinal or categorical.')
-#    }
-#  }
-  logWithTime('Mosaic plot request has been validated!', verbose)
+  veupathUtils::logWithTime('Mosaic plot request has been validated!', verbose)
 
   return(.mosaic)
 }
@@ -98,19 +82,42 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+#' @section Map Structure:
+#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
+#' - id: the variable name. Must match column name in the data exactly. \cr
+#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
+#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
+#' @examples
+#' # Construct example data
+#' df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'yvar' = sample(c('1','2','3'), 100, replace=T), stringsAsFactors = F)
+#' 
+#' # Create map that specifies variable role in the plot and supplies variable metadata
+#' map <- data.frame('id' = c('xvar', 'yvar'),
+#'                  'plotRef' = c('xAxisVariable', 'yAxisVariable'),
+#'                  'dataType' = c('STRING', 'STRING'),
+#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' 
+#' # Returns a data table with plot-ready data
+#' dt <- mosaic.dt(df, map)
 #' @export
 mosaic.dt <- function(data, map, 
                       statistic = NULL, 
                       evilMode = c(FALSE, TRUE),
                       verbose = c(TRUE, FALSE)) {
-  evilMode <- matchArg(evilMode)
-  verbose <- matchArg(verbose)
+  evilMode <- veupathUtils::matchArg(evilMode)
+  verbose <- veupathUtils::matchArg(verbose)
+
+  if (evilMode && length(statistic)) {
+    warning('evilMode and statistic are not compatible! Requested statistic will be ignored!')
+  }
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -125,8 +132,8 @@ mosaic.dt <- function(data, map,
     stop("Must provide yAxisVariable for plot type mosaic.")
   }
 
-  x <- toColNameOrNull(xAxisVariable)
-  y <- toColNameOrNull(yAxisVariable)
+  x <- veupathUtils::toColNameOrNull(xAxisVariable)
+  y <- veupathUtils::toColNameOrNull(yAxisVariable)
 
   if (!is.null(statistic)) {
     if (!statistic %in% c('chiSq','bothRatios')) {
@@ -142,7 +149,7 @@ mosaic.dt <- function(data, map,
     } else {
       statistic <- 'bothRatios'
     }
-    logWithTime(paste('No statistic specified, using:', ifelse(statistic=='chiSq', 'chi-squared', 'odds ratio and relative risk')), verbose)
+    veupathUtils::logWithTime(paste('No statistic specified, using:', ifelse(statistic=='chiSq', 'chi-squared', 'odds ratio and relative risk')), verbose)
   }
   
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
@@ -158,7 +165,7 @@ mosaic.dt <- function(data, map,
                             verbose = verbose)
 
   .mosaic <- validateMosaicPD(.mosaic, verbose)
-  logWithTime(paste('New mosaic plot object created with parameters statistic =', statistic, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New mosaic plot object created with parameters statistic =', statistic, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.mosaic)
 }
@@ -177,18 +184,37 @@ mosaic.dt <- function(data, map,
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+#' @section Map Structure:
+#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
+#' - id: the variable name. Must match column name in the data exactly. \cr
+#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
+#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
 #' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
+#' @examples
+#' # Construct example data
+#' df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'yvar' = sample(c('1','2','3'), 100, replace=T), stringsAsFactors = F)
+#' 
+#' # Create map that specifies variable role in the plot and supplies variable metadata
+#' map <- data.frame('id' = c('xvar', 'yvar'),
+#'                  'plotRef' = c('xAxisVariable', 'yAxisVariable'),
+#'                  'dataType' = c('STRING', 'STRING'),
+#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' 
+#' # Returns the name of a json file
+#' mosaic(df, map)
 #' @export
 mosaic <- function(data, map, 
                    statistic = NULL, 
                    evilMode = c(FALSE, TRUE),
                    verbose = c(TRUE, FALSE)) {
-  verbose <- matchArg(verbose)
+  verbose <- veupathUtils::matchArg(verbose)
 
   .mosaic <- mosaic.dt(data, map, statistic, evilMode, verbose)
   outFileName <- writeJSON(.mosaic, evilMode, 'mosaic', verbose)

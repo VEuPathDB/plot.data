@@ -41,13 +41,14 @@ test_that("histogram.dt does not fail when there are no complete cases.", {
 })
 
 test_that("histogram.dt() returns requested numBins/ binWidth", {
-  map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'NUMBER', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
-  df <- as.data.frame(bigData)
-  viewport <- list('xMin'=min(bigData$entity.var), 'xMax'=max(bigData$entity.var))
+
+  df <- as.data.frame(testDF)
+  viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
   binReportValue <- 'binWidth'
   
   dt <- histogram.dt(df, map, binWidth = .3, value='count', barmode = 'overlay', binReportValue, viewport)
@@ -59,68 +60,74 @@ test_that("histogram.dt() returns requested numBins/ binWidth", {
   expect_equal(round(getMode(as.numeric(unlist(dt$binEnd)) - as.numeric(unlist(dt$binStart))),1), 1.5)
 
   binReportValue <- 'numBins'
-  binWidth <- numBinsToBinWidth(df$entity.var, 5)
-   dt <- histogram.dt(df, map, binWidth = binWidth, value='count', barmode = 'overlay', binReportValue, viewport)
-  expect_equal(as.numeric(binSpec(dt)$value), 5)
-  expect_equal(round(getMode(as.numeric(unlist(dt$binEnd)) - as.numeric(unlist(dt$binStart))),4), round(binWidth,4))
+  binWidth <- numBinsToBinWidth(df$entity.contA, 5)
+  dt <- histogram.dt(df, map, binWidth = binWidth, value='count', barmode = 'overlay', binReportValue, viewport)
+  expect_equal(as.numeric(binSpec(dt)$value), 5) # ensure we get the correct number of bins
+  expect_true(max(as.numeric(unlist(dt$binEnd)) - as.numeric(unlist(dt$binStart)) - binWidth) < 0.1) # Tolerance 0.1
+  numericLabelsStart <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[")[[1]][2])))
+  numericLabelsEnd <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[")[[1]][3])))
+  expect_true(max(numericLabelsEnd - numericLabelsStart) - binWidth < 0.1) # Label tolerance
 
   binReportValue <- 'numBins'
-  binWidth <- numBinsToBinWidth(df$entity.var, 15)
-   dt <- histogram.dt(df, map, binWidth = binWidth, value='count', barmode = 'overlay', binReportValue, viewport)
-  expect_equal(as.numeric(binSpec(dt)$value), 15)
-  #fairly low precision bc its lost w the conversion numBins -> binWidth and back
-  expect_equal(round(getMode(as.numeric(unlist(dt$binEnd)) - as.numeric(unlist(dt$binStart))),2), round(binWidth,2))
+  binWidth <- numBinsToBinWidth(df$entity.contA, 15)
+  dt <- histogram.dt(df, map, binWidth = binWidth, value='count', barmode = 'overlay', binReportValue, viewport)
+  expect_equal(as.numeric(binSpec(dt)$value), 15) # ensure we get the correct number of bins
+  expect_true(max(as.numeric(unlist(dt$binEnd)) - as.numeric(unlist(dt$binStart)) - binWidth) < 0.1) # Tolerance 0.1
+  numericLabelsStart <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[")[[1]][2])))
+  numericLabelsEnd <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[")[[1]][3])))
+  expect_true(max(numericLabelsEnd - numericLabelsStart) - binWidth < 0.1) # Label tolerance
 })
 
 test_that("histogram.dt() returns a valid plot.data histogram object", {
-  map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'NUMBER', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
-  df <- as.data.frame(bigData)
-  viewport <- list('xMin'=min(bigData$entity.var), 'xMax'=max(bigData$entity.var))
+
+  df <- as.data.frame(testDF)
+  viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
   binReportValue <- 'binWidth'
   
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'plot.data')
   expect_is(dt, 'histogram')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2', 'summary', 'viewport', 'binSlider', 'binSpec'))
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2', 'summary', 'viewport', 'binSpec', 'binSlider'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 3)
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(names(sampleSizes), c('panel','size'))
-  expect_equal(nrow(sampleSizes), 16)
+  expect_equal(nrow(sampleSizes), 12)
   expect_equal(names(namedAttrList$summary), c('min','q1','median','mean','q3','max'))
   expect_equal(names(viewport(dt)), c('xMin','xMax'))
   expect_equal(names(binSlider(dt)), c('min','max','step'))
   expect_equal(names(namedAttrList$binSpec), c('type','value')) 
-  expect_equal(round(as.numeric(namedAttrList$binSpec$value),4), 0.2681)
+  expect_equal(round(as.numeric(namedAttrList$binSpec$value),4), 1.8032)
   expect_equal(as.character(namedAttrList$binSpec$type), 'binWidth')
   
   
-  map <- data.frame('id' = c('entity.group', 'entity.date', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.dateA', 'entity.cat4'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'DATE', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
-  df <- as.data.frame(data.dates)
-  viewport <- list('xMin'=min(df$entity.date), 'xMax'=max(df$entity.date))
+
+  viewport <- list('xMin'=min(df$entity.dateA), 'xMax'=max(df$entity.dateA))
   binReportValue <- 'binWidth'
   
   dt <- histogram.dt(df, map, binWidth = 'month', value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'plot.data')
   expect_is(dt, 'histogram')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2', 'summary', 'viewport', 'binSlider', 'binSpec'))
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2', 'summary', 'viewport', 'binSpec', 'binSlider'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 3)
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(names(sampleSizes), c('panel','size'))
-  expect_equal(nrow(sampleSizes), 16)
+  expect_equal(nrow(sampleSizes), 12)
   expect_equal(names(namedAttrList$summary), c('min','q1','median','mean','q3','max'))
   expect_equal(names(viewport(dt)), c('xMin','xMax'))
   expect_equal(names(binSlider(dt)), c('min','max','step'))
@@ -134,13 +141,14 @@ test_that("histogram.dt() returns a valid plot.data histogram object", {
 })
 
 test_that("histogram.dt() returns plot data and config of the appropriate types", {
-  map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'NUMBER', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
-  df <- as.data.frame(bigData)
-  viewport <- list('xMin'=min(bigData$entity.var), 'xMax'=max(bigData$entity.var))
+
+  df <- as.data.frame(testDF)
+  viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
   binReportValue <- 'binWidth'
   
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
@@ -165,13 +173,13 @@ test_that("histogram.dt() returns plot data and config of the appropriate types"
   expect_equal(class(unlist(sampleSizes$panel)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
   
-  map <- data.frame('id' = c('entity.group', 'entity.date', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.dateA', 'entity.cat4'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'DATE', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
-  df <- as.data.frame(data.dates)
-  viewport <- list('xMin'=min(df$entity.date), 'xMax'=max(df$entity.date))
+
+  viewport <- list('xMin'=min(df$entity.dateA), 'xMax'=max(df$entity.dateA))
   binReportValue <- 'binWidth'
   
   dt <- histogram.dt(df, map, binWidth = 'month', value='count', barmode = 'overlay', binReportValue, viewport)
@@ -198,12 +206,13 @@ test_that("histogram.dt() returns plot data and config of the appropriate types"
 })
 
 test_that("histogram.dt() returns bins according to specified viewport", {
-  map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'NUMBER', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
-  df <- as.data.frame(bigData)
+
+  df <- as.data.frame(testDF)
   binReportValue <- 'binWidth'
   viewport <- list('xMin'=-1.5,'xMax'=2.5)
   
@@ -217,61 +226,63 @@ test_that("histogram.dt() returns bins according to specified viewport", {
 })
 
 test_that("histogram.dt() returns an appropriately sized data.table", {
-  df <- as.data.frame(bigData)
+  df <- as.data.frame(testDF)
   
-  map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'NUMBER', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
-  viewport <- list('xMin'=min(bigData$entity.var), 'xMax'=max(bigData$entity.var))
+
+  viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
   binReportValue <- 'binWidth'
 
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
+  expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport = viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
+  expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport = viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
+  expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
 
 
-  map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
                     'plotRef' = c('overlayVariable', 
                                   'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'NUMBER', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
-  viewport <- list('xMin'=min(bigData$entity.var), 'xMax'=max(bigData$entity.var))
+
+  viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
   binReportValue <- 'binWidth'
 
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'binLabel', 'value', 'binStart', 'binEnd'))
 
 
-  map <- data.frame('id' = c('entity.group', 'entity.var'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA'), 
                     'plotRef' = c('overlayVariable', 'xAxisVariable'), 
                     'dataType' = c('STRING', 'NUMBER'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS'), 
@@ -279,21 +290,21 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.group', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(nrow(dt),3)
+  expect_equal(names(dt),c('entity.cat3', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.group', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(nrow(dt),3)
+  expect_equal(names(dt),c('entity.cat3', 'binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.group', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(nrow(dt),3)
+  expect_equal(names(dt),c('entity.cat3', 'binLabel', 'value', 'binStart', 'binEnd'))
 
 
-  map <- data.frame('id' = c('entity.var', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.contA', 'entity.cat4'), 
                     'plotRef' = c('xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('NUMBER', 'STRING'), 
                     'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), 
@@ -302,19 +313,19 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat4', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat4', 'binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat4', 'binLabel', 'value', 'binStart', 'binEnd'))
 
-  map <- data.frame('id' = c('entity.var'), 
+  map <- data.frame('id' = c('entity.contA'), 
                     'plotRef' = c('xAxisVariable'), 
                     'dataType' = c('NUMBER'), 
                     'dataShape' = c('CONTINUOUS'), 
@@ -337,59 +348,60 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
 
 
   #this for dates
-  map <- data.frame('id' = c('entity.group', 'entity.date', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.dateA', 'entity.cat4'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'DATE', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
-  df <- as.data.frame(data.dates)
-  viewport <- list('xMin'=min(df$entity.date), 'xMax'=max(df$entity.date))
+
+  viewport <- list('xMin'=min(df$entity.dateA), 'xMax'=max(df$entity.dateA))
   binReportValue <- 'binWidth'
 
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
+  expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
+  expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
+  expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
 
 
-  map <- data.frame('id' = c('entity.group', 'entity.date', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.dateA', 'entity.cat4'), 
                     'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'DATE', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
-  viewport <- list('xMin'=min(df$entity.date), 'xMax'=max(df$entity.date))
+                    
+  viewport <- list('xMin'=min(df$entity.dateA), 'xMax'=max(df$entity.dateA))
   binReportValue <- 'binWidth'
 
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),16)
-  expect_equal(names(dt),c('entity.group', 'entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'binLabel', 'value', 'binStart', 'binEnd'))
 
 
-  map <- data.frame('id' = c('entity.group', 'entity.date'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.dateA'), 
                     'plotRef' = c('overlayVariable', 'xAxisVariable'), 
                     'dataType' = c('STRING', 'DATE'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS'), 
@@ -397,21 +409,21 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.group', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(nrow(dt),3)
+  expect_equal(names(dt),c('entity.cat3', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.group', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(nrow(dt),3)
+  expect_equal(names(dt),c('entity.cat3', 'binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.group', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(nrow(dt),3)
+  expect_equal(names(dt),c('entity.cat3', 'binLabel', 'value', 'binStart', 'binEnd'))
 
 
-  map <- data.frame('id' = c('entity.date', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.dateA', 'entity.cat4'), 
                     'plotRef' = c('xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('DATE', 'STRING'), 
                     'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), 
@@ -420,19 +432,19 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
   dt <- histogram.dt(df, map, binWidth=NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat4', 'binLabel', 'value', 'binStart', 'binEnd'))
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'overlay', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat4', 'binLabel', 'value', 'binStart', 'binEnd'))
   
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.panel', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(names(dt),c('entity.cat4', 'binLabel', 'value', 'binStart', 'binEnd'))
 
-  map <- data.frame('id' = c('entity.date'), 
+  map <- data.frame('id' = c('entity.dateA'), 
                     'plotRef' = c('xAxisVariable'), 
                     'dataType' = c('DATE'), 
                     'dataShape' = c('CONTINUOUS'), 
@@ -455,13 +467,9 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
 
 
   # With factors
-  df <- data.xy
-  df$entity.factor1 <- factor(sample(c('mon','tues','wed','thurs','fri'), size = nrow(df), replace = T))
-  df$entity.factor2 <- factor(sample(c('red','orange','yellow'), size = nrow(df), replace = T))
-
-  viewport <- list('xMin'=min(df$entity.x), 'xMax'=max(df$entity.x))
+  viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
   
-  map <- data.frame('id' = c('entity.x', 'entity.factor1'), 
+  map <- data.frame('id' = c('entity.contA', 'entity.factor3'), 
                   'plotRef' = c('xAxisVariable', 'facetVariable1'), 
                   'dataType' = c('NUMBER', 'STRING'), 
                   'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), 
@@ -469,11 +477,11 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),5)
-  expect_equal(names(dt),c('entity.factor1', 'binLabel', 'value', 'binStart', 'binEnd'))
-  expect_equal(class(dt$entity.factor1), 'character')
+  expect_equal(nrow(dt),3)
+  expect_equal(names(dt),c('entity.factor3', 'binLabel', 'value', 'binStart', 'binEnd'))
+  expect_equal(class(dt$entity.factor3), 'character')
 
-  map <- data.frame('id' = c('entity.x', 'entity.factor1', 'entity.group'), 
+  map <- data.frame('id' = c('entity.contA', 'entity.factor3', 'entity.cat3'), 
                   'plotRef' = c('xAxisVariable', 'facetVariable1', 'facetVariable2'), 
                   'dataType' = c('NUMBER', 'STRING', 'STRING'), 
                   'dataShape' = c('CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), 
@@ -481,11 +489,11 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),20)
+  expect_equal(nrow(dt),9)
   expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(class(dt$panel), 'character')
 
-  map <- data.frame('id' = c('entity.x', 'entity.factor1', 'entity.factor2'), 
+  map <- data.frame('id' = c('entity.contA', 'entity.factor3', 'entity.factor6'), 
                   'plotRef' = c('xAxisVariable', 'facetVariable1', 'facetVariable2'), 
                   'dataType' = c('NUMBER', 'STRING', 'STRING'), 
                   'dataShape' = c('CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), 
@@ -493,20 +501,21 @@ test_that("histogram.dt() returns an appropriately sized data.table", {
 
   dt <- histogram.dt(df, map, binWidth=NULL, value='proportion', barmode = 'stack', binReportValue, viewport)
   expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),15)
+  expect_equal(nrow(dt),18)
   expect_equal(names(dt),c('panel', 'binLabel', 'value', 'binStart', 'binEnd'))
   expect_equal(class(dt$panel), 'character')
 
 })
 
 test_that("histogram() returns appropriately formatted json", {
-  map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
                     'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'NUMBER', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
-  df <- as.data.frame(bigData)
-  viewport <- list('xMin'=min(bigData$entity.var), 'xMax'=max(bigData$entity.var))
+
+  df <- as.data.frame(testDF)
+  viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
   binReportValue <- 'binWidth'
 
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
@@ -516,10 +525,10 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram),c('data','config'))
   expect_equal(names(jsonList$histogram$data),c('overlayVariableDetails','facetVariableDetails','binLabel','value','binStart','binEnd'))
   expect_equal(names(jsonList$histogram$data$overlayVariableDetails),c('variableId','entityId','value'))
-  expect_equal(jsonList$histogram$data$overlayVariableDetails$variableId[1], 'group')
-  expect_equal(names(jsonList$histogram$config),c('completeCasesAllVars','completeCasesAxesVars','summary','viewport','binSlider','binSpec','xVariableDetails'))  
+  expect_equal(jsonList$histogram$data$overlayVariableDetails$variableId[1], 'cat3')
+  expect_equal(names(jsonList$histogram$config),c('completeCasesAllVars','completeCasesAxesVars','summary','viewport','binSpec','binSlider','xVariableDetails'))  
   expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId'))
-  expect_equal(jsonList$histogram$config$xVariableDetails$variableId, 'var')
+  expect_equal(jsonList$histogram$config$xVariableDetails$variableId, 'contA')
   expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
@@ -528,15 +537,16 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId'))
-  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('var', 'group', 'panel'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA', 'cat3', 'cat4'))
 
-  map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'NUMBER', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
-  df <- as.data.frame(bigData)
-  viewport <- list('xMin'=min(bigData$entity.var), 'xMax'=max(bigData$entity.var))
+
+  df <- as.data.frame(testDF)
+  viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
   binReportValue <- 'binWidth'
 
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
@@ -546,20 +556,20 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram),c('data','config'))
   expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','value','binStart','binEnd'))
   expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
-  expect_equal(jsonList$histogram$data$facetVariableDetails[[1]]$variableId, c('panel', 'group'))
+  expect_equal(jsonList$histogram$data$facetVariableDetails[[1]]$variableId, c('cat4', 'cat3'))
   expect_equal(nrow(jsonList$histogram$data$facetVariableDetails[[1]]), 2)
-  expect_equal(names(jsonList$histogram$config),c('completeCasesAllVars','completeCasesAxesVars','summary','viewport','binSlider','binSpec','xVariableDetails'))
+  expect_equal(names(jsonList$histogram$config),c('completeCasesAllVars','completeCasesAxesVars','summary','viewport','binSpec','binSlider','xVariableDetails'))
   expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId'))
-  expect_equal(jsonList$histogram$config$xVariableDetails$variableId, 'var')
+  expect_equal(jsonList$histogram$config$xVariableDetails$variableId, 'contA')
   expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
-  expect_equal(jsonList$sampleSizeTable$facetVariableDetails[[1]]$variableId, c('panel', 'group'))
+  expect_equal(jsonList$sampleSizeTable$facetVariableDetails[[1]]$variableId, c('cat4', 'cat3'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId')) 
-  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('var', 'panel', 'group'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA', 'cat4', 'cat3'))
   
  
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'stack', binReportValue, viewport)
@@ -570,27 +580,28 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','value','binStart','binEnd'))
   expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(nrow(jsonList$histogram$data$facetVariableDetails[[1]]), 2)
-  expect_equal(jsonList$histogram$data$facetVariableDetails[[1]]$variableId, c('panel', 'group'))
-  expect_equal(names(jsonList$histogram$config),c('completeCasesAllVars','completeCasesAxesVars','summary','viewport','binSlider','binSpec','xVariableDetails'))
+  expect_equal(jsonList$histogram$data$facetVariableDetails[[1]]$variableId, c('cat4', 'cat3'))
+  expect_equal(names(jsonList$histogram$config),c('completeCasesAllVars','completeCasesAxesVars','summary','viewport','binSpec','binSlider','xVariableDetails'))
   expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId'))
-  expect_equal(jsonList$histogram$config$xVariableDetails$variableId, 'var')
+  expect_equal(jsonList$histogram$config$xVariableDetails$variableId, 'contA')
   expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
   expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
-  expect_equal(jsonList$sampleSizeTable$facetVariableDetails[[1]]$variableId, c('panel', 'group'))
+  expect_equal(jsonList$sampleSizeTable$facetVariableDetails[[1]]$variableId, c('cat4', 'cat3'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId'))
-  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('var', 'panel', 'group'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA', 'cat4', 'cat3'))
 
 
-  map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'NUMBER', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'),
                     'displayLabel' = c('facet2Label','xLabel','facet1Label'),
                     stringsAsFactors=FALSE)
+
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'stack', binReportValue, viewport)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
@@ -600,7 +611,7 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram$data$facetVariableDetails[[1]]),c('variableId','entityId','value', 'displayLabel'))
   expect_equal(nrow(jsonList$histogram$data$facetVariableDetails[[1]]), 2)
   
-  expect_equal(names(jsonList$histogram$config),c('completeCasesAllVars','completeCasesAxesVars','summary','viewport','binSlider','binSpec','xVariableDetails'))
+  expect_equal(names(jsonList$histogram$config),c('completeCasesAllVars','completeCasesAxesVars','summary','viewport','binSpec','binSlider','xVariableDetails'))
   expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId','displayLabel'))
   expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
@@ -610,12 +621,13 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId', 'displayLabel'))
 
-  map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'NUMBER', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'),
                     'displayLabel' = c('','','facet1Label'),
                     stringsAsFactors=FALSE)
+
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'stack', binReportValue, viewport)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
@@ -627,27 +639,26 @@ test_that("histogram() returns appropriately formatted json", {
 })
 
 test_that("histogram.dt() returns correct information about missing data", {
-  map <- data.frame('id' = c('entity.group', 'entity.var', 'entity.panel'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
                     'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
                     'dataType' = c('STRING', 'NUMBER', 'STRING'), 
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
-  df <- as.data.frame(bigData)
-  viewport <- list('xMin'=min(bigData$entity.var), 'xMax'=max(bigData$entity.var))
+                    
+  # Add nMissing missing values to each column
+  nMissing <- 10
+  df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+
+  viewport <- list('xMin'=min(testDF$entity.contA), 'xMax'=max(testDF$entity.contA))
   binReportValue <- 'binWidth'
-  
-  # Add 10 missing values to each column
-  df$entity.var[sample(1:100, 10, replace=F)] <- NA
-  df$entity.group[sample(1:100, 10, replace=F)] <- NA
-  df$entity.panel[sample(1:100, 10, replace=F)] <- NA
   
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   completecasestable <- completeCasesTable(dt)
-  # Each entry should equal NROW(df) - 10
-  expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
+  # Each entry should equal NROW(df) - nMissing
+  expect_equal(all(completecasestable$completeCases == nrow(df)-nMissing), TRUE)
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE) 
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue = binReportValue, viewport = viewport, evilMode = TRUE)
-  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.var)))
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA)))
 })

@@ -11,9 +11,8 @@ box.dt(
   mean = c(FALSE, TRUE),
   computeStats = c(FALSE, TRUE),
   evilMode = c(FALSE, TRUE),
-  listVarPlotRef = NULL,
-  listVarDisplayLabel = NULL,
-  inferredVarDisplayLabel = NULL,
+  collectionVariablePlotRef = NULL,
+  computedVariableMetadata = NULL,
   verbose = c(TRUE, FALSE)
 )
 }
@@ -30,11 +29,10 @@ box.dt(
 
 \item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
 
-\item{listVarPlotRef}{string indicating the plotRef to be considered as a listVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a listVariable.}
+\item{collectionVariablePlotRef}{string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.}
 
-\item{listVarDisplayLabel}{string indicating the final displayLabel to be assigned to the repeated variable.}
-
-\item{inferredVarDisplayLabel}{string indicated the final displayLabel to be assigned to the inferred variable.}
+\item{computedVariableMetadata}{named list containing metadata about a computed variable(s) involved in a plot. 
+Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.}
 
 \item{verbose}{boolean indicating if timed logging is desired}
 }
@@ -59,3 +57,27 @@ An `evilMode` exists. It will do the following: \cr
 - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 }
 
+\section{Map Structure}{
+
+The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
+- id: the variable name. Must match column name in the data exactly. \cr
+- plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+- dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
+- dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
+}
+
+\examples{
+# Construct example data
+df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
+                 'yvar' = rnorm(100),
+                 'overlay' = sample(c('red','green','blue'), 100, replace=T))
+
+# Create map that specifies variable role in the plot and supplies variable metadata
+map <- data.frame('id' = c('xvar', 'yvar', 'overlay'),
+                 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'),
+                 'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+# Returns a data table with plot-ready data
+dt <- box.dt(df, map, points = 'outliers', mean=F, computeStats=T)
+}

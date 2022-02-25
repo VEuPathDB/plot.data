@@ -1,3 +1,55 @@
+medianCI <- function(x, conf.level=.95) {
+  w <- try(wilcox.test(x, conf.int=T, conf.level=conf.level))
+  if (veupathUtils::is.error(w)) {
+    ci <- list('lowerBound'=numeric(), 'upperBound'=numeric(), 'error'=jsonlite::unbox(w[1]))
+  } else {
+    ci <- list('lowerBound'=jsonlite::unbox(w$conf.int[1]), 'upperBound'=jsonlite::unbox(w$conf.int[2]), 'error'=jsonlite::unbox(""))
+  }
+
+  return(list(ci))
+}
+
+meanCI <- function(x, conf.level=.95) {
+  t <- try(t.test(x, conf.int=T, conf.level=conf.level))
+  if (veupathUtils::is.error(t)) {
+    ci <- list('lowerBound'=numeric(), 'upperBound'=numeric(), 'error'=jsonlite::unbox(t[1]))
+  } else {
+    ci <- list('lowerBound'=jsonlite::unbox(t$conf.int[1]), 'upperBound'=jsonlite::unbox(t$conf.int[2]), 'error'=jsonlite::unbox(""))
+  }
+
+  return(list(ci))
+}
+
+proportionCI <- function(numerator, denominator, conf.level=.95) {
+  b <- try(binom.test(numerator, denominator, conf.level=conf.level))
+  if (veupathUtils::is.error(b)) {
+    ci <- list('lowerBound'=numeric(), 'upperBound'=numeric(), 'error'=jsonlite::unbox(b[1]))
+  } else {
+    ci <- list('lowerBound'=jsonlite::unbox(b$conf.int[1]), 'upperBound'=jsonlite::unbox(b$conf.int[2]), 'error'=jsonlite::unbox(""))
+  }
+
+  return(list(ci))
+}
+
+#not sure i like the heuristic here. maybe a class and methods could help us at some point..
+simpleSampleSize <- function(x) {
+  if (length(x) == 1 & is.numeric(x)) {
+    list(list("N" = jsonlite::unbox(x)))
+  } else {
+    list(list("N" = jsonlite::unbox(length(x))))
+  }  
+}
+
+proportionSampleSize <- function(numerator, denominator) {
+  if (length(numerator) == 1 & length(denominator) == 1 & is.numeric(c(numerator, denominator))) {
+    list(list("numeratorN"=jsonlite::unbox(numerator), 
+         "denominatorN"=jsonlite::unbox(denominator)))
+  } else {
+    list(list("numeratorN"=jsonlite::unbox(length(numerator)), 
+         "denominatorN"=jsonlite::unbox(length(denominator))))
+  }
+}
+
 roundedSD <- function(x, digits = 4, ...) {
   as.list(round(stats::sd(x, ...), digits))
 }
@@ -6,8 +58,19 @@ roundedMean <- function(x, digits = 4, ...) {
   c(round(mean(x, ...), digits))
 } 
 
+roundedMedian <- function(x, digits = 4, ...) {
+  c(round(median(x, ...), digits))
+}
+
 roundedQuantile <- function(x, digits = 4, ...) {
   as.list(round(stats::quantile(x, ...), digits))
+}
+
+roundedRatio <- function(numerator, denominator, digits = 4, NaNValue = NA, ...) {
+  ratio <- numerator/denominator
+  ratio <- round(ratio, digits)
+  ratio[is.nan(ratio)] <- NaNValue
+  return(c(ratio))
 }
 
 #' Fences
@@ -51,7 +114,6 @@ outliers <- function(x) {
 #' @param x Numeric vector to calculate smoothed density estimates for
 #' @return data.table with two columns: x) the coordinates of the points where the density is estimated and y) the estimated density values. These will be non-negative, but can be zero. 
 #' @export
-#' @import data.table
 densityCurve <- function(x) {
   if (!length(x) || all(is.na(x))) { return(list('densityX'=numeric(0),
                                                  'densityY'=numeric(0))) }
@@ -69,7 +131,7 @@ densityCurve <- function(x) {
 predictdf <- function(model, xseq, se, level) UseMethod("predictdf")
 
 predictdf.default <- function(model, xseq, se = FALSE, level = .95) {
-  pred <- stats::predict(model, newdata = new_data_frame(list(x = xseq)), se.fit = se,
+  pred <- stats::predict(model, newdata = veupathUtils::new_data_frame(list(x = xseq)), se.fit = se,
     level = level, interval = if (se) "confidence" else "none")
 
   if (se) {
@@ -82,7 +144,7 @@ predictdf.default <- function(model, xseq, se = FALSE, level = .95) {
 }
 
 predictdf.loess <- function(model, xseq, se = TRUE, level = .95) {
-  pred <- stats::predict(model, newdata = data_frame(x = xseq), se = se)
+  pred <- stats::predict(model, newdata = veupathUtils::data_frame(x = xseq), se = se)
 
   if (se) {
     y = pred$fit
@@ -96,7 +158,7 @@ predictdf.loess <- function(model, xseq, se = TRUE, level = .95) {
 }
 
 predictdf.gam <- function(model, xseq, se = TRUE, level = .95) {
-  pred <- stats::predict(model, newdata = data_frame(x = xseq), se.fit = se,
+  pred <- stats::predict(model, newdata = veupathUtils::data_frame(x = xseq), se.fit = se,
     type = "link")
 
   if (se) {
@@ -172,7 +234,7 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
     stop('Unrecognized smoothing method.')
   }
 
-  if (any(is.error(smoothed))) {
+  if (any(veupathUtils::is.error(smoothed))) {
     dt <- data.table::data.table("smoothedMeanX" = list(numeric()), "smoothedMeanY" = list(numeric()), "smoothedMeanSE" = list(numeric()), "smoothedMeanError" = jsonlite::unbox(as.character(smoothed[1])))
   } else {
     smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
@@ -369,7 +431,7 @@ nonparametricTest <- function(values, groups) {
     testResult <- try(kruskal.test(values, groups), silent = TRUE)
   }
   
-  if (is.error(testResult)){
+  if (veupathUtils::is.error(testResult)){
     testResult <- list("statistic" = numeric(),
       "pvalue" = numeric(),
       "parameter" = numeric(),

@@ -16,7 +16,7 @@ bar(
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
 
-\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'}
+\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot.}
 
 \item{value}{String indicating how to calculate y-values ('identity', 'count', 'proportion')}
 
@@ -49,3 +49,26 @@ An `evilMode` exists. It will do the following: \cr
 - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 }
 
+\section{Map Structure}{
+
+The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
+- id: the variable name. Must match column name in the data exactly. \cr
+- plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+- dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
+- dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
+}
+
+\examples{
+# Construct example data
+df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
+                 'overlay' = sample(c('red','green','blue'), 100, replace=T))
+
+# Create map that specifies variable role in the plot and supplies variable metadata
+map <- data.frame('id' = c('xvar', 'overlay'),
+                 'plotRef' = c('xAxisVariable', 'overlayVariable'),
+                 'dataType' = c('STRING', 'STRING'),
+                 'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+# Returns the name of a json file
+bar(df,map,value='count')
+}

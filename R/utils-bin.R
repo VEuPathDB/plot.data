@@ -54,7 +54,7 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
 
   if (grepl("^[[:digit:]].", binWidth) & gsub("[^0-9.-]", "", binWidth) != '1') {
     #works bc we assume a single space between the binWidth and unit
-    unit <- trim(gsub("^[[:digit:]]*", "", binWidth))
+    unit <- veupathUtils::trim(gsub("^[[:digit:]]*", "", binWidth))
     numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
     if (unit %in% c('day','days')) {
       binEnd <- as.Date(binStart + lubridate::days(numericBinWidth))
@@ -103,7 +103,7 @@ findBinWidth.logical <- function(x, na.rm = c(FALSE, TRUE)) { NA }
 
 #' @export
 findBinWidth.numeric <- function(x, na.rm = c(FALSE, TRUE)) {
-  na.rm <- matchArg(na.rm)
+  na.rm <- veupathUtils::matchArg(na.rm)
   if (na.rm) {
     x <- x[complete.cases(x)]
   } else if (any(is.na(x))) {
@@ -124,12 +124,12 @@ findBinWidth.numeric <- function(x, na.rm = c(FALSE, TRUE)) {
   if (isInteger) {
     # binWidth should also be an integer
     avgDigits <- 0
-    binWidth <- nonZeroRound(binWidth, avgDigits)
+    binWidth <- veupathUtils::nonZeroRound(binWidth, avgDigits)
     if (binWidth < 1) { binWidth <- 1}
   } else {
     # binWidth can be any float
     avgDigits <- floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
-    binWidth <- nonZeroRound(binWidth, avgDigits)
+    binWidth <- veupathUtils::nonZeroRound(binWidth, avgDigits)
   }
 
   return(binWidth)
@@ -137,7 +137,7 @@ findBinWidth.numeric <- function(x, na.rm = c(FALSE, TRUE)) {
 
 #' @export
 findBinWidth.Date <- function(x, na.rm = c(FALSE, TRUE)) {
-  na.rm <- matchArg(na.rm)
+  na.rm <- veupathUtils::matchArg(na.rm)
   if (na.rm) {
     x <- x[complete.cases(x)]
   } else if (any(is.na(x))) {
@@ -189,10 +189,75 @@ findNumBins <- function(x) {
 }
 
 #NOTE: bc of the ceiling, cant depend on each other
+#' @export
 binWidthToNumBins <- function(x, binWidth) {
   ceiling(diff(range(x))/binWidth)
 }
 
+#' @export
 numBinsToBinWidth <- function(x, numBins) {
   diff(range(x))/numBins
+}
+
+#' @export
+findBinSliderValues <- function(x, xType, binWidth, binReportValue) UseMethod("findBinSliderValues")
+
+#' @export
+findBinSliderValues.numeric <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth') {
+  if (binReportValue == 'numBins') {
+    return(list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1)))
+  }
+
+  binSliderMax <- as.numeric((max(x) - min(x)) / 2)
+  binSliderMin <- as.numeric((max(x) - min(x)) / 1000)
+  avgDigits <- floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
+  binSliderMax <- veupathUtils::nonZeroRound(binSliderMax, avgDigits)
+  binSliderMin <- veupathUtils::nonZeroRound(binSliderMin, avgDigits)
+  binSliderStep <- veupathUtils::nonZeroRound(((binSliderMax - binSliderMin) / 1000), avgDigits)
+  binSliderMin <- ifelse(xType == 'INTEGER' && binSliderMin %% 1 != 0, ceiling(binSliderMin), binSliderMin)
+  binSliderStep <- ifelse(xType == 'INTEGER' && binSliderStep %% 1 != 0, ceiling(binSliderStep), binSliderStep)
+  binSliderMax <- ifelse(xType == 'INTEGER' && binSliderMax %% 1 != 0, ceiling(binSliderMax), binSliderMax)
+  ## these cases should be rare. theyd have to have a single value for x.
+  binSliderMin <- ifelse(binSliderMin == 0, .1, binSliderMin)
+  binSliderStep <- ifelse(binSliderStep == 0, binSliderMin, binSliderStep)
+
+  return(list('min'=jsonlite::unbox(binSliderMin), 'max'=jsonlite::unbox(binSliderMax), 'step'=jsonlite::unbox(binSliderStep)))
+}
+
+#' @export
+findBinSliderValues.Date <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth') {
+  if (binReportValue == 'numBins') {
+    list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
+  }
+  
+  binSliderMax <- as.numeric((max(x) - min(x)) / 2)
+  binSliderMin <- as.numeric((max(x) - min(x)) / 1000)
+  if (!is.null(binWidth) & binWidth != 0) {
+    unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
+  } else {
+    unit <- 'day'
+  }
+  
+  if (unit %in% c('day', 'days')) {
+    binSliderMin <- floor(binSliderMin)
+    binSliderMax <- ceiling(binSliderMax)
+  } else if (unit %in% c('week', 'weeks')) {
+    numWeeks <- floor(as.numeric(difftime(max(x), min(x), units='weeks'))) 
+    binSliderMin <- floor(numWeeks/1000)
+    binSliderMax <- ceiling(numWeeks/2)
+  } else if (unit %in% c('month', 'months')) {
+    numMonths <- uniqueN(zoo::as.yearmon(x))
+    binSliderMin <- floor(numMonths/1000)
+    binSliderMax <- ceiling(numMonths/2) 
+  } else if (unit %in% c('year', 'years')) {
+    numYears <- uniqueN(veupathUtils::strSplit(as.character(x), '-', 3))
+    binSliderMin <- floor(numYears/1000)
+    binSliderMax <- ceiling(numYears/2)
+  } else {
+    stop("Unrecognized unit for date bins.")
+  }
+  binSliderMin <- ifelse(binSliderMin == 0, 1, binSliderMin)
+  binSliderStep <- 1
+
+  return(list('min'=jsonlite::unbox(binSliderMin), 'max'=jsonlite::unbox(binSliderMax), 'step'=jsonlite::unbox(binSliderStep)))
 }

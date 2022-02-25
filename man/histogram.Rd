@@ -55,3 +55,28 @@ An `evilMode` exists. It will do the following: \cr
 - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 }
 
+\section{Map Structure}{
+
+The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
+- id: the variable name. Must match column name in the data exactly. \cr
+- plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+- dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
+- dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
+}
+
+\examples{
+# Construct example data
+df <- data.table('xvar' = rnorm(100),
+                 'overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
+
+# Create map that specifies variable role in the plot and supplies variable metadata
+map <- data.frame('id' = c('xvar', 'overlay'),
+                 'plotRef' = c('xAxisVariable', 'overlayVariable'),
+                 'dataType' = c('NUMBER', 'STRING'),
+                 'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+viewport <- list('xMin'=min(df$xvar), 'xMax'=max(df$xvar))
+
+# Returns the name of a json file
+histogram(df, map, binWidth=0.3, value='count', barmode='stack', viewport=viewport)
+}

@@ -49,11 +49,11 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
   attr$zAxisVariable <- zAxisVariable
 
   #NOTE: one or the other of these could be a list for 'collection'
-  x <- toColNameOrNull(attr$xAxisVariable)
-  y <- toColNameOrNull(attr$yAxisVariable)
+  x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
+  y <- veupathUtils::toColNameOrNull(attr$yAxisVariable)
   #NOTE: this for the case of 'series'
-  z <- toColNameOrNull(attr$zAxisVariable)
-  group <- toColNameOrNull(attr$overlayVariable)
+  z <- veupathUtils::toColNameOrNull(attr$zAxisVariable)
+  group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
   if (value == 'collection') {
@@ -68,7 +68,7 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
   } 
   attr$names <- names(.pd)
 
-  setAttrFromList(.pd, attr)
+  veupathUtils::setAttrFromList(.pd, attr)
   
   return(.pd)
 }
@@ -102,6 +102,12 @@ validateHeatmapPD <- function(.heatmap) {
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+#' @section Map Structure:
+#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
+#' - id: the variable name. Must match column name in the data exactly. \cr
+#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
+#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
@@ -114,9 +120,9 @@ heatmap.dt <- function(data, map,
                        evilMode = c(FALSE, TRUE),
                        verbose = c(TRUE, FALSE)) {
 
-  value <- matchArg(value)
-  evilMode <- matchArg(evilMode)
-  verbose <- matchArg(verbose)
+  value <- veupathUtils::matchArg(value)
+  evilMode <- veupathUtils::matchArg(evilMode)
+  verbose <- veupathUtils::matchArg(verbose)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -147,7 +153,7 @@ heatmap.dt <- function(data, map,
                             verbose = verbose)
 
   .heatmap <- validateHeatmapPD(.heatmap, verbose)
-  logWithTime(paste('New heatmap object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New heatmap object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.heatmap)
 
@@ -173,6 +179,12 @@ heatmap.dt <- function(data, map,
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
+#' @section Map Structure:
+#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
+#' - id: the variable name. Must match column name in the data exactly. \cr
+#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
+#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
+#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
@@ -183,7 +195,7 @@ heatmap.dt <- function(data, map,
 heatmap <- function(data, map, 
                     value = c('series','collection'), 
                     evilMode = c(FALSE, TRUE)) {
-  verbose <- matchArg(verbose)
+  verbose <- veupathUtils::matchArg(verbose)
  
   .heatmap <- heatmap.dt(data, map, value, evilMode, verbose)
   outFileName <- writeJSON(.heatmap, evilMode, 'heatmap', verbose)
