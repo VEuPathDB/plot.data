@@ -223,6 +223,10 @@ pruneViewportAdjustmentFromBins <- function(bins, xVP, x, viewport) {
 }
 
 findBinStart <- function(x) {
+  if (!length(x)) {
+     return(character(0))
+  }
+
   if (all(grepl(" - ",x))) {
     x <- veupathUtils::strSplit(x, " - ")
     x <- paste0(x,'T00:00:00')
@@ -239,6 +243,10 @@ findBinStart <- function(x) {
 }
 
 findBinEnd <- function(x) {
+  if (!length(x)) {
+    return(character(0))
+  }
+
   if (all(grepl(" - ",x))) {
     x <- veupathUtils::strSplit(x, " - ", index = 2)
     x <- paste0(x,'T00:00:00')

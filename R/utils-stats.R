@@ -262,9 +262,9 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
 #' @export
 oddsRatio <- function(tbl) {
   if (!length(tbl)) {
-    return(data.table::data.table('oddsratio'=jsonlite::unbox(NULL), 
-                                  'orInterval'=jsonlite::unbox(NULL), 
-                                  'pvalue'=jsonlite::unbox(NULL)))
+    return(data.table::data.table('oddsratio'=jsonlite::unbox(NA), 
+                                  'orInterval'=jsonlite::unbox(NA), 
+                                  'pvalue'=jsonlite::unbox(NA)))
   }
 
   a <- tbl[1,1]
@@ -302,9 +302,9 @@ oddsRatio <- function(tbl) {
 #' @export
 relativeRisk <- function(tbl) {
   if (!length(tbl)) {
-    return(data.table::data.table('relativerisk'=jsonlite::unbox(NULL), 
-                                  'rrInterval'=jsonlite::unbox(NULL), 
-                                  'pvalue'=jsonlite::unbox(NULL)))
+    return(data.table::data.table('relativerisk'=jsonlite::unbox(NA), 
+                                  'rrInterval'=jsonlite::unbox(NA), 
+                                  'pvalue'=jsonlite::unbox(NA)))
   }
   
   a <- tbl[1,1]
@@ -336,11 +336,11 @@ relativeRisk <- function(tbl) {
 
 bothRatios <- function(tbl, collapse = TRUE) {
   if (!length(tbl)) {
-    return(data.table::data.table('oddsratio'=jsonlite::unbox(NULL), 
-                                  'relativerisk'=jsonlite::unbox(NULL), 
-                                  'orInterval'=jsonlite::unbox(NULL), 
-                                  'rrInterval'=jsonlite::unbox(NULL), 
-                                  'pvalue'=jsonlite::unbox(NULL)))
+    return(data.table::data.table('oddsratio'=jsonlite::unbox(NA), 
+                                  'relativerisk'=jsonlite::unbox(NA), 
+                                  'orInterval'=jsonlite::unbox(NA), 
+                                  'rrInterval'=jsonlite::unbox(NA), 
+                                  'pvalue'=jsonlite::unbox(NA)))
   }
 
   a <- tbl[1,1]
@@ -383,9 +383,9 @@ bothRatios <- function(tbl, collapse = TRUE) {
 
 chiSq <- function(tbl, collapse = TRUE) {
   if (!length(tbl)) {
-    return(data.table::data.table('chisq'=jsonlite::unbox(NULL), 
-                                  'pvalue'=jsonlite::unbox(NULL), 
-                                  'degreesFreedom'=jsonlite::unbox(NULL)))
+    return(data.table::data.table('chisq'=jsonlite::unbox(NA), 
+                                  'pvalue'=jsonlite::unbox(NA), 
+                                  'degreesFreedom'=jsonlite::unbox(NA)))
   }
 
   chisq <- chisq.test(tbl)

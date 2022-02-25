@@ -46,27 +46,37 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-  summary <- as.list(summary(.pd[[x]]))
-  names(summary) <- c('min', 'q1', 'median', 'mean', 'q3', 'max')
-  summary <- lapply(summary, as.character)
-  summary <- lapply(summary, jsonlite::unbox)
-  attr$summary <- summary
-  veupathUtils::logWithTime('Supporting summary statistics calculated for histogram.', verbose)
-
-  if (is.null(viewport)) {
-    viewport <- findViewport(.pd[[x]], xType)
-    veupathUtils::logWithTime('Determined default viewport.', verbose)
-  } else {
-    viewport <- validateViewport(viewport, xType, verbose)
-  }
-  attr$viewport <- lapply(viewport, as.character)
-  attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
-  xVP <- adjustToViewport(.pd[[x]], viewport)
-
-  if (!length(xVP)) {
+  if (!length(.pd[[x]])) {
     binSlider <- list('min'=jsonlite::unbox(NA), 'max'=jsonlite::unbox(NA), 'step'=jsonlite::unbox(NA))
     binSpec <- list('type'=jsonlite::unbox(binReportValue), 'value'=jsonlite::unbox(NA))
+    viewport <- list('xMin'=0, 'xMax'=-Inf) 
+    summary <- list('min'=jsonlite::unbox(""),
+                    'q1'=jsonlite::unbox(""),
+                    'median'=jsonlite::unbox(""),
+                    'mean'=jsonlite::unbox(""),
+                    'q3'=jsonlite::unbox(""),
+                    'max'=jsonlite::unbox(""))
+    attr$summary <- summary
+    attr$viewport <- list('xMin'=jsonlite::unbox(""), 'xMax'=jsonlite::unbox(""))
+    veupathUtils::logWithTime('No complete cases found.', verbose)
   } else {
+    summary <- as.list(summary(.pd[[x]]))
+    names(summary) <- c('min', 'q1', 'median', 'mean', 'q3', 'max')
+    summary <- lapply(summary, as.character)
+    summary <- lapply(summary, jsonlite::unbox)
+    attr$summary <- summary
+    veupathUtils::logWithTime('Supporting summary statistics calculated for histogram.', verbose)
+  
+    if (is.null(viewport)) {
+      viewport <- findViewport(.pd[[x]], xType)
+      veupathUtils::logWithTime('Determined default viewport.', verbose)
+    } else {
+      viewport <- validateViewport(viewport, xType, verbose)
+    }
+    attr$viewport <- lapply(viewport, as.character)
+    attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
+    xVP <- adjustToViewport(.pd[[x]], viewport)
+
     if (binReportValue == 'binWidth') {
       if (is.null(binWidth)) {
         binWidth <- findBinWidth(xVP)
@@ -91,11 +101,12 @@ newHistogramPD <- function(.dt = data.table::data.table(),
       }
       binSpec <- list('type'=jsonlite::unbox('numBins'), 'value'=jsonlite::unbox(numBins))
     }
+    binSlider <- findBinSliderValues(xVP, xType, binWidth, binReportValue)
+    veupathUtils::logWithTime('Determined bin width slider min, max and step values.', verbose)
   }
   
   attr$binSpec <- binSpec
-  attr$binSlider <- findBinSliderValues(xVP, xType, binWidth, binReportValue)
-  veupathUtils::logWithTime('Determined bin width slider min, max and step values.', verbose)
+  attr$binSlider <- binSlider 
 
   if (value == 'count') {
     .pd <- binSize(.pd, x, group, panel, binWidth, viewport)
