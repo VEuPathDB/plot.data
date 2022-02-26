@@ -15,6 +15,10 @@ test_that("histogram.dt does not fail when there are no complete cases.", {
   expect_equal(is.na(attr$binSlider$min), TRUE)
   expect_equal(as.character(attr$summary$min), "")
   expect_equal(is.na(attr$binSpec$value), TRUE)
+  expect_equal(is.list(dt$binLabel), TRUE)
+  expect_equal(is.list(dt$binStart), TRUE)
+  expect_equal(is.list(dt$binEnd), TRUE)
+  expect_equal(is.list(dt$value), TRUE)
 
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', 'binWidth', NULL)  
   attr <- attributes(dt)
@@ -23,6 +27,10 @@ test_that("histogram.dt does not fail when there are no complete cases.", {
   expect_equal(is.na(attr$binSlider$min), TRUE)
   expect_equal(as.character(attr$summary$min), "")
   expect_equal(is.na(attr$binSpec$value), TRUE)
+  expect_equal(is.list(dt$binLabel), TRUE)
+  expect_equal(is.list(dt$binStart), TRUE)
+  expect_equal(is.list(dt$binEnd), TRUE)
+  expect_equal(is.list(dt$value), TRUE)
 
   dt <- histogram.dt(df, map, binWidth = .3, value='proportion', barmode = 'overlay', 'binWidth', NULL)  
   attr <- attributes(dt)
@@ -31,6 +39,10 @@ test_that("histogram.dt does not fail when there are no complete cases.", {
   expect_equal(is.na(attr$binSlider$min), TRUE)
   expect_equal(as.character(attr$summary$min), "")
   expect_equal(is.na(attr$binSpec$value), TRUE)
+  expect_equal(is.list(dt$binLabel), TRUE)
+  expect_equal(is.list(dt$binStart), TRUE)
+  expect_equal(is.list(dt$binEnd), TRUE)
+  expect_equal(is.list(dt$value), TRUE)
     
   dt <- histogram.dt(df, map, binWidth = .3, value='count', barmode = 'stack', 'binWidth', NULL)
   attr <- attributes(dt)
@@ -39,6 +51,10 @@ test_that("histogram.dt does not fail when there are no complete cases.", {
   expect_equal(is.na(attr$binSlider$min), TRUE)
   expect_equal(as.character(attr$summary$min), "")
   expect_equal(is.na(attr$binSpec$value), TRUE)
+  expect_equal(is.list(dt$binLabel), TRUE)
+  expect_equal(is.list(dt$binStart), TRUE)
+  expect_equal(is.list(dt$binEnd), TRUE)
+  expect_equal(is.list(dt$value), TRUE)
 
   dt <- histogram.dt(df, map, binWidth = .3, value='count', barmode = 'overlay', 'numBins', NULL)
   attr <- attributes(dt)
@@ -47,6 +63,10 @@ test_that("histogram.dt does not fail when there are no complete cases.", {
   expect_equal(is.na(attr$binSlider$min), TRUE)
   expect_equal(as.character(attr$summary$min), "")
   expect_equal(is.na(attr$binSpec$value), TRUE)
+  expect_equal(is.list(dt$binLabel), TRUE)
+  expect_equal(is.list(dt$binStart), TRUE)
+  expect_equal(is.list(dt$binEnd), TRUE)
+  expect_equal(is.list(dt$value), TRUE)
 
   map <- data.frame('id' = c('entity.cont', 'entity.binary2'),
                     'plotRef' = c('xAxisVariable', 'overlayVariable'),
@@ -62,6 +82,10 @@ test_that("histogram.dt does not fail when there are no complete cases.", {
   expect_equal(is.na(attr$binSlider$min), TRUE)
   expect_equal(as.character(attr$summary$min), "")
   expect_equal(is.na(attr$binSpec$value), TRUE)
+  expect_equal(is.list(dt$binLabel), TRUE)
+  expect_equal(is.list(dt$binStart), TRUE)
+  expect_equal(is.list(dt$binEnd), TRUE)
+  expect_equal(is.list(dt$value), TRUE)
 })
 
 test_that("histogram.dt() returns requested numBins/ binWidth", {

@@ -11,10 +11,14 @@ test_that("bar.dt does not fail when there are no complete cases.", {
   dt <- bar.dt(df, map, value='count')  
   attr <- attributes(dt)
   expect_equal(attr$completeCasesAllVars[1], 0)
+  expect_equal(is.list(dt$label), TRUE)
+  expect_equal(is.list(dt$value), TRUE)
 
   dt <- bar.dt(df, map, value='proportion')  
   attr <- attributes(dt)
   expect_equal(attr$completeCasesAllVars[1], 0)
+  expect_equal(is.list(dt$label), TRUE)
+  expect_equal(is.list(dt$value), TRUE)
 
   map <- data.frame('id' = c('entity.binary1', 'entity.binary2'),
                     'plotRef' = c('xAxisVariable', 'overlayVariable'),
@@ -26,6 +30,8 @@ test_that("bar.dt does not fail when there are no complete cases.", {
   dt <- bar.dt(df, map, value='count')
   attr <- attributes(dt)
   expect_equal(attr$completeCasesAllVars[1], 0)
+  expect_equal(is.list(dt$label), TRUE)
+  expect_equal(is.list(dt$value), TRUE)
 })
 
 test_that("bar.dt() returns a valid plot.data barplot object", {

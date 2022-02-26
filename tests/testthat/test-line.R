@@ -14,6 +14,12 @@ test_that("lineplot.dt() does not fail when there are no complete cases.", {
   expect_equal(as.character(attr$viewport$xMin), "")
   expect_equal(is.na(attr$binSlider$min), TRUE)
   expect_equal(is.na(attr$binSpec$value), TRUE)
+  expect_equal(is.list(dt$errorBars), TRUE)
+  expect_equal(is.list(dt$errorBars[[1]]), TRUE)
+  expect_equal(is.list(dt$binSampleSize), TRUE)
+  expect_equal(is.list(dt$binSampleSize[[1]]), TRUE)
+  expect_equal(is.list(dt$seriesX), TRUE)
+  expect_equal(is.list(dt$seriesY), TRUE)
 })
 
 test_that("lineplot.dt() returns a valid plot.data lineplot object", {

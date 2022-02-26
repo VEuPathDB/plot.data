@@ -24,6 +24,8 @@ tableAsDT <- function(data, x, y) {
   tbl <- table(data[[x]], data[[y]])
   xLabels <- rownames(tbl)
   yLabels <- colnames(tbl)
+  if (is.null(xLabels)) xLabels <- character(0)
+  if (is.null(yLabels)) yLabels <- character(0)
   rownames(tbl) <- NULL
   colnames(tbl) <- NULL
   dt <- data.table::data.table('xLabel'=xLabels,'yLabel'=rep(list(yLabels),length(xLabels)),'value'=lapply(apply(tbl,1,list),unlist))

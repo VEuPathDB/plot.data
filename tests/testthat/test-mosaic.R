@@ -12,6 +12,11 @@ test_that("mosaic.dt does not fail when there are no complete cases.", {
   attr <- attributes(dt)
   expect_equal(attr$completeCasesAllVars[1], 0)
   expect_equal(is.na(attr$statsTable$oddsratio), TRUE)
+  expect_equal(is.list(dt$xLabel), TRUE)
+  expect_equal(is.list(dt$yLabel), TRUE)
+  expect_equal(is.list(dt$yLabel[[1]]), TRUE)
+  expect_equal(is.list(dt$value), TRUE)
+  expect_equal(is.list(dt$value[[1]]), TRUE)
 })
 
 test_that("mosaic.dt() returns a valid plot.data mosaic object", {
