@@ -15,6 +15,9 @@ bin <- function(x, binWidth, viewport) UseMethod("bin")
 
 #' @export
 bin.numeric <- function(x, binWidth = NULL, viewport) {
+  if (!length(x)) { return(character(0)) }
+  if (all(is.na(x))) { return(character(0)) }
+
   xVP <- adjustToViewport(x, viewport)
 
   if (!is.null(binWidth)) {
@@ -37,6 +40,9 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
 #' @importFrom lubridate years
 #' @export
 bin.Date <- function(x, binWidth = NULL, viewport) {
+  if (!length(x)) { return(character(0)) }
+  if (all(is.na(x))) { return(character(0)) }
+
   xVP <- adjustToViewport(x, viewport)
 
   if (is.null(binWidth)) {
@@ -112,6 +118,7 @@ findBinWidth.numeric <- function(x, na.rm = c(FALSE, TRUE)) {
     if (data.table::uniqueN(x) == 1) { return(0) }
   } 
   numBins <- findNumBins(x)
+  if (is.null(numBins)) { return(NULL) }
   binWidth <- numBinsToBinWidth(x, numBins)
   
   if (isInteger) {
@@ -160,6 +167,7 @@ findBinWidth.Date <- function(x, na.rm = c(FALSE, TRUE)) {
 #' @importFrom grDevices nclass.FD
 #' @importFrom grDevices nclass.Sturges
 findNumBins <- function(x) {
+  if (!length(x)) { return(NULL) }
   numBins <- NULL
 
   if (length(x) > 200) {
