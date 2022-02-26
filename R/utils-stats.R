@@ -237,9 +237,11 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
   if (any(veupathUtils::is.error(smoothed))) {
     dt <- data.table::data.table("smoothedMeanX" = list(numeric()), "smoothedMeanY" = list(numeric()), "smoothedMeanSE" = list(numeric()), "smoothedMeanError" = jsonlite::unbox(as.character(smoothed[1])))
   } else {
-    smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
-
-    if (exists('dateMap')) {
+    smoothed <- try(data.table::as.data.table(predictdf(smoothed, xseq)))
+    if (any(veupathUtils::is.error(smoothed))) {
+      dt <- data.table::data.table("smoothedMeanX" = list(numeric()), "smoothedMeanY" = list(numeric()), "smoothedMeanSE" = list(numeric()), "smoothedMeanError" = jsonlite::unbox(as.character(smoothed[1]))) 
+    } else {
+      if (exists('dateMap')) {
       smoothed$x <- dateMap[match(smoothed$x, dateMap$numeric),]$date
     }
 
@@ -247,6 +249,7 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
       dt <- data.table::data.table("smoothedMeanX" = list(as.character(smoothed$x)), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se), "smoothedMeanError" = jsonlite::unbox(""))
     } else {
       dt <- data.table::data.table("smoothedMeanX" = as.character(smoothed$x), "smoothedMeanY" = smoothed$y, "smoothedMeanSE" = smoothed$se, "smoothedMeanError" = jsonlite::unbox(""))
+    }
     }
   }
 
