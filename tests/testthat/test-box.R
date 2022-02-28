@@ -1,5 +1,98 @@
 context('box')
 
+test_that("box.dt does not fail when there are no complete cases.", {
+  map <- data.frame('id' = c('entity.binary1', 'entity.cont'),
+                    'plotRef' = c('xAxisVariable', 'yAxisVariable'),
+                    'dataType' = c('STRING', 'NUMBER'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS'),
+                    stringsAsFactors = FALSE)
+  df <- data.noneComplete[is.na(entity.binary1),]
+
+  dt <- box.dt(df, map, 'none', FALSE, FALSE)  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+  expect_equal(is.list(dt$label), TRUE)
+  expect_equal(is.list(dt$min), TRUE)
+  expect_equal(is.list(dt$q1), TRUE)
+  expect_equal(is.list(dt$median), TRUE)
+  expect_equal(is.list(dt$q3), TRUE)
+  expect_equal(is.list(dt$max), TRUE)
+  expect_equal(is.list(dt$lowerfence), TRUE)
+  expect_equal(is.list(dt$upperfence), TRUE)
+
+  dt <- box.dt(df, map, 'none', FALSE, TRUE)  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+  expect_equal(is.list(dt$label), TRUE)
+  expect_equal(is.list(dt$min), TRUE)
+  expect_equal(is.list(dt$q1), TRUE)
+  expect_equal(is.list(dt$median), TRUE)
+  expect_equal(is.list(dt$q3), TRUE)
+  expect_equal(is.list(dt$max), TRUE)
+  expect_equal(is.list(dt$lowerfence), TRUE)
+  expect_equal(is.list(dt$upperfence), TRUE)
+
+  dt <- box.dt(df, map, 'none', TRUE, TRUE)  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+  expect_equal(is.list(dt$label), TRUE)
+  expect_equal(is.list(dt$min), TRUE)
+  expect_equal(is.list(dt$q1), TRUE)
+  expect_equal(is.list(dt$median), TRUE)
+  expect_equal(is.list(dt$q3), TRUE)
+  expect_equal(is.list(dt$max), TRUE)
+  expect_equal(is.list(dt$lowerfence), TRUE)
+  expect_equal(is.list(dt$upperfence), TRUE)
+  expect_equal(is.list(dt$mean), TRUE)
+
+  dt <- box.dt(df, map, 'outliers', FALSE, TRUE)  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+  expect_equal(is.list(dt$label), TRUE)
+  expect_equal(is.list(dt$min), TRUE)
+  expect_equal(is.list(dt$q1), TRUE)
+  expect_equal(is.list(dt$median), TRUE)
+  expect_equal(is.list(dt$q3), TRUE)
+  expect_equal(is.list(dt$max), TRUE)
+  expect_equal(is.list(dt$lowerfence), TRUE)
+  expect_equal(is.list(dt$upperfence), TRUE)
+  expect_equal(is.list(dt$outliers), TRUE)
+  expect_equal(is.list(dt$outliers[[1]]), TRUE)
+
+  dt <- box.dt(df, map, 'all', FALSE, TRUE)  
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+  expect_equal(is.list(dt$label), TRUE)
+  expect_equal(is.list(dt$min), TRUE)
+  expect_equal(is.list(dt$q1), TRUE)
+  expect_equal(is.list(dt$median), TRUE)
+  expect_equal(is.list(dt$q3), TRUE)
+  expect_equal(is.list(dt$max), TRUE)
+  expect_equal(is.list(dt$lowerfence), TRUE)
+  expect_equal(is.list(dt$upperfence), TRUE)
+  expect_equal(is.list(dt$rawData), TRUE)
+  expect_equal(is.list(dt$rawData[[1]]), TRUE)
+
+  map <- data.frame('id' = c('entity.binary1', 'entity.cont', 'entity.binary2'),
+                    'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'),
+                    stringsAsFactors = FALSE)
+  df <- data.noneComplete
+
+  dt <- box.dt(df, map, 'none', FALSE, FALSE)
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+  expect_equal(is.list(dt$label), TRUE)
+  expect_equal(is.list(dt$min), TRUE)
+  expect_equal(is.list(dt$q1), TRUE)
+  expect_equal(is.list(dt$median), TRUE)
+  expect_equal(is.list(dt$q3), TRUE)
+  expect_equal(is.list(dt$max), TRUE)
+  expect_equal(is.list(dt$lowerfence), TRUE)
+  expect_equal(is.list(dt$upperfence), TRUE)
+})
+
 test_that("box.dt() returns a valid plot.data box object", {
   map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.cat4'),
                     'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),

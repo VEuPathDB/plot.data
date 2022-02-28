@@ -1,5 +1,27 @@
 context('lineplot')
 
+test_that("lineplot.dt() does not fail when there are no complete cases.", {
+  map <- data.frame('id' = c('entity.int', 'entity.cont'),
+                    'plotRef' = c('xAxisVariable', 'yAxisVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER'),
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS'),
+                    stringsAsFactors = FALSE)
+  df <- data.noneComplete[is.na(entity.int),]
+
+  dt <- lineplot.dt(df, map, binWidth = NULL, value = 'mean', viewport = NULL)
+  attr <- attributes(dt)
+  expect_equal(attr$completeCasesAllVars[1], 0)
+  expect_equal(as.character(attr$viewport$xMin), "")
+  expect_equal(is.na(attr$binSlider$min), TRUE)
+  expect_equal(is.na(attr$binSpec$value), TRUE)
+  expect_equal(is.list(dt$errorBars), TRUE)
+  expect_equal(is.list(dt$errorBars[[1]]), TRUE)
+  expect_equal(is.list(dt$binSampleSize), TRUE)
+  expect_equal(is.list(dt$binSampleSize[[1]]), TRUE)
+  expect_equal(is.list(dt$seriesX), TRUE)
+  expect_equal(is.list(dt$seriesY), TRUE)
+})
+
 test_that("lineplot.dt() returns a valid plot.data lineplot object", {
   map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.repeatedDateA', 'entity.cat4'),
                     'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),

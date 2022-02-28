@@ -88,34 +88,44 @@ newLinePD <- function(.dt = data.table::data.table(),
   # if no binWidth is provided, find one. if the user doesnt want binning they can set binWidth to 0
   # if someone complains about that well add a boolean param to indicate if binning is desired
   if (xType != 'STRING') {
-    # think we need to take viewport as input, even if we dont want semantic zoom
-    # for consistent bins across the annotated range, we need a consistent range/ bin start
-    if (is.null(viewport)) {
-      viewport <- findViewport(.pd[[x]], xType)
-      veupathUtils::logWithTime('Determined default viewport.', verbose)
-    } else {
-      viewport <- validateViewport(viewport, xType, verbose)
+    if (!length(.pd[[x]])) {
+      binWidth <- 0
+      binSlider <- list('min'=jsonlite::unbox(NA), 'max'=jsonlite::unbox(NA), 'step'=jsonlite::unbox(NA))
+      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(NA))
+      viewport <- list('xMin'=0, 'xMax'=-Inf)
+      attr$viewport <- list('xMin'=jsonlite::unbox(""), 'xMax'=jsonlite::unbox(""))
+      veupathUtils::logWithTime('No complete cases found.', verbose)
+    } else {  
+      # think we need to take viewport as input, even if we dont want semantic zoom
+      # for consistent bins across the annotated range, we need a consistent range/ bin start
+      if (is.null(viewport)) {
+        viewport <- findViewport(.pd[[x]], xType)
+        veupathUtils::logWithTime('Determined default viewport.', verbose)
+      } else {
+        viewport <- validateViewport(viewport, xType, verbose)
+      }
+      attr$viewport <- lapply(viewport, as.character)
+      attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
+  
+      if (is.null(binWidth)) {
+        # if we want semantic zoom, then use xVP here instead, see histogram as ex
+        binWidth <- findBinWidth(.pd[[x]])
+        veupathUtils::logWithTime('Determined ideal bin width.', verbose)
+      }
+      binSlider <- findBinSliderValues(.pd[[x]], xType, binWidth, 'binWidth')
+  
+      if (xType %in% c('NUMBER', 'INTEGER')) {
+        binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
+      } else {
+        numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
+        if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
+        unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
+        binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
+      }
+      veupathUtils::logWithTime('Determined bin width slider min, max and step values.', verbose)
     }
-    attr$viewport <- lapply(viewport, as.character)
-    attr$viewport <- lapply(attr$viewport, jsonlite::unbox)
-
-    if (is.null(binWidth)) {
-      # if we want semantic zoom, then use xVP here instead, see histogram as ex
-      binWidth <- findBinWidth(.pd[[x]])
-      veupathUtils::logWithTime('Determined ideal bin width.', verbose)
-    }
-    attr$binSlider <- findBinSliderValues(.pd[[x]], xType, binWidth, 'binWidth')
-
-    if (xType %in% c('NUMBER', 'INTEGER')) {
-      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
-    } else {
-      numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
-      if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
-      unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
-      binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
-    }
+    attr$binSlider <- binSlider
     attr$binSpec <- binSpec
-    veupathUtils::logWithTime('Determined bin width slider min, max and step values.', verbose)
   } else {
     if (!is.null(binWidth)) {
       warning("X-axis must be a continuous number or date in order to be binned. Ignoring `binWidth`.")

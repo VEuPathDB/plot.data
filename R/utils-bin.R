@@ -15,6 +15,9 @@ bin <- function(x, binWidth, viewport) UseMethod("bin")
 
 #' @export
 bin.numeric <- function(x, binWidth = NULL, viewport) {
+  if (!length(x)) { return(character(0)) }
+  if (all(is.na(x))) { return(character(0)) }
+
   xVP <- adjustToViewport(x, viewport)
 
   if (!is.null(binWidth)) {
@@ -37,6 +40,9 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
 #' @importFrom lubridate years
 #' @export
 bin.Date <- function(x, binWidth = NULL, viewport) {
+  if (!length(x)) { return(character(0)) }
+  if (all(is.na(x))) { return(character(0)) }
+
   xVP <- adjustToViewport(x, viewport)
 
   if (is.null(binWidth)) {
@@ -112,6 +118,7 @@ findBinWidth.numeric <- function(x, na.rm = c(FALSE, TRUE)) {
     if (data.table::uniqueN(x) == 1) { return(0) }
   } 
   numBins <- findNumBins(x)
+  if (is.null(numBins)) { return(NULL) }
   binWidth <- numBinsToBinWidth(x, numBins)
   
   if (isInteger) {
@@ -160,6 +167,7 @@ findBinWidth.Date <- function(x, na.rm = c(FALSE, TRUE)) {
 #' @importFrom grDevices nclass.FD
 #' @importFrom grDevices nclass.Sturges
 findNumBins <- function(x) {
+  if (!length(x)) { return(NULL) }
   numBins <- NULL
 
   if (length(x) > 200) {
@@ -191,9 +199,10 @@ numBinsToBinWidth <- function(x, numBins) {
   diff(range(x))/numBins
 }
 
-
+#' @export
 findBinSliderValues <- function(x, xType, binWidth, binReportValue) UseMethod("findBinSliderValues")
 
+#' @export
 findBinSliderValues.numeric <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth') {
   if (binReportValue == 'numBins') {
     return(list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1)))
@@ -205,12 +214,17 @@ findBinSliderValues.numeric <- function(x, xType, binWidth = NULL, binReportValu
   binSliderMax <- veupathUtils::nonZeroRound(binSliderMax, avgDigits)
   binSliderMin <- veupathUtils::nonZeroRound(binSliderMin, avgDigits)
   binSliderStep <- veupathUtils::nonZeroRound(((binSliderMax - binSliderMin) / 1000), avgDigits)
+  binSliderMin <- ifelse(xType == 'INTEGER' && binSliderMin %% 1 != 0, ceiling(binSliderMin), binSliderMin)
+  binSliderStep <- ifelse(xType == 'INTEGER' && binSliderStep %% 1 != 0, ceiling(binSliderStep), binSliderStep)
+  binSliderMax <- ifelse(xType == 'INTEGER' && binSliderMax %% 1 != 0, ceiling(binSliderMax), binSliderMax)
+  ## these cases should be rare. theyd have to have a single value for x.
   binSliderMin <- ifelse(binSliderMin == 0, .1, binSliderMin)
   binSliderStep <- ifelse(binSliderStep == 0, binSliderMin, binSliderStep)
 
   return(list('min'=jsonlite::unbox(binSliderMin), 'max'=jsonlite::unbox(binSliderMax), 'step'=jsonlite::unbox(binSliderStep)))
 }
 
+#' @export
 findBinSliderValues.Date <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth') {
   if (binReportValue == 'numBins') {
     list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
