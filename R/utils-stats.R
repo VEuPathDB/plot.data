@@ -270,10 +270,13 @@ oddsRatio <- function(tbl) {
                                   'pvalue'=jsonlite::unbox(NA)))
   }
 
+  nRows <- nrow(tbl)
+  nCols <- ncol(tbl)
+
   a <- tbl[1,1]
-  b <- tbl[2,1]
-  c <- tbl[1,2]
-  d <- tbl[2,2]
+  b <- ifelse(nRows > 1, tbl[2,1], 0)
+  c <- ifelse(nCols > 1, tbl[1,2], 0)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
 
   OR <- (a*d)/(b*c)
   OR <- round(OR, digits=4)
@@ -310,10 +313,13 @@ relativeRisk <- function(tbl) {
                                   'pvalue'=jsonlite::unbox(NA)))
   }
   
+  nRows <- nrow(tbl)
+  nCols <- ncol(tbl)
+
   a <- tbl[1,1]
-  b <- tbl[2,1]
-  c <- tbl[1,2]
-  d <- tbl[2,2]
+  b <- ifelse(nRows > 1, tbl[2,1], 0)
+  c <- ifelse(nCols > 1, tbl[1,2], 0)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
 
   RR <- (a/(a+b)) / (c/(c+d))
   RR <- round(RR, digits=4)
@@ -346,10 +352,13 @@ bothRatios <- function(tbl, collapse = TRUE) {
                                   'pvalue'=jsonlite::unbox(NA)))
   }
 
+  nRows <- nrow(tbl)
+  nCols <- ncol(tbl)
+
   a <- tbl[1,1]
-  b <- tbl[2,1]
-  c <- tbl[1,2]
-  d <- tbl[2,2]
+  b <- ifelse(nRows > 1, tbl[2,1], 0)
+  c <- ifelse(nCols > 1, tbl[1,2], 0)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
 
   OR <- (a*d)/(b*c)
   RR <- (a/(a+b)) / (c/(c+d))

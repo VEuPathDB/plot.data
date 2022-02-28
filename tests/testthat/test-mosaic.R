@@ -1,6 +1,32 @@
 context('mosaic')
 
-test_that("mosaic.dt does not fail when there are no complete cases.", {
+test_that("mosaic.dt() does not fail when 2x2 version only has 1 value on an axis.", {
+  map <- data.frame('id' = c('entity.cat1', 'entity.cat2'),
+                    'plotRef' = c('xAxisVariable', 'yAxisVariable'),
+                    'dataType' = c('STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'),
+                    stringsAsFactors = FALSE)
+  df <- testDF
+
+  dt <- mosaic.dt(df, map, 'bothRatios')
+  expect_equal(dt$xLabel[[1]], 'cat1_a')
+  expect_equal(dt$yLabel[[1]][[1]], c('cat2_a', 'cat2_b'))
+  expect_equal(dt$value[[1]][[1]], c(251, 249))
+
+  map <- data.frame('id' = c('entity.cat1', 'entity.cat2'),
+                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'),
+                    stringsAsFactors = FALSE)
+  df <- testDF
+
+  dt <- mosaic.dt(df, map, 'bothRatios')
+  expect_equal(dt$xLabel[[1]], c('cat2_a', 'cat2_b'))
+  expect_equal(dt$yLabel[[1]][[1]], 'cat1_a')
+  expect_equal(dt$value[[1]][[1]], 251)
+})
+
+test_that("mosaic.dt() does not fail when there are no complete cases.", {
   map <- data.frame('id' = c('entity.binary1', 'entity.binary2'),
                     'plotRef' = c('xAxisVariable', 'yAxisVariable'),
                     'dataType' = c('STRING', 'STRING'),
