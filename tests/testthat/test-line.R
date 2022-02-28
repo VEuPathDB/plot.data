@@ -756,7 +756,24 @@ test_that("lineplot.dt() returns correct information about missing data", {
 
 
   ## Using naToZero to change some NAs to 0
-  #### TO DO
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.repeatedContA', 'entity.cat4'), 
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 
+                    'naToZero' = c(FALSE, '', 'TRUE', NA), stringsAsFactors=FALSE)
+
+
+  dt <- lineplot.dt(df, map, value = 'mean')
+  completecasestable <- completeCasesTable(dt)
+  # Each entry except 'contA' should equal NROW(df) - nMissing
+  expect_equal(sum(completecasestable$completeCases == nrow(df)-nMissing), 3)
+  expect_equal(completecasestable[variableDetails=='entity.repeatedContA', completeCases], nrow(df))
+  # number of completeCases should be < complete cases for each var
+  expect_true(all(attr(dt, 'completeCasesAllVars')[1] < completecasestable$completeCases)) 
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] > attr(dt, 'completeCasesAllVars')[1])
+  dt <- lineplot.dt(df, map, value = 'mean', evilMode=TRUE)
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB)))
+
 })
 
 test_that("lineplot.dt() always returns data ordered by seriesX/ binStart", {

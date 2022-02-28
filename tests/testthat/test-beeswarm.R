@@ -549,10 +549,10 @@ test_that("beeswarm() returns appropriately formatted json", {
 
 
 test_that("beeswarm.dt() returns correct information about missing data", {
-  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.cat4'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.cat4', 'entity.cat5'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
   # Add nMissing missing values to each column
   nMissing <- 10
@@ -570,17 +570,17 @@ test_that("beeswarm.dt() returns correct information about missing data", {
 
 
   ## Using naToZero to change some NAs to 0
-  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.cat4'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'),
-                    'naToZero' = c('FALSE', 'TRUE', ''), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.cat4', 'entity.cat5'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'),
+                    'naToZero' = c('FALSE', TRUE, '', NA), stringsAsFactors=FALSE)
 
 
   dt <- beeswarm.dt(df, map, 0.1, FALSE)
   completecasestable <- completeCasesTable(dt)
   # Each entry except 'contB' should equal NROW(df) - nMissing
-  expect_equal(sum(completecasestable$completeCases == nrow(df)-nMissing), 2)
+  expect_equal(sum(completecasestable$completeCases == nrow(df)-nMissing), 3)
   expect_equal(completecasestable[variableDetails=='entity.contB', completeCases], nrow(df))
   # number of completeCases should be < complete cases for each var
   expect_true(all(attr(dt, 'completeCasesAllVars')[1] < completecasestable$completeCases)) 

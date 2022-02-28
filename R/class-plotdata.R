@@ -59,25 +59,25 @@ newPlotdata <- function(.dt = data.table(),
   x <- veupathUtils::toColNameOrNull(xAxisVariable)
   xType <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataType))
   xShape <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataShape))
-  if (identical(veupathUtils::toStringOrNull(as.character(xAxisVariable$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, x)}
   y <- veupathUtils::toColNameOrNull(yAxisVariable)
   yType <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataType))
-  if (identical(veupathUtils::toStringOrNull(as.character(yAxisVariable$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, y)}
   z <- veupathUtils::toColNameOrNull(zAxisVariable)
   zType <- veupathUtils::toStringOrNull(as.character(zAxisVariable$dataType))
-  if (identical(veupathUtils::toStringOrNull(as.character(zAxisVariable$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, z)}
   group <- veupathUtils::toColNameOrNull(overlayVariable)
   groupType <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataType))
-  if (identical(veupathUtils::toStringOrNull(as.character(overlayVariable$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, group)}
   facet1 <- veupathUtils::toColNameOrNull(facetVariable1)
   facetType1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataType))
-  if (identical(veupathUtils::toStringOrNull(as.character(facetVariable1$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, facet1)}
   facet2 <- veupathUtils::toColNameOrNull(facetVariable2)
   facetType2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataType))
-  if (identical(veupathUtils::toStringOrNull(as.character(facetVariable2$naToZero)), 'TRUE')) {impute0cols <- c(impute0cols, facet2)}
+
+  # Extract names of vars for which naToZero is TRUE
+  # Note: if we want to change default behavior in the future, this predicate function is a good place to do it
+  impute0cols <- findColNamesByPredicate(list(xAxisVariable, yAxisVariable, zAxisVariable, overlayVariable, facetVariable1, facetVariable2),
+                                         function(x) {if (identical(x$naToZero, TRUE)) {return(TRUE)}})
 
   # Replace NAs with 0s if naToZero set
   if (!!length(impute0cols)) {
+    impute0Cols <- veupathUtils::validateNumericCols(.dt, cols=impute0cols)
     veupathUtils::setNaToZero(.dt, cols=impute0cols)
     veupathUtils::logWithTime(paste('Replaced NA with 0 in the following columns: ', impute0cols), verbose)
   }

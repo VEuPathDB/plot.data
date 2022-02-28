@@ -68,6 +68,17 @@ plotRefMapToList <- function(map, plotRef) {
   dataShape <- veupathUtils::toStringOrNull(map$dataShape[map$plotRef == plotRef])
   displayLabel <- veupathUtils::toStringOrNull(map$displayLabel[map$plotRef == plotRef])
   naToZero <- veupathUtils::toStringOrNull(map$naToZero[map$plotRef == plotRef])
+  
+  # Validate naToZero and fix if necessary
+  if (length(naToZero) == 0) {
+    naToZero <- ''
+  } else if (is.na(naToZero)) {
+    naToZero <- ''
+  } else {
+    if (identical(naToZero, 'TRUE')) naToZero <- TRUE
+    if (identical(naToZero, 'FALSE')) naToZero <- FALSE
+  }
+  if (!identical(naToZero, '') & !(naToZero %in% c(TRUE, FALSE))) {stop("plotRefMapToList error: Unrecognized value submitted for naToZero")}
 
   if (!is.null(variableId) & !is.null(entityId)) {
     if (all(variableId == entityId)) { entityId <- NULL }
@@ -315,4 +326,15 @@ toIdOrDisplayLabel <- function(colName, plotRef) {
       }
       return(name)
     }
+
+
+#' @importFrom purrr map
+findColNamesByPredicate <- function(variableList, predicateFunction) {
+
+  # For each variable in the variable list, return the column name if the predicate is true for that variable
+  colNames <- purrr::map(variableList, function(x) {if (identical(predicateFunction(x), TRUE)) {return(veupathUtils::toColNameOrNull(x))}})
+  colNames <- unlist(colNames)
+
+  return (colNames)
+}
 

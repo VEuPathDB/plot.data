@@ -67,22 +67,28 @@ test_that("plotRefMapToList returns displayLabel only when defined", {
  
 })
 
-test_that("plotRefMapToNull returns naToZero only when defined", {
+test_that("plotRefMapToNull handles many naToZero inputs", {
     
   # Set naToZero for some vars
-  map <- data.frame('id' = c('group', 'y', 'panel'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'),
-                    'naToZero' = c('TRUE','','FALSE'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('group', 'y', 'panel', 'x', 'z', 'w'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2', 'facetVariable3'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING', 'STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'),
+                    'naToZero' = c('TRUE','','FALSE', NA, TRUE, FALSE), stringsAsFactors=FALSE)
   
   xVariableDetails <- plotRefMapToList(map, 'xAxisVariable')
   yVariableDetails <- plotRefMapToList(map, 'yAxisVariable')
   overlayVariableDetails <- plotRefMapToList(map, 'overlayVariable')
+  facetVariableDetails1 <- plotRefMapToList(map, 'facetVariable1')
+  facetVariableDetails2 <- plotRefMapToList(map, 'facetVariable2')
+  facetVariableDetails3 <- plotRefMapToList(map, 'facetVariable3')
   
-  expect_equal(xVariableDetails$naToZero, 'FALSE')
-  expect_true(is.null(yVariableDetails$naToZero))
-  expect_equal(overlayVariableDetails$naToZero, 'TRUE')
+  expect_equal(xVariableDetails$naToZero, FALSE)
+  expect_equal(yVariableDetails$naToZero, '')
+  expect_equal(overlayVariableDetails$naToZero, TRUE)
+  expect_equal(facetVariableDetails1$naToZero, '')
+  expect_equal(facetVariableDetails2$naToZero, TRUE)
+  expect_equal(facetVariableDetails3$naToZero, FALSE)
 
 
 })
@@ -372,5 +378,20 @@ test_that("breaks returns appropriate results", {
   
   dt <- breaks(df, 'width', binwidth=0.5)
   expect_equal(length(dt), 59)
+})
+
+test_that("findColNamesByPredicate works", {
+
+  varList <- list(
+    list('variableId' = 'a', 'id' = 1)
+    , list('variableId' = 'b', 'id' = 1)
+    , list('variableId' = 'c', 'id' = 2)
+    , list('variableId' = 'd', 'id' = 4)
+  )
+
+  names <- findColNamesByPredicate(varList, function(x) {if (x$id == 1) return(TRUE)})
+  expect_equal(names, c('a','b'))
+  names <- findColNamesByPredicate(varList, function(x) {if (x$id != 2) return(TRUE)})
+  expect_equal(names, c('a','b','d'))
 })
 

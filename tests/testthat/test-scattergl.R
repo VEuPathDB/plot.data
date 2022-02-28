@@ -661,7 +661,7 @@ test_that("scattergl.dt() returns correct information about missing data", {
                     'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 
-                    'naToZero' = c('FALSE','', 'TRUE','FALSE'), stringsAsFactors=FALSE)
+                    'naToZero' = c(FALSE,'', 'TRUE', NA), stringsAsFactors=FALSE)
 
 
   dt <- scattergl.dt(df, map, 'raw')

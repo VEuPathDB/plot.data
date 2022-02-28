@@ -599,10 +599,10 @@ test_that("histogram() returns appropriately formatted json", {
 })
 
 test_that("histogram.dt() returns correct information about missing data", {
-  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
-                    'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
-                    'dataType' = c('STRING', 'NUMBER', 'STRING'), 
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4', 'entity.cat5'), 
+                    'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1', 'overlayVariable'), 
+                    'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), 
                     stringsAsFactors=FALSE)
                     
   # Add nMissing missing values to each column
@@ -624,17 +624,17 @@ test_that("histogram.dt() returns correct information about missing data", {
 
 
   ## Using naToZero to change some NAs to 0
-  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4'), 
-                    'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'), 
-                    'dataType' = c('STRING', 'NUMBER', 'STRING'), 
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), 
-                    'naToZero' = c('FALSE', 'TRUE', ''), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.cat4', 'entity.cat5'), 
+                    'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1', 'overlayVariable'), 
+                    'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), 
+                    'naToZero' = c('FALSE', TRUE, '', NA), stringsAsFactors=FALSE)
 
 
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
   completecasestable <- completeCasesTable(dt)
   # Each entry except 'contB' should equal NROW(df) - nMissing
-  expect_equal(sum(completecasestable$completeCases == nrow(df)-nMissing), 2)
+  expect_equal(sum(completecasestable$completeCases == nrow(df)-nMissing), 3)
   expect_equal(completecasestable[variableDetails=='entity.contA', completeCases], nrow(df))
   # number of completeCases should be < complete cases for each var
   expect_true(all(attr(dt, 'completeCasesAllVars')[1] < completecasestable$completeCases)) 
