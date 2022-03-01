@@ -115,6 +115,8 @@ outliers <- function(x) {
 #' @return data.table with two columns: x) the coordinates of the points where the density is estimated and y) the estimated density values. These will be non-negative, but can be zero. 
 #' @export
 densityCurve <- function(x) {
+  if (!length(x) || all(is.na(x))) { return(list('densityX'=numeric(0),
+                                                 'densityY'=numeric(0))) }
   curve <- stats::density(x)
   return(list("densityX" = c(curve$x), "densityY" = c(curve$y)))
 }
@@ -185,6 +187,9 @@ predictdf.gam <- function(model, xseq, se = TRUE, level = .95) {
 
 #' @export
 bestFitLine <- function(dt, collapse = TRUE) {
+  if (sum(complete.cases(dt)) == 0) { return(data.table::data.table('bestFitLineX'=numeric(0),
+                                                                   'bestFitLineY'=numeric(0),
+                                                                   'r2'=NA))}
   xseq <- sort(unique(dt$x))
   linearModel <- stats::lm(y ~ x, dt)
 
@@ -232,9 +237,11 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
   if (any(veupathUtils::is.error(smoothed))) {
     dt <- data.table::data.table("smoothedMeanX" = list(numeric()), "smoothedMeanY" = list(numeric()), "smoothedMeanSE" = list(numeric()), "smoothedMeanError" = jsonlite::unbox(as.character(smoothed[1])))
   } else {
-    smoothed <- data.table::as.data.table(predictdf(smoothed, xseq))
-
-    if (exists('dateMap')) {
+    smoothed <- try(data.table::as.data.table(predictdf(smoothed, xseq)))
+    if (any(veupathUtils::is.error(smoothed))) {
+      dt <- data.table::data.table("smoothedMeanX" = list(numeric()), "smoothedMeanY" = list(numeric()), "smoothedMeanSE" = list(numeric()), "smoothedMeanError" = jsonlite::unbox(as.character(smoothed[1]))) 
+    } else {
+      if (exists('dateMap')) {
       smoothed$x <- dateMap[match(smoothed$x, dateMap$numeric),]$date
     }
 
@@ -242,6 +249,7 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
       dt <- data.table::data.table("smoothedMeanX" = list(as.character(smoothed$x)), "smoothedMeanY" = list(smoothed$y), "smoothedMeanSE" = list(smoothed$se), "smoothedMeanError" = jsonlite::unbox(""))
     } else {
       dt <- data.table::data.table("smoothedMeanX" = as.character(smoothed$x), "smoothedMeanY" = smoothed$y, "smoothedMeanSE" = smoothed$se, "smoothedMeanError" = jsonlite::unbox(""))
+    }
     }
   }
 
@@ -256,10 +264,19 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
 #' @importFrom stats chisq.test
 #' @export
 oddsRatio <- function(tbl) {
+  if (!length(tbl)) {
+    return(data.table::data.table('oddsratio'=jsonlite::unbox(NA), 
+                                  'orInterval'=jsonlite::unbox(NA), 
+                                  'pvalue'=jsonlite::unbox(NA)))
+  }
+
+  nRows <- nrow(tbl)
+  nCols <- ncol(tbl)
+
   a <- tbl[1,1]
-  b <- tbl[2,1]
-  c <- tbl[1,2]
-  d <- tbl[2,2]
+  b <- ifelse(nRows > 1, tbl[2,1], 0)
+  c <- ifelse(nCols > 1, tbl[1,2], 0)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
 
   OR <- (a*d)/(b*c)
   OR <- round(OR, digits=4)
@@ -276,7 +293,9 @@ oddsRatio <- function(tbl) {
   p <- p$p.value
   p <- round(p, digits=4)
  
-  dt <- data.table::data.table('oddsratio'=jsonlite::unbox(OR), 'orInterval'=jsonlite::unbox(paste0(ORlo, "-", ORhi)), 'pvalue'=jsonlite::unbox(p))
+  dt <- data.table::data.table('oddsratio'=jsonlite::unbox(OR), 
+                               'orInterval'=jsonlite::unbox(paste0(ORlo, "-", ORhi)), 
+                               'pvalue'=jsonlite::unbox(p))
 
   return(dt)
 }
@@ -288,10 +307,19 @@ oddsRatio <- function(tbl) {
 #' @return data.table
 #' @export
 relativeRisk <- function(tbl) {
+  if (!length(tbl)) {
+    return(data.table::data.table('relativerisk'=jsonlite::unbox(NA), 
+                                  'rrInterval'=jsonlite::unbox(NA), 
+                                  'pvalue'=jsonlite::unbox(NA)))
+  }
+  
+  nRows <- nrow(tbl)
+  nCols <- ncol(tbl)
+
   a <- tbl[1,1]
-  b <- tbl[2,1]
-  c <- tbl[1,2]
-  d <- tbl[2,2]
+  b <- ifelse(nRows > 1, tbl[2,1], 0)
+  c <- ifelse(nCols > 1, tbl[1,2], 0)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
 
   RR <- (a/(a+b)) / (c/(c+d))
   RR <- round(RR, digits=4)
@@ -308,16 +336,29 @@ relativeRisk <- function(tbl) {
   p <- p$p.value
   p <- round(p, digits=4)
 
-  dt <- data.table::data.table('relativerisk'=jsonlite::unbox(RR), 'rrInterval'=jsonlite::unbox(paste0(RRlo, "-", RRhi)), 'pvalue'=jsonlite::unbox(p))
+  dt <- data.table::data.table('relativerisk'=jsonlite::unbox(RR), 
+                               'rrInterval'=jsonlite::unbox(paste0(RRlo, "-", RRhi)), 
+                               'pvalue'=jsonlite::unbox(p))
 
   return(dt)
 }
 
 bothRatios <- function(tbl, collapse = TRUE) {
+  if (!length(tbl)) {
+    return(data.table::data.table('oddsratio'=jsonlite::unbox(NA), 
+                                  'relativerisk'=jsonlite::unbox(NA), 
+                                  'orInterval'=jsonlite::unbox(NA), 
+                                  'rrInterval'=jsonlite::unbox(NA), 
+                                  'pvalue'=jsonlite::unbox(NA)))
+  }
+
+  nRows <- nrow(tbl)
+  nCols <- ncol(tbl)
+
   a <- tbl[1,1]
-  b <- tbl[2,1]
-  c <- tbl[1,2]
-  d <- tbl[2,2]
+  b <- ifelse(nRows > 1, tbl[2,1], 0)
+  c <- ifelse(nCols > 1, tbl[1,2], 0)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
 
   OR <- (a*d)/(b*c)
   RR <- (a/(a+b)) / (c/(c+d))
@@ -343,14 +384,26 @@ bothRatios <- function(tbl, collapse = TRUE) {
   p <- p$p.value
   p <- round(p, digits=4)
 
-  dt <- data.table::data.table('oddsratio'=jsonlite::unbox(OR), 'relativerisk'=jsonlite::unbox(RR), 'orInterval'=jsonlite::unbox(paste0(ORlo, '-', ORhi)), 'rrInterval'=jsonlite::unbox(paste0(RRlo, '-', RRhi)), 'pvalue'=jsonlite::unbox(p))
+  dt <- data.table::data.table('oddsratio'=jsonlite::unbox(OR), 
+                               'relativerisk'=jsonlite::unbox(RR), 
+                               'orInterval'=jsonlite::unbox(paste0(ORlo, '-', ORhi)), 
+                               'rrInterval'=jsonlite::unbox(paste0(RRlo, '-', RRhi)), 
+                               'pvalue'=jsonlite::unbox(p))
 
   return(dt)
 }
 
 chiSq <- function(tbl, collapse = TRUE) {
+  if (!length(tbl)) {
+    return(data.table::data.table('chisq'=jsonlite::unbox(NA), 
+                                  'pvalue'=jsonlite::unbox(NA), 
+                                  'degreesFreedom'=jsonlite::unbox(NA)))
+  }
+
   chisq <- chisq.test(tbl)
-  dt <- data.table::data.table('chisq'=jsonlite::unbox(chisq$statistic), 'pvalue'=jsonlite::unbox(chisq$p.value), 'degreesFreedom'=jsonlite::unbox(chisq$parameter))
+  dt <- data.table::data.table('chisq'=jsonlite::unbox(chisq$statistic), 
+                               'pvalue'=jsonlite::unbox(chisq$p.value), 
+                               'degreesFreedom'=jsonlite::unbox(chisq$parameter))
 
   return(dt)
 }

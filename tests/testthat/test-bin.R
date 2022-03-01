@@ -79,3 +79,13 @@ test_that("binProportion() returns an appropriately sized data.table", {
   
 })
 
+test_that("findBinSliderValues() returns integers for integer types.", {
+  #for robust test, need the avg digits to not reflect a real number of digits in the sample
+  x <- c(2, 1000:9999)
+  xType <- 'INTEGER'
+
+  binSlider <- findBinSliderValues.numeric(x, xType)
+  expect_equal(as.numeric(binSlider$min %% 1), 0)
+  expect_equal(as.numeric(binSlider$max %% 1), 0)
+  expect_equal(as.numeric(binSlider$step %% 1), 0)
+})
