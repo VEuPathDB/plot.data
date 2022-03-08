@@ -31,23 +31,24 @@ proportionCI <- function(numerator, denominator, conf.level=.95) {
   return(list(ci))
 }
 
-#not sure i like the heuristic here. maybe a class and methods could help us at some point..
 simpleSampleSize <- function(x) {
-  if (length(x) == 1 & is.numeric(x)) {
-    list(list("N" = jsonlite::unbox(x)))
-  } else {
-    list(list("N" = jsonlite::unbox(length(x))))
-  }  
+  list(list("N" = jsonlite::unbox(length(x))))
+}
+
+formatSimpleSampleSize <- function(x) {
+  if (length(x) > 1) stop("`x` must be a single number representing the number of samples.")
+  list(list("N" = jsonlite::unbox(x)))
 }
 
 proportionSampleSize <- function(numerator, denominator) {
-  if (length(numerator) == 1 & length(denominator) == 1 & is.numeric(c(numerator, denominator))) {
-    list(list("numeratorN"=jsonlite::unbox(numerator), 
-         "denominatorN"=jsonlite::unbox(denominator)))
-  } else {
-    list(list("numeratorN"=jsonlite::unbox(length(numerator)), 
-         "denominatorN"=jsonlite::unbox(length(denominator))))
-  }
+  list(list("numeratorN"=jsonlite::unbox(length(numerator)), 
+            "denominatorN"=jsonlite::unbox(length(denominator))))
+}
+
+formatProportionSampleSize <- function(numerator, denominator) {
+  if (length(numerator) > 1 || length(denominator) > 1) stop("`numerator` and `denominator` must be single numbers representing the number of samples.")
+  list(list("numeratorN"=jsonlite::unbox(numerator), 
+            "denominatorN"=jsonlite::unbox(denominator)))
 }
 
 roundedSD <- function(x, digits = 4, ...) {

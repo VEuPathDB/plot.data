@@ -137,14 +137,14 @@ binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWid
     data <- data[, { numeratorCount = sum(numeratorValues %in% get(..y)); 
                      denominatorCount = sum(denominatorValues %in% get(..y));
                      list(value=roundedRatio(numeratorCount, denominatorCount),
-                          binSampleSize=proportionSampleSize(numeratorCount, denominatorCount),
+                          binSampleSize=formatProportionSampleSize(numeratorCount, denominatorCount),
                           errorBars=proportionCI(numeratorCount, denominatorCount))}, 
                      by=eval(byCols)]
   } else {
     data <- data[, { numeratorCount = sum(numeratorValues %in% get(..y));
                      denominatorCount = sum(denominatorValues %in% get(..y));
                      list(value=roundedRatio(numeratorCount, denominatorCount),
-                          binSampleSize=proportionSampleSize(numeratorCount, denominatorCount))}, 
+                          binSampleSize=formatProportionSampleSize(numeratorCount, denominatorCount))}, 
                      by=eval(byCols)]
   }
 
