@@ -1,7 +1,7 @@
 medianCI <- function(x, conf.level=.95) {
   w <- try(wilcox.test(x, conf.int=T, conf.level=conf.level))
   if (veupathUtils::is.error(w)) {
-    ci <- list('lowerBound'=numeric(), 'upperBound'=numeric(), 'error'=jsonlite::unbox(w[1]))
+    ci <- list('lowerBound'=jsonlite::unbox(NA), 'upperBound'=jsonlite::unbox(NA), 'error'=jsonlite::unbox(w[1]))
   } else {
     ci <- list('lowerBound'=jsonlite::unbox(w$conf.int[1]), 'upperBound'=jsonlite::unbox(w$conf.int[2]), 'error'=jsonlite::unbox(""))
   }
@@ -12,7 +12,7 @@ medianCI <- function(x, conf.level=.95) {
 meanCI <- function(x, conf.level=.95) {
   t <- try(t.test(x, conf.int=T, conf.level=conf.level))
   if (veupathUtils::is.error(t)) {
-    ci <- list('lowerBound'=numeric(), 'upperBound'=numeric(), 'error'=jsonlite::unbox(t[1]))
+    ci <- list('lowerBound'=jsonlite::unbox(NA), 'upperBound'=jsonlite::unbox(NA), 'error'=jsonlite::unbox(t[1]))
   } else {
     ci <- list('lowerBound'=jsonlite::unbox(t$conf.int[1]), 'upperBound'=jsonlite::unbox(t$conf.int[2]), 'error'=jsonlite::unbox(""))
   }
@@ -23,7 +23,7 @@ meanCI <- function(x, conf.level=.95) {
 proportionCI <- function(numerator, denominator, conf.level=.95) {
   b <- try(binom.test(numerator, denominator, conf.level=conf.level))
   if (veupathUtils::is.error(b)) {
-    ci <- list('lowerBound'=numeric(), 'upperBound'=numeric(), 'error'=jsonlite::unbox(b[1]))
+    ci <- list('lowerBound'=jsonlite::unbox(NA), 'upperBound'=jsonlite::unbox(NA), 'error'=jsonlite::unbox(b[1]))
   } else {
     ci <- list('lowerBound'=jsonlite::unbox(b$conf.int[1]), 'upperBound'=jsonlite::unbox(b$conf.int[2]), 'error'=jsonlite::unbox(""))
   }
