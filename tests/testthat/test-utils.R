@@ -84,9 +84,9 @@ test_that("plotRefMapToNull handles many naToZero inputs", {
   facetVariableDetails3 <- plotRefMapToList(map, 'facetVariable3')
   
   expect_equal(xVariableDetails$naToZero, FALSE)
-  expect_equal(yVariableDetails$naToZero, '')
+  expect_equal(yVariableDetails$naToZero, FALSE)
   expect_equal(overlayVariableDetails$naToZero, TRUE)
-  expect_equal(facetVariableDetails1$naToZero, '')
+  expect_equal(facetVariableDetails1$naToZero, FALSE)
   expect_equal(facetVariableDetails2$naToZero, TRUE)
   expect_equal(facetVariableDetails3$naToZero, FALSE)
 

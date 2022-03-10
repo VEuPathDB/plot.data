@@ -73,9 +73,11 @@ plotRefMapToList <- function(map, plotRef) {
   
   # Validate naToZero and fix if necessary
   if (length(naToZero) == 0) {
-    naToZero <- ''
-  } else if (is.na(naToZero)) {
-    naToZero <- ''
+    warning("Encountered empty naToZero value. Setting naToZero = FALSE.")
+    naToZero <- FALSE
+  } else if (is.na(naToZero) || naToZero=='') {
+    warning("Encountered '' or NA as the naToZero value. Setting naToZero = FALSE.")
+    naToZero <- FALSE
   } else {
     if (identical(naToZero, 'TRUE')) naToZero <- TRUE
     if (identical(naToZero, 'FALSE')) naToZero <- FALSE
