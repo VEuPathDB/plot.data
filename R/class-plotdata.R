@@ -1,5 +1,7 @@
 ### evilMode will do the following:
-###   - return 'no data' as a regular value for strata vars but will discard such cases for the axes vars
+###   - when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars.
+###   - when `allVariables` it will return 'no data' as a regular value for all variables.
+###   - when `noVariables` it will do the sensible thing and return complete cases only.
 ###   - not return statsTables
 ###   - allow smoothed means and agg values etc over axes values where we have no data for the strata vars
 ###   - return a total count of plotted incomplete cases
@@ -37,7 +39,7 @@ newPlotdata <- function(.dt = data.table(),
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL),
-                         evilMode = logical(),
+                         evilMode = character(),
                          collectionVariableDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
                                                'collectionVariablePlotRef' = NULL),
@@ -63,6 +65,7 @@ newPlotdata <- function(.dt = data.table(),
   facet2 <- veupathUtils::toColNameOrNull(facetVariable2)
   facetType2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataType))
 
+  isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
 
   varCols <- c(x, y, z, group, facet1, facet2)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
@@ -103,7 +106,7 @@ newPlotdata <- function(.dt = data.table(),
 
     # Validation
     if (is.null(collectionVariableDetails$inferredVariable$variableId)) stop('collectionVar error: listValue variableId must not be NULL')
-    if (collectionVariableDetails$collectionVariablePlotRef != 'xAxisVariable' & evilMode) stop('collectionVar error: evilMode not compatible.')
+    if (collectionVariableDetails$collectionVariablePlotRef != 'xAxisVariable' & isEvil) stop('collectionVar error: evilMode not compatible. Try setting this argument to `noVariables` instead.')
     collectionVariable <- validatecollectionVar(collectionVariable)
     veupathUtils::logWithTime('collectionVariable has been validated.', verbose)
 
@@ -192,13 +195,21 @@ newPlotdata <- function(.dt = data.table(),
   completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[complete.cases(.dt[, c(x,y), with=FALSE]),]))
   veupathUtils::logWithTime('Determined total number of complete cases across axes and strata vars.', verbose)
 
-  if (evilMode) {
+  if (isEvil) {
     # Assign NA strata values to 'No data', with the exception of continuous overlays which should stay numeric
+    # TODO at some point i want to make sure our logic here is solid. 
+    # is it possible for a continuous overlay to represent something other than color for ex? and what then?
     if (!is.null(group) && !identical(overlayVariable$dataShape,'CONTINUOUS')) { .dt[[group]][is.na(.dt[[group]])] <- 'No data' }
     if (!is.null(panel)) { .dt[[panel]][is.na(.dt[[panel]])] <- 'No data' }
-    axesCols <- c(x, y, z)
-    axesDT <- .dt[, axesCols, with = FALSE]
-    .dt <- .dt[complete.cases(axesDT)]
+    if (evilMode == 'allVariables') {
+      if (!is.null(x)) { .dt[[x]][is.na(.dt[[x]])] <- 'No data' }
+      if (!is.null(y)) { .dt[[y]][is.na(.dt[[y]])] <- 'No data' }
+      if (!is.null(z)) { .dt[[z]][is.na(.dt[[z]])] <- 'No data' }
+    } else {
+      axesCols <- c(x, y, z)
+      axesDT <- .dt[, axesCols, with = FALSE]
+      .dt <- .dt[complete.cases(axesDT)]
+    }   
   } else { 
     .dt <- .dt[complete.cases(.dt),]
   }

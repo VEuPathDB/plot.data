@@ -26,7 +26,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          binReportValue = character(),
                          value = character(),
                          barmode = character(),
-                         evilMode = logical(),
+                         evilMode = character(),
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -197,7 +197,9 @@ validateHistogramPD <- function(.histo, verbose) {
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+#' - when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+#' - when `noVariables` it will do the sensible thing and return complete cases only. \cr
 #' - not return statsTables \cr
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
@@ -215,7 +217,7 @@ validateHistogramPD <- function(.histo, verbose) {
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @importFrom stringi stri_count_regex
@@ -243,7 +245,7 @@ histogram.dt <- function(data,
                          binReportValue = c('binWidth', 'numBins'),
                          barmode = c('stack', 'overlay'),
                          viewport = NULL,
-                         evilMode = c(FALSE, TRUE),
+                         evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                          verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
@@ -300,7 +302,9 @@ histogram.dt <- function(data,
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+#' - when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+#' - when `noVariables` it will do the sensible thing and return complete cases only. \cr
 #' - not return statsTables \cr
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
@@ -318,7 +322,7 @@ histogram.dt <- function(data,
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @importFrom jsonlite unbox
@@ -345,7 +349,7 @@ histogram <- function(data,
                       binReportValue = c('binWidth', 'numBins'), 
                       barmode = c('stack', 'overlay'),
                       viewport = NULL,
-                      evilMode = c(FALSE, TRUE),
+                      evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)

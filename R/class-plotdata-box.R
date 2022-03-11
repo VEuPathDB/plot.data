@@ -27,7 +27,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                          points = character(),
                          mean = logical(),
                          computeStats = logical(),
-                         evilMode = logical(),
+                         evilMode = character(),
                          collectionVariableDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
                                                'collectionVariablePlotRef' = NULL),
@@ -63,7 +63,9 @@ newBoxPD <- function(.dt = data.table::data.table(),
   fences <- fences[, -x, with = FALSE]
   veupathUtils::logWithTime('Calculated five-number summaries and upper and lower fences for boxplot.', verbose)
 
-  if (!evilMode && computeStats) {
+  isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
+
+  if (!isEvil && computeStats) {
     
     if (is.null(group)) {
       # If no overlay, then compute across x per panel
@@ -154,7 +156,9 @@ validateBoxPD <- function(.box, verbose) {
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+#' - when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+#' - when `noVariables` it will do the sensible thing and return complete cases only. \cr
 #' - not return statsTables \cr
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
@@ -170,11 +174,10 @@ validateBoxPD <- function(.box, verbose) {
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.
 #' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
 #' Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @examples
@@ -197,7 +200,7 @@ box.dt <- function(data, map,
                    points = c('outliers', 'all', 'none'), 
                    mean = c(FALSE, TRUE), 
                    computeStats = c(FALSE, TRUE), 
-                   evilMode = c(FALSE, TRUE),
+                   evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    collectionVariablePlotRef = NULL,
                    computedVariableMetadata = NULL,
                    verbose = c(TRUE, FALSE)) {
@@ -208,8 +211,9 @@ box.dt <- function(data, map,
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
 
-  if (evilMode && computeStats) {
-    warning('evilMode and computeStats are not compatible! computeStats will be ignored!')
+  isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
+  if (isEvil && computeStats) {
+    warning('evilModes `allVariables` and `strataVariables` are not compatible with computeStats! computeStats will be ignored!')
   }
 
   if (!'data.table' %in% class(data)) {
@@ -291,7 +295,9 @@ box.dt <- function(data, map,
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+#' - when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+#' - when `noVariables` it will do the sensible thing and return complete cases only. \cr
 #' - not return statsTables \cr
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
@@ -307,7 +313,7 @@ box.dt <- function(data, map,
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.
 #' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
 #' Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.
@@ -332,7 +338,7 @@ box <- function(data, map,
                 points = c('outliers', 'all', 'none'), 
                 mean = c(FALSE, TRUE), 
                 computeStats = c(FALSE, TRUE), 
-                evilMode = c(FALSE, TRUE),
+                evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                 collectionVariablePlotRef = NULL,
                 computedVariableMetadata = NULL,
                 verbose = c(TRUE, FALSE)) {
