@@ -30,13 +30,18 @@ newPiePD <- function(.dt = data.table::data.table(),
 
   attr <- attributes(.pd)
 
-
-  # TODO here well have to check if xAxis has >8 values and rank if so. 
-  # also make an attr listing the ranked values.
-
   x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
   .pd[[x]] <- as.character(.pd[[x]])
+
+  ranked <- .pd[, .N, by=x]
+  data.table::setorderv(ranked, c("N"),-1)
+  rankedValues <- ranked[[x]]
+  if (length(rankedValues) > 8) {
+    rankedValues <- c(rankedValues[1:7], 'Other')
+    .pd[[x]][!.pd[[x]] %in% rankedValues] <- 'Other'
+  }
+  attr$rankedValues <- rankedValues
 
   if (value == 'count' ) {
     .pd$dummy <- 1
