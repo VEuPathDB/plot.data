@@ -76,7 +76,8 @@ newPlotdata <- function(.dt = data.table(),
     .dt <- data.table::setDT(panelData[[1]])
     panel <- panelData[[2]]
     if (!is.null(panel)){
-      if (uniqueN(.dt[[panel]]) > 25) stop("Maximum number of panels allowed is 25.")
+      # pie, our outlier, is breaking this rule in the map
+      #if (uniqueN(.dt[[panel]]) > 25) stop("Maximum number of panels allowed is 25.")
     }
   } else {
     panel <- c(facet1, facet2)
