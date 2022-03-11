@@ -9,7 +9,7 @@ scattergl(
   map,
   value = c("smoothedMean", "smoothedMeanWithRaw", "bestFitLineWithRaw", "density",
     "raw"),
-  evilMode = c(FALSE, TRUE),
+  evilMode = c("noVariables", "allVariables", "strataVariables"),
   collectionVariablePlotRef = NULL,
   computedVariableMetadata = NULL,
   verbose = c(TRUE, FALSE)
@@ -26,7 +26,7 @@ and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yA
 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw 
 data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.}
 
-\item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
+\item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 
 \item{collectionVariablePlotRef}{string indicating the plotRef to be considered as a collectionVariable. 
 Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables 
@@ -56,8 +56,9 @@ gradient colorscale when plotting.
 \section{Evil Mode}{
 
 An `evilMode` exists. It will do the following: \cr
-- return 'No data' as a regular value for strata vars but will discard incomplete 
-cases for the axes vars \cr
+- when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+- when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+- when `noVariables` it will do the sensible thing and return complete cases only. \cr
 - not return statsTables \cr
 - allow smoothed means and agg values etc over axes values where we have no data for 
 the strata vars \cr

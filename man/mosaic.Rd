@@ -8,7 +8,7 @@ mosaic(
   data,
   map,
   statistic = NULL,
-  evilMode = c(FALSE, TRUE),
+  evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
 }
@@ -19,7 +19,7 @@ mosaic(
 
 \item{statistic}{String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.}
 
-\item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
+\item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 
 \item{verbose}{boolean indicating if timed logging is desired}
 }
@@ -35,7 +35,9 @@ specifies the panel the data belongs to.
 \section{Evil Mode}{
 
 An `evilMode` exists. It will do the following: \cr
-- return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+- when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+- when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+- when `noVariables` it will do the sensible thing and return complete cases only. \cr
 - not return statsTables \cr
 - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 - return a total count of plotted incomplete cases \cr
