@@ -773,7 +773,7 @@ test_that("lineplot.dt() returns correct information about missing data", {
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE) 
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-  dt <- lineplot.dt(df, map, value = 'mean', evilMode=TRUE)
+  dt <- lineplot.dt(df, map, value = 'mean', evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.repeatedContA) & !is.na(df$entity.contB)))
 })
 

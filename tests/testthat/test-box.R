@@ -584,10 +584,10 @@ test_that("box() returns appropriately formatted json", {
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'),
                     'displayLabel' = c('','','panelLabel'), stringsAsFactors=FALSE)
 
-  dt <- box.dt(df, map, 'none', FALSE, TRUE, TRUE)
+  dt <- box.dt(df, map, 'none', FALSE, TRUE, 'strataVariables')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
-  # no stats table even if requested, when evilMode is TRUE
+  # no stats table even if requested, when evilMode is 'strataVariables'
   expect_equal(names(jsonList), c('boxplot', 'sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId','displayLabel'))
   expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId'))
@@ -804,7 +804,7 @@ test_that("box.dt() returns correct information about missing data", {
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-  dt <- box.dt(df, map, points = 'none', mean = FALSE, computeStats = TRUE, evilMode = TRUE)
+  dt <- box.dt(df, map, points = 'none', mean = FALSE, computeStats = TRUE, evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB) & !is.na(df$entity.cat4))) 
 })
 

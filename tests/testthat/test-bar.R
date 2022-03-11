@@ -376,7 +376,7 @@ test_that("bar.dt() returns correct information about missing data", {
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-  dt <- bar.dt(df, map, value='count', evilMode = TRUE)
+  dt <- bar.dt(df, map, value='count', evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA)))
 })
 

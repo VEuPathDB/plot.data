@@ -533,7 +533,7 @@ test_that("mosaic() returns appropriately formatted json", {
                     'dataType' = c('NUMBER', 'NUMBER'),
                     'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- mosaic.dt(df, map, evilMode = TRUE)
+  dt <- mosaic.dt(df, map, evilMode = 'strataVariables')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
@@ -567,7 +567,7 @@ test_that("mosaic.dt() returns correct information about missing data", {
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE) 
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-  dt <- mosaic.dt(df, map, evilMode = TRUE)
+  dt <- mosaic.dt(df, map, evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.binB) & !is.na(df$entity.binA)))
 })
 
