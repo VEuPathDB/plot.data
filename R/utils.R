@@ -72,17 +72,18 @@ plotRefMapToList <- function(map, plotRef) {
   naToZero <- veupathUtils::toStringOrNull(map$naToZero[map$plotRef == plotRef])
   
   # Validate naToZero and fix if necessary
+  # NOTE failing to set naToZero will result in a default value of FALSE
   if (length(naToZero) == 0) {
-    warning("Encountered empty naToZero value. Setting naToZero = FALSE.")
+    warning("Encountered empty or NULL naToZero value. Setting naToZero = FALSE.")
     naToZero <- FALSE
-  } else if (is.na(naToZero) || naToZero=='') {
+  } else if (is.na(naToZero) || naToZero == '') {
     warning("Encountered '' or NA as the naToZero value. Setting naToZero = FALSE.")
     naToZero <- FALSE
   } else {
     if (identical(naToZero, 'TRUE')) naToZero <- TRUE
     if (identical(naToZero, 'FALSE')) naToZero <- FALSE
   }
-  if (!identical(naToZero, '') & !(naToZero %in% c(TRUE, FALSE))) {stop("plotRefMapToList error: Unrecognized value submitted for naToZero")}
+  if (!(naToZero %in% c(TRUE, FALSE))) {stop("plotRefMapToList error: Unrecognized value submitted for naToZero")}
 
   if (!is.null(variableId) & !is.null(entityId)) {
     if (all(variableId == entityId)) { entityId <- NULL }
