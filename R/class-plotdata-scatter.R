@@ -57,7 +57,10 @@ newScatterPD <- function(.dt = data.table::data.table(),
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
   if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
-    series <- collapseByGroup(.pd, group = NULL, panel)
+    .pd$overlayMissingData <- is.na(.pd[[group]])
+    series <- collapseByGroup(.pd, group = 'overlayMissingData', panel)
+    .pd$overlayMissingData <- NULL
+    series$overlayMissingData <- NULL
     data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale'))
   } else {
     series <- collapseByGroup(.pd, group, panel)
@@ -66,13 +69,20 @@ newScatterPD <- function(.dt = data.table::data.table(),
  
   if (attr$xAxisVariable$dataType == 'DATE') {
     series$seriesX <- lapply(series$seriesX, format, '%Y-%m-%d')
-  } else { 
+  } else {
     series$seriesX <- lapply(series$seriesX, as.character)
   }
   if (attr$yAxisVariable$dataType == 'DATE') {
     series$seriesY <- lapply(series$seriesY, format, '%Y-%m-%d')
   } else {
     series$seriesY <- lapply(series$seriesY, as.character)
+  }
+  if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
+    if (identical(attr$overlayVariable$dataType,'DATE')) {
+      series$seriesGradientColorscale <- lapply(series$seriesGradientColorscale, format, '%Y-%m-%d')
+    } else {
+      series$seriesGradientColorscale <- lapply(series$seriesGradientColorscale, as.character)
+    }
   }
   veupathUtils::logWithTime('Collected raw scatter plot data.', verbose)
 

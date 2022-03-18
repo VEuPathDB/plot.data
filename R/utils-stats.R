@@ -1,53 +1,72 @@
 medianCI <- function(x, conf.level=.95) {
-  w <- try(wilcox.test(x, conf.int=T, conf.level=conf.level))
-  if (veupathUtils::is.error(w)) {
-    ci <- list('lowerBound'=numeric(), 'upperBound'=numeric(), 'error'=jsonlite::unbox(w[1]))
+  x <- x[order(x)]
+  n <- length(x)
+  z <- qnorm(p=(1-conf.level)/2, lower.tail=FALSE)
+  j <- ceiling(.5*n - z*sqrt(n*.25))
+  k <- ceiling(.5*n + z*sqrt(n*.25))
+
+  if (j < 1 || k > length(x)) {
+    ci <- list('lowerBound'=jsonlite::unbox(NA), 'upperBound'=jsonlite::unbox(NA), 'error'=jsonlite::unbox("Failed to determine confidence interval for median."))
   } else {
-    ci <- list('lowerBound'=jsonlite::unbox(w$conf.int[1]), 'upperBound'=jsonlite::unbox(w$conf.int[2]), 'error'=jsonlite::unbox(""))
+    ci <- list('lowerBound'=jsonlite::unbox(x[j]), 'upperBound'=jsonlite::unbox(x[k]), 'error'=jsonlite::unbox(""))
   }
 
   return(list(ci))
 }
 
 meanCI <- function(x, conf.level=.95) {
-  t <- try(t.test(x, conf.int=T, conf.level=conf.level))
-  if (veupathUtils::is.error(t)) {
-    ci <- list('lowerBound'=numeric(), 'upperBound'=numeric(), 'error'=jsonlite::unbox(t[1]))
+  sd <- sd(x)
+  n <- length(x)
+  z <- qnorm(p=(1-conf.level)/2, lower.tail=FALSE)
+  lowerBound <- mean(x) - z*sd/sqrt(n)
+  upperBound <- mean(x) + z*sd/sqrt(n)
+
+  if (any(is.na(c(lowerBound, upperBound)))) {
+    ci <- list('lowerBound'=jsonlite::unbox(NA), 'upperBound'=jsonlite::unbox(NA), 'error'=jsonlite::unbox("Failed to determine confidence interval for mean."))
   } else {
-    ci <- list('lowerBound'=jsonlite::unbox(t$conf.int[1]), 'upperBound'=jsonlite::unbox(t$conf.int[2]), 'error'=jsonlite::unbox(""))
+    ci <- list('lowerBound'=jsonlite::unbox(lowerBound), 'upperBound'=jsonlite::unbox(upperBound), 'error'=jsonlite::unbox(""))
   }
+  
 
   return(list(ci))
 }
 
 proportionCI <- function(numerator, denominator, conf.level=.95) {
-  b <- try(binom.test(numerator, denominator, conf.level=conf.level))
-  if (veupathUtils::is.error(b)) {
-    ci <- list('lowerBound'=numeric(), 'upperBound'=numeric(), 'error'=jsonlite::unbox(b[1]))
+  p <- numerator/denominator
+  n <- denominator
+  z <- qnorm(p=(1-conf.level)/2, lower.tail=FALSE)
+  lowerBound <- p - z*sqrt(p*(1-p)/n)
+  lowerBound <- ifelse(lowerBound < 0, 0, lowerBound)
+  upperBound <- p + z*sqrt(p*(1-p)/n)
+  upperBound <- ifelse(upperBound > 1, 1, upperBound)
+
+  if (any(is.na(c(lowerBound, upperBound))) || any(!length(c(lowerBound, upperBound)))) {
+    ci <- list('lowerBound'=jsonlite::unbox(NA), 'upperBound'=jsonlite::unbox(NA), 'error'=jsonlite::unbox("Failed to determine confidence interval for proportion."))
   } else {
-    ci <- list('lowerBound'=jsonlite::unbox(b$conf.int[1]), 'upperBound'=jsonlite::unbox(b$conf.int[2]), 'error'=jsonlite::unbox(""))
+    ci <- list('lowerBound'=jsonlite::unbox(lowerBound), 'upperBound'=jsonlite::unbox(upperBound), 'error'=jsonlite::unbox(""))
   }
 
   return(list(ci))
 }
 
-#not sure i like the heuristic here. maybe a class and methods could help us at some point..
 simpleSampleSize <- function(x) {
-  if (length(x) == 1 & is.numeric(x)) {
-    list(list("N" = jsonlite::unbox(x)))
-  } else {
-    list(list("N" = jsonlite::unbox(length(x))))
-  }  
+  list(list("N" = jsonlite::unbox(length(x))))
+}
+
+formatSimpleSampleSize <- function(x) {
+  if (length(x) > 1) stop("`x` must be a single number representing the number of samples.")
+  list(list("N" = jsonlite::unbox(x)))
 }
 
 proportionSampleSize <- function(numerator, denominator) {
-  if (length(numerator) == 1 & length(denominator) == 1 & is.numeric(c(numerator, denominator))) {
-    list(list("numeratorN"=jsonlite::unbox(numerator), 
-         "denominatorN"=jsonlite::unbox(denominator)))
-  } else {
-    list(list("numeratorN"=jsonlite::unbox(length(numerator)), 
-         "denominatorN"=jsonlite::unbox(length(denominator))))
-  }
+  list(list("numeratorN"=jsonlite::unbox(length(numerator)), 
+            "denominatorN"=jsonlite::unbox(length(denominator))))
+}
+
+formatProportionSampleSize <- function(numerator, denominator) {
+  if (length(numerator) > 1 || length(denominator) > 1) stop("`numerator` and `denominator` must be single numbers representing the number of samples.")
+  list(list("numeratorN"=jsonlite::unbox(numerator), 
+            "denominatorN"=jsonlite::unbox(denominator)))
 }
 
 roundedSD <- function(x, digits = 4, ...) {
