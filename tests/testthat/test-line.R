@@ -377,7 +377,7 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   expect_equal(dt$panel[1], 'X.||.cat3_a')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
+  expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel', 'naToZero'))
   
   map <- data.frame('id' = c('entity.contB', 'entity.contC', 'entity.contD', 'entity.repeatedContA', 'entity.cat3'), 
                     'plotRef' = c('facetVariable2', 'facetVariable2', 'facetVariable2', 'xAxisVariable', 'facetVariable1'), 
@@ -392,7 +392,7 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   expect_equal(dt$panel[1], 'cat3_a.||.contB')
   expect_equal(attr(dt, 'facetVariable2')$variableId, 'facetVariable2')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
+  expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel', 'naToZero'))
   
   # With computed var
   computedVariableMetadata = list('displayName' = 'Pielou\'s Evenness',
@@ -775,6 +775,27 @@ test_that("lineplot.dt() returns correct information about missing data", {
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
   dt <- lineplot.dt(df, map, value = 'mean', evilMode=TRUE)
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.repeatedContA) & !is.na(df$entity.contB)))
+
+
+  ## Using naToZero to change some NAs to 0
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.repeatedContA', 'entity.cat4'), 
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'), 
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 
+                    'naToZero' = c(FALSE, '', 'TRUE', NA), stringsAsFactors=FALSE)
+
+
+  dt <- lineplot.dt(df, map, value = 'mean')
+  completecasestable <- completeCasesTable(dt)
+  # Each entry except 'contA' should equal NROW(df) - nMissing
+  expect_equal(sum(completecasestable$completeCases == nrow(df)-nMissing), 3)
+  expect_equal(completecasestable[variableDetails=='entity.repeatedContA', completeCases], nrow(df))
+  # number of completeCases should be < complete cases for each var
+  expect_true(all(attr(dt, 'completeCasesAllVars')[1] < completecasestable$completeCases)) 
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] > attr(dt, 'completeCasesAllVars')[1])
+  dt <- lineplot.dt(df, map, value = 'mean', evilMode=TRUE)
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB)))
+
 })
 
 test_that("lineplot.dt() always returns data ordered by seriesX/ binStart", {

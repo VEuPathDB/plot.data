@@ -56,7 +56,8 @@ plotRefMapToList <- function(map, plotRef) {
                 'entityId' = NULL,
                 'dataType' = NULL,
                 'dataShape' = NULL,
-                'displayLabel' = NULL))
+                'displayLabel' = NULL,
+                'naToZero' = NULL))
   }
 
   variableId <- lapply(map$id[map$plotRef == plotRef], veupathUtils::strSplit, ".", 4, 2)
@@ -68,6 +69,21 @@ plotRefMapToList <- function(map, plotRef) {
   dataType <- veupathUtils::toStringOrNull(map$dataType[map$plotRef == plotRef])
   dataShape <- veupathUtils::toStringOrNull(map$dataShape[map$plotRef == plotRef])
   displayLabel <- veupathUtils::toStringOrNull(map$displayLabel[map$plotRef == plotRef])
+  naToZero <- veupathUtils::toStringOrNull(map$naToZero[map$plotRef == plotRef])
+  
+  # Validate naToZero and fix if necessary
+  # NOTE failing to set naToZero will result in a default value of FALSE
+  if (length(naToZero) == 0) {
+    warning("Encountered empty or NULL naToZero value. Setting naToZero = FALSE.")
+    naToZero <- FALSE
+  } else if (is.na(naToZero) || naToZero == '') {
+    warning("Encountered '' or NA as the naToZero value. Setting naToZero = FALSE.")
+    naToZero <- FALSE
+  } else {
+    if (identical(naToZero, 'TRUE')) naToZero <- TRUE
+    if (identical(naToZero, 'FALSE')) naToZero <- FALSE
+  }
+  if (!(naToZero %in% c(TRUE, FALSE))) {stop("plotRefMapToList error: Unrecognized value submitted for naToZero")}
 
   if (!is.null(variableId) & !is.null(entityId)) {
     if (all(variableId == entityId)) { entityId <- NULL }
@@ -77,7 +93,8 @@ plotRefMapToList <- function(map, plotRef) {
                   'entityId' = entityId,
                   'dataType' = dataType,
                   'dataShape' = dataShape,
-                  'displayLabel' = displayLabel)
+                  'displayLabel' = displayLabel,
+                  'naToZero' = naToZero)
 
   return(plotRef)
 }
@@ -322,4 +339,15 @@ toIdOrDisplayLabel <- function(colName, plotRef) {
       }
       return(name)
     }
+
+
+#' @importFrom purrr map
+findColNamesByPredicate <- function(variableList, predicateFunction) {
+
+  # For each variable in the variable list, return the column name if the predicate is true for that variable
+  colNames <- purrr::map(variableList, function(x) {if (identical(predicateFunction(x), TRUE)) {return(veupathUtils::toColNameOrNull(x))}})
+  colNames <- unlist(colNames)
+
+  return (colNames)
+}
 

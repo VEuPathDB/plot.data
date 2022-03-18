@@ -11,32 +11,38 @@ newPlotdata <- function(.dt = data.table(),
                                               'entityId' = NULL,
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
                          yAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
                          zAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
                          overlayVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
                          facetVariable1 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
                          facetVariable2 = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
                          evilMode = logical(),
                          collectionVariableDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
@@ -49,6 +55,7 @@ newPlotdata <- function(.dt = data.table(),
                          ...,
                          class = character()) {
 
+  impute0cols <- c()
   x <- veupathUtils::toColNameOrNull(xAxisVariable)
   xType <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataType))
   xShape <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataShape))
@@ -63,6 +70,17 @@ newPlotdata <- function(.dt = data.table(),
   facet2 <- veupathUtils::toColNameOrNull(facetVariable2)
   facetType2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataType))
 
+  # Extract names of vars for which naToZero is TRUE
+  # Note: if we want to change default behavior in the future, this predicate function is a good place to do it
+  impute0cols <- findColNamesByPredicate(list(xAxisVariable, yAxisVariable, zAxisVariable, overlayVariable, facetVariable1, facetVariable2),
+                                         function(x) {if (identical(x$naToZero, TRUE)) {return(TRUE)}})
+
+  # Replace NAs with 0s if naToZero set
+  if (!!length(impute0cols)) {
+    impute0Cols <- veupathUtils::validateNumericCols(.dt, cols=impute0cols)
+    veupathUtils::setNaToZero(.dt, cols=impute0cols)
+    veupathUtils::logWithTime(paste('Replaced NA with 0 in the following columns: ', impute0cols), verbose)
+  }
 
   varCols <- c(x, y, z, group, facet1, facet2)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
