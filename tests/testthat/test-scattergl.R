@@ -702,6 +702,8 @@ test_that("scattergl.dt() returns correct information about missing data", {
   dt <- scattergl.dt(df, map, value = 'raw', evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA) & !is.na(df$entity.contB)))
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], length(unlist(dt$seriesX)))
+  #dt <- scattergl.dt(df, map, value = 'raw', evilMode = 'allVariables')
+  #expect_equal(attr(dt, 'completeCasesAllVars')[1], sum(complete.cases(df[, map$id, with=FALSE])))
 
   ## Using naToZero to change some NAs to 0
   map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.contA', 'entity.cat4'),
@@ -719,7 +721,7 @@ test_that("scattergl.dt() returns correct information about missing data", {
   # number of completeCases should be < complete cases for each var
   expect_true(all(attr(dt, 'completeCasesAllVars')[1] < completecasestable$completeCases)) 
   expect_true(attr(dt, 'completeCasesAxesVars')[1] > attr(dt, 'completeCasesAllVars')[1])
-  dt <- scattergl.dt(df, map, value = 'raw', evilMode=TRUE)
+  dt <- scattergl.dt(df, map, value = 'raw', evilMode='strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB)))
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], length(unlist(dt$seriesX)))
 

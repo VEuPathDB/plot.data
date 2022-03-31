@@ -569,6 +569,8 @@ test_that("mosaic.dt() returns correct information about missing data", {
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
   dt <- mosaic.dt(df, map, evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.binB) & !is.na(df$entity.binA)))
+  dt <- mosaic.dt(df, map, evilMode = 'allVariables')
+  expect_equal(attr(dt, 'completeCasesAllVars')[1], sum(complete.cases(df[, map$id, with=FALSE])))
 })
 
 test_that("mosaic.dt() returns same shaped outputs for string cats and num cats.", {

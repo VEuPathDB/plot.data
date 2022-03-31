@@ -824,8 +824,11 @@ test_that("box.dt() returns correct information about missing data", {
   # number of completeCases should be < complete cases for each var
   expect_true(all(attr(dt, 'completeCasesAllVars')[1] < completecasestable$completeCases)) 
   expect_true(attr(dt, 'completeCasesAxesVars')[1] > attr(dt, 'completeCasesAllVars')[1])
-  dt <- box.dt(df, map, points = 'none', mean = FALSE, computeStats = TRUE, evilMode = TRUE)
+  dt <- box.dt(df, map, points = 'none', mean = FALSE, computeStats = TRUE, evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.cat4)))
+  # TODO box cant have evilMode = 'allVariables' bc we cant take median of NA for ex
+  #dt <- box.dt(df, map, points = 'none', mean = FALSE, computeStats = TRUE, evilMode = 'allVariables')
+  #expect_equal(attr(dt, 'completeCasesAllVars')[1], sum(complete.cases(df[, map$id, with=FALSE])))
 })
 
 
