@@ -428,7 +428,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(dt$panel[1], 'contA.||.cat4_a')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
   expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
-  expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
+  expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel','naToZero'))
   expect_equal(names(attr(dt, 'computedVariableMetadata')), c('displayName','displayRangeMin','displayRangeMax','collectionVariable'))
   expect_equal(attr(dt, 'computedVariableMetadata')$displayName, computedVariableMetadata$displayName)
   expect_equal(attr(dt, 'computedVariableMetadata')$displayRangeMin, computedVariableMetadata$displayRangeMin)
@@ -447,7 +447,7 @@ test_that("box.dt() returns an appropriately sized data.table", {
   expect_equal(dt$panel[1], 'cat4_a.||.contA')
   expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
   expect_equal(attr(dt, 'facetVariable2')$variableId, 'facetVariable2')
-  expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel'))
+  expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel', 'naToZero'))
   
   
   # Handle only one var sent as a collectionVar
@@ -788,10 +788,10 @@ test_that("box() returns appropriately formatted json", {
 
 
 test_that("box.dt() returns correct information about missing data", {
-  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.cat4'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.cat4', 'entity.cat5'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
   # Add nMissing missing values to each column
   nMissing <- 10
@@ -806,6 +806,26 @@ test_that("box.dt() returns correct information about missing data", {
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
   dt <- box.dt(df, map, points = 'none', mean = FALSE, computeStats = TRUE, evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB) & !is.na(df$entity.cat4))) 
+
+
+  ## Using naToZero to change some NAs to 0
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.cat4', 'entity.cat5'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL', 'CATEGORICAL'),
+                    'naToZero' = c('FALSE', TRUE, '', NA), stringsAsFactors=FALSE)
+
+
+  dt <- box.dt(df, map, 'none', FALSE)
+  completecasestable <- completeCasesTable(dt)
+  # Each entry except 'contB' should equal NROW(df) - nMissing
+  expect_equal(sum(completecasestable$completeCases == nrow(df)-nMissing), 3)
+  expect_equal(completecasestable[variableDetails=='entity.contB', completeCases], nrow(df))
+  # number of completeCases should be < complete cases for each var
+  expect_true(all(attr(dt, 'completeCasesAllVars')[1] < completecasestable$completeCases)) 
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] > attr(dt, 'completeCasesAllVars')[1])
+  dt <- box.dt(df, map, points = 'none', mean = FALSE, computeStats = TRUE, evilMode = TRUE)
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.cat4)))
 })
 
 

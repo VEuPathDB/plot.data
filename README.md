@@ -23,6 +23,8 @@ All `plot.data` functions require at least the following arguments:
     - `plotRef` The plot element to which that variable will be mapped. Options are `xAxisVariable`, `yAxisVariable`, `zAxisVariable`, `overlayVariable`, `facetVariable1`, `facetVariable2`. 
     - `dataType` Options are `NUMBER`, `INTEGER`, `STRING`, or `DATE`. Optional.
     - `dataShape` Options are `CONTINUOUS`, `CATEGORICAL`, `ORDINAL`, `BINARY`. Optional.
+    - `naToZero` Options are `TRUE`, `FALSE`, or `''`. Optional. Indicates if NAs found in that variable should be replaced with 0s. Only numeric columns can have `naToZero=TRUE`. Additionally, setting `naToZero` as `NA`, an empty string '', or `NULL` will be assumed to mean `FALSE`.
+
 ### Example 1: Histogram
 ```R
 # Data object is a data.table of raw values to bin and count
