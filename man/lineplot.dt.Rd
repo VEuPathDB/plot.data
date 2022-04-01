@@ -13,7 +13,7 @@ lineplot.dt(
   viewport = NULL,
   numeratorValues = NULL,
   denominatorValues = NULL,
-  evilMode = c(FALSE, TRUE),
+  evilMode = c("noVariables", "allVariables", "strataVariables"),
   collectionVariablePlotRef = NULL,
   computedVariableMetadata = NULL,
   verbose = c(TRUE, FALSE)
@@ -38,7 +38,7 @@ sourceId and its position in the plot. Recognized plotRef values are 'xAxisVaria
 
 \item{denominatorValues}{character vector of values from the y-axis variable to consider the denominator}
 
-\item{evilMode}{boolean indicating whether to represent missingness in evil mode.}
+\item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 
 \item{collectionVariablePlotRef}{string indicating the plotRef to be considered as a collectionVariable. 
 Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
@@ -62,8 +62,9 @@ series data belongs to.
 \section{Evil Mode}{
 
 An `evilMode` exists. It will do the following: \cr
-- return 'No data' as a regular value for strata vars but will discard incomplete cases 
-for the axes vars \cr
+- when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+- when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+- when `noVariables` it will do the sensible thing and return complete cases only. \cr
 - not return statsTables \cr
 - allow smoothed means and agg values etc over axes values where we have no data 
 for the strata vars \cr

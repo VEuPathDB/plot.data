@@ -21,7 +21,7 @@ newBarPD <- function(.dt = data.table::data.table(),
                                               'displayLabel' = NULL),
                          value = character(),
                          barmode = character(),
-                         evilMode = logical(),
+                         evilMode = character(),
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -83,7 +83,9 @@ validateBarPD <- function(.bar, verbose) {
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+#' - when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+#' - when `noVariables` it will do the sensible thing and return complete cases only. \cr
 #' - not return statsTables \cr
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
@@ -100,7 +102,7 @@ validateBarPD <- function(.bar, verbose) {
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. See section below for organization.
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
 #' # Construct example data
@@ -120,7 +122,7 @@ bar.dt <- function(data,
                    map, 
                    value = c('count', 'identity', 'proportion'), 
                    barmode = c('group', 'stack'), 
-                   evilMode = c(FALSE, TRUE),
+                   evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
@@ -169,7 +171,9 @@ bar.dt <- function(data,
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+#' - when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+#' - when `noVariables` it will do the sensible thing and return complete cases only. \cr
 #' - not return statsTables \cr
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
@@ -185,7 +189,7 @@ bar.dt <- function(data,
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot.
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
 #' # Construct example data
@@ -206,7 +210,7 @@ bar <- function(data,
                 map, 
                 value = c('count', 'identity', 'proportion'), 
                 barmode = c('group', 'stack'), 
-                evilMode = c(FALSE, TRUE),
+                evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                 verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)

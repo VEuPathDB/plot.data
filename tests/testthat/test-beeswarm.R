@@ -565,8 +565,10 @@ test_that("beeswarm.dt() returns correct information about missing data", {
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-  dt <- beeswarm.dt(df, map, 0.1, TRUE, evilMode = TRUE)
-  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB) & !is.na(df$entity.cat4)))
+  dt <- beeswarm.dt(df, map, 0.1, TRUE, evilMode = 'strataVariables')
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB) & !is.na(df$entity.cat4))) 
+  #dt <- beeswarm.dt(df, map, 0.1, TRUE, evilMode = 'allVariables')
+  #expect_equal(attr(dt, 'completeCasesAllVars')[1], sum(complete.cases(df[, map$id, with=FALSE])))
 
 
   ## Using naToZero to change some NAs to 0
@@ -585,7 +587,7 @@ test_that("beeswarm.dt() returns correct information about missing data", {
   # number of completeCases should be < complete cases for each var
   expect_true(all(attr(dt, 'completeCasesAllVars')[1] < completecasestable$completeCases)) 
   expect_true(attr(dt, 'completeCasesAxesVars')[1] > attr(dt, 'completeCasesAllVars')[1])
-  dt <- beeswarm.dt(df, map, 0.1, TRUE, evilMode = TRUE)
+  dt <- beeswarm.dt(df, map, 0.1, TRUE, evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.cat4)))
 })
 

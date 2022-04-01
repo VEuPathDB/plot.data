@@ -29,7 +29,7 @@ newLinePD <- function(.dt = data.table::data.table(),
                          binWidth,
                          value = character(),
                          errorBars = logical(),
-                         evilMode = logical(),
+                         evilMode = character(),
                          numeratorValues = character(),
                          denominatorValues = character(),
                          collectionVariableDetails = list('inferredVariable' = NULL,
@@ -187,8 +187,9 @@ validateLinePD <- function(.line, verbose) {
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases 
-#' for the axes vars \cr
+#' - when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+#' - when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+#' - when `noVariables` it will do the sensible thing and return complete cases only. \cr
 #' - not return statsTables \cr
 #' - allow smoothed means and agg values etc over axes values where we have no data 
 #' for the strata vars \cr
@@ -212,7 +213,7 @@ validateLinePD <- function(.line, verbose) {
 #' @param viewport List of min and max values to consider as the range of data
 #' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
 #' @param denominatorValues character vector of values from the y-axis variable to consider the denominator
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
 #' variables should be interpreted as a collectionVariable.
@@ -244,7 +245,7 @@ lineplot.dt <- function(data,
                          viewport = NULL,
                          numeratorValues = NULL,
                          denominatorValues = NULL,
-                         evilMode = c(FALSE, TRUE),
+                         evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                          collectionVariablePlotRef = NULL,
                          computedVariableMetadata = NULL,
                          verbose = c(TRUE, FALSE)) {
@@ -345,8 +346,9 @@ lineplot.dt <- function(data,
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete 
-#' cases for the axes vars \cr
+#' - when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+#' - when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+#' - when `noVariables` it will do the sensible thing and return complete cases only. \cr
 #' - not return statsTables \cr
 #' - allow smoothed means and agg values etc over axes values where we have no data for 
 #' the strata vars \cr
@@ -370,7 +372,7 @@ lineplot.dt <- function(data,
 #' @param viewport List of min and max values to consider as the range of data
 #' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
 #' @param denominatorValues character vector of values from the y-axis variable to consider the denominator
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables 
 #' should be interpreted as a collectionVariable.
@@ -402,7 +404,7 @@ lineplot <- function(data,
                       viewport = NULL,
                       numeratorValues = NULL,
                       denominatorValues = NULL,
-                      evilMode = c(FALSE, TRUE),
+                      evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       collectionVariablePlotRef = NULL,
                       computedVariableMetadata = NULL,
                       verbose = c(TRUE, FALSE)) {

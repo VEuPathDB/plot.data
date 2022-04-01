@@ -30,7 +30,7 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL),
                          value = character(),
-                         evilMode = logical(),
+                         evilMode = character(),
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -97,7 +97,9 @@ validateHeatmapPD <- function(.heatmap) {
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+#' - when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+#' - when `noVariables` it will do the sensible thing and return complete cases only. \cr
 #' - not return statsTables \cr
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
@@ -112,13 +114,13 @@ validateHeatmapPD <- function(.heatmap) {
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
 heatmap.dt <- function(data, map, 
                        value = c('series', 'collection'), 
-                       evilMode = c(FALSE, TRUE),
+                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                        verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
@@ -175,7 +177,9 @@ heatmap.dt <- function(data, map,
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+#' - when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+#' - when `noVariables` it will do the sensible thing and return complete cases only. \cr
 #' - not return statsTables \cr
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
@@ -190,13 +194,13 @@ heatmap.dt <- function(data, map,
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
 heatmap <- function(data, map, 
                     value = c('series','collection'), 
-                    evilMode = c(FALSE, TRUE)) {
+                    evilMode = c('noVariables', 'allVariables', 'strataVariables')) {
   verbose <- veupathUtils::matchArg(verbose)
  
   .heatmap <- heatmap.dt(data, map, value, evilMode, verbose)

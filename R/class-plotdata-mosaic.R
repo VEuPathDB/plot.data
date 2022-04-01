@@ -20,7 +20,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL),
                          statistic = character(),
-                         evilMode = logical(),
+                         evilMode = character(),
                          verbose = logical(),
                          ...,
                          class = character()) {
@@ -40,7 +40,8 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   y <- veupathUtils::toColNameOrNull(attr$yAxisVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-  if (!evilMode) {
+  isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
+  if (!isEvil) {
     if (statistic == 'chiSq') {
       statsTable <- panelChiSq(.pd, x, y, panel)
       veupathUtils::logWithTime('Calculated chi-squared statistic.', verbose)
@@ -50,7 +51,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
     }
     attr$statsTable <- statsTable
   } else {
-    veupathUtils::logWithTime('No statistics calculated when evilMode = TRUE.', verbose)
+    veupathUtils::logWithTime('No statistics calculated when evilMode is `allVariables` or `strataVariables`.', verbose)
   }
   
   .pd <- panelTable(.pd, x, y, panel)
@@ -77,7 +78,9 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+#' - when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+#' - when `noVariables` it will do the sensible thing and return complete cases only. \cr
 #' - not return statsTables \cr
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
@@ -92,7 +95,7 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @examples
@@ -111,13 +114,14 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' @export
 mosaic.dt <- function(data, map, 
                       statistic = NULL, 
-                      evilMode = c(FALSE, TRUE),
+                      evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       verbose = c(TRUE, FALSE)) {
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
 
-  if (evilMode && length(statistic)) {
-    warning('evilMode and statistic are not compatible! Requested statistic will be ignored!')
+  isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
+  if (isEvil && length(statistic)) {
+    warning('evilModes `allVariables` and `strataVariables` are not compatible with statistics! Requested statistic will be ignored!')
   }
 
   if (!'data.table' %in% class(data)) {
@@ -180,7 +184,9 @@ mosaic.dt <- function(data, map,
 #' 
 #' @section Evil Mode:
 #' An `evilMode` exists. It will do the following: \cr
-#' - return 'No data' as a regular value for strata vars but will discard incomplete cases for the axes vars \cr
+#' - when `strataVariables` it will return 'no data' as a regular value for strata vars but will discard such cases for the axes vars. \cr
+#' - when `allVariables` it will return 'no data' as a regular value for all variables. \cr
+#' - when `noVariables` it will do the sensible thing and return complete cases only. \cr
 #' - not return statsTables \cr
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
@@ -195,7 +201,7 @@ mosaic.dt <- function(data, map,
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
-#' @param evilMode boolean indicating whether to represent missingness in evil mode.
+#' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @examples
@@ -214,7 +220,7 @@ mosaic.dt <- function(data, map,
 #' @export
 mosaic <- function(data, map, 
                    statistic = NULL, 
-                   evilMode = c(FALSE, TRUE),
+                   evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
   verbose <- veupathUtils::matchArg(verbose)
 
