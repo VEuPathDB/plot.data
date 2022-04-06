@@ -165,7 +165,16 @@ getJSON <- function(.pd, evilMode) {
     namedAttrList$computedVariableMetadata <- computedVariableMetadata
   }
   
+  # Fix single data points in a single group for scatterplot - should have seriesX AND seriesY columns
+  if (nrow(.pd) == 1 && 'seriesX' %in% names(.pd)) {
+    # Fix only needed when we hae excatly one data point in our one group
+    if (length(.pd$seriesX) == 1) {
+      .pd[, c('seriesX','seriesY') := list(seriesX = list(seriesX), seriesY = list(seriesY))]
+    }
+  }
+  
   outList <- list(class = list('data'=.pd, 'config'=namedAttrList))
+
   if (!inherits(sampleSizeTable, 'function')) {
     outList$sampleSizeTable <- sampleSizeTable
   }
