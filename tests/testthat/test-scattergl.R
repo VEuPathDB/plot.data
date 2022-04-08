@@ -110,6 +110,7 @@ test_that("scattergl.dt() returns plot data and config of the appropriate types"
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(class(unlist(sampleSizes$entity.cat4)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
+
 })
 
 test_that("scattergl.dt() returns an appropriately sized data.table", {
@@ -677,6 +678,23 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(length(jsonList$completeCasesTable$variableDetails$variableId), 5)
+
+
+  # When we have only one data point and the plot has only one group, ensure seriesX and seriesY
+  # will be arrays
+  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat4', 'entity.contC'),
+                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'),
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), 'displayLabel' = c('yDisplay', 'xDisplay', 'panelDisplay', 'zDisplay'), stringsAsFactors=FALSE)
+  
+  df <- as.data.frame(testDF)
+  df <- df[1, ]
+
+  dt <- scattergl.dt(df, map, 'raw')
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(typeof(jsonList$scatterplot$data$seriesX), 'list')
+  expect_equal(typeof(jsonList$scatterplot$data$seriesY), 'list')
 })
 
 

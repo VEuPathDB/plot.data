@@ -166,6 +166,7 @@ getJSON <- function(.pd, evilMode) {
   }
   
   outList <- list(class = list('data'=.pd, 'config'=namedAttrList))
+
   if (!inherits(sampleSizeTable, 'function')) {
     outList$sampleSizeTable <- sampleSizeTable
   }

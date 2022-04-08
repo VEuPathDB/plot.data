@@ -753,6 +753,22 @@ test_that("lineplot() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(length(jsonList$completeCasesTable$variableDetails$variableId), 5)
+
+
+  # When we have only one data point and the plot has only one group, ensure seriesX and seriesY
+  # will be boxed in json
+  map <- data.frame('id' = c('entity.contB', 'entity.contA'),
+                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER'),
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
+  
+  df <- as.data.frame(testDF)
+
+  dt <- lineplot.dt(df, map, binWidth=100) # Will produce one point
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(typeof(jsonList$lineplot$data$seriesX), 'list')
+  expect_equal(typeof(jsonList$lineplot$data$seriesY), 'list')
 })
 
 test_that("lineplot.dt() returns correct information about missing data", {
