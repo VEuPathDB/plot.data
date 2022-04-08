@@ -110,6 +110,7 @@ test_that("scattergl.dt() returns plot data and config of the appropriate types"
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(class(unlist(sampleSizes$entity.cat4)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
+
 })
 
 test_that("scattergl.dt() returns an appropriately sized data.table", {

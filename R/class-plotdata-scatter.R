@@ -72,22 +72,28 @@ newScatterPD <- function(.dt = data.table::data.table(),
   } else {
     series$seriesX <- lapply(series$seriesX, as.character)
   }
+  if (class(series$seriesX) != 'list') series$seriesX <- list(list(series$seriesX))
+
   if (attr$yAxisVariable$dataType == 'DATE') {
     series$seriesY <- lapply(series$seriesY, format, '%Y-%m-%d')
   } else {
     series$seriesY <- lapply(series$seriesY, as.character)
   }
+  if (class(series$seriesY) != 'list') series$seriesY <- list(list(series$seriesY))
+
   if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
     if (identical(attr$overlayVariable$dataType,'DATE')) {
       series$seriesGradientColorscale <- lapply(series$seriesGradientColorscale, format, '%Y-%m-%d')
     } else {
       series$seriesGradientColorscale <- lapply(series$seriesGradientColorscale, as.character)
     }
+    if (class(series$seriesGradientColorscale) != 'list') series$seriesGradientColorscale <- list(list(series$seriesGradientColorscale))
   }
+  
   veupathUtils::logWithTime('Collected raw scatter plot data.', verbose)
 
   if (value == 'smoothedMean') {
-
+    
     smoothedMean <- groupSmoothedMean(.pd, x, y, group, panel)
     .pd <- smoothedMean
     veupathUtils::logWithTime('Calculated smoothed means.', verbose)
@@ -103,7 +109,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
     veupathUtils::logWithTime('Calculated smoothed means.', verbose)
 
   } else if (value == 'bestFitLineWithRaw') {
-  
+
     bestFitLine <- groupBestFitLine(.pd, x, y, group, panel)
     if (!is.null(key(series))) {
       .pd <- merge(series, bestFitLine)

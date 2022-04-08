@@ -160,6 +160,8 @@ newLinePD <- function(.dt = data.table::data.table(),
   }
 
   .pd$seriesY <- lapply(.pd$seriesY, as.character)
+  if (class(.pd$seriesY) != 'list') .pd$seriesY <- list(list(.pd$seriesY))
+
   attr$names <- names(.pd)
 
   veupathUtils::setAttrFromList(.pd, attr)
