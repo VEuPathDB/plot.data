@@ -59,6 +59,17 @@ The 'map' associates columns in the data with plot elements, as well as passes i
 - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
 }
 
+\section{Geolocation Viewport Structure}{
+
+This is a list of lists taking the form: \cr
+*latitude \cr
+**xMin = numeric \cr
+**xMax = numeric \cr
+*longitude \cr
+**left = numeric \cr
+**right = numeric \cr
+}
+
 \examples{
 # Construct example data
 df <- data.table('xAxis' = sample(c('a','b','c'), 100, replace=T),

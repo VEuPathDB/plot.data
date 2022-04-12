@@ -247,10 +247,19 @@ adjustToViewport <- function(x, viewport) {
 #'
 #' This function will filter a data.table to the specified 
 #' latitude and longitude values.
+#' 
+#' @section Geolocation Viewport Structure:
+#' This is a list of lists taking the form: \cr
+#' *latitude \cr
+#' **xMin = numeric \cr
+#' **xMax = numeric \cr
+#' *longitude \cr
+#' **left = numeric \cr
+#' **right = numeric \cr
 #' @param .dt data.table with columns for latitude and longitude
 #' @param latitude Character vector specifying name of latitude column
 #' @param longitude Character vector specifying name of longitude column
-#' @param viewport List of lists specifying the geolocation viewport
+#' @param viewport List of lists specifying the geolocation viewport.  
 #' @return data.table of filtered values 
 #' @export
 filterToGeolocationViewport <- function(.dt, latitude, longitude, viewport) {

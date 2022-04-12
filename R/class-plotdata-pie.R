@@ -156,6 +156,14 @@ validatePiePD <- function(.pie, verbose) {
 #' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
 #' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
 #' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
+#' @section Geolocation Viewport Structure:
+#' This is a list of lists taking the form: \cr
+#' *latitude \cr
+#' **xMin = numeric \cr
+#' **xMax = numeric \cr
+#' *longitude \cr
+#' **left = numeric \cr
+#' **right = numeric \cr
 #' @return data.table plot-ready data
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. See section below for organization.
@@ -242,7 +250,15 @@ pie.dt <- function(data,
 #' - id: the variable name. Must match column name in the data exactly. \cr
 #' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
 #' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
+#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr 
+#' @section Geolocation Viewport Structure:
+#' This is a list of lists taking the form: \cr
+#' *latitude \cr
+#' **xMin = numeric \cr
+#' **xMax = numeric \cr
+#' *longitude \cr
+#' **left = numeric \cr
+#' **right = numeric \cr
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot.
 #' @param value String indicating how to calculate y-values ('count', 'proportion')

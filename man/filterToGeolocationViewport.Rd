@@ -13,7 +13,7 @@ filterToGeolocationViewport(.dt, latitude, longitude, viewport)
 
 \item{longitude}{Character vector specifying name of longitude column}
 
-\item{viewport}{List of lists specifying the geolocation viewport}
+\item{viewport}{List of lists specifying the geolocation viewport.}
 }
 \value{
 data.table of filtered values
@@ -22,3 +22,14 @@ data.table of filtered values
 This function will filter a data.table to the specified 
 latitude and longitude values.
 }
+\section{Geolocation Viewport Structure}{
+
+This is a list of lists taking the form: \cr
+*latitude \cr
+**xMin = numeric \cr
+**xMax = numeric \cr
+*longitude \cr
+**left = numeric \cr
+**right = numeric \cr
+}
+
