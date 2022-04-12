@@ -33,7 +33,7 @@ test_that("pie.dt() returns a valid plot.data pieplot object", {
   expect_is(dt, 'plot.data')
   expect_is(dt, 'pieplot')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2', 'rankedValues'))
+  expect_equal(names(namedAttrList),c('xAxisVariable', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','facetVariable1', 'facetVariable2', 'rankedValues', 'viewport'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 3)
@@ -133,6 +133,38 @@ test_that("pie.dt() returns an appropriately sized data.table", {
 })
 
 test_that("pie() returns appropriately formatted json", {
+  map <- data.frame('id' = c('entity.int11', 'entity.cat5', 'entity.cont5', 'entity.cont6'),
+                    'plotRef' = c('xAxisVariable', 'facetVariable1', 'latitudeVariable', 'longitudeVariable'),
+                    'dataType' = c('STRING', 'STRING', 'NUMBER', 'NUMBER'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CONTINUOUS', 'LONGITUDE'), stringsAsFactors=FALSE)
+
+  df <- as.data.frame(testDF)
+  df$entity.int11 <- as.character(df$entity.int11)
+  viewport <- list('latitude'=list('xMin'=-.5,
+                                   'xMax'=.5),
+                   'longitude'=list('left'=-.5,
+                                    'right'=.5))
+
+  dt <- pie.dt(df, map, value='count', viewport=viewport)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList), c('pieplot','sampleSizeTable','completeCasesTable'))
+  expect_equal(names(jsonList$pieplot), c('data','config'))
+  expect_equal(names(jsonList$pieplot$data), c('facetVariableDetails','label','value'))
+  expect_equal(names(jsonList$pieplot$config), c('completeCasesAllVars','completeCasesAxesVars','latitudeVariable','longitudeVariable','rankedValues', 'viewport', 'xVariableDetails'))
+  expect_equal(jsonList$pieplot$config$rankedValues, c('5','3','9','8','10','2','6','Other'))
+  expect_equal(class(jsonList$pieplot$config$rankedValues), 'character')
+  expect_equal(names(jsonList$pieplot$config$xVariableDetails), c('variableId','entityId'))
+  expect_equal(class(unlist(jsonList$pieplot$config$viewport)), 'numeric')
+  expect_equal(jsonList$pieplot$config$xVariableDetails$variableId, 'int11')
+  expect_equal(names(jsonList$sampleSizeTable), c('facetVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  expect_equal(jsonList$sampleSizeTable$xVariableDetails$variableId[1], 'int11')
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int11', 'cat5'))
+
   map <- data.frame('id' = c('entity.int11', 'entity.cat5'),
                     'plotRef' = c('xAxisVariable', 'facetVariable1'),
                     'dataType' = c('STRING', 'STRING'),
@@ -147,10 +179,11 @@ test_that("pie() returns appropriately formatted json", {
   expect_equal(names(jsonList), c('pieplot','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$pieplot), c('data','config'))
   expect_equal(names(jsonList$pieplot$data), c('facetVariableDetails','label','value'))
-  expect_equal(names(jsonList$pieplot$config), c('completeCasesAllVars','completeCasesAxesVars','rankedValues', 'xVariableDetails'))
+  expect_equal(names(jsonList$pieplot$config), c('completeCasesAllVars','completeCasesAxesVars','rankedValues', 'viewport', 'xVariableDetails'))
   expect_equal(jsonList$pieplot$config$rankedValues, c('5','3','9','8','10','2','6','Other'))
   expect_equal(class(jsonList$pieplot$config$rankedValues), 'character')
   expect_equal(names(jsonList$pieplot$config$xVariableDetails), c('variableId','entityId'))
+  expect_equal(class(unlist(jsonList$pieplot$config$viewport)), 'NULL')
   expect_equal(jsonList$pieplot$config$xVariableDetails$variableId, 'int11')
   expect_equal(names(jsonList$sampleSizeTable), c('facetVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
@@ -173,7 +206,7 @@ test_that("pie() returns appropriately formatted json", {
   expect_equal(names(jsonList), c('pieplot','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$pieplot), c('data','config'))
   expect_equal(names(jsonList$pieplot$data), c('facetVariableDetails','label','value'))
-  expect_equal(names(jsonList$pieplot$config), c('completeCasesAllVars','completeCasesAxesVars','rankedValues', 'xVariableDetails'))
+  expect_equal(names(jsonList$pieplot$config), c('completeCasesAllVars','completeCasesAxesVars','rankedValues', 'viewport', 'xVariableDetails'))
   expect_equal(jsonList$pieplot$config$rankedValues, c('cat6_e','cat6_b','cat6_d','cat6_a','cat6_c','cat6_f'))
   expect_equal(class(jsonList$pieplot$config$rankedValues), 'character')
   expect_equal(names(jsonList$pieplot$config$xVariableDetails), c('variableId','entityId'))
@@ -198,7 +231,7 @@ test_that("pie() returns appropriately formatted json", {
   expect_equal(names(jsonList), c('pieplot','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$pieplot), c('data','config'))
   expect_equal(names(jsonList$pieplot$data), c('facetVariableDetails','label','value'))
-  expect_equal(names(jsonList$pieplot$config), c('completeCasesAllVars','completeCasesAxesVars','rankedValues', 'xVariableDetails'))
+  expect_equal(names(jsonList$pieplot$config), c('completeCasesAllVars','completeCasesAxesVars','rankedValues', 'viewport', 'xVariableDetails'))
   expect_equal(jsonList$pieplot$config$rankedValues, c('cat6_e','cat6_b','cat6_d','cat6_a','cat6_c','cat6_f'))
   expect_equal(class(jsonList$pieplot$config$rankedValues), 'character')
   expect_equal(names(jsonList$pieplot$config$xVariableDetails), c('variableId','entityId','displayLabel'))
@@ -225,7 +258,7 @@ test_that("pie() returns appropriately formatted json", {
   expect_equal(names(jsonList), c('pieplot','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$pieplot$data$facetVariableDetails[[1]]), c('variableId','entityId','value','displayLabel'))
   expect_equal(jsonList$pieplot$data$facetVariableDetails[[1]]$variableId, 'cat5')
-  expect_equal(names(jsonList$pieplot$config), c('completeCasesAllVars','completeCasesAxesVars','rankedValues', 'xVariableDetails'))
+  expect_equal(names(jsonList$pieplot$config), c('completeCasesAllVars','completeCasesAxesVars','rankedValues', 'viewport', 'xVariableDetails'))
   expect_equal(jsonList$pieplot$config$rankedValues, c('cat6_e','cat6_b','cat6_d','cat6_a','cat6_c','cat6_f'))
   expect_equal(class(jsonList$pieplot$config$rankedValues), 'character')
   expect_equal(names(jsonList$pieplot$config$xVariableDetails), c('variableId','entityId'))
@@ -246,7 +279,7 @@ test_that("pie() returns appropriately formatted json", {
   expect_equal(names(jsonList), c('pieplot','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$pieplot), c('data','config'))
   expect_equal(names(jsonList$pieplot$data), c('facetVariableDetails','label','value'))
-  expect_equal(names(jsonList$pieplot$config), c('completeCasesAllVars','completeCasesAxesVars','rankedValues', 'xVariableDetails'))
+  expect_equal(names(jsonList$pieplot$config), c('completeCasesAllVars','completeCasesAxesVars','rankedValues', 'viewport', 'xVariableDetails'))
   expect_equal(jsonList$pieplot$config$rankedValues, c('6','3','1','4','2','5'))
   expect_equal(class(jsonList$pieplot$config$rankedValues), 'character')
   expect_equal(names(jsonList$pieplot$config$xVariableDetails), c('variableId','entityId'))

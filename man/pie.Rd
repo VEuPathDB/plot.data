@@ -8,6 +8,7 @@ pie(
   data,
   map,
   value = c("count", "proportion"),
+  viewport = NULL,
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
@@ -18,6 +19,8 @@ pie(
 \item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot.}
 
 \item{value}{String indicating how to calculate y-values ('count', 'proportion')}
+
+\item{viewport}{List of values indicating the visible range of data}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

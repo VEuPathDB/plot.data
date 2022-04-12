@@ -1,3 +1,5 @@
+# TODO think about refactor after b57. this viewport is geolocation specific
+# is this really a 'map-marker' class ?
 newPiePD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
@@ -14,7 +16,21 @@ newPiePD <- function(.dt = data.table::data.table(),
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL),
+                         latitudeVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),
+                         longitudeVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL),                     
                          value = character(),
+                         viewport = list('latitude'=list('xMin'=NULL,
+                                                         'xMax'=NULL),
+                                         'longitude'=list('left'=NULL,
+                                                          'right'=NULL)),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -24,6 +40,8 @@ newPiePD <- function(.dt = data.table::data.table(),
                      xAxisVariable = xAxisVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
+                     latitudeVariable = latitudeVariable,
+                     longitudeVariable = longitudeVariable,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "pieplot")
@@ -33,6 +51,8 @@ newPiePD <- function(.dt = data.table::data.table(),
   x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
   .pd[[x]] <- as.character(.pd[[x]])
+  lat <- veupathUtils::toColNameOrNull(attr$latitudeVariable)
+  lon <- veupathUtils::toColNameOrNull(attr$longitudeVariable)
 
   ranked <- .pd[, .N, by=x]
   data.table::setorderv(ranked, c("N"),-1)
@@ -42,6 +62,24 @@ newPiePD <- function(.dt = data.table::data.table(),
     .pd[[x]][!.pd[[x]] %in% rankedValues] <- 'Other'
   }
   attr$rankedValues <- rankedValues
+
+  if (is.null(viewport)) {
+    viewport <- findGeolocationViewport(.pd, lat, lon)
+    veupathUtils::logWithTime('Determined default viewport.', verbose)
+  } else {
+    viewport <- validateGeolocationViewport(viewport, verbose)
+  }
+  if (is.null(viewport)) {
+    attr$viewport <- list('latitude'=list('xMin'=NA,
+                                          'xMax'=NA),
+                          'longitude'=list('left'=NA,
+                                           'right'=NA))
+  } else {
+    attr$viewport <- viewport
+  }
+  attr$viewport$latitude <- lapply(attr$viewport$latitude, jsonlite::unbox)
+  attr$viewport$longitude <- lapply(attr$viewport$longitude, jsonlite::unbox)
+  .pd <- filterToGeolocationViewport(.pd, lat, lon, viewport)
 
   if (value == 'count' ) {
     .pd$dummy <- 1
@@ -58,6 +96,33 @@ newPiePD <- function(.dt = data.table::data.table(),
   veupathUtils::setAttrFromList(.pd, attr)
 
   return(.pd)
+}
+
+validateGeolocationViewport <- function(viewport, verbose) {
+  if (!is.list(viewport)) {
+    return(FALSE)
+  } else{
+    if (!all(c('latitude', 'longitude') %in% names(viewport))) {
+      return(FALSE)
+    } else {
+      if (!is.list(viewport$latitude) && !is.list(viewport$longitude)) {
+        return(FALSE)
+      } else{
+        if (!all(c('xMin','xMax') %in% names(viewport$latitude)) &&
+            !all(c('left','right') %in% names(viewport$longitude))) {
+            return(FALSE)
+        }
+      }
+    }
+  }
+
+  viewport$latitude$xMin <- as.numeric(viewport$latitude$xMin)
+  viewport$latitude$xMax <- as.numeric(viewport$latitude$xMax)
+  viewport$longitude$left <- as.numeric(viewport$longitude$left)
+  viewport$longitude$right <- as.numeric(viewport$longitude$right)
+  veupathUtils::logWithTime('Provided geolocation viewport validated.', verbose)
+
+  return(viewport)
 }
 
 validatePiePD <- function(.pie, verbose) {
@@ -95,6 +160,7 @@ validatePiePD <- function(.pie, verbose) {
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. See section below for organization.
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
+#' @param viewport List of values indicating the visible range of data
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
@@ -113,7 +179,8 @@ validatePiePD <- function(.pie, verbose) {
 #' @export
 pie.dt <- function(data, 
                    map, 
-                   value = c('count', 'proportion'),  
+                   value = c('count', 'proportion'),
+                   viewport = NULL,  
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
 
@@ -131,17 +198,22 @@ pie.dt <- function(data,
   }
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
+  latitudeVariable <- plotRefMapToList(map, 'latitudeVariable')
+  longitudeVariable <- plotRefMapToList(map, 'longitudeVariable')
 
   .pie <- newPiePD(.dt = data,
                     xAxisVariable = xAxisVariable,
                     facetVariable1 = facetVariable1,
                     facetVariable2 = facetVariable2,
+                    latitudeVariable = latitudeVariable,
+                    longitudeVariable = longitudeVariable,
                     value = value,
+                    viewport = viewport,
                     evilMode = evilMode,
                     verbose = verbose)
 
   .pie <- validatePiePD(.pie, verbose)
-  veupathUtils::logWithTime(paste('New pieplot object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New pieplot object created with parameters value =', value, ', viewport =', viewport, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
 
   return(.pie)
 }
@@ -174,6 +246,7 @@ pie.dt <- function(data,
 #' @param data data.frame to make plot-ready data for
 #' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot.
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
+#' @param viewport List of values indicating the visible range of data
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
@@ -193,13 +266,14 @@ pie.dt <- function(data,
 #' @export
 pie <- function(data, 
                 map, 
-                value = c('count', 'proportion'), 
+                value = c('count', 'proportion'),
+                viewport = NULL,
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                 verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
 
-  .pie <- pie.dt(data, map, value, evilMode, verbose)
+  .pie <- pie.dt(data, map, value, viewport, evilMode, verbose)
   outFileName <- writeJSON(.pie, evilMode, 'pieplot', verbose)
 
   return(outFileName)

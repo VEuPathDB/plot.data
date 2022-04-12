@@ -45,6 +45,18 @@ newPlotdata <- function(.dt = data.table(),
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL,
                                               'naToZero' = NULL),
+                         latitudeVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
+                         longitudeVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),                      
                          evilMode = character(),
                          collectionVariableDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
@@ -57,7 +69,6 @@ newPlotdata <- function(.dt = data.table(),
                          ...,
                          class = character()) {
 
-  impute0cols <- c()
   x <- veupathUtils::toColNameOrNull(xAxisVariable)
   xType <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataType))
   xShape <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataShape))
@@ -71,6 +82,10 @@ newPlotdata <- function(.dt = data.table(),
   facetType1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataType))
   facet2 <- veupathUtils::toColNameOrNull(facetVariable2)
   facetType2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataType))
+
+  #think the only thing we need to do w these at this point is make sure theyre included in the .pd 
+  lat <- veupathUtils::toColNameOrNull(latitudeVariable)
+  lon <- veupathUtils::toColNameOrNull(longitudeVariable)
 
   isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
   
@@ -86,6 +101,7 @@ newPlotdata <- function(.dt = data.table(),
     veupathUtils::logWithTime(paste('Replaced NA with 0 in the following columns: ', impute0cols), verbose)
   }
 
+  #lat and lon must be used w a geohash, so they dont need to be part of completeCases*
   varCols <- c(x, y, z, group, facet1, facet2)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
   completeCasesTable <- data.table::transpose(completeCasesTable, keep.names = 'variableDetails')
@@ -105,7 +121,7 @@ newPlotdata <- function(.dt = data.table(),
     panel <- c(facet1, facet2)
   }
 
-  myCols <- c(x, y, z, group, panel)
+  myCols <- c(x, y, z, lat, lon, group, panel)
   .dt <- .dt[, myCols, with=FALSE]
   veupathUtils::logWithTime('Identified facet intersections.', verbose)
 
@@ -206,11 +222,15 @@ newPlotdata <- function(.dt = data.table(),
   .dt[[x]] <- updateType(.dt[[x]], xType)
   if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType) }
   if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType) }
+  if (!is.null(lat)) { .dt[[lat]] <- updateType(.dt[[lat]], 'NUMBER')}
+  if (!is.null(lon)) { .dt[[lat]] <- updateType(.dt[[lon]], 'NUMBER')}
   if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
   if (!is.null(panel)) { .dt[[panel]] <- updateType(.dt[[panel]], 'STRING') }
   veupathUtils::logWithTime('Base data types updated for all columns as necessary.', verbose)
 
-  completeCasesAllVars <- jsonlite::unbox(nrow(.dt[complete.cases(.dt),]))
+  # TODO review logic here around complete cases on the panel column
+  completeCasesAllVars <- complete.cases(.dt[, c(x,y,z,group,panel), with=FALSE])
+  completeCasesAllVars <- jsonlite::unbox(nrow(.dt[completeCasesAllVars,]))
   completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[complete.cases(.dt[, c(x,y), with=FALSE]),]))
   veupathUtils::logWithTime('Determined total number of complete cases across axes and strata vars.', verbose)
 
@@ -264,6 +284,8 @@ newPlotdata <- function(.dt = data.table(),
   attr$completeCasesTable <- completeCasesTable
   attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, overlayGroup, panel)
   attr$class = c(class, 'plot.data', attr$class)
+  if (!is.null(lat)) { attr$latitudeVariable <- latitudeVariable }
+  if (!is.null(lon)) { attr$longitudeVariable <- longitudeVariable }
   if (!is.null(group)) { attr$overlayVariable <- overlayVariable }
   if (!is.null(facet1)) { attr$facetVariable1 <- facetVariable1 }
   if (!is.null(facet2)) { attr$facetVariable2 <- facetVariable2 }
