@@ -26,6 +26,22 @@ test_that("mosaic.dt() does not fail when 2x2 version only has 1 value on an axi
   expect_equal(dt$value[[1]][[1]], 251)
 })
 
+test_that("mosaic.dt does not fail when panels have different values for axes variables.", {
+  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat4'),
+                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('STRING', 'STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  df <- as.data.frame(testDF)
+  df$entity.binB[df$entity.cat4 == 'cat4_a' & df$entity.binB == 'binB_a'] <- NA
+  df$entity.binA[df$entity.cat4 == 'cat4_b' & df$entity.binA == 'binA_b'] <- NA
+
+  dt <- mosaic.dt(df, map)
+  expect_equal(dt$xLabel[dt$entity.cat4 == 'cat4_b'][[1]], 'binA_a')
+  expect_equal(dt$yLabel[dt$entity.cat4 == 'cat4_a'][[1]][[1]], 'binB_b')
+  expect_equal(dt$value[dt$entity.cat4 == 'cat4_a'][[1]][[1]], 23)
+})
+
 test_that("mosaic.dt() does not fail when there are no complete cases.", {
   map <- data.frame('id' = c('entity.binary1', 'entity.binary2'),
                     'plotRef' = c('xAxisVariable', 'yAxisVariable'),

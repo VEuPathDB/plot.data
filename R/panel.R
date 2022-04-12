@@ -1,6 +1,7 @@
 #very specifically not setting these names by ref
 #since the new col names 'x' 'y' arent meaningful
 
+#' @importFrom dplyr bind_rows
 panelBothRatios <- function(data, x, y, panel = NULL) {
   names(data)[names(data) == x] <- 'x'
   names(data)[names(data) == y] <- 'y'
@@ -14,7 +15,7 @@ panelBothRatios <- function(data, x, y, panel = NULL) {
     dt.list <- split(data, list(data[[panel]]))
     dt.list <- lapply(dt.list, tableXY)
     dt.list <- lapply(dt.list, bothRatios)
-    dt <- purrr::reduce(dt.list, rbind)
+    dt <- purrr::reduce(dt.list, dplyr::bind_rows)
     dt[[panel]] <- names(dt.list)
   }
 
@@ -34,7 +35,7 @@ panelChiSq <- function(data, x, y, panel = NULL) {
     dt.list <- split(data, list(data[[panel]]))
     dt.list <- lapply(dt.list, tableXY)
     dt.list <- lapply(dt.list, chiSq)
-    dt <- purrr::reduce(dt.list, rbind)
+    dt <- purrr::reduce(dt.list, dplyr::bind_rows)
     dt[[panel]] <- names(dt.list)
   }
 
@@ -47,7 +48,7 @@ panelTable <- function(data, x, y, panel = NULL) {
   } else {
     dt.list <- split(data, list(data[[panel]]))
     dt.list <- lapply(dt.list, tableAsDT, x, y)
-    dt <- purrr::reduce(dt.list, rbind)
+    dt <- purrr::reduce(dt.list, dplyr::bind_rows)
     dt[[panel]] <- names(dt.list)
   }
 

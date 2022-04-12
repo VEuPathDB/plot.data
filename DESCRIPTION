@@ -12,6 +12,7 @@ Authors@R:
            email = "annsize@upenn.edu"))
 Imports:
     data.table,
+    dplyr,
     jsonlite,
     lubridate,
     magrittr,
