@@ -7,14 +7,14 @@
 adjustToViewport(x, viewport)
 }
 \arguments{
-\item{x}{Numeric or Date vector to bin}
+\item{x}{Numeric or Date vector to adjust}
 
-\item{binWidth}{number to increment bin bounds by, or string for dates ex: 'month'}
+\item{viewport}{List indicating viewport min and max values}
 }
 \value{
-Character vector of coded values
+Numeric or Date vector of adjusted values
 }
 \description{
-This function will adjust the range of numeric vector `x` 
-the values in ‘x’ according to which interval they fall
+This function will adjust a numeric vector `x` 
+according to the values specified in the viewport.
 }

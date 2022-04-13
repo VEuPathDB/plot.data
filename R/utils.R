@@ -16,6 +16,19 @@ findViewport <- function(x, xType) {
   return(viewport)
 }
 
+findGeolocationViewport <- function(.dt, latitude, longitude) {
+  if (any(is.null(c(latitude, longitude)))) {
+    viewport <- NULL
+  } else {
+    viewport <- list('latitude'=list('xMin'=min(.dt[[latitude]]),
+                                   'xMax'=max(.dt[[latitude]])),
+                   'longitude'=list('left'=min(.dt[[longitude]]),
+                                    'right'=max(.dt[[longitude]])))
+  }
+
+  return(viewport)
+}
+
 tableXY <- function(data) {
   table(data$x, data$y)
 }
@@ -205,11 +218,11 @@ makePanels <- function(data, facet1 = NULL, facet2 = NULL) {
 #' Adjust Data Range to Viewport
 #' 
 #'
-#' This function will adjust the range of numeric vector `x` 
-#' the values in ‘x’ according to which interval they fall
-#' @param x Numeric or Date vector to bin
-#' @param binWidth number to increment bin bounds by, or string for dates ex: 'month'
-#' @return Character vector of coded values 
+#' This function will adjust a numeric vector `x` 
+#' according to the values specified in the viewport.
+#' @param x Numeric or Date vector to adjust
+#' @param viewport List indicating viewport min and max values
+#' @return Numeric or Date vector of adjusted values 
 #' @export
 adjustToViewport <- function(x, viewport) {
   if (is.null(viewport)) { return(x) }  
@@ -227,6 +240,39 @@ adjustToViewport <- function(x, viewport) {
   }
 
   return(x)
+}
+
+#' Filter Data Table to Geolocation Viewport
+#' 
+#'
+#' This function will filter a data.table to the specified 
+#' latitude and longitude values.
+#' 
+#' @section Geolocation Viewport Structure:
+#' This is a list of lists taking the form: \cr
+#' *latitude \cr
+#' **xMin = numeric \cr
+#' **xMax = numeric \cr
+#' *longitude \cr
+#' **left = numeric \cr
+#' **right = numeric \cr
+#' @param .dt data.table with columns for latitude and longitude
+#' @param latitude Character vector specifying name of latitude column
+#' @param longitude Character vector specifying name of longitude column
+#' @param viewport List of lists specifying the geolocation viewport.  
+#' @return data.table of filtered values 
+#' @export
+filterToGeolocationViewport <- function(.dt, latitude, longitude, viewport) {
+  if (is.null(viewport)) { return(.dt) }  
+
+  .dt <- .dt[.dt[[latitude]] >= viewport$latitude$xMin & .dt[[latitude]] <= viewport$latitude$xMax]
+  if (viewport$longitude$left < viewport$longitude$right) {
+    .dt <- .dt[.dt[[longitude]] >= viewport$longitude$left & .dt[[longitude]] <= viewport$longitude$right]
+  } else {
+    .dt <- .dt[.dt[[longitude]] >= viewport$longitude$left | .dt[[longitude]] <= viewport$longitude$right]
+  }
+
+  return(.dt)
 }
 
 pruneViewportAdjustmentFromBins <- function(bins, xVP, x, viewport) {

@@ -143,9 +143,7 @@ validateBinSlider <- function(binSlider) {
   return(TRUE)
 }
 
-# at some point we should consider if viewport can be part of the parent class.
-# there are difficulties w it, (ex: stats based not on viewport in child) so ill hold off for now.
-# alt possibly to make viewport a class when we refactor for s4..
+# possibly make viewport a class when we refactor for s4..
 validateViewport <- function(viewport, xType, verbose) {
   if (!is.list(viewport)) {
     return(FALSE)

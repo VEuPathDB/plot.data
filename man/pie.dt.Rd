@@ -8,6 +8,7 @@ pie.dt(
   data,
   map,
   value = c("count", "proportion"),
+  viewport = NULL,
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
@@ -18,6 +19,8 @@ pie.dt(
 \item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. See section below for organization.}
 
 \item{value}{String indicating how to calculate y-values ('count', 'proportion')}
+
+\item{viewport}{List of values indicating the visible range of data}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 
@@ -54,6 +57,17 @@ The 'map' associates columns in the data with plot elements, as well as passes i
 - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
 - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
 - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
+}
+
+\section{Geolocation Viewport Structure}{
+
+This is a list of lists taking the form: \cr
+*latitude \cr
+**xMin = numeric \cr
+**xMax = numeric \cr
+*longitude \cr
+**left = numeric \cr
+**right = numeric \cr
 }
 
 \examples{
