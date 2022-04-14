@@ -769,6 +769,36 @@ test_that("lineplot() returns appropriately formatted json", {
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(typeof(jsonList$lineplot$data$seriesX), 'list')
   expect_equal(typeof(jsonList$lineplot$data$seriesY), 'list')
+
+
+  # With continuous overlay (< 9 values)
+  map <- data.frame('id' = c('entity.int6', 'entity.cat5', 'entity.cat2', 'entity.cat4'), 
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('NUMBER', 'STRING', 'STRING', 'STRING'), 
+                    'dataShape' = c('CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'CATEGORICAL'), 
+                    stringsAsFactors=FALSE)
+
+  dt <- lineplot.dt(df, map, value = 'proportion', numeratorValues = c('cat5_a', 'cat5_b'), denominatorValues = c('cat5_a', 'cat5_b', 'cat5_c', 'cat5_d'))
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+
+  expect_equal(names(jsonList),c('lineplot','sampleSizeTable', 'completeCasesTable'))
+  expect_equal(names(jsonList$lineplot),c('data','config'))
+  expect_equal(names(jsonList$lineplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY', 'binSampleSize', 'errorBars'))
+  expect_equal(names(jsonList$lineplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
+  expect_equal(length(jsonList$lineplot$data$facetVariableDetails), 24)
+  expect_equal(jsonList$lineplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
+  expect_equal(names(jsonList$lineplot$data$binSampleSize[[1]]), c("numeratorN","denominatorN"))
+  expect_equal(names(jsonList$lineplot$data$errorBars[[1]]), c('lowerBound', 'upperBound', 'error'))
+  expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$lineplot$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$lineplot$config$xVariableDetails$variableId, 'cat2')
+  expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('cat2', 'cat5', 'int6', 'cat4'))
 })
 
 test_that("lineplot.dt() returns correct information about missing data", {

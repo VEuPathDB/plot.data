@@ -97,8 +97,8 @@ getJSON <- function(.pd, evilMode) {
     attr$names <- names(sampleSizeTable)
     sampleSizeTable <- veupathUtils::setAttrFromList(sampleSizeTable, attr)
     if ('xAxisVariable' %in% names(namedAttrList)) {
-      if (namedAttrList$xAxisVariable$dataShape != "CONTINUOUS") {
-        x <- veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable)
+      x <- veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable)
+      if (x %in% names(sampleSizeTable)) {
         names(sampleSizeTable)[names(sampleSizeTable) == x] <- 'xVariableDetails'
         sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
       }

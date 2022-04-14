@@ -683,6 +683,38 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId', 'displayLabel'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+
+
+  # With continuous overlay (< 9 values)
+  map <- data.frame('id' = c('entity.int6', 'entity.contA', 'entity.cat4'), 
+                    'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'), 
+                    'dataType' = c('NUMBER', 'NUMBER', 'STRING'), 
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 
+                    stringsAsFactors=FALSE)
+
+  viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
+  binReportValue <- 'binWidth'
+
+  dt <- histogram.dt(df, map, binWidth = NULL, value='count', barmode = 'overlay', binReportValue, viewport)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList),c('histogram','sampleSizeTable', 'completeCasesTable'))
+  expect_equal(names(jsonList$histogram),c('data','config'))
+  expect_equal(names(jsonList$histogram$data),c('overlayVariableDetails','facetVariableDetails','binLabel','value','binStart','binEnd'))
+  expect_equal(names(jsonList$histogram$data$overlayVariableDetails),c('variableId','entityId','value'))
+  expect_equal(jsonList$histogram$data$overlayVariableDetails$variableId[1], 'int6')
+  expect_equal(names(jsonList$histogram$config),c('completeCasesAllVars','completeCasesAxesVars','summary','viewport','binSpec','binSlider','xVariableDetails'))  
+  expect_equal(names(jsonList$histogram$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$histogram$config$xVariableDetails$variableId, 'contA')
+  expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
+  expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
+  expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
+  expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails', 'size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value[[1]]), 'character')
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA', 'int6', 'cat4'))
   
 })
 

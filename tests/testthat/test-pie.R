@@ -40,6 +40,7 @@ test_that("pie.dt() returns a valid plot.data pieplot object", {
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(names(sampleSizes), c('panel','entity.cat6','size'))
   expect_equal(nrow(sampleSizes), 12)
+
 })
 
 
@@ -128,6 +129,29 @@ test_that("pie.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt),18)
   expect_equal(names(dt),c('panel', 'label', 'value'))
   expect_equal(class(dt$panel), 'character')
+
+
+  # With continuous x var (< 9 values)
+  map <- data.frame('id' = c('entity.cat3', 'entity.int6', 'entity.cat4'),
+                    'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  dt <- pie.dt(df, map, value='count')
+  expect_is(dt, 'data.table')
+  expect_is(dt, 'pieplot')
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt),c('panel', 'label', 'value'))
+  expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
+  
+  dt <- pie.dt(df, map, value='proportion')
+  expect_is(dt, 'data.table')
+  expect_is(dt, 'pieplot')
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt),c('panel', 'label', 'value'))
+  expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
+  # sum of x counts within a group should sum to 1
+  expect_equal(all(lapply(dt$value, sum) == 1), TRUE)
 
   
 })
@@ -290,6 +314,34 @@ test_that("pie() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int6', 'int7'))
+
+
+  # With continuous x var (< 9 values)
+  map <- data.frame('id' = c('entity.int6', 'entity.cat5'),
+                    'plotRef' = c('xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('NUMBER', 'STRING'),
+                    'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  df <- as.data.frame(testDF)
+
+  dt <- pie.dt(df, map, value='count')
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList), c('pieplot','sampleSizeTable','completeCasesTable'))
+  expect_equal(names(jsonList$pieplot), c('data','config'))
+  expect_equal(names(jsonList$pieplot$data), c('facetVariableDetails','label','value'))
+  expect_equal(names(jsonList$pieplot$config), c('completeCasesAllVars','completeCasesAxesVars','rankedValues', 'viewport', 'xVariableDetails'))
+  expect_equal(jsonList$pieplot$config$rankedValues, c('6', '3', '1', '4', '2', '5'))
+  expect_equal(class(jsonList$pieplot$config$rankedValues), 'character')
+  expect_equal(names(jsonList$pieplot$config$xVariableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$pieplot$config$xVariableDetails$variableId, 'int6')
+  expect_equal(names(jsonList$sampleSizeTable), c('facetVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  expect_equal(jsonList$sampleSizeTable$xVariableDetails$variableId[1], 'int6')
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int6', 'cat5'))
 
 })
 

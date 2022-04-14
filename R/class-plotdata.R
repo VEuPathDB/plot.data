@@ -257,7 +257,7 @@ newPlotdata <- function(.dt = data.table(),
   # If using a gradient colorscale, overlay var does not contribute to final groups
   overlayGroup <- if (useGradientColorscale) NULL else group
 
-  if (xShape != 'CONTINUOUS') {
+  if (xShape != 'CONTINUOUS' || uniqueN(.dt[[x]]) < 9) {
     .dt$dummy <- 1
     sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, collapse=F)
     .dt$dummy <- NULL
