@@ -25,6 +25,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL),
                          value = character(),
+                         useGradientColorscale = FALSE,
                          evilMode = character(),
                          collectionVariableDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
@@ -43,6 +44,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                      overlayVariable = overlayVariable,
                      facetVariable1 = facetVariable1,
                      facetVariable2 = facetVariable2,
+                     useGradientColorscale = useGradientColorscale,
                      evilMode = evilMode,
                      collectionVariableDetails = collectionVariableDetails,
                      computedVariableMetadata = computedVariableMetadata,
@@ -56,7 +58,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-  if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
+  if (identical(attr$overlayVariable$dataShape,'CONTINUOUS') && useGradientColorscale) {
     .pd$overlayMissingData <- is.na(.pd[[group]])
     series <- collapseByGroup(.pd, group = 'overlayMissingData', panel)
     .pd$overlayMissingData <- NULL
@@ -81,7 +83,8 @@ newScatterPD <- function(.dt = data.table::data.table(),
   }
   if (class(series$seriesY) != 'list') series$seriesY <- list(list(series$seriesY))
 
-  if (identical(attr$overlayVariable$dataShape,'CONTINUOUS')) {
+
+  if (identical(attr$overlayVariable$dataShape,'CONTINUOUS') && useGradientColorscale) {
     if (identical(attr$overlayVariable$dataType,'DATE')) {
       series$seriesGradientColorscale <- lapply(series$seriesGradientColorscale, format, '%Y-%m-%d')
     } else {
@@ -128,6 +131,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
     .pd <- series
   }
   attr$names <- names(.pd)
+  if (useGradientColorscale) attr$useGradientColorscale <- useGradientColorscale
 
   veupathUtils::setAttrFromList(.pd, attr)
 
@@ -261,11 +265,18 @@ scattergl.dt <- function(data,
   } 
   overlayVariable <- plotRefMapToList(map, 'overlayVariable')
 
-  if (!is.null(overlayVariable$variableId) & !identical(collectionVariablePlotRef, 'overlayVariable')) {
-    if (overlayVariable$dataShape == 'CONTINUOUS' & value != 'raw') {
-      stop('Continuous overlay variables cannot be used with trend lines.')
-    }
+  # Decide if we should use a gradient colorscale
+  # For now the decision is handled internally. Eventually we may allow for this logic to be overridden and it can be a function arg.
+  useGradientColorscale <- FALSE
+  if (!is.null(overlayVariable$variableId)) {
+    overlayVariableColumnName <- veupathUtils::toColNameOrNull(overlayVariable)
+    if (identical(overlayVariable$dataShape, 'CONTINUOUS') && data.table::uniqueN(data[[overlayVariableColumnName]]) > 8) useGradientColorscale <- TRUE
   }
+
+  if (useGradientColorscale && value != 'raw') {
+    stop('Gradient colorscales cannot be used with trend lines.')
+  }
+
   facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
   facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
@@ -299,6 +310,7 @@ scattergl.dt <- function(data,
                             facetVariable1 = facetVariable1,
                             facetVariable2 = facetVariable2,
                             value = value,
+                            useGradientColorscale = useGradientColorscale,
                             evilMode = evilMode,
                             collectionVariableDetails = collectionVariableDetails,
                             computedVariableMetadata = computedVariableMetadata,

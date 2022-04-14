@@ -545,6 +545,29 @@ test_that("beeswarm() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(class(jsonList$beeswarm$data$label[[1]]), 'character')
+
+
+  # With continuous overlay variable (< 9 values)
+  map <- data.frame('id' = c('entity.int6', 'entity.contB', 'entity.binA'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  dt <- beeswarm.dt(df, map, 0.1, FALSE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList), c('beeswarm','sampleSizeTable','completeCasesTable'))
+  expect_equal(names(jsonList$beeswarm), c('data','config'))
+  expect_equal(names(jsonList$beeswarm$data), c('overlayVariableDetails','label','rawData', 'jitteredValues'))
+  expect_equal(names(jsonList$beeswarm$config), c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$beeswarm$config$xVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(class(jsonList$beeswarm$data$label[[1]]), 'character')
+  
 })
 
 
