@@ -420,9 +420,9 @@ chiSq <- function(tbl, collapse = TRUE) {
   }
 
   chisq <- chisq.test(tbl)
-  dt <- data.table::data.table('chisq'=jsonlite::unbox(chisq$statistic), 
-                               'pvalue'=jsonlite::unbox(chisq$p.value), 
-                               'degreesFreedom'=jsonlite::unbox(chisq$parameter))
+  dt <- data.table::data.table('chisq'=jsonlite::unbox(as.numeric(chisq$statistic)), 
+                               'pvalue'=jsonlite::unbox(as.numeric(chisq$p.value)), 
+                               'degreesFreedom'=jsonlite::unbox(as.numeric(chisq$parameter)))
 
   return(dt)
 }

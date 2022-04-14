@@ -1,5 +1,13 @@
 context('utils')
 
+test_that("chiSq returns consistent classes", {
+  tbl1 <- table(data.table('Antibiotic'=c('Azithromycin'),'Disease'=c('Yes','No')))
+  tbl2 <- table(data.table('Antibiotic'=c('Azithromycin','Placebo'),'Disease'=c('Yes','No')))
+
+  expect_equal(all(unlist(lapply(chiSq(tbl1),is.numeric))), TRUE)
+  expect_equal(all(unlist(lapply(chiSq(tbl2),is.numeric))), TRUE)
+})
+
 test_that("*CI fxns return reasonable results", {
   noValues <- numeric()
   singleValue <- rnorm(1)

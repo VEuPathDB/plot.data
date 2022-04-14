@@ -152,7 +152,7 @@ test_that("mosaic.dt() returns plot data and config of the appropriate types", {
   expect_equal(class(unlist(sampleSizes$entity.cat4)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
   expect_equal(class(unlist(namedAttrList$statsTable$chisq)), c('scalar', 'numeric'))
-  expect_equal(class(unlist(namedAttrList$statsTable$degreesFreedom)), c('scalar', 'integer'))
+  expect_equal(class(unlist(namedAttrList$statsTable$degreesFreedom)), c('scalar', 'numeric'))
   expect_equal(class(unlist(namedAttrList$statsTable$pvalue)), c('scalar', 'numeric'))
   expect_equal(class(unlist(namedAttrList$statsTable$entity.cat4)), 'character')
 
@@ -176,7 +176,7 @@ test_that("mosaic.dt() returns plot data and config of the appropriate types", {
   expect_equal(class(unlist(sampleSizes$entity.cat4)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
   expect_equal(class(unlist(namedAttrList$statsTable$chisq)), c('scalar', 'numeric'))
-  expect_equal(class(unlist(namedAttrList$statsTable$degreesFreedom)), c('scalar', 'integer'))
+  expect_equal(class(unlist(namedAttrList$statsTable$degreesFreedom)), c('scalar', 'numeric'))
   expect_equal(class(unlist(namedAttrList$statsTable$pvalue)), c('scalar', 'numeric'))
   expect_equal(class(unlist(namedAttrList$statsTable$entity.cat4)), 'character')
 })
