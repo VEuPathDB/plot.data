@@ -784,6 +784,33 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$statsTable), c('facetVariableDetails','statistic','pvalue','parameter','method','statsError'))
   expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
+
+
+  # With continuous overlay (< 9 values)
+  map <- data.frame('id' = c('entity.int6', 'entity.contB', 'entity.binA'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  dt <- box.dt(df, map, 'none', FALSE, computeStats = T)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList), c('boxplot','sampleSizeTable','statsTable','completeCasesTable'))
+  expect_equal(names(jsonList$boxplot), c('data','config'))
+  expect_equal(names(jsonList$boxplot$data), c('overlayVariableDetails','label','min','q1','median','q3','max','lowerfence','upperfence'))
+  expect_equal(names(jsonList$boxplot$config), c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$statsTable), c('xVariableDetails','statistic','pvalue','parameter','method','statsError'))
+  expect_equal(jsonList$statsTable$xVariableDetails$variableId[1], 'binA')
+  expect_equal(class(jsonList$statsTable$statistic), 'numeric')
+  expect_equal(class(jsonList$statsTable$statsError), 'character')
+  expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
+
 })
 
 

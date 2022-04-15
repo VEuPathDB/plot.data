@@ -56,7 +56,8 @@ newPlotdata <- function(.dt = data.table(),
                                               'dataType' = NULL,
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL,
-                                              'naToZero' = NULL),                      
+                                              'naToZero' = NULL),      
+                         useGradientColorscale = FALSE,                
                          evilMode = character(),
                          collectionVariableDetails = list('inferredVariable' = NULL,
                                                'inferredVarPlotRef' = NULL,
@@ -253,10 +254,10 @@ newPlotdata <- function(.dt = data.table(),
     .dt <- .dt[complete.cases(.dt),]
   }
 
-  # If overlay is continuous, it does not contribute to final groups
-  overlayGroup <- if (identical(overlayVariable$dataShape,'CONTINUOUS')) NULL else group
+  # If using a gradient colorscale, overlay var does not contribute to final groups
+  overlayGroup <- if (useGradientColorscale) NULL else group
 
-  if (xShape != 'CONTINUOUS') {
+  if (xShape != 'CONTINUOUS' || uniqueN(.dt[[x]]) < 9) {
     .dt$dummy <- 1
     sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, collapse=F)
     .dt$dummy <- NULL

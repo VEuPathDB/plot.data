@@ -507,7 +507,7 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId')) 
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','cat3','cat4'))
   
-  # Continuous overlay
+  # Continuous overlay with > 8 values
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat4', 'entity.contC'),
                     'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'),
                     'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'),
@@ -584,6 +584,35 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId', 'displayLabel'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','contC','cat4'))
+
+
+  # Continuous overlay with < 9 values
+  map <- data.frame('id' = c('entity.int6', 'entity.contB', 'entity.contA', 'entity.cat4'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+
+  expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
+  expect_equal(names(jsonList$scatterplot),c('data','config'))
+  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE','smoothedMeanError'))
+  expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
+  expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 24)
+  expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
+  expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
+  expect_equal(names(jsonList$scatterplot$config$xVariableDetails),c('variableId','entityId'))
+  expect_equal(jsonList$scatterplot$config$xVariableDetails$variableId, 'contA')
+  expect_equal(jsonList$scatterplot$config$yVariableDetails$variableId, 'contB')
+  expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(jsonList$sampleSizeTable$overlayVariableDetails$variableId[1], 'int6')
+  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId')) 
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','int6','cat4'))
 
   # With collection vars and computed variable metadata
   map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),

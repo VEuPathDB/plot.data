@@ -36,7 +36,7 @@ addVariableDetailsToColumn <- function(.pd, variableIdColName) {
   return(.pd)
 }
 
-addStrataVariableDetails <- function(.pd) {
+addStrataVariableDetails <- function(.pd, useGradientColorscale=FALSE) {
   namedAttrList <- getPDAttributes(.pd)
   group <- veupathUtils::toColNameOrNull(namedAttrList$overlayVariable)
   facet1 <- veupathUtils::toColNameOrNull(namedAttrList$facetVariable1)
@@ -44,12 +44,9 @@ addStrataVariableDetails <- function(.pd) {
  
   # !!!!! work off a copy while writing json
   # since we have two exported fxns, dont want calling one changing the result of the other
-  if (!is.null(group)) {
-    if (!identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS') & (group %in% names(.pd))) {
-      names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
-      .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
-      #if (nrow(.pd) == 1) { .pd$overlayVariableDetails <- list(list(.pd$overlayVariableDetails)) }
-    }
+  if (!is.null(group) && !useGradientColorscale && (group %in% names(.pd))) {
+    names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
+    .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
   }
 
   if (!is.null(facet1) & !is.null(facet2)) {
@@ -74,13 +71,14 @@ addStrataVariableDetails <- function(.pd) {
 getJSON <- function(.pd, evilMode) {
   namedAttrList <- getPDAttributes(.pd)
   class <- attr(.pd, 'class')[1] 
+  useGradientColorscale <- ifelse(identical(namedAttrList$useGradientColorscale, TRUE), TRUE, FALSE)
 
   if ('statsTable' %in% names(namedAttrList)) {
     statsTable <- statsTable(.pd)
     namedAttrList$statsTable <- NULL
     attr <- attributes(statsTable)
     statsTable <- veupathUtils::setAttrFromList(statsTable, namedAttrList, removeExtraAttrs=F)
-    statsTable <- addStrataVariableDetails(statsTable)
+    statsTable <- addStrataVariableDetails(statsTable, useGradientColorscale)
     attr$names <- names(statsTable)
     statsTable <- veupathUtils::setAttrFromList(statsTable, attr)
     if (veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable) %in% names(statsTable)) {
@@ -95,12 +93,12 @@ getJSON <- function(.pd, evilMode) {
     namedAttrList$sampleSizeTable <- NULL
     attr <- attributes(sampleSizeTable)
     sampleSizeTable <- veupathUtils::setAttrFromList(sampleSizeTable, namedAttrList, removeExtraAttrs=F)
-    sampleSizeTable <- addStrataVariableDetails(sampleSizeTable)
+    sampleSizeTable <- addStrataVariableDetails(sampleSizeTable, useGradientColorscale)
     attr$names <- names(sampleSizeTable)
     sampleSizeTable <- veupathUtils::setAttrFromList(sampleSizeTable, attr)
     if ('xAxisVariable' %in% names(namedAttrList)) {
-      if (namedAttrList$xAxisVariable$dataShape != "CONTINUOUS") {
-        x <- veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable)
+      x <- veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable)
+      if (x %in% names(sampleSizeTable)) {
         names(sampleSizeTable)[names(sampleSizeTable) == x] <- 'xVariableDetails'
         sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
       }
@@ -131,11 +129,15 @@ getJSON <- function(.pd, evilMode) {
     namedAttrList$zAxisVariable <- NULL
   }
   
-  .pd <- addStrataVariableDetails(.pd)
+  .pd <- addStrataVariableDetails(.pd, useGradientColorscale)
+
   # If overlay is continuous, handle similarly to x, y, z vars.
-  if ('overlayVariable' %in% names(namedAttrList) && identical(namedAttrList$overlayVariable$dataShape, 'CONTINUOUS')) {
+  if (!is.null(namedAttrList$overlayVariable$variableId) && useGradientColorscale) {
     namedAttrList$overlayVariableDetails <- makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
   }
+
+  # Remove useGradientColorscale
+  namedAttrList$useGradientColorscale <- NULL
   
   namedAttrList$facetVariable1 <- NULL
   namedAttrList$facetVariable2 <- NULL
