@@ -58,7 +58,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
 
-  if (identical(attr$overlayVariable$dataShape,'CONTINUOUS') && useGradientColorscale) {
+  if (useGradientColorscale) {
     .pd$overlayMissingData <- is.na(.pd[[group]])
     series <- collapseByGroup(.pd, group = 'overlayMissingData', panel)
     .pd$overlayMissingData <- NULL
