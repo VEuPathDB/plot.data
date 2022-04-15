@@ -84,7 +84,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   if (class(series$seriesY) != 'list') series$seriesY <- list(list(series$seriesY))
 
 
-  if (identical(attr$overlayVariable$dataShape,'CONTINUOUS') && useGradientColorscale) {
+  if (useGradientColorscale) {
     if (identical(attr$overlayVariable$dataType,'DATE')) {
       series$seriesGradientColorscale <- lapply(series$seriesGradientColorscale, format, '%Y-%m-%d')
     } else {
@@ -268,7 +268,7 @@ scattergl.dt <- function(data,
   # Decide if we should use a gradient colorscale
   # For now the decision is handled internally. Eventually we may allow for this logic to be overridden and it can be a function arg.
   useGradientColorscale <- FALSE
-  if (!is.null(overlayVariable$variableId)) {
+  if (!is.null(overlayVariable$variableId) && !identical(collectionVariablePlotRef, 'overlayVariable')) {
     overlayVariableColumnName <- veupathUtils::toColNameOrNull(overlayVariable)
     if (identical(overlayVariable$dataShape, 'CONTINUOUS') && data.table::uniqueN(data[[overlayVariableColumnName]]) > 8) useGradientColorscale <- TRUE
   }
