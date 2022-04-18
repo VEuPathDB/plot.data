@@ -128,6 +128,10 @@ newBoxPD <- function(.dt = data.table::data.table(),
   
   .pd <- .pd.base
   data.table::setnames(.pd, x, 'label')
+
+  .pd$label <- lapply(.pd$label, as.character)
+  if (class(.pd$label) != 'list') .pd$label <- list(list(.pd$label))
+  
   attr$names <- names(.pd)
   veupathUtils::setAttrFromList(.pd, attr)
 
