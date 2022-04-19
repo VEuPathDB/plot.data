@@ -77,6 +77,28 @@ test_that("bar.dt() returns plot data and config of the appropriate types", {
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(class(unlist(sampleSizes$panel)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
+
+  # With numeric x
+  map <- data.frame('id' = c('entity.cat4', 'entity.int6', 'entity.cat5'),
+                    'plotRef' = c('facetVariable2', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('STRING', 'NUMBER', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  df <- as.data.frame(testDF)
+
+  dt <- bar.dt(df, map, value='count')
+  expect_is(dt$label, 'list')
+  expect_equal(class(unlist(dt$label)), 'character')
+  expect_is(dt$value, 'list')
+  expect_equal(class(unlist(dt$value)), 'integer')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(class(namedAttrList$completeCasesAllVars),c('scalar', 'integer'))
+  expect_equal(class(namedAttrList$completeCasesAxesVars),c('scalar', 'integer')) 
+  completeCases <- completeCasesTable(dt)
+  expect_equal(class(unlist(completeCases$variableDetails)), 'character')
+  expect_equal(class(unlist(completeCases$completeCases)), 'integer')
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(class(unlist(sampleSizes$panel)), 'character')
+  expect_equal(class(unlist(sampleSizes$size)), 'integer')
 })
 
 test_that("bar.dt() returns an appropriately sized data.table", {

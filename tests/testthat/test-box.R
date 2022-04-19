@@ -139,6 +139,7 @@ test_that("box.dt() returns plot data and config of the appropriate types", {
   df <- as.data.frame(testDF)
 
   dt <- box.dt(df, map, 'none', TRUE)
+  expect_equal(class(dt$label[[1]]), 'character')
   expect_equal(class(dt$min[[1]]), 'numeric')
   expect_equal(class(dt$q1[[1]]), 'numeric')
   expect_equal(class(dt$median[[1]]), 'numeric')
@@ -160,6 +161,7 @@ test_that("box.dt() returns plot data and config of the appropriate types", {
   
   #w outliers
   dt <- box.dt(df, map, 'outliers', TRUE)
+  expect_equal(class(dt$label[[1]]), 'character')
   expect_equal(class(dt$min[[1]]), 'numeric')
   expect_equal(class(dt$q1[[1]]), 'numeric')
   expect_equal(class(dt$median[[1]]), 'numeric')
@@ -192,6 +194,7 @@ test_that("box.dt() returns plot data and config of the appropriate types", {
   df <- testDF[testDF$entity.cat3 == 'cat3_a' & testDF$entity.cat4 == 'cat4_a',]
 
   dt <- box.dt(df, map, 'none', TRUE)
+  expect_equal(class(dt$label[[1]]), 'character')
   expect_equal(class(dt$min[[1]]), 'numeric')
   expect_equal(class(dt$q1[[1]]), 'numeric')
   expect_equal(class(dt$median[[1]]), 'numeric')
@@ -209,6 +212,65 @@ test_that("box.dt() returns plot data and config of the appropriate types", {
   expect_equal(class(unlist(completeCases$completeCases)), 'integer')
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(class(unlist(sampleSizes$entity.cat4)), 'character')
+  expect_equal(class(unlist(sampleSizes$size)), 'integer')
+
+  # With numeric data for the x axis
+  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.int6'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('STRING', 'NUMBER', 'NUMBER'),
+                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
+
+  df <- testDF
+
+  dt <- box.dt(df, map, 'none', TRUE)
+  expect_equal(class(dt$label[[1]]), 'character')
+  expect_equal(class(dt$min[[1]]), 'numeric')
+  expect_equal(class(dt$q1[[1]]), 'numeric')
+  expect_equal(class(dt$median[[1]]), 'numeric')
+  expect_equal(class(dt$q3[[1]]), 'numeric')
+  expect_equal(class(dt$max[[1]]), 'numeric')
+  expect_equal(class(dt$lowerfence[[1]]), 'numeric')
+  expect_equal(class(dt$upperfence[[1]]), 'numeric')
+  expect_equal(class(dt$mean[[1]]), 'numeric')
+
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(class(namedAttrList$completeCasesAllVars),c('scalar', 'integer'))
+  expect_equal(class(namedAttrList$completeCasesAxesVars),c('scalar', 'integer'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(class(unlist(completeCases$variableDetails)), 'character')
+  expect_equal(class(unlist(completeCases$completeCases)), 'integer')
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(class(unlist(sampleSizes$entity.int6)), 'integer') ## will become a string when written to json
+  expect_equal(class(unlist(sampleSizes$size)), 'integer')
+
+  # With a single numeric box
+  map <- data.frame('id' = c('entity.contB', 'entity.int2'),
+                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER'),
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
+
+  df <- testDF
+  df[df$entity.int2 == 2] <- 1
+
+  dt <- box.dt(df, map, 'none', TRUE)
+  expect_equal(class(dt$label[[1]]), 'character')
+  expect_equal(class(dt$min[[1]]), 'numeric')
+  expect_equal(class(dt$q1[[1]]), 'numeric')
+  expect_equal(class(dt$median[[1]]), 'numeric')
+  expect_equal(class(dt$q3[[1]]), 'numeric')
+  expect_equal(class(dt$max[[1]]), 'numeric')
+  expect_equal(class(dt$lowerfence[[1]]), 'numeric')
+  expect_equal(class(dt$upperfence[[1]]), 'numeric')
+  expect_equal(class(dt$mean[[1]]), 'numeric')
+
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(class(namedAttrList$completeCasesAllVars),c('scalar', 'integer'))
+  expect_equal(class(namedAttrList$completeCasesAxesVars),c('scalar', 'integer'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(class(unlist(completeCases$variableDetails)), 'character')
+  expect_equal(class(unlist(completeCases$completeCases)), 'integer')
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(class(unlist(sampleSizes$entity.int2)), 'numeric') ## will become a string when written to json
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
 })
 

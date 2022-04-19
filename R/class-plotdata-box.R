@@ -57,6 +57,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   y <- veupathUtils::toColNameOrNull(attr$yAxisVariable)
   group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
   panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
+  .pd[[x]] <- as.character(.pd[[x]])
 
   summary <- groupSummary(.pd, x, y, group, panel)
   fences <- groupFences(.pd, x, y, group, panel)
@@ -128,6 +129,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
   
   .pd <- .pd.base
   data.table::setnames(.pd, x, 'label')
+
   attr$names <- names(.pd)
   veupathUtils::setAttrFromList(.pd, attr)
 
