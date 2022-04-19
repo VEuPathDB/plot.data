@@ -252,7 +252,7 @@ test_that("box.dt() returns plot data and config of the appropriate types", {
   df <- testDF
   df[df$entity.int2 == 2] <- 1
 
-  dt <- box(df, map, 'none', TRUE)
+  dt <- box.dt(df, map, 'none', TRUE)
   expect_equal(class(dt$label[[1]]), 'character')
   expect_equal(class(dt$min[[1]]), 'numeric')
   expect_equal(class(dt$q1[[1]]), 'numeric')
@@ -270,7 +270,7 @@ test_that("box.dt() returns plot data and config of the appropriate types", {
   expect_equal(class(unlist(completeCases$variableDetails)), 'character')
   expect_equal(class(unlist(completeCases$completeCases)), 'integer')
   sampleSizes <- sampleSizeTable(dt)
-  expect_equal(class(unlist(sampleSizes$entity.int6)), 'integer') ## will become a string when written to json
+  expect_equal(class(unlist(sampleSizes$entity.int2)), 'numeric') ## will become a string when written to json
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
 })
 
