@@ -31,6 +31,28 @@ meanCI <- function(x, conf.level=.95) {
   return(list(ci))
 }
 
+geometricMeanCI <- function(x, conf.level=.95) {
+  if (any(x < 0)) { stop("Cannot provide confidence interval for geometric mean where data contains negative values.") }
+  if (any(x == 0)) { warning("Values contain 0s which will be ignored when finding the confidence interval for the geometric mean.") }
+
+  x <- x[x>0]
+
+  r <- mean(log(x))
+  n <- length(x)
+  SEr <- sqrt((sum((log(x)-r)^2))/(n-1))/sqrt(n)
+  upperBound <- exp(r+2*SEr)
+  lowerBound <- exp(r-2*SEr)
+
+  if (any(is.na(c(lowerBound, upperBound)))) {
+    ci <- list('lowerBound'=jsonlite::unbox(NA), 'upperBound'=jsonlite::unbox(NA), 'error'=jsonlite::unbox("Failed to determine confidence interval for geometric mean."))
+  } else {
+    ci <- list('lowerBound'=jsonlite::unbox(lowerBound), 'upperBound'=jsonlite::unbox(upperBound), 'error'=jsonlite::unbox(""))
+  }
+  
+
+  return(list(ci))
+}
+
 proportionCI <- function(numerator, denominator, conf.level=.95) {
   p <- numerator/denominator
   n <- denominator
@@ -76,6 +98,13 @@ roundedSD <- function(x, digits = 4, ...) {
 roundedMean <- function(x, digits = 4, ...) {
   c(round(mean(x, ...), digits))
 } 
+
+roundedGeometricMean <- function(x, digits = 4, ...) {
+  if (any(x < 0)) { stop("Cannot provide geometric mean for negative values.") }
+  if (any(x == 0)) { warning("Values contain 0s which will be ignored when finding geometric mean.") }
+
+  c(round(exp(mean(log(x[x>0]))), digits))
+}
 
 roundedMedian <- function(x, digits = 4, ...) {
   c(round(median(x, ...), digits))

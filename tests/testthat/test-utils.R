@@ -8,6 +8,24 @@ test_that("chiSq returns consistent classes", {
   expect_equal(all(unlist(lapply(chiSq(tbl2),is.numeric))), TRUE)
 })
 
+test_that("roundedGeometricMean() returns reasonable results.", {
+  noValues <- numeric()
+  singlePositiveValue <- rnorm(1, 10)
+  fewPositiveValues <- rnorm(2, 10)
+  negativeValues <- rnorm(1000, -10)
+  positiveValues <- rnorm(1000, 10)
+  zeroValue <- c(0, positiveValues)
+  onlyZeroValues <- c(0,0,0,0,0)
+
+  expect_error(roundedGeometricMean(negativeValues))
+  expect_equal(roundedGeometricMean(noValues), NaN)
+  expect_equal(roundedGeometricMean(onlyZeroValues), NaN)
+  expect_warning(roundedGeometricMean(zeroValue))
+  expect_equal(roundedGeometricMean(singlePositiveValue), singlePositiveValue)
+  expect_equal(roundedGeometricMean(positiveValues), roundedGeometricMean(zeroValue))
+  expect_equal(roundedGeometricMean(positiveValues) < roundedMean(positiveValues), TRUE)
+})
+
 test_that("*CI fxns return reasonable results", {
   noValues <- numeric()
   singleValue <- rnorm(1)
@@ -55,6 +73,51 @@ test_that("*CI fxns return reasonable results", {
   expect_equal(medianCI(manyValues)[[1]]$upperBound >= median(manyValues), TRUE)
   expect_equal(medianCI(manyValues)[[1]]$lowerBound > min(manyValues), TRUE)
   expect_equal(medianCI(manyValues)[[1]]$upperBound < max(manyValues), TRUE)
+
+  singlePositiveValue <- rnorm(1, 10)
+  fewPositiveValues <- rnorm(2, 10)
+  negativeValues <- rnorm(1000, -10)
+  positiveValues <- rnorm(1000, 10)
+  zeroValue <- c(0, positiveValues)
+  onlyZeroValues <- c(0,0,0,0,0)
+
+  # should this return a graceful nonspecific error like the other types of inputs we cant find CIs for?
+  expect_error(geometricMeanCI(negativeValues))
+
+  expect_equal(nchar(geometricMeanCI(noValues)[[1]]$error) > 0, TRUE)
+  expect_equal(is.na(geometricMeanCI(noValues)[[1]]$lowerBound), TRUE)
+  expect_equal(is.na(geometricMeanCI(noValues)[[1]]$upperBound), TRUE)
+
+  expect_equal(nchar(geometricMeanCI(singlePositiveValue)[[1]]$error) > 0, TRUE)
+  expect_equal(is.na(geometricMeanCI(singlePositiveValue)[[1]]$lowerBound), TRUE)
+  expect_equal(is.na(geometricMeanCI(singlePositiveValue)[[1]]$upperBound), TRUE)
+
+  expect_equal(nchar(geometricMeanCI(onlyZeroValues)[[1]]$error) > 0, TRUE)
+  expect_equal(is.na(geometricMeanCI(onlyZeroValues)[[1]]$lowerBound), TRUE)
+  expect_equal(is.na(geometricMeanCI(onlyZeroValues)[[1]]$upperBound), TRUE)
+
+  expect_equal(nchar(geometricMeanCI(fewPositiveValues)[[1]]$error) == 0, TRUE)
+  expect_equal(is.numeric(geometricMeanCI(fewPositiveValues)[[1]]$lowerBound), TRUE)
+  expect_equal(is.numeric(geometricMeanCI(fewPositiveValues)[[1]]$upperBound), TRUE)
+  expect_equal(geometricMeanCI(fewPositiveValues)[[1]]$lowerBound <= roundedGeometricMean(fewPositiveValues), TRUE)
+  expect_equal(geometricMeanCI(fewPositiveValues)[[1]]$upperBound >= roundedGeometricMean(fewPositiveValues), TRUE)
+
+  expect_equal(nchar(geometricMeanCI(positiveValues)[[1]]$error) == 0, TRUE)
+  expect_equal(is.numeric(geometricMeanCI(positiveValues)[[1]]$lowerBound), TRUE)
+  expect_equal(is.numeric(geometricMeanCI(positiveValues)[[1]]$upperBound), TRUE)
+  expect_equal(geometricMeanCI(positiveValues)[[1]]$lowerBound <= roundedGeometricMean(positiveValues), TRUE)
+  expect_equal(geometricMeanCI(positiveValues)[[1]]$upperBound >= roundedGeometricMean(positiveValues), TRUE)
+  expect_equal(geometricMeanCI(positiveValues)[[1]]$lowerBound > min(positiveValues), TRUE)
+  expect_equal(geometricMeanCI(positiveValues)[[1]]$upperBound < max(positiveValues), TRUE)
+
+  expect_equal(nchar(geometricMeanCI(zeroValue)[[1]]$error) == 0, TRUE)
+  expect_equal(is.numeric(geometricMeanCI(zeroValue)[[1]]$lowerBound), TRUE)
+  expect_equal(is.numeric(geometricMeanCI(zeroValue)[[1]]$upperBound), TRUE)
+  expect_equal(geometricMeanCI(zeroValue)[[1]]$lowerBound <= roundedGeometricMean(zeroValue), TRUE)
+  expect_equal(geometricMeanCI(zeroValue)[[1]]$upperBound >= roundedGeometricMean(zeroValue), TRUE)
+  expect_equal(geometricMeanCI(zeroValue)[[1]]$lowerBound > min(zeroValue), TRUE)
+  expect_equal(geometricMeanCI(zeroValue)[[1]]$upperBound < max(zeroValue), TRUE)
+  expect_warning(geometricMeanCI(zeroValue))
 
   noNum <- numeric()
   noDenom <- numeric()

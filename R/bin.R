@@ -68,6 +68,41 @@ binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, vie
   return(data)
 }
 
+binGeometricMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), xType) {
+  errorBars <- veupathUtils::matchArg(errorBars)
+
+  if (xType != 'STRING' && binWidth != 0) {
+    data <- data[data[[x]] >= viewport$xMin & data[[x]] <= viewport$xMax,]
+    data$binLabel <- bin(data[[x]], binWidth, viewport)
+  } else {
+    data.table::setnames(data, x, 'binLabel')
+  }
+  
+  byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
+  if (errorBars) {
+    data <- data[, list(value=roundedGeometricMean(get(..y)),
+                      binSampleSize=simpleSampleSize(get(..y)),
+                      errorBars=geometricMeanCI(get(..y))), by=eval(byCols)]
+  } else {
+    data <- data[, list(value=roundedGeometricMean(get(..y)),
+                      binSampleSize=simpleSampleSize(get(..y))), by=eval(byCols)]
+  }
+  
+  if (xType != 'STRING' && binWidth != 0) {
+    data$binStart <- findBinStart(data$binLabel)
+    data$binEnd <- findBinEnd(data$binLabel)
+    data <- data[order(data$binStart),]
+    data$binStart <- as.character(data$binStart)
+  } else {
+    data <- data[order(data$binLabel),]
+  }
+  data$binLabel <- as.character(data$binLabel)
+
+  data <- collapseByGroup(data, group, panel)
+
+  return(data)
+}
+
 binSize <- function(data, col, group = NULL, panel = NULL, binWidth = NULL, viewport) {
   data <- data[data[[col]] >= viewport$xMin & data[[col]] <= viewport$xMax,]
   data$binLabel <- bin(data[[col]], binWidth, viewport)
