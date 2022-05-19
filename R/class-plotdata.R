@@ -45,6 +45,12 @@ newPlotdata <- function(.dt = data.table(),
                                               'dataShape' = NULL,
                                               'displayLabel' = NULL,
                                               'naToZero' = NULL),
+                         geoAggregateVariable = list('variableId' = NULL,
+                                              'entityId' = NULL,
+                                              'dataType' = NULL,
+                                              'dataShape' = NULL,
+                                              'displayLabel' = NULL,
+                                              'naToZero' = NULL),
                          latitudeVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
                                               'dataType' = NULL,
@@ -83,6 +89,7 @@ newPlotdata <- function(.dt = data.table(),
   facetType1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataType))
   facet2 <- veupathUtils::toColNameOrNull(facetVariable2)
   facetType2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataType))
+  geo <- veupathUtils::toColNameOrNull(geoAggregateVariable)
 
   #think the only thing we need to do w these at this point is make sure theyre included in the .pd 
   lat <- veupathUtils::toColNameOrNull(latitudeVariable)
@@ -103,7 +110,7 @@ newPlotdata <- function(.dt = data.table(),
   }
 
   #lat and lon must be used w a geohash, so they dont need to be part of completeCases*
-  varCols <- c(x, y, z, group, facet1, facet2)
+  varCols <- c(x, y, z, group, facet1, facet2, geo)
   completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
   completeCasesTable <- data.table::transpose(completeCasesTable, keep.names = 'variableDetails')
   data.table::setnames(completeCasesTable, 'V1', 'completeCases')
@@ -115,14 +122,13 @@ newPlotdata <- function(.dt = data.table(),
     .dt <- data.table::setDT(panelData[[1]])
     panel <- panelData[[2]]
     if (!is.null(panel)){
-      # pie, our outlier, is breaking this rule in the map
-      #if (uniqueN(.dt[[panel]]) > 25) stop("Maximum number of panels allowed is 25.")
+      if (uniqueN(.dt[[panel]]) > 25) stop("Maximum number of panels allowed is 25.")
     }
   } else {
     panel <- c(facet1, facet2)
   }
 
-  myCols <- c(x, y, z, lat, lon, group, panel)
+  myCols <- c(x, y, z, lat, lon, group, panel, geo)
   .dt <- .dt[, myCols, with=FALSE]
   veupathUtils::logWithTime('Identified facet intersections.', verbose)
 
@@ -230,7 +236,7 @@ newPlotdata <- function(.dt = data.table(),
   veupathUtils::logWithTime('Base data types updated for all columns as necessary.', verbose)
 
   # TODO review logic here around complete cases on the panel column
-  completeCasesAllVars <- complete.cases(.dt[, c(x,y,z,group,panel), with=FALSE])
+  completeCasesAllVars <- complete.cases(.dt[, c(x,y,z,group,panel,geo), with=FALSE])
   completeCasesAllVars <- jsonlite::unbox(nrow(.dt[completeCasesAllVars,]))
   completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[complete.cases(.dt[, c(x,y), with=FALSE]),]))
   veupathUtils::logWithTime('Determined total number of complete cases across axes and strata vars.', verbose)
@@ -241,6 +247,7 @@ newPlotdata <- function(.dt = data.table(),
     # is it possible for a continuous overlay to represent something other than color for ex? and what then?
     if (!is.null(group) && !identical(overlayVariable$dataShape,'CONTINUOUS')) { .dt[[group]][is.na(.dt[[group]])] <- 'No data' }
     if (!is.null(panel)) { .dt[[panel]][is.na(.dt[[panel]])] <- 'No data' }
+    if (!is.null(geo)) { .dt[[geo]][is.na(.dt[[geo]])] <- 'No data'}
     if (evilMode == 'allVariables') {
       if (!is.null(x)) { .dt[[x]][is.na(.dt[[x]])] <- 'No data' }
       if (!is.null(y)) { .dt[[y]][is.na(.dt[[y]])] <- 'No data' }
@@ -259,10 +266,10 @@ newPlotdata <- function(.dt = data.table(),
 
   if (xShape != 'CONTINUOUS' || uniqueN(.dt[[x]]) < 9) {
     .dt$dummy <- 1
-    sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, collapse=F)
+    sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, geo, collapse=F)
     .dt$dummy <- NULL
   } else {
-    sampleSizeTable <- groupSize(.dt, x=NULL, y=x, overlayGroup, panel, collapse=F)
+    sampleSizeTable <- groupSize(.dt, x=NULL, y=x, overlayGroup, panel, geo, collapse=F)
   }
 
   veupathUtils::logWithTime('Calculated sample sizes per group.', verbose)
@@ -290,6 +297,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(group)) { attr$overlayVariable <- overlayVariable }
   if (!is.null(facet1)) { attr$facetVariable1 <- facetVariable1 }
   if (!is.null(facet2)) { attr$facetVariable2 <- facetVariable2 }
+  if (!is.null(geo)) { attr$geoAggregateVariable <- geoAggregateVariable }
   if (!is.null(collectionVariable)) { attr$collectionVariable <- collectionVariable }
   if (!all(unlist(lapply(computedVariableMetadata, is.null)))) { attr$computedVariableMetadata <- computedVariableMetadata}
 

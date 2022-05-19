@@ -195,21 +195,37 @@ binWidthToNumBins <- function(x, binWidth) {
 }
 
 #' @export
-numBinsToBinWidth <- function(x, numBins) {
-  diff(range(x))/numBins
+numBinsToBinWidth <- function(x, numBins) UseMethod("numBinsToBinWidth")
+
+#' @export
+numBinsToBinWidth.default <- function(x, numBins) {
+  binWidth <- ceiling(diff(range(x)))/numBins
+  if (all(x %% 1 == 0)) {
+    binWidth <- ceiling(binWidth)
+    if (numBins == 1) {
+      binWidth <- binWidth + 1
+    }
+  }
+  
+  return(binWidth)
 }
 
 #' @export
-findBinSliderValues <- function(x, xType, binWidth, binReportValue) UseMethod("findBinSliderValues")
+numBinsToBinWidth.Date <- function(x, numBins) {
+  paste(ceiling(as.numeric(diff(range(x))/numBins)), 'days')
+}
 
 #' @export
-findBinSliderValues.numeric <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth') {
+findBinSliderValues <- function(x, xType, binWidth, binReportValue, maxNumBins) UseMethod("findBinSliderValues")
+
+#' @export
+findBinSliderValues.numeric <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth', maxNumBins = 1000) {
   if (binReportValue == 'numBins') {
     return(list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1)))
   }
 
   binSliderMax <- as.numeric((max(x) - min(x)) / 2)
-  binSliderMin <- as.numeric((max(x) - min(x)) / 1000)
+  binSliderMin <- as.numeric((max(x) - min(x)) / maxNumBins)
   avgDigits <- floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
   binSliderMax <- veupathUtils::nonZeroRound(binSliderMax, avgDigits)
   binSliderMin <- veupathUtils::nonZeroRound(binSliderMin, avgDigits)
@@ -225,13 +241,13 @@ findBinSliderValues.numeric <- function(x, xType, binWidth = NULL, binReportValu
 }
 
 #' @export
-findBinSliderValues.Date <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth') {
+findBinSliderValues.Date <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth', maxNumBins = 1000) {
   if (binReportValue == 'numBins') {
-    list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
+    list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(maxNumBins), 'step'=jsonlite::unbox(1))
   }
   
   binSliderMax <- as.numeric((max(x) - min(x)) / 2)
-  binSliderMin <- as.numeric((max(x) - min(x)) / 1000)
+  binSliderMin <- as.numeric((max(x) - min(x)) / maxNumBins)
   if (!is.null(binWidth) & binWidth != 0) {
     unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
   } else {
@@ -243,15 +259,15 @@ findBinSliderValues.Date <- function(x, xType, binWidth = NULL, binReportValue =
     binSliderMax <- ceiling(binSliderMax)
   } else if (unit %in% c('week', 'weeks')) {
     numWeeks <- floor(as.numeric(difftime(max(x), min(x), units='weeks'))) 
-    binSliderMin <- floor(numWeeks/1000)
+    binSliderMin <- floor(numWeeks/maxNumBins)
     binSliderMax <- ceiling(numWeeks/2)
   } else if (unit %in% c('month', 'months')) {
     numMonths <- uniqueN(zoo::as.yearmon(x))
-    binSliderMin <- floor(numMonths/1000)
+    binSliderMin <- floor(numMonths/maxNumBins)
     binSliderMax <- ceiling(numMonths/2) 
   } else if (unit %in% c('year', 'years')) {
     numYears <- uniqueN(veupathUtils::strSplit(as.character(x), '-', 3))
-    binSliderMin <- floor(numYears/1000)
+    binSliderMin <- floor(numYears/maxNumBins)
     binSliderMax <- ceiling(numYears/2)
   } else {
     stop("Unrecognized unit for date bins.")

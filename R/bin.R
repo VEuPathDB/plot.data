@@ -1,4 +1,4 @@
-binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), xType) {
+binMedian <- function(data, x, y, group = NULL, panel = NULL, geo = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), xType) {
   errorBars <- veupathUtils::matchArg(errorBars)
   
   if (xType != 'STRING' && binWidth != 0) {
@@ -8,7 +8,7 @@ binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, v
     data.table::setnames(data, x, 'binLabel')
   }
 
-  byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
+  byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, geo, panel)]
   if (errorBars) {
     data <- data[, list(value=roundedMedian(get(..y)),
                       binSampleSize=simpleSampleSize(get(..y)),
@@ -28,12 +28,12 @@ binMedian <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, v
   }
   data$binLabel <- as.character(data$binLabel)
 
-  data <- collapseByGroup(data, group, panel)
+  data <- collapseByGroup(data, group, panel, geo)
 
   return(data)
 }
 
-binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), xType) {
+binMean <- function(data, x, y, group = NULL, panel = NULL, geo = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), xType) {
   errorBars <- veupathUtils::matchArg(errorBars)
 
   if (xType != 'STRING' && binWidth != 0) {
@@ -43,7 +43,7 @@ binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, vie
     data.table::setnames(data, x, 'binLabel')
   }
   
-  byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
+  byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, geo, panel)]
   if (errorBars) {
     data <- data[, list(value=roundedMean(get(..y)),
                       binSampleSize=simpleSampleSize(get(..y)),
@@ -63,16 +63,16 @@ binMean <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, vie
   }
   data$binLabel <- as.character(data$binLabel)
 
-  data <- collapseByGroup(data, group, panel)
+  data <- collapseByGroup(data, group, panel, geo)
 
   return(data)
 }
 
-binSize <- function(data, col, group = NULL, panel = NULL, binWidth = NULL, viewport) {
+binSize <- function(data, col, group = NULL, panel = NULL, geo = NULL, binWidth = NULL, viewport) {
   data <- data[data[[col]] >= viewport$xMin & data[[col]] <= viewport$xMax,]
   data$binLabel <- bin(data[[col]], binWidth, viewport)
 
-  byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
+  byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, geo, panel)]
   data <- data[, list(value=length(get(..col))), by=eval(byCols)]
 
   data$binStart <- findBinStart(data$binLabel)
@@ -80,23 +80,23 @@ binSize <- function(data, col, group = NULL, panel = NULL, binWidth = NULL, view
   data <- data[order(data$binStart),]
   data$binStart <- as.character(data$binStart)
 
-  data <- collapseByGroup(data, group, panel)
+  data <- collapseByGroup(data, group, panel, geo)
 
   return(data)
 }
 
 # essentially compares size of *groups* across bins
-binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL, barmode = 'stack', viewport) {
+binProportion <- function(data, col, group = NULL, panel = NULL, geo = NULL, binWidth = NULL, barmode = 'stack', viewport) {
   data <- data[data[[col]] >= viewport$xMin & data[[col]] <= viewport$xMax,]
   data$binLabel <- bin(data[[col]], binWidth, viewport)
 #possible if stacked w no group or panel, we work like overlay?
 
   # byCols determine the denominator of the proportion calculation
-  numCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
-  if (barmode == 'overlay' || all(is.null(c(group,panel)))) {
-    denomCols <- colnames(data)[colnames(data) %in% c(group, panel)]
+  numCols <- colnames(data)[colnames(data) %in% c('binLabel', group, geo, panel)]
+  if (barmode == 'overlay' || all(is.null(c(group,geo,panel)))) {
+    denomCols <- colnames(data)[colnames(data) %in% c(group, geo, panel)]
   } else if (barmode == 'stack') {
-    denomCols <- colnames(data)[colnames(data) %in% c('binLabel', panel)]
+    denomCols <- colnames(data)[colnames(data) %in% c('binLabel', geo, panel)]
   } else {
     stop('Options for barmode are "stack" or "overlay".')
   }
@@ -115,13 +115,13 @@ binProportion <- function(data, col, group = NULL, panel = NULL, binWidth = NULL
   data$binStart <- as.character(data$binStart)
 
   data <- unique(data)
-  data <- collapseByGroup(data, group, panel)
+  data <- collapseByGroup(data, group, panel, geo)
 
   return(data)
 }
 
 # finds specific ratios of values/ categories for y by bins+groups
-binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), numeratorValues, denominatorValues, xType) {
+binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, geo = NULL, binWidth = NULL, viewport, errorBars = c(TRUE, FALSE), numeratorValues, denominatorValues, xType) {
   errorBars <- veupathUtils::matchArg(errorBars)
 
   # TODO improve this as part of #127. shouldnt need an xType arg ideally, just a boolean bin arg.
@@ -132,7 +132,7 @@ binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWid
     data.table::setnames(data, x, 'binLabel')
   }
   
-  byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, panel)]
+  byCols <- colnames(data)[colnames(data) %in% c('binLabel', group, geo, panel)]
   if (errorBars) {
     data <- data[, { numeratorCount = sum(get(..y) %in% numeratorValues); 
                      denominatorCount = sum(get(..y) %in% denominatorValues);
@@ -158,7 +158,7 @@ binCategoryProportion <- function(data, x, y, group = NULL, panel = NULL, binWid
   }
   data$binLabel <- as.character(data$binLabel)
 
-  data <- collapseByGroup(data, group, panel)
+  data <- collapseByGroup(data, group, panel, geo)
 
   return(data)
 }

@@ -47,12 +47,12 @@ newBarPD <- function(.dt = data.table::data.table(),
     veupathUtils::logWithTime('Value is set to `identity`. Resulting barplot object will represent raw values.', verbose)
   } else if (value == 'count' ) {
     .pd$dummy <- 1
-    .pd <- groupSize(.pd, x, 'dummy', group, panel, collapse = T)
+    .pd <- groupSize(.pd, x, 'dummy', group, panel, NULL, collapse = T)
     data.table::setnames(.pd, c(group, panel, 'label', 'value'))
     veupathUtils::logWithTime('Value is set to `count`. Resulting barplot object will represent counts of unique x-axis values per group.', verbose)
   } else if (value == 'proportion') {
     .pd$dummy <- 1
-    .pd <- groupProportion(.pd, x, 'dummy', group, panel, barmode, collapse = T)
+    .pd <- groupProportion(.pd, x, 'dummy', group, panel, NULL, barmode, collapse = T)
     data.table::setnames(.pd, c(group, panel, 'label', 'value'))
     veupathUtils::logWithTime('Value is set to `proportion`. If barmode is `group` the resulting barplot object will represent the relative proportions of unique x-axis values across groups. If barmode is `stack` the resulting barplot object will represent the proportions of unique x-axis values relative to the total x-axis values in that panel.', verbose)
   }
