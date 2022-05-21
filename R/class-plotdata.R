@@ -229,6 +229,7 @@ newPlotdata <- function(.dt = data.table(),
   .dt[[x]] <- updateType(.dt[[x]], xType)
   if (!is.null(y)) { .dt[[y]] <- updateType(.dt[[y]], yType) }
   if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType) }
+  if (!is.null(geo)) { .dt[[geo]] <- updateType(.dt[[geo]], 'STRING')}
   if (!is.null(lat)) { .dt[[lat]] <- updateType(.dt[[lat]], 'NUMBER')}
   if (!is.null(lon)) { .dt[[lat]] <- updateType(.dt[[lon]], 'NUMBER')}
   if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
@@ -290,7 +291,7 @@ newPlotdata <- function(.dt = data.table(),
   attr$completeCasesAllVars <- completeCasesAllVars
   attr$completeCasesAxesVars <- completeCasesAxesVars
   attr$completeCasesTable <- completeCasesTable
-  attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, overlayGroup, panel)
+  attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, overlayGroup, panel, geo)
   attr$class = c(class, 'plot.data', attr$class)
   if (!is.null(lat)) { attr$latitudeVariable <- latitudeVariable }
   if (!is.null(lon)) { attr$longitudeVariable <- longitudeVariable }

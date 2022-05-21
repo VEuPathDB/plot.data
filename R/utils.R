@@ -397,3 +397,6 @@ findColNamesByPredicate <- function(variableList, predicateFunction) {
   return (colNames)
 }
 
+avgDigits <- function(x) {
+  floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
+}

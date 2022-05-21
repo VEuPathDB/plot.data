@@ -7,7 +7,7 @@
 mapMarkers(
   data,
   map,
-  binWidth,
+  binWidth = NULL,
   value = c("count", "proportion"),
   binReportValue = c("binWidth", "numBins"),
   viewport = NULL,
