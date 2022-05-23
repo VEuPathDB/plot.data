@@ -147,12 +147,21 @@ newPlotdata <- function(.dt = data.table(),
     veupathUtils::logWithTime('collectionVariable has been validated.', verbose)
 
     # Set variable, value names appropriately
-    if(is.null(unique(collectionVariableDetails$inferredVariable$entityId))) {
+    if (is.null(unique(collectionVariableDetails$inferredVariable$entityId))) {
       variable.name <- collectionVariableDetails$collectionVariablePlotRef
       value.name <- collectionVariableDetails$inferredVariable$variableId
     } else {
       variable.name <- paste(unique(collectionVariableDetails$inferredVariable$entityId),collectionVariableDetails$collectionVariablePlotRef, sep='.')
       value.name <- paste(unique(collectionVariableDetails$inferredVariable$entityId),collectionVariableDetails$inferredVariable$variableId, sep='.')
+    }
+
+    # If all vars in the collection are missing data for the same rows, return complete cases *before* reshaping the data
+    collectionVarDataIndices <- lapply(x, function(collectionVar) {return(which(!complete.cases(.dt[, ..collectionVar])))})
+    if (length(unique(collectionVarDataIndices)) == 1) {
+      completeCasesAllVars <- complete.cases(.dt[, c(x,y,z,group,panel), with=FALSE])
+      completeCasesAllVars <- jsonlite::unbox(nrow(.dt[completeCasesAllVars,]))
+      completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[complete.cases(.dt[, c(x,y), with=FALSE]),]))
+      veupathUtils::logWithTime('Determined total number of complete cases across axes and strata vars while treating collection vars as one.', verbose)
     }
 
     # Reshape data
@@ -211,7 +220,7 @@ newPlotdata <- function(.dt = data.table(),
     yAxisVariable <- collectionVariableDetails$inferredVariable
     y <- veupathUtils::toColNameOrNull(yAxisVariable)
     yType <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataType))
-    .dt[[y]] <- updateType(.dt[[y]], yType) 
+    # .dt[[y]] <- updateType(.dt[[y]], yType) #### redundant. marking for removal
 
     data.table::setcolorder(.dt, c(x, y, z, group, panel))
 
@@ -230,9 +239,11 @@ newPlotdata <- function(.dt = data.table(),
   veupathUtils::logWithTime('Base data types updated for all columns as necessary.', verbose)
 
   # TODO review logic here around complete cases on the panel column
-  completeCasesAllVars <- complete.cases(.dt[, c(x,y,z,group,panel), with=FALSE])
-  completeCasesAllVars <- jsonlite::unbox(nrow(.dt[completeCasesAllVars,]))
-  completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[complete.cases(.dt[, c(x,y), with=FALSE]),]))
+  if (!exists('completeCasesAllVars')) {
+    completeCasesAllVars <- complete.cases(.dt[, c(x,y,z,group,panel), with=FALSE])
+    completeCasesAllVars <- jsonlite::unbox(nrow(.dt[completeCasesAllVars,]))
+  }
+  if (!exists('completeCasesAxesVars')) completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[complete.cases(.dt[, c(x,y), with=FALSE]),]))
   veupathUtils::logWithTime('Determined total number of complete cases across axes and strata vars.', verbose)
 
   if (isEvil) {
