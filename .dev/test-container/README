@@ -1,0 +1,15 @@
+### Do all the following in THIS directory
+
+# build or update the image
+
+docker build -t testing-r-env .
+
+# run the tests
+
+docker run -v $PWD/../../:/home/rserve -it testing-r-env Rscript .dev/runTests.R
+
+# replace "Rscript .dev/runTests.R" with "R" or "bash" to get an interactive session
+
+
+
+
