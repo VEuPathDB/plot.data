@@ -23,6 +23,7 @@ RUN R -e "install.packages('Rcpp')"
 RUN R -e "install.packages('dotenv')"
 RUN R -e "install.packages('devtools')"
 RUN R -e "install.packages('sloop')"
+RUN R -e "install.packages('scales')"
 
 RUN R -e "remotes::install_github('VEuPathDB/veupathUtils', 'v1.0.1')"
 RUN R -e "remotes::install_github('VEuPathDB/plot.data','v2.1.4')"
