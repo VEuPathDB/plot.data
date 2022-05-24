@@ -128,6 +128,8 @@ The tests should follow the below general organization:
 
 Use `devtools::test()` to run all unit tests in this package. See [devtools documentation](https://devtools.r-lib.org/reference/test.html) for more details.
 
+You can create a suitable R environment container using the instructions in `.dev/test-container/README`.
+
 ***Helpers***  
 Helper functions are organized into those that compute values per group (`group.R`), per panel (`panel.R`), handle binning (`bin.R`), or various other categories (see `utils` and `utils-*.R`). Using the beeswarm as an example, we can add `groupMedian` to `group.R`, which computes the median of the dataset per group (overlay, panel).
 
