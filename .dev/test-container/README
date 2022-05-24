@@ -1,6 +1,6 @@
 ### Do all the following in THIS directory
 
-# build or update the image
+# build or update the image (uses ./Dockerfile)
 
 docker build -t testing-r-env .
 
