@@ -32,8 +32,7 @@ meanCI <- function(x, conf.level=.95) {
 }
 
 geometricMeanCI <- function(x, conf.level=.95) {
-  if (any(x < 0)) { stop("Cannot provide confidence interval for geometric mean where data contains negative values.") }
-  if (any(x == 0)) { warning("Values contain 0s which will be ignored when finding the confidence interval for the geometric mean.") }
+  if (any(x <= 0)) { warning("Zero and negative values will be ignored when finding the confidence interval for the geometric mean.") }
 
   x <- x[x>0]
 
@@ -100,8 +99,7 @@ roundedMean <- function(x, digits = 4, ...) {
 } 
 
 roundedGeometricMean <- function(x, digits = 4, ...) {
-  if (any(x < 0)) { stop("Cannot provide geometric mean for negative values.") }
-  if (any(x == 0)) { warning("Values contain 0s which will be ignored when finding geometric mean.") }
+  if (any(x <= 0)) { warning("Zero and negative values will be ignored when finding geometric mean.") }
 
   c(round(exp(mean(log(x[x>0]))), digits))
 }

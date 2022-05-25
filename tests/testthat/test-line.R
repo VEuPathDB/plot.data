@@ -526,6 +526,7 @@ test_that("lineplot() returns appropriately formatted json", {
                     'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
+  df <- data.table::as.data.table(testDF)
   df$entity.contPositive <- rnorm(500, 10)
 
   dt <- lineplot.dt(df, map, value = 'geometricMean', binWidth=0)
