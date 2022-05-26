@@ -1,11 +1,11 @@
 context('mapMarkers')
 
 test_that("mapMarkers.dt does not fail when there are no complete cases.", {
-  map <- data.frame('id' = c('entity.binary1'),
-                    'plotRef' = c('xAxisVariable'),
-                    'dataType' = c('STRING'),
-                    'dataShape' = c('CATEGORICAL'),
-                    stringsAsFactors = FALSE)
+  map <- data.frame('id' = c('entity.binary1', 'entity.int'),
+                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
+                    'dataType' = c('STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
   df <- data.noneComplete[is.na(entity.binary1),]
 
   dt <- mapMarkers.dt(df, map, value='count')  
@@ -88,21 +88,6 @@ test_that("mapMarkers.dt() returns an appropriately sized data.table", {
   expect_equal(all(grepl('.||.', dt$panel, fixed=T)), TRUE)
   # sum of x counts within a group should sum to 1
   expect_equal(all(lapply(dt$value, sum) == 1), TRUE)
-
-  map <- data.frame('id' = c('entity.cat6'), 
-                    'plotRef' = c('xAxisVariable'),
-                    'dataType' = c('STRING'),
-                    'dataShape' = c('CATEGORICAL'), stringsAsFactors=FALSE)
-
-  dt <- mapMarkers.dt(df, map, value='count')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('label', 'value'))
-  
-  dt <- mapMarkers.dt(df, map, value='proportion')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('label', 'value'))
   
   # With factors
   map <- data.frame('id' = c('entity.cat6', 'entity.factor6'),
@@ -300,9 +285,11 @@ test_that("mapMarkers() returns appropriately formatted json", {
   expect_equal(names(jsonList), c('mapMarkers','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$mapMarkers), c('data','config'))
   expect_equal(names(jsonList$mapMarkers$data), c('geoAggregateVariableDetails','label','value'))
-  expect_equal(names(jsonList$mapMarkers$config), c('completeCasesAllVars','completeCasesAxesVars','binSpec','binSlider','viewport','xVariableDetails'))
+  expect_equal(names(jsonList$mapMarkers$config), c('completeCasesAllVars','completeCasesAxesVars','binSpec','binSlider','rankedValues','viewport','xVariableDetails'))
   expect_equal(names(jsonList$mapMarkers$config$xVariableDetails), c('variableId','entityId'))
   expect_equal(jsonList$mapMarkers$config$xVariableDetails$variableId, 'int6')
+  expect_equal(jsonList$mapMarkers$config$rankedValues, c('6','3','1','4','2','5'))
+  expect_equal(class(jsonList$mapMarkers$config$rankedValues), 'character')
   expect_equal(names(jsonList$sampleSizeTable), c('geoAggregateVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$geoAggregateVariableDetails$value[[1]]), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
@@ -325,9 +312,11 @@ test_that("mapMarkers() returns appropriately formatted json", {
   expect_equal(names(jsonList), c('mapMarkers','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$mapMarkers), c('data','config'))
   expect_equal(names(jsonList$mapMarkers$data), c('geoAggregateVariableDetails','label','value'))
-  expect_equal(names(jsonList$mapMarkers$config), c('completeCasesAllVars','completeCasesAxesVars','binSpec','binSlider','viewport','xVariableDetails'))
+  expect_equal(names(jsonList$mapMarkers$config), c('completeCasesAllVars','completeCasesAxesVars','binSpec','binSlider','rankedValues','viewport','xVariableDetails'))
   expect_equal(names(jsonList$mapMarkers$config$xVariableDetails), c('variableId','entityId'))
   expect_equal(jsonList$mapMarkers$config$xVariableDetails$variableId, 'int6')
+  expect_equal(jsonList$mapMarkers$config$rankedValues, c('6','3','1','4','2','5'))
+  expect_equal(class(jsonList$mapMarkers$config$rankedValues), 'character')
   expect_equal(names(jsonList$sampleSizeTable), c('geoAggregateVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$geoAggregateVariableDetails$value[[1]]), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')

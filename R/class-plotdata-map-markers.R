@@ -1,5 +1,3 @@
-# TODO think about refactor after b57. this viewport is geolocation specific
-# is this really a 'map-marker' class ?
 newMapMarkersPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
@@ -24,7 +22,7 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
                          value = character(),
                          binWidth,
                          binReportValue = character(),
-                         viewport = list('latitude'=list('xMin'=NULL,
+                         geolocationViewport = list('latitude'=list('xMin'=NULL,
                                                          'xMax'=NULL),
                                          'longitude'=list('left'=NULL,
                                                           'right'=NULL)),
@@ -91,26 +89,35 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
       xRange <- findViewport(.pd[[x]], xType)
       .pd[[x]] <- as.character(bin(.pd[[x]], binWidth, xRange))
       veupathUtils::logWithTime('Successfully binned continuous x-axis.', verbose)
+
+      # maybe worth at some point a fxn getRankedValues(x = character(), maxNumValues = integer(), otherBin = c(T,F))
+      # if maxNumValues was exceeded and otherBin = F then it would just put out an error
+      # maxNumValues could be NULL by default maybe?
+      # would something like that be better here or veupathUtils (could mbio use it?)
+      ranked <- .pd[, .N, by=x]
+      data.table::setorderv(ranked, c("N"),-1)
+      rankedValues <- ranked[[x]]
+      attr$rankedValues <- rankedValues
     }
   }
 
-  if (is.null(viewport)) {
-    viewport <- findGeolocationViewport(.pd, lat, lon)
+  if (is.null(geolocationViewport)) {
+    geolocationViewport <- findGeolocationViewport(.pd, lat, lon)
     veupathUtils::logWithTime('Determined default viewport.', verbose)
   } else {
-    viewport <- validateGeolocationViewport(viewport, verbose)
+    geolocationViewport <- validateGeolocationViewport(geolocationViewport, verbose)
   }
-  if (is.null(viewport)) {
+  if (is.null(geolocationViewport)) {
     attr$viewport <- list('latitude'=list('xMin'=NA,
                                           'xMax'=NA),
                           'longitude'=list('left'=NA,
                                            'right'=NA))
   } else {
-    attr$viewport <- viewport
+    attr$viewport <- geolocationViewport
   }
   attr$viewport$latitude <- lapply(attr$viewport$latitude, jsonlite::unbox)
   attr$viewport$longitude <- lapply(attr$viewport$longitude, jsonlite::unbox)
-  .pd <- filterToGeolocationViewport(.pd, lat, lon, viewport)
+  .pd <- filterToGeolocationViewport(.pd, lat, lon, geolocationViewport)
 
   if (value == 'count' ) {
     .pd$dummy <- 1
@@ -129,31 +136,31 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
   return(.pd)
 }
 
-validateGeolocationViewport <- function(viewport, verbose) {
-  if (!is.list(viewport)) {
+validateGeolocationViewport <- function(geolocationViewport, verbose) {
+  if (!is.list(geolocationViewport)) {
     return(FALSE)
   } else{
-    if (!all(c('latitude', 'longitude') %in% names(viewport))) {
+    if (!all(c('latitude', 'longitude') %in% names(geolocationViewport))) {
       return(FALSE)
     } else {
-      if (!is.list(viewport$latitude) && !is.list(viewport$longitude)) {
+      if (!is.list(geolocationViewport$latitude) && !is.list(geolocationViewport$longitude)) {
         return(FALSE)
       } else{
-        if (!all(c('xMin','xMax') %in% names(viewport$latitude)) &&
-            !all(c('left','right') %in% names(viewport$longitude))) {
+        if (!all(c('xMin','xMax') %in% names(geolocationViewport$latitude)) &&
+            !all(c('left','right') %in% names(geolocationViewport$longitude))) {
             return(FALSE)
         }
       }
     }
   }
 
-  viewport$latitude$xMin <- as.numeric(viewport$latitude$xMin)
-  viewport$latitude$xMax <- as.numeric(viewport$latitude$xMax)
-  viewport$longitude$left <- as.numeric(viewport$longitude$left)
-  viewport$longitude$right <- as.numeric(viewport$longitude$right)
+  geolocationViewport$latitude$xMin <- as.numeric(geolocationViewport$latitude$xMin)
+  geolocationViewport$latitude$xMax <- as.numeric(geolocationViewport$latitude$xMax)
+  geolocationViewport$longitude$left <- as.numeric(geolocationViewport$longitude$left)
+  geolocationViewport$longitude$right <- as.numeric(geolocationViewport$longitude$right)
   veupathUtils::logWithTime('Provided geolocation viewport validated.', verbose)
 
-  return(viewport)
+  return(geolocationViewport)
 }
 
 validateMapMarkersPD <- function(.map, verbose) {
@@ -246,10 +253,18 @@ mapMarkers.dt <- function(data,
     binWidth <- numBinsToBinWidth(data[[x]],8)
   }
 
-  #now that this is map specific, should these all be required?
   geoAggregateVariable <- plotRefMapToList(map, 'geoAggregateVariable')
+  if (is.null(geoAggregateVariable$variableId)) {
+    stop("Must provide geoAggregateVariable for plot type mapMarkers.")
+  }
   latitudeVariable <- plotRefMapToList(map, 'latitudeVariable')
+  if (is.null(latitudeVariable$variableId) && !is.null(viewport)) {
+    stop("Must provide latitudeVariable for plot type mapMarkers.")
+  }
   longitudeVariable <- plotRefMapToList(map, 'longitudeVariable')
+  if (is.null(longitudeVariable$variableId) && !is.null(viewport)) {
+    stop("Must provide longitudeVariable for plot type mapMarkers.")
+  }
 
   .map <- newMapMarkersPD(.dt = data,
                     xAxisVariable = xAxisVariable,
@@ -259,7 +274,7 @@ mapMarkers.dt <- function(data,
                     value = value,
                     binWidth = binWidth,
                     binReportValue = binReportValue,
-                    viewport = viewport,
+                    geolocationViewport = viewport,
                     evilMode = evilMode,
                     verbose = verbose)
 

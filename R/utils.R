@@ -63,7 +63,9 @@ collapseByGroup <- function(data, group = NULL, panel = NULL, geo = NULL) {
   return(dt)
 }
 
-plotRefMapToList <- function(map, plotRef) {
+plotRefMapToList <- function(map, plotRef, verbose = c(TRUE, FALSE)) {
+  verbose <- veupathUtils::matchArg(verbose)
+
   if (!plotRef %in% map$plotRef) {
     return(list('variableId' = NULL,
                 'entityId' = NULL,
@@ -87,10 +89,10 @@ plotRefMapToList <- function(map, plotRef) {
   # Validate naToZero and fix if necessary
   # NOTE failing to set naToZero will result in a default value of FALSE
   if (length(naToZero) == 0) {
-    #warning("Encountered empty or NULL naToZero value. Setting naToZero = FALSE.")
+    veupathUtils::logWithTime("Encountered empty or NULL naToZero value. Setting naToZero = FALSE.", verbose)
     naToZero <- FALSE
   } else if (is.na(naToZero) || naToZero == '') {
-    #warning("Encountered '' or NA as the naToZero value. Setting naToZero = FALSE.")
+    veupathUtils::logWithTime("Encountered '' or NA as the naToZero value. Setting naToZero = FALSE.", verbose)
     naToZero <- FALSE
   } else {
     if (identical(naToZero, 'TRUE')) naToZero <- TRUE
