@@ -152,7 +152,7 @@ newLinePD <- function(.dt = data.table::data.table(),
 
   } else if (value == 'geometricMean') {
 
-    mean <- binGeometricMean(.pd, x, y, group, panel, binWidth, viewport, errorBars, xType)
+    mean <- binGeometricMean(.pd, x, y, group, panel, NULL, binWidth, viewport, errorBars, xType)
     data.table::setnames(mean, c('binLabel', 'value'), c('seriesX', 'seriesY'))
     .pd <- mean
     veupathUtils::logWithTime('Geometric mean calculated per X-axis value.', verbose)
