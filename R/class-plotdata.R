@@ -231,7 +231,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(z)) { .dt[[z]] <- updateType(.dt[[z]], zType) }
   if (!is.null(geo)) { .dt[[geo]] <- updateType(.dt[[geo]], 'STRING')}
   if (!is.null(lat)) { .dt[[lat]] <- updateType(.dt[[lat]], 'NUMBER')}
-  if (!is.null(lon)) { .dt[[lat]] <- updateType(.dt[[lon]], 'NUMBER')}
+  if (!is.null(lon)) { .dt[[lon]] <- updateType(.dt[[lon]], 'NUMBER')}
   if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
   if (!is.null(panel)) { .dt[[panel]] <- updateType(.dt[[panel]], 'STRING') }
   veupathUtils::logWithTime('Base data types updated for all columns as necessary.', verbose)

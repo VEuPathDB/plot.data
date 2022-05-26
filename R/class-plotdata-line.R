@@ -82,7 +82,7 @@ newLinePD <- function(.dt = data.table::data.table(),
       warning("Numerator and/ or denominator values supplied for non-categorical y-axis. These will be ignored.")
     }
 
-    if (value %ni% c('mean', 'median')) { stop('`value` parameter must be `mean` or `median` for numeric or date y-axes.')}
+    if (value %ni% c('mean', 'median', 'geometricMean')) { stop('`value` parameter must be `mean`, `geometricMean` or `median` for numeric or date y-axes.')}
   } 
 
   # if no binWidth is provided, find one. if the user doesnt want binning they can set binWidth to 0
@@ -150,6 +150,13 @@ newLinePD <- function(.dt = data.table::data.table(),
     .pd <- median
     veupathUtils::logWithTime('Median calculated per X-axis value.', verbose)
 
+  } else if (value == 'geometricMean') {
+
+    mean <- binGeometricMean(.pd, x, y, group, panel, binWidth, viewport, errorBars, xType)
+    data.table::setnames(mean, c('binLabel', 'value'), c('seriesX', 'seriesY'))
+    .pd <- mean
+    veupathUtils::logWithTime('Geometric mean calculated per X-axis value.', verbose)
+  
   } else if (value == 'proportion') {
 
     proportion <- binCategoryProportion(.pd, x, y, group, panel, NULL, binWidth, viewport, errorBars, numeratorValues, denominatorValues, xType)
@@ -210,7 +217,7 @@ validateLinePD <- function(.line, verbose) {
 #' sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 
 #' 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
-#' @param value character indicating whether to calculate 'mean', 'median', 'proportion' for y-axis
+#' @param value character indicating whether to calculate 'mean', 'median', 'geometricMean', 'proportion' for y-axis
 #' @param errorBars boolean indicating if we want 95% confidence intervals per x-axis tick
 #' @param viewport List of min and max values to consider as the range of data
 #' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
@@ -242,6 +249,7 @@ lineplot.dt <- function(data,
                          binWidth = NULL, 
                          value = c('mean',
                                    'median',
+                                   'geometricMean',
                                    'proportion'),
                          errorBars = c(TRUE, FALSE),
                          viewport = NULL,
@@ -369,7 +377,7 @@ lineplot.dt <- function(data,
 #' and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 
 #' 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
-#' @param value character indicating whether to calculate 'mean', 'median', 'proportion' for y-axis
+#' @param value character indicating whether to calculate 'mean', 'median', 'geometricMean', 'proportion' for y-axis
 #' @param errorBars boolean indicating if we want 95% confidence intervals per x-axis tick
 #' @param viewport List of min and max values to consider as the range of data
 #' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
@@ -401,6 +409,7 @@ lineplot <- function(data,
                       binWidth = NULL,
                       value = c('mean', 
                                 'median',
+                                'geometricMean',
                                 'proportion'),
                       errorBars = c(TRUE, FALSE),
                       viewport = NULL,

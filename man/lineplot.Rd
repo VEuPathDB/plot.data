@@ -8,7 +8,7 @@ lineplot(
   data,
   map,
   binWidth = NULL,
-  value = c("mean", "median", "proportion"),
+  value = c("mean", "median", "geometricMean", "proportion"),
   errorBars = c(TRUE, FALSE),
   viewport = NULL,
   numeratorValues = NULL,
@@ -28,7 +28,7 @@ and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yA
 
 \item{binWidth}{numeric value indicating width of bins, character (ex: 'year') if xaxis is a date}
 
-\item{value}{character indicating whether to calculate 'mean', 'median', 'proportion' for y-axis}
+\item{value}{character indicating whether to calculate 'mean', 'median', 'geometricMean', 'proportion' for y-axis}
 
 \item{errorBars}{boolean indicating if we want 95% confidence intervals per x-axis tick}
 
