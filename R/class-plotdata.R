@@ -142,7 +142,7 @@ newPlotdata <- function(.dt = data.table(),
 
     # Validation
     if (is.null(collectionVariableDetails$inferredVariable$variableId)) stop('collectionVar error: listValue variableId must not be NULL')
-    if (evilMode == 'allVariables') stop('collectionVar error: evilMode = `allVariables` not compatible with collectiono variable')
+    if (evilMode == 'allVariables') stop('collectionVar error: evilMode = `allVariables` not compatible with collection variable')
     collectionVariable <- validatecollectionVar(collectionVariable)
     veupathUtils::logWithTime('collectionVariable has been validated.', verbose)
 
@@ -158,18 +158,18 @@ newPlotdata <- function(.dt = data.table(),
     # Calculate complete cases *before* reshaping the data
     # To count complete cases, we want to only count rows where we have at least one value in one of the collection var columns
     completeCasesPerCollectionCol <- lapply(veupathUtils::toColNameOrNull(collectionVariable), function(collectionVar) {return(complete.cases(.dt[, ..collectionVar]))})
-    collectionVarKeepRows <- Reduce("+", completeCasesPerCollectionCol) > 0  # Any row with val=0 means that row was missing for all vars in the collection and should be removed from the count
+    collectionVarDataRows <- Reduce("+", completeCasesPerCollectionCol) > 0  # Any row with val=0 means that row was missing for all vars in the collection and should be removed from the count
     # Columns not corresponding to a collection var are treated differently. Calculate their complete cases as normal
     nonColectionVarColNames <- setdiff(c(x,y,z,group, panel), veupathUtils::toColNameOrNull(collectionVariable))
-    nonCollectionVarKeepRows <- complete.cases(.dt[, ..nonColectionVarColNames, with=FALSE])
+    nonCollectionVarDataRows <- complete.cases(.dt[, ..nonColectionVarColNames])
     # Count the rows that we keep from the collection var complete cases *and* non-colection var complete cases
-    completeCasesAllVars <- jsonlite::unbox(nrow(.dt[collectionVarKeepRows*nonCollectionVarKeepRows,]))
+    completeCasesAllVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows*nonCollectionVarDataRows,]))
     if (collectionVariableDetails$collectionVariablePlotRef == 'xAxisVariable') {
       # Since we force the collection value to be the y variable, the whole collection includes x and y.
-      completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[collectionVarKeepRows,]))
+      completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows,]))
     } else {
       # Count rows with data for x and at least 1 collection variable (remember, collection values always map to y)
-      axisDataRows <- complete.cases(.dt[, ..x]) * collectionVarKeepRows
+      axisDataRows <- complete.cases(.dt[, ..x]) * collectionVarDataRows
       completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[axisDataRows,]))
     }
 
@@ -229,7 +229,6 @@ newPlotdata <- function(.dt = data.table(),
     yAxisVariable <- collectionVariableDetails$inferredVariable
     y <- veupathUtils::toColNameOrNull(yAxisVariable)
     yType <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataType))
-    # .dt[[y]] <- updateType(.dt[[y]], yType) #### redundant. marking for removal
 
     data.table::setcolorder(.dt, c(x, y, z, group, panel))
 
