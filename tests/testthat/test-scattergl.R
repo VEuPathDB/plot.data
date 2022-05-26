@@ -815,4 +815,43 @@ test_that("scattergl.dt() returns correct information about missing data", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','contC','cat4'))
 
+
+  ## Collection vars
+  # Add nMissing missing values to each column
+  df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+  
+  # Multiple vars to overlay
+  map <- data.frame('id' = c('entity.contB', 'entity.contC', 'entity.contD', 'entity.repeatedContA'), 
+                    'plotRef' = c('overlayVariable', 'overlayVariable', 'overlayVariable', 'xAxisVariable'), 
+                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER'), 
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'), 
+                    stringsAsFactors=FALSE)
+  
+  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'overlayVariable')
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - 10
+  expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
+  # number of completeCases should be <= complete cases for each var
+  expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
+  expect_true(attr(dt, 'completeCasesAllVars')[1] == nrow(df) - nMissing)
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] == nrow(df) - nMissing)
+
+  # Multiple vars to facet1
+  map <- data.frame('id' = c('entity.contB', 'entity.contC', 'entity.contD', 'entity.repeatedContA'), 
+                    'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable'), 
+                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER'), 
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'), 
+                    stringsAsFactors=FALSE)
+  
+  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable1')
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - 10
+  expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
+  # number of completeCases should be <= complete cases for each var
+  expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
+  expect_true(attr(dt, 'completeCasesAllVars')[1] == nrow(df) - nMissing)
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] == nrow(df) - nMissing)
+
 })

@@ -612,6 +612,45 @@ test_that("beeswarm.dt() returns correct information about missing data", {
   expect_true(attr(dt, 'completeCasesAxesVars')[1] > attr(dt, 'completeCasesAllVars')[1])
   dt <- beeswarm.dt(df, map, 0.1, TRUE, evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.cat4)))
+
+
+  ## Collection vars
+  # Multiple vars to x
+
+  # Add nMissing missing values to each column -- TODO address that setting na to zero above changes df
+  df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+
+  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.cat3'),
+                    'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'overlayVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'),
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVariablePlotRef = 'xAxisVariable')
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - nMissing
+  expect_equal(all(completecasestable$completeCases == nrow(df)-nMissing), TRUE)
+  # number of completeCases should be < complete cases for each var
+  expect_true(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases))
+  expect_true(attr(dt, 'completeCasesAllVars')[1] == nrow(df) - nMissing)
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1])
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] == nrow(df))
+
+
+  # Multiple vars to facet1
+  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.cat3'),
+                    'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'),
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- beeswarm.dt(df, map, 0.1, FALSE, collectionVariablePlotRef = 'facetVariable1')
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - nMissing
+  expect_equal(all(completecasestable$completeCases == nrow(df)-nMissing), TRUE)
+  # number of completeCases should be < complete cases for each var
+  expect_true(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases))
+  expect_true(attr(dt, 'completeCasesAllVars')[1] == nrow(df) - nMissing) 
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1])
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] == nrow(df) - nMissing)
 })
 
 

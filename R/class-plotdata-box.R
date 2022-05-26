@@ -251,6 +251,7 @@ box.dt <- function(data, map,
                          'collectionVariablePlotRef' = collectionVariablePlotRef)
 
   if (!is.null(collectionVariablePlotRef)) {
+    if (evilMode == 'allVariables') stop('evilMode=`allVariables` is incompatible with collection variables') # how would one plot or do stats?
     if (identical(collectionVariablePlotRef, 'xAxisVariable')) { inferredVarEntityId <- unique(xAxisVariable$entityId)
     } else if (identical(collectionVariablePlotRef, 'facetVariable1')) { inferredVarEntityId <- unique(facetVariable1$entityId)
     } else if (identical(collectionVariablePlotRef, 'facetVariable2')) { inferredVarEntityId <- unique(facetVariable2$entityId)
