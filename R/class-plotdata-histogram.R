@@ -109,10 +109,10 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   attr$binSlider <- binSlider 
 
   if (value == 'count') {
-    .pd <- binSize(.pd, x, group, panel, binWidth, viewport)
+    .pd <- binSize(.pd, x, group, panel, NULL, binWidth, viewport)
     veupathUtils::logWithTime('Value is set to `count`. Resulting histogram object will represent counts of unique x-axis bins per group.', verbose)
   } else if (value == 'proportion' ) {
-    .pd <- binProportion(.pd, x, group, panel, binWidth, barmode, viewport)
+    .pd <- binProportion(.pd, x, group, panel, NULL, binWidth, barmode, viewport)
     veupathUtils::logWithTime('Value is set to `proportion`. If barmode is `group` the resulting histogram object will represent the relative proportions of unique x-axis bins across groups. If barmode is `stack` the resulting histogram object will represent the proportions of unique x-axis bins relative to the total x-axis bins in that panel.', verbose)
   } else {
     stop('Unrecognized argument to "value".')

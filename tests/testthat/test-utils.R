@@ -1,11 +1,86 @@
 context('utils')
 
+test_that("numBinsToBinWidth() returns a binWidth that will actually provide the desired bins.", {
+  binWidth <- numBinsToBinWidth(testDF$entity.int6, 8)
+  viewport <- findViewport(testDF$entity.int6, 'NUMBER')
+  x <- bin(testDF$entity.int6, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),6)
+
+  binWidth <- numBinsToBinWidth(testDF$entity.int6, 1)
+  viewport <- findViewport(testDF$entity.int6, 'NUMBER')
+  x <- bin(testDF$entity.int6, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),1)
+  
+  binWidth <- numBinsToBinWidth(testDF$entity.contA, 8)
+  viewport <- findViewport(testDF$entity.contA, 'NUMBER')
+  x <- bin(testDF$entity.contA, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),8)
+
+  binWidth <- numBinsToBinWidth(testDF$entity.contA, 27)
+  viewport <- findViewport(testDF$entity.contA, 'NUMBER')
+  x <- bin(testDF$entity.contA, binWidth, viewport)
+  #expect_equal(data.table::uniqueN(x),27)
+
+  binWidth <- numBinsToBinWidth(testDF$entity.contA, 2)
+  viewport <- findViewport(testDF$entity.contA, 'NUMBER')
+  x <- bin(testDF$entity.contA, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),2)
+
+  binWidth <- numBinsToBinWidth(testDF$entity.contA, 500)
+  viewport <- findViewport(testDF$entity.contA, 'NUMBER')
+  x <- bin(testDF$entity.contA, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),500)
+
+  date <- as.Date(testDF$entity.dateA)
+  binWidth <- numBinsToBinWidth(date, 8)
+  viewport <- findViewport(date, 'DATE')
+  x <- bin(date, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),8)
+
+  binWidth <- numBinsToBinWidth(date, 27)
+  viewport <- findViewport(date, 'DATE')
+  x <- bin(date, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),27)
+
+  binWidth <- numBinsToBinWidth(date, 2)
+  viewport <- findViewport(date, 'DATE')
+  x <- bin(date, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),2)
+
+  binWidth <- numBinsToBinWidth(date, 393)
+  viewport <- findViewport(date, 'DATE')
+  x <- bin(date, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),393)
+
+  binWidth <- numBinsToBinWidth(date, 500)
+  viewport <- findViewport(date, 'DATE')
+  x <- bin(date, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),393)
+})
+
 test_that("chiSq returns consistent classes", {
   tbl1 <- table(data.table('Antibiotic'=c('Azithromycin'),'Disease'=c('Yes','No')))
   tbl2 <- table(data.table('Antibiotic'=c('Azithromycin','Placebo'),'Disease'=c('Yes','No')))
 
   expect_equal(all(unlist(lapply(chiSq(tbl1),is.numeric))), TRUE)
   expect_equal(all(unlist(lapply(chiSq(tbl2),is.numeric))), TRUE)
+})
+
+test_that("roundedGeometricMean() returns reasonable results.", {
+  noValues <- numeric()
+  singlePositiveValue <- rnorm(1, 10)
+  negativeValues <- rnorm(1000, -10)
+  positiveValues <- rnorm(1000, 10)
+  ignoreValues <- c(-10, 0, positiveValues)
+  onlyZeroValues <- c(0,0,0,0,0)
+
+  expect_equal(roundedGeometricMean(negativeValues), NaN)
+  expect_equal(roundedGeometricMean(noValues), NaN)
+  expect_equal(roundedGeometricMean(onlyZeroValues), NaN)
+  expect_warning(roundedGeometricMean(ignoreValues))
+  expect_equal(roundedGeometricMean(singlePositiveValue), round(singlePositiveValue,4))
+  expect_equal(roundedGeometricMean(positiveValues), roundedGeometricMean(ignoreValues))
+  expect_equal(roundedGeometricMean(positiveValues) < roundedMean(positiveValues), TRUE)
 })
 
 test_that("*CI fxns return reasonable results", {
@@ -55,6 +130,53 @@ test_that("*CI fxns return reasonable results", {
   expect_equal(medianCI(manyValues)[[1]]$upperBound >= median(manyValues), TRUE)
   expect_equal(medianCI(manyValues)[[1]]$lowerBound > min(manyValues), TRUE)
   expect_equal(medianCI(manyValues)[[1]]$upperBound < max(manyValues), TRUE)
+
+  singlePositiveValue <- rnorm(1, 10)
+  fewPositiveValues <- rnorm(2, 10)
+  negativeValues <- rnorm(1000, -10)
+  positiveValues <- rnorm(1000, 10)
+  ignoreValues <- c(-10, 0, positiveValues)
+  onlyZeroValues <- c(0,0,0,0,0)
+
+  expect_equal(nchar(geometricMeanCI(negativeValues)[[1]]$error) > 0, TRUE)
+  expect_equal(is.na(geometricMeanCI(negativeValues)[[1]]$lowerBound), TRUE)
+  expect_equal(is.na(geometricMeanCI(negativeValues)[[1]]$upperBound), TRUE)  
+
+  expect_equal(nchar(geometricMeanCI(noValues)[[1]]$error) > 0, TRUE)
+  expect_equal(is.na(geometricMeanCI(noValues)[[1]]$lowerBound), TRUE)
+  expect_equal(is.na(geometricMeanCI(noValues)[[1]]$upperBound), TRUE)
+
+  expect_equal(nchar(geometricMeanCI(singlePositiveValue)[[1]]$error) > 0, TRUE)
+  expect_equal(is.na(geometricMeanCI(singlePositiveValue)[[1]]$lowerBound), TRUE)
+  expect_equal(is.na(geometricMeanCI(singlePositiveValue)[[1]]$upperBound), TRUE)
+
+  expect_equal(nchar(geometricMeanCI(onlyZeroValues)[[1]]$error) > 0, TRUE)
+  expect_equal(is.na(geometricMeanCI(onlyZeroValues)[[1]]$lowerBound), TRUE)
+  expect_equal(is.na(geometricMeanCI(onlyZeroValues)[[1]]$upperBound), TRUE)
+
+  expect_equal(nchar(geometricMeanCI(fewPositiveValues)[[1]]$error) == 0, TRUE)
+  expect_equal(is.numeric(geometricMeanCI(fewPositiveValues)[[1]]$lowerBound), TRUE)
+  expect_equal(is.numeric(geometricMeanCI(fewPositiveValues)[[1]]$upperBound), TRUE)
+  expect_equal(geometricMeanCI(fewPositiveValues)[[1]]$lowerBound <= roundedGeometricMean(fewPositiveValues), TRUE)
+  expect_equal(geometricMeanCI(fewPositiveValues)[[1]]$upperBound >= roundedGeometricMean(fewPositiveValues), TRUE)
+
+  expect_equal(nchar(geometricMeanCI(positiveValues)[[1]]$error) == 0, TRUE)
+  expect_equal(is.numeric(geometricMeanCI(positiveValues)[[1]]$lowerBound), TRUE)
+  expect_equal(is.numeric(geometricMeanCI(positiveValues)[[1]]$upperBound), TRUE)
+  expect_equal(geometricMeanCI(positiveValues)[[1]]$lowerBound <= roundedGeometricMean(positiveValues), TRUE)
+  expect_equal(geometricMeanCI(positiveValues)[[1]]$upperBound >= roundedGeometricMean(positiveValues), TRUE)
+  expect_equal(geometricMeanCI(positiveValues)[[1]]$lowerBound > min(positiveValues), TRUE)
+  expect_equal(geometricMeanCI(positiveValues)[[1]]$upperBound < max(positiveValues), TRUE)
+
+  expect_equal(nchar(geometricMeanCI(ignoreValues)[[1]]$error) == 0, TRUE)
+  expect_equal(is.numeric(geometricMeanCI(ignoreValues)[[1]]$lowerBound), TRUE)
+  expect_equal(is.numeric(geometricMeanCI(ignoreValues)[[1]]$upperBound), TRUE)
+  expect_equal(geometricMeanCI(ignoreValues)[[1]]$lowerBound <= roundedGeometricMean(ignoreValues), TRUE)
+  expect_equal(geometricMeanCI(ignoreValues)[[1]]$upperBound >= roundedGeometricMean(ignoreValues), TRUE)
+  expect_equal(geometricMeanCI(ignoreValues)[[1]]$lowerBound > min(ignoreValues), TRUE)
+  expect_equal(geometricMeanCI(ignoreValues)[[1]]$upperBound < max(ignoreValues), TRUE)
+  expect_warning(geometricMeanCI(ignoreValues))
+  expect_equal(identical(geometricMeanCI(ignoreValues), geometricMeanCI(positiveValues)), TRUE)
 
   noNum <- numeric()
   noDenom <- numeric()
@@ -442,13 +564,13 @@ test_that("findBinWidth returns sane results", {
   expect_equal(findBinWidth(x), 1)
 
   x <- c(1.2345,1.6789)
-  expect_equal(findBinWidth(x), 0.2222)
+  expect_equal(findBinWidth(x), 0)
 
   x <- c(1.2345)
   expect_equal(findBinWidth(x), 0)
 
   x <- c(0,0,0,0,0,0,0,.123445)
-  expect_equal(findBinWidth(x), .02)
+  expect_equal(findBinWidth(x), 0)
 
   x <- c(NA)
   expect_equal(findBinWidth(x), NA)
