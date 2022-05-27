@@ -28,7 +28,7 @@ findGeolocationViewport <- function(.dt, latitude, longitude) {
     # if applying the viewport back to the data filters rows then we have the wrong 'half' the globe 
     if (nrows != nrow(filterToGeolocationViewport(.dt, latitude, longitude, viewport))) {
       viewport$longitude=list('left'=max(.dt[[longitude]]),
-                              'right'=min(.dt[[longitude]])))
+                              'right'=min(.dt[[longitude]]))
     }                                
   }
 
