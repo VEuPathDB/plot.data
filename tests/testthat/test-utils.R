@@ -1,5 +1,63 @@
 context('utils')
 
+test_that("numBinsToBinWidth() returns a binWidth that will actually provide the desired bins.", {
+  binWidth <- numBinsToBinWidth(testDF$entity.int6, 8)
+  viewport <- findViewport(testDF$entity.int6, 'NUMBER')
+  x <- bin(testDF$entity.int6, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),6)
+
+  binWidth <- numBinsToBinWidth(testDF$entity.int6, 1)
+  viewport <- findViewport(testDF$entity.int6, 'NUMBER')
+  x <- bin(testDF$entity.int6, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),1)
+  
+  binWidth <- numBinsToBinWidth(testDF$entity.contA, 8)
+  viewport <- findViewport(testDF$entity.contA, 'NUMBER')
+  x <- bin(testDF$entity.contA, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),8)
+
+  binWidth <- numBinsToBinWidth(testDF$entity.contA, 27)
+  viewport <- findViewport(testDF$entity.contA, 'NUMBER')
+  x <- bin(testDF$entity.contA, binWidth, viewport)
+  #expect_equal(data.table::uniqueN(x),27)
+
+  binWidth <- numBinsToBinWidth(testDF$entity.contA, 2)
+  viewport <- findViewport(testDF$entity.contA, 'NUMBER')
+  x <- bin(testDF$entity.contA, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),2)
+
+  binWidth <- numBinsToBinWidth(testDF$entity.contA, 500)
+  viewport <- findViewport(testDF$entity.contA, 'NUMBER')
+  x <- bin(testDF$entity.contA, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),500)
+
+  date <- as.Date(testDF$entity.dateA)
+  binWidth <- numBinsToBinWidth(date, 8)
+  viewport <- findViewport(date, 'DATE')
+  x <- bin(date, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),8)
+
+  binWidth <- numBinsToBinWidth(date, 27)
+  viewport <- findViewport(date, 'DATE')
+  x <- bin(date, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),27)
+
+  binWidth <- numBinsToBinWidth(date, 2)
+  viewport <- findViewport(date, 'DATE')
+  x <- bin(date, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),2)
+
+  binWidth <- numBinsToBinWidth(date, 393)
+  viewport <- findViewport(date, 'DATE')
+  x <- bin(date, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),393)
+
+  binWidth <- numBinsToBinWidth(date, 500)
+  viewport <- findViewport(date, 'DATE')
+  x <- bin(date, binWidth, viewport)
+  expect_equal(data.table::uniqueN(x),393)
+})
+
 test_that("chiSq returns consistent classes", {
   tbl1 <- table(data.table('Antibiotic'=c('Azithromycin'),'Disease'=c('Yes','No')))
   tbl2 <- table(data.table('Antibiotic'=c('Azithromycin','Placebo'),'Disease'=c('Yes','No')))
@@ -506,13 +564,13 @@ test_that("findBinWidth returns sane results", {
   expect_equal(findBinWidth(x), 1)
 
   x <- c(1.2345,1.6789)
-  expect_equal(findBinWidth(x), 0.2222)
+  expect_equal(findBinWidth(x), 0)
 
   x <- c(1.2345)
   expect_equal(findBinWidth(x), 0)
 
   x <- c(0,0,0,0,0,0,0,.123445)
-  expect_equal(findBinWidth(x), .02)
+  expect_equal(findBinWidth(x), 0)
 
   x <- c(NA)
   expect_equal(findBinWidth(x), NA)

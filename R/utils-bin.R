@@ -21,7 +21,11 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
   xVP <- adjustToViewport(x, viewport)
 
   if (!is.null(binWidth)) {
-    bins <- cut_width(xVP, binWidth, boundary = min(xVP))
+    if (binWidth == 0) {
+      bins <- xVP
+    } else {
+      bins <- cut_width(xVP, binWidth, boundary = min(xVP))
+    }
   } else {
     numBins <- findNumBins(xVP)
     bins <- cut_interval(xVP, numBins)
@@ -49,34 +53,40 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
     binWidth = findBinWidth(xVP)
   }
 
-  binStart <- as.Date(cut(xVP, breaks=binWidth))
-  binStart <- pruneViewportAdjustmentFromBins(binStart, xVP, x, viewport)
-
-  if (grepl("^[[:digit:]].", binWidth) & gsub("[^0-9.-]", "", binWidth) != '1') {
-    #works bc we assume a single space between the binWidth and unit
-    unit <- veupathUtils::trim(gsub("^[[:digit:]]*", "", binWidth))
-    numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
-    if (unit %in% c('day','days')) {
-      binEnd <- as.Date(binStart + lubridate::days(numericBinWidth))
-    } else if (unit %in% c('week', 'weeks')) {
-      binEnd <- as.Date(binStart + lubridate::weeks(numericBinWidth))
-    } else if (unit %in% c('month', 'months')) {
-      binEnd <- as.Date(binStart + months(numericBinWidth))
-    } else if (unit %in% c('year', 'years')) {
-      binEnd <- as.Date(binStart + lubridate::years(numericBinWidth))
-    } else {
-      stop("Unrecognized units for binning date histogram.")
-    }   
+  if (binWidth == 0) {
+    bins <- xVP
   } else {
-    #for some reason week doesnt do whats expected..
-    if (binWidth %in% c('week', 'weeks', '1 week')) {
-      binEnd <- as.Date(binStart + lubridate::days(7))
+    binStart <- as.Date(cut(xVP, breaks=binWidth))
+    binStart <- pruneViewportAdjustmentFromBins(binStart, xVP, x, viewport)
+
+    if (grepl("^[[:digit:]].", binWidth) & gsub("[^0-9.-]", "", binWidth) != '1') {
+      #works bc we assume a single space between the binWidth and unit
+      unit <- veupathUtils::trim(gsub("^[[:digit:]]*", "", binWidth))
+      numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
+      if (unit %in% c('day','days')) {
+        binEnd <- as.Date(binStart + lubridate::days(numericBinWidth))
+      } else if (unit %in% c('week', 'weeks')) {
+        binEnd <- as.Date(binStart + lubridate::weeks(numericBinWidth))
+      } else if (unit %in% c('month', 'months')) {
+        binEnd <- as.Date(binStart + months(numericBinWidth))
+      } else if (unit %in% c('year', 'years')) {
+        binEnd <- as.Date(binStart + lubridate::years(numericBinWidth))
+      } else {
+        stop("Unrecognized units for binning date histogram.")
+      }    
     } else {
-      binEnd <- lubridate::ceiling_date(binStart, binWidth)
+      #for some reason week doesnt do whats expected..
+      if (binWidth %in% c('week', 'weeks', '1 week')) {
+        binEnd <- as.Date(binStart + lubridate::days(7))
+      } else {
+        binEnd <- lubridate::ceiling_date(binStart, binWidth)
+      }
     }
+
+    bins <- stringi::stri_c(binStart, " - ", binEnd)  
   }
 
-  bins <- stringi::stri_c(binStart, " - ", binEnd)
+  
 
   return(bins)
 }
@@ -195,21 +205,42 @@ binWidthToNumBins <- function(x, binWidth) {
 }
 
 #' @export
-numBinsToBinWidth <- function(x, numBins) {
-  diff(range(x))/numBins
+numBinsToBinWidth <- function(x, numBins) UseMethod("numBinsToBinWidth")
+
+#' @export
+numBinsToBinWidth.default <- function(x, numBins) {
+  if (data.table::uniqueN(x) <= numBins) { return(0) }
+
+  numDigits <- ifelse( avgDigits(x) > 6, 4, avgDigits(x) - 1)
+  binWidth <- veupathUtils::nonZeroRound(diff(range(x)), numDigits)/numBins
+  if (all(x %% 1 == 0)) {
+    binWidth <- ceiling(binWidth)
+    if (numBins == 1) {
+      binWidth <- binWidth + 1
+    }
+  }
+  
+  return(binWidth)
 }
 
 #' @export
-findBinSliderValues <- function(x, xType, binWidth, binReportValue) UseMethod("findBinSliderValues")
+numBinsToBinWidth.Date <- function(x, numBins) {
+  if (data.table::uniqueN(x) <= numBins) { return(0) }
+
+  paste(ceiling(as.numeric(diff(range(x))/numBins)), 'days')
+}
 
 #' @export
-findBinSliderValues.numeric <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth') {
+findBinSliderValues <- function(x, xType, binWidth, binReportValue, maxNumBins) UseMethod("findBinSliderValues")
+
+#' @export
+findBinSliderValues.numeric <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth', maxNumBins = 1000) {
   if (binReportValue == 'numBins') {
     return(list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1)))
   }
 
   binSliderMax <- as.numeric((max(x) - min(x)) / 2)
-  binSliderMin <- as.numeric((max(x) - min(x)) / 1000)
+  binSliderMin <- as.numeric((max(x) - min(x)) / maxNumBins)
   avgDigits <- floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
   binSliderMax <- veupathUtils::nonZeroRound(binSliderMax, avgDigits)
   binSliderMin <- veupathUtils::nonZeroRound(binSliderMin, avgDigits)
@@ -225,13 +256,13 @@ findBinSliderValues.numeric <- function(x, xType, binWidth = NULL, binReportValu
 }
 
 #' @export
-findBinSliderValues.Date <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth') {
+findBinSliderValues.Date <- function(x, xType, binWidth = NULL, binReportValue = 'binWidth', maxNumBins = 1000) {
   if (binReportValue == 'numBins') {
-    list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(1000), 'step'=jsonlite::unbox(1))
+    list('min'=jsonlite::unbox(2), 'max'=jsonlite::unbox(maxNumBins), 'step'=jsonlite::unbox(1))
   }
   
   binSliderMax <- as.numeric((max(x) - min(x)) / 2)
-  binSliderMin <- as.numeric((max(x) - min(x)) / 1000)
+  binSliderMin <- as.numeric((max(x) - min(x)) / maxNumBins)
   if (!is.null(binWidth) & binWidth != 0) {
     unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
   } else {
@@ -243,15 +274,15 @@ findBinSliderValues.Date <- function(x, xType, binWidth = NULL, binReportValue =
     binSliderMax <- ceiling(binSliderMax)
   } else if (unit %in% c('week', 'weeks')) {
     numWeeks <- floor(as.numeric(difftime(max(x), min(x), units='weeks'))) 
-    binSliderMin <- floor(numWeeks/1000)
+    binSliderMin <- floor(numWeeks/maxNumBins)
     binSliderMax <- ceiling(numWeeks/2)
   } else if (unit %in% c('month', 'months')) {
     numMonths <- uniqueN(zoo::as.yearmon(x))
-    binSliderMin <- floor(numMonths/1000)
+    binSliderMin <- floor(numMonths/maxNumBins)
     binSliderMax <- ceiling(numMonths/2) 
   } else if (unit %in% c('year', 'years')) {
     numYears <- uniqueN(veupathUtils::strSplit(as.character(x), '-', 3))
-    binSliderMin <- floor(numYears/1000)
+    binSliderMin <- floor(numYears/maxNumBins)
     binSliderMax <- ceiling(numYears/2)
   } else {
     stop("Unrecognized unit for date bins.")

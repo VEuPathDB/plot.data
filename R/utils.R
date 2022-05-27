@@ -20,10 +20,16 @@ findGeolocationViewport <- function(.dt, latitude, longitude) {
   if (any(is.null(c(latitude, longitude)))) {
     viewport <- NULL
   } else {
+    nrows <- nrow(.dt)
     viewport <- list('latitude'=list('xMin'=min(.dt[[latitude]]),
                                    'xMax'=max(.dt[[latitude]])),
                    'longitude'=list('left'=min(.dt[[longitude]]),
                                     'right'=max(.dt[[longitude]])))
+    # if applying the viewport back to the data filters rows then we have the wrong 'half' the globe 
+    if (nrows != nrow(filterToGeolocationViewport(.dt, latitude, longitude, viewport))) {
+      viewport$longitude=list('left'=max(.dt[[longitude]]),
+                              'right'=min(.dt[[longitude]]))
+    }                                
   }
 
   return(viewport)
@@ -47,23 +53,25 @@ tableAsDT <- function(data, x, y) {
   return(dt)
 }
 
-collapseByGroup <- function(data, group = NULL, panel = NULL) {
+collapseByGroup <- function(data, group = NULL, panel = NULL, geo = NULL) {
   if (class(data)[1] != "data.table") {
     data <- data.table::setDT(data)
   }
 
-  if (is.null(group) && is.null(panel)) {
+  if (all(is.null(c(group, geo, panel)))) {
     dt <- data[, lapply(.SD, list)]
   } else {
-    dt <- data[, lapply(.SD, list), by=eval(colnames(data)[colnames(data) %in% c(group, panel)])]
+    dt <- data[, lapply(.SD, list), by=eval(colnames(data)[colnames(data) %in% c(group, geo, panel)])]
   }
-  indexCols <- c(panel, group)
+  indexCols <- c(panel, geo, group)
   setkeyv(dt, indexCols)
 
   return(dt)
 }
 
-plotRefMapToList <- function(map, plotRef) {
+plotRefMapToList <- function(map, plotRef, verbose = c(TRUE, FALSE)) {
+  verbose <- veupathUtils::matchArg(verbose)
+
   if (!plotRef %in% map$plotRef) {
     return(list('variableId' = NULL,
                 'entityId' = NULL,
@@ -87,10 +95,10 @@ plotRefMapToList <- function(map, plotRef) {
   # Validate naToZero and fix if necessary
   # NOTE failing to set naToZero will result in a default value of FALSE
   if (length(naToZero) == 0) {
-    warning("Encountered empty or NULL naToZero value. Setting naToZero = FALSE.")
+    veupathUtils::logWithTime("Encountered empty or NULL naToZero value. Setting naToZero = FALSE.", verbose)
     naToZero <- FALSE
   } else if (is.na(naToZero) || naToZero == '') {
-    warning("Encountered '' or NA as the naToZero value. Setting naToZero = FALSE.")
+    veupathUtils::logWithTime("Encountered '' or NA as the naToZero value. Setting naToZero = FALSE.", verbose)
     naToZero <- FALSE
   } else {
     if (identical(naToZero, 'TRUE')) naToZero <- TRUE
@@ -397,3 +405,6 @@ findColNamesByPredicate <- function(variableList, predicateFunction) {
   return (colNames)
 }
 
+avgDigits <- function(x) {
+  floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
+}

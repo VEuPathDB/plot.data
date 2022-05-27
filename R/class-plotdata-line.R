@@ -138,28 +138,28 @@ newLinePD <- function(.dt = data.table::data.table(),
   # TODO unit tests for ordinal x-axis
   if (value == 'mean') {
     
-    mean <- binMean(.pd, x, y, group, panel, binWidth, viewport, errorBars, xType)
+    mean <- binMean(.pd, x, y, group, panel, NULL, binWidth, viewport, errorBars, xType)
     data.table::setnames(mean, c('binLabel', 'value'), c('seriesX', 'seriesY'))
     .pd <- mean
     veupathUtils::logWithTime('Mean calculated per X-axis value.', verbose)
 
   } else if (value == 'median') {
 
-    median <- binMedian(.pd, x, y, group, panel, binWidth, viewport, errorBars, xType)
+    median <- binMedian(.pd, x, y, group, panel, NULL, binWidth, viewport, errorBars, xType)
     data.table::setnames(median, c('binLabel', 'value'), c('seriesX', 'seriesY'))
     .pd <- median
     veupathUtils::logWithTime('Median calculated per X-axis value.', verbose)
 
   } else if (value == 'geometricMean') {
 
-    mean <- binGeometricMean(.pd, x, y, group, panel, binWidth, viewport, errorBars, xType)
+    mean <- binGeometricMean(.pd, x, y, group, panel, NULL, binWidth, viewport, errorBars, xType)
     data.table::setnames(mean, c('binLabel', 'value'), c('seriesX', 'seriesY'))
     .pd <- mean
     veupathUtils::logWithTime('Geometric mean calculated per X-axis value.', verbose)
   
   } else if (value == 'proportion') {
 
-    proportion <- binCategoryProportion(.pd, x, y, group, panel, binWidth, viewport, errorBars, numeratorValues, denominatorValues, xType)
+    proportion <- binCategoryProportion(.pd, x, y, group, panel, NULL, binWidth, viewport, errorBars, numeratorValues, denominatorValues, xType)
     data.table::setnames(proportion, c('binLabel', 'value'), c('seriesX', 'seriesY'))
     .pd <- proportion
     veupathUtils::logWithTime('Y-axis category proportions calculated per X-axis value.', verbose)

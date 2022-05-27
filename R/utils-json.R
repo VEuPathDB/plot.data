@@ -31,6 +31,7 @@ addVariableDetailsToColumn <- function(.pd, variableIdColName) {
   if ('overlayVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$overlayVariable)] <- list(makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel))
   if ('facetVariable1' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$facetVariable1)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId, namedAttrList$facetVariable1$displayLabel))
   if ('facetVariable2' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$facetVariable2)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel))
+  if ('geoAggregateVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$geoAggregateVariable)] <- list(makeVariableDetails(NULL, namedAttrList$geoAggregateVariable$variableId, namedAttrList$geoAggregateVariable$entityId, namedAttrList$geoAggregateVariable$displayLabel))
   if ('collectionVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] %in% veupathUtils::toColNameOrNull(namedAttrList$collectionVariable)] <- lapply(seq_along(namedAttrList$collectionVariable$variableId), function(varInd) {makeVariableDetails(NULL, namedAttrList$collectionVariable$variableId[varInd], namedAttrList$collectionVariable$entityId[varInd], namedAttrList$collectionVariable$displayLabel[varInd])})
   
   return(.pd)
@@ -41,7 +42,8 @@ addStrataVariableDetails <- function(.pd, useGradientColorscale=FALSE) {
   group <- veupathUtils::toColNameOrNull(namedAttrList$overlayVariable)
   facet1 <- veupathUtils::toColNameOrNull(namedAttrList$facetVariable1)
   facet2 <- veupathUtils::toColNameOrNull(namedAttrList$facetVariable2)
- 
+  geo <- veupathUtils::toColNameOrNull(namedAttrList$geoAggregateVariable)
+
   # !!!!! work off a copy while writing json
   # since we have two exported fxns, dont want calling one changing the result of the other
   if (!is.null(group) && !useGradientColorscale && (group %in% names(.pd))) {
@@ -49,8 +51,13 @@ addStrataVariableDetails <- function(.pd, useGradientColorscale=FALSE) {
     .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
   }
 
+  if (!is.null(geo)) {
+    names(.pd)[names(.pd) == geo] <- 'geoAggregateVariableDetails'
+    .pd$geoAggregateVariableDetails <- lapply(.pd$geoAggregateVariableDetails, makeVariableDetails, namedAttrList$geoAggregateVariable$variableId, namedAttrList$geoAggregateVariable$entityId, namedAttrList$geoAggregateVariable$displayLabel)
+  }
+
   if (!is.null(facet1) & !is.null(facet2)) {
-    names(.pd)[names(.pd) == 'panel'] <- 'facetVariableDetails'
+    names(.pd)[names(.pd) == 'panel'] <- 'facetVariableDetails' 
     .pd$facetVariableDetails <- Map(list, lapply(veupathUtils::strSplit(.pd$facetVariableDetails, '.||.'), makeVariableDetails, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId, namedAttrList$facetVariable1$displayLabel), lapply(veupathUtils::strSplit(.pd$facetVariableDetails, '.||.', index=2), makeVariableDetails, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel))
   } else {
     if (!is.null(facet1)) {
@@ -142,6 +149,7 @@ getJSON <- function(.pd, evilMode) {
   namedAttrList$facetVariable1 <- NULL
   namedAttrList$facetVariable2 <- NULL
   namedAttrList$overlayVariable <- NULL
+  namedAttrList$geoAggregateVariable <- NULL
 
   # Ensure computedVariableMetadata meets api
   if ('computedVariableMetadata' %in% names(namedAttrList)) {
