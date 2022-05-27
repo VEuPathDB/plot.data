@@ -20,10 +20,16 @@ findGeolocationViewport <- function(.dt, latitude, longitude) {
   if (any(is.null(c(latitude, longitude)))) {
     viewport <- NULL
   } else {
+    nrows <- nrow(.dt)
     viewport <- list('latitude'=list('xMin'=min(.dt[[latitude]]),
                                    'xMax'=max(.dt[[latitude]])),
                    'longitude'=list('left'=min(.dt[[longitude]]),
                                     'right'=max(.dt[[longitude]])))
+    # if applying the viewport back to the data filters rows then we have the wrong 'half' the globe 
+    if (nrows != nrow(filterToGeolocationViewport(.dt, latitude, longitude, viewport))) {
+      viewport$longitude=list('left'=max(.dt[[longitude]]),
+                              'right'=min(.dt[[longitude]])))
+    }                                
   }
 
   return(viewport)
