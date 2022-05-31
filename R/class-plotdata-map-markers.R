@@ -351,7 +351,7 @@ mapMarkers <- function(data,
 
   verbose <- veupathUtils::matchArg(verbose)
 
-  .map <- map.dt(data, map, binWidth, value, binReportValue, viewport, evilMode, verbose)
+  .map <- mapMarkers.dt(data, map, binWidth, value, binReportValue, viewport, evilMode, verbose)
   outFileName <- writeJSON(.map, evilMode, 'mapMarkers', verbose)
 
   return(outFileName)
