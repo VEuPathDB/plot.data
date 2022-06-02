@@ -22,6 +22,7 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
                          value = character(),
                          binWidth,
                          binReportValue = character(),
+                         binRange,
                          geolocationViewport = list('latitude'=list('xMin'=NULL,
                                                          'xMax'=NULL),
                                          'longitude'=list('left'=NULL,
@@ -104,7 +105,11 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
       attr$binSpec <- binSpec
       attr$binSlider <- binSlider
 
-      xRange <- findViewport(.pd[[x]], xType)
+      if (is.null(binRange)) {
+        xRange <- findViewport(.pd[[x]], xType)
+      } else {
+        xRange <- validateBinRange(binRange, xType, verbose)
+      }
       .pd[[x]] <- as.character(bin(.pd[[x]], binWidth, xRange))
       veupathUtils::logWithTime('Successfully binned continuous x-axis.', verbose)
 
@@ -134,6 +139,27 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
   veupathUtils::setAttrFromList(.pd, attr)
 
   return(.pd)
+}
+
+validateBinRange <- function(binRange, varType, verbose) {
+  if (!is.list(binRange)) {
+    return(FALSE)
+  } else{
+    if (!all(c('max', 'min') %in% names(binRange))) {
+      return(FALSE)
+    }
+  }
+
+  if (varType %in% c('NUMBER', 'INTEGER')) {
+    binRange$min <- as.numeric(binRange$min)
+    binRange$max <- as.numeric(binRange$max)
+  } else if (varType == 'DATE') {
+    binRange$min <- as.Date(binRange$min, format='%Y-%m-%d')
+    binRange$max <- as.Date(binRange$max, format='%Y-%m-%d')
+  }
+  veupathUtils::logWithTime('Provided bin range validated.', verbose)
+
+  return(binRange)
 }
 
 validateGeolocationViewport <- function(geolocationViewport, verbose) {
@@ -208,6 +234,7 @@ validateMapMarkersPD <- function(.map, verbose) {
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
+#' @param binRange List of min and max values to bin the xAxisVariable over
 #' @param viewport List of values indicating the visible range of data
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
@@ -230,6 +257,7 @@ mapMarkers.dt <- function(data,
                    binWidth = NULL,
                    value = c('count', 'proportion'),
                    binReportValue = c('binWidth', 'numBins'),
+                   binRange = NULL,
                    viewport = NULL,  
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
@@ -274,6 +302,7 @@ mapMarkers.dt <- function(data,
                     value = value,
                     binWidth = binWidth,
                     binReportValue = binReportValue,
+                    binRange = binRange,
                     geolocationViewport = viewport,
                     evilMode = evilMode,
                     verbose = verbose)
@@ -322,6 +351,7 @@ mapMarkers.dt <- function(data,
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
+#' @param binRange List of min and max values to bin the xAxisVariable over
 #' @param viewport List of values indicating the visible range of data
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
@@ -345,13 +375,14 @@ mapMarkers <- function(data,
                 binWidth = NULL,
                 value = c('count', 'proportion'),
                 binReportValue = c('binWidth', 'numBins'),
+                binRange = NULL,
                 viewport = NULL,
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                 verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
 
-  .map <- mapMarkers.dt(data, map, binWidth, value, binReportValue, viewport, evilMode, verbose)
+  .map <- mapMarkers.dt(data, map, binWidth, value, binReportValue, binRange, viewport, evilMode, verbose)
   outFileName <- writeJSON(.map, evilMode, 'mapMarkers', verbose)
 
   return(outFileName)
