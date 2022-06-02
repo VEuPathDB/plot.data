@@ -48,6 +48,24 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
   lat <- veupathUtils::toColNameOrNull(attr$latitudeVariable)
   lon <- veupathUtils::toColNameOrNull(attr$longitudeVariable)
 
+  if (is.null(geolocationViewport)) {
+    geolocationViewport <- findGeolocationViewport(.pd, lat, lon)
+    veupathUtils::logWithTime('Determined default viewport.', verbose)
+  } else {
+    geolocationViewport <- validateGeolocationViewport(geolocationViewport, verbose)
+  }
+  if (is.null(geolocationViewport)) {
+    attr$viewport <- list('latitude'=list('xMin'=NA,
+                                          'xMax'=NA),
+                          'longitude'=list('left'=NA,
+                                           'right'=NA))
+  } else {
+    attr$viewport <- geolocationViewport
+  }
+  attr$viewport$latitude <- lapply(attr$viewport$latitude, jsonlite::unbox)
+  attr$viewport$longitude <- lapply(attr$viewport$longitude, jsonlite::unbox)
+  .pd <- filterToGeolocationViewport(.pd, lat, lon, geolocationViewport)
+
   if (!length(.pd[[x]])) {
     rankedValues <- c('')
     binSlider <- list('min'=jsonlite::unbox(NA), 'max'=jsonlite::unbox(NA), 'step'=jsonlite::unbox(NA))
@@ -100,24 +118,6 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
       attr$rankedValues <- rankedValues
     }
   }
-
-  if (is.null(geolocationViewport)) {
-    geolocationViewport <- findGeolocationViewport(.pd, lat, lon)
-    veupathUtils::logWithTime('Determined default viewport.', verbose)
-  } else {
-    geolocationViewport <- validateGeolocationViewport(geolocationViewport, verbose)
-  }
-  if (is.null(geolocationViewport)) {
-    attr$viewport <- list('latitude'=list('xMin'=NA,
-                                          'xMax'=NA),
-                          'longitude'=list('left'=NA,
-                                           'right'=NA))
-  } else {
-    attr$viewport <- geolocationViewport
-  }
-  attr$viewport$latitude <- lapply(attr$viewport$latitude, jsonlite::unbox)
-  attr$viewport$longitude <- lapply(attr$viewport$longitude, jsonlite::unbox)
-  .pd <- filterToGeolocationViewport(.pd, lat, lon, geolocationViewport)
 
   if (value == 'count' ) {
     .pd$dummy <- 1
