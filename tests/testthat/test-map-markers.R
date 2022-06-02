@@ -328,7 +328,6 @@ test_that("mapMarkers() returns appropriately formatted json", {
 })
 
 
-
 test_that("mapMarkers.dt() returns correct information about missing data", {
   map <- data.frame('id' = c('entity.contA', 'entity.cat4'),
                     'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
@@ -350,4 +349,28 @@ test_that("mapMarkers.dt() returns correct information about missing data", {
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA)))
   dt <- mapMarkers.dt(df, map, value='count', evilMode = 'allVariables')
   expect_equal(attr(dt, 'completeCasesAllVars')[1], sum(complete.cases(df[, map$id, with=FALSE])))
+
+
+  # Numeric x
+  map <- data.frame('id' = c('entity.contA', 'entity.cat4'),
+                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
+                    'dataType' = c('NUMERIC', 'STRING'),
+                    'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  # Add nMissing missing values to each column
+  nMissing <- 10
+  df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+
+  dt <- mapMarkers.dt(df, map, value='count')
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - nMissing
+  expect_equal(all(completecasestable$completeCases == nrow(df)-nMissing), TRUE)
+  # number of completeCases should be <= complete cases for each var
+  expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
+  dt <- mapMarkers.dt(df, map, value='count', evilMode = 'strataVariables')
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA)))
+  # TODO box cant have evilMode = 'allVariables' bc we cant calculate bins with NA
+  # dt <- mapMarkers.dt(df, map, value='count', evilMode = 'allVariables')
+  # expect_equal(attr(dt, 'completeCasesAllVars')[1], sum(complete.cases(df[, map$id, with=FALSE])))
 })
