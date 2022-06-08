@@ -1,3 +1,4 @@
+#' importFrom stringi stri_sort
 newMapMarkersPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
@@ -73,6 +74,7 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
     binSpec <- list('type'=jsonlite::unbox(binReportValue), 'value'=jsonlite::unbox(NA))
     veupathUtils::logWithTime('No complete cases found.', verbose)
     attr$rankedValues <- rankedValues
+    attr$overlayValues <- rankedValues
     attr$binSlider <- binSlider
     attr$binSpec <- binSpec
   } else {
@@ -83,8 +85,12 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
       if (length(rankedValues) > 8) {
         rankedValues <- c(rankedValues[1:7], 'Other')
         .pd[[x]][!.pd[[x]] %in% rankedValues] <- 'Other'
+        overlayValues <- c(stringi::stri_sort(rankedValues[1:7], numeric=TRUE), 'Other')
+      } else {
+        overlayValues <- stringi::stri_sort(rankedValues[1:7], numeric=TRUE)
       }
       attr$rankedValues <- rankedValues
+      attr$overlayValues <- overlayValues
     } else {
       if (binReportValue == 'binWidth') {
         if (xType %in% c('NUMBER', 'INTEGER')) {
@@ -110,8 +116,12 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
       } else {
         xRange <- validateBinRange(binRange, xType, verbose)
       }
-      .pd[[x]] <- as.character(bin(.pd[[x]], binWidth, xRange))
+      .pd[[x]] <- as.character(bin(.pd[[x]], binWidth, xRange, stringsAsFactors=TRUE))
       veupathUtils::logWithTime('Successfully binned continuous x-axis.', verbose)
+      
+      overlayValues <- levels(.pd[[x]])
+      .pd[[x]] <- as.character(.pd[[x]])
+      attr$overlayValues <- overlayValues
 
       # maybe worth at some point a fxn getRankedValues(x = character(), maxNumValues = integer(), otherBin = c(T,F))
       # if maxNumValues was exceeded and otherBin = F then it would just put out an error
@@ -151,12 +161,14 @@ validateBinRange <- function(binRange, varType, verbose) {
   }
 
   if (varType %in% c('NUMBER', 'INTEGER')) {
-    binRange$min <- as.numeric(binRange$min)
-    binRange$max <- as.numeric(binRange$max)
+    binRange$xMin <- as.numeric(binRange$min)
+    binRange$xMax <- as.numeric(binRange$max)
   } else if (varType == 'DATE') {
-    binRange$min <- as.Date(binRange$min, format='%Y-%m-%d')
-    binRange$max <- as.Date(binRange$max, format='%Y-%m-%d')
+    binRange$xMin <- as.Date(binRange$min, format='%Y-%m-%d')
+    binRange$xMax <- as.Date(binRange$max, format='%Y-%m-%d')
   }
+  binRange$min <- NULL
+  binRange$max <- NULL
   veupathUtils::logWithTime('Provided bin range validated.', verbose)
 
   return(binRange)

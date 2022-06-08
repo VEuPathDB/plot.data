@@ -1,20 +1,24 @@
-' Binning
+#' Binning
 #' 
 #'
 #' This function divides the range of ‘x’ into intervals and codes 
 #' the values in ‘x’ according to which interval they fall
 #' @param x Numeric or Date vector to bin
 #' @param binWidth number to increment bin bounds by, or string for dates ex: 'month'
-#' @return Character vector of coded values 
+#' @param viewport List of min and max values to consider as the range of data
+#' @param stringsAsFactors logical indicating whether a factor or character vector should be returned
+#' @return Character vector (or factor) of coded values 
 #' @export
 #' @importFrom lubridate ceiling_date
 #' @importFrom moments skewness
 # @alias bin.numeric
 # @alias bin.POSIXct
-bin <- function(x, binWidth, viewport) UseMethod("bin")
+bin <- function(x, binWidth, viewport, stringsAsFactors) UseMethod("bin")
 
 #' @export
-bin.numeric <- function(x, binWidth = NULL, viewport) {
+bin.numeric <- function(x, binWidth = NULL, viewport, stringsAsFactors = c(FALSE, TRUE)) {
+  stringsAsFactors <- veupathUtils::matchArg(stringsAsFactors)
+
   if (!length(x)) { return(character(0)) }
   if (all(is.na(x))) { return(character(0)) }
 
@@ -32,7 +36,7 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
   }
 
   bins <- pruneViewportAdjustmentFromBins(bins, xVP, x, viewport)
-  bins <- as.character(bins)
+  if (!stringsAsFactors) bins <- as.character(bins)
 
   return(bins)
 }
@@ -43,7 +47,9 @@ bin.numeric <- function(x, binWidth = NULL, viewport) {
 #' @importFrom lubridate weeks
 #' @importFrom lubridate years
 #' @export
-bin.Date <- function(x, binWidth = NULL, viewport) {
+bin.Date <- function(x, binWidth = NULL, viewport, stringsAsFactors = c(FALSE, TRUE)) {
+  stringsAsFactors <- veupathUtils::matchArg(stringsAsFactors)
+
   if (!length(x)) { return(character(0)) }
   if (all(is.na(x))) { return(character(0)) }
 
@@ -56,7 +62,9 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
   if (binWidth == 0) {
     bins <- xVP
   } else {
-    binStart <- as.Date(cut(xVP, breaks=binWidth))
+    binStart <- cut(xVP, breaks=binWidth)
+    binLevelsStart <- levels(binStart)
+    binStart <- as.Date(binStart)
     binStart <- pruneViewportAdjustmentFromBins(binStart, xVP, x, viewport)
 
     if (grepl("^[[:digit:]].", binWidth) & gsub("[^0-9.-]", "", binWidth) != '1') {
@@ -65,12 +73,16 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
       numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
       if (unit %in% c('day','days')) {
         binEnd <- as.Date(binStart + lubridate::days(numericBinWidth))
+        binLevelsEnd <- as.Date(binLevelsStart + lubridate::days(numericBinWidth))
       } else if (unit %in% c('week', 'weeks')) {
         binEnd <- as.Date(binStart + lubridate::weeks(numericBinWidth))
+        binLevelsEnd <- as.Date(binLevelsStart + lubridate::weeks(numericBinWidth))
       } else if (unit %in% c('month', 'months')) {
         binEnd <- as.Date(binStart + months(numericBinWidth))
+        binLevelsEnd <- as.Date(binLevelsStart + months(numericBinWidth))
       } else if (unit %in% c('year', 'years')) {
         binEnd <- as.Date(binStart + lubridate::years(numericBinWidth))
+        binLevelsEnd <- as.Date(binLevelsStart + lubridate::years(numericBinWidth))
       } else {
         stop("Unrecognized units for binning date histogram.")
       }    
@@ -78,12 +90,20 @@ bin.Date <- function(x, binWidth = NULL, viewport) {
       #for some reason week doesnt do whats expected..
       if (binWidth %in% c('week', 'weeks', '1 week')) {
         binEnd <- as.Date(binStart + lubridate::days(7))
+        binLevelsEnd <- as.Date(binLevelsStart + lubridate::days(7))
       } else {
-        binEnd <- lubridate::ceiling_date(binStart, binWidth)
+        binEnd <- lubridate::ceiling_date(as.Date(binStart), binWidth)
+        binLevelsEnd <- lubridate::ceiling_date(as.Date(binLevelsStart), binWidth)
       }
     }
 
-    bins <- stringi::stri_c(binStart, " - ", binEnd)  
+    bins <- stringi::stri_c(binStart, " - ", binEnd)
+    if (stringsAsFactors) {
+      binLevels <- stringi::stri_c(binLevelsStart, " - ", binLevelsEnd)
+      bins <- factor(bins, levels=binLevels)
+    }  
+
+    return(bins)    
   }
 
   
