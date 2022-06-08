@@ -2,18 +2,21 @@
 % Please edit documentation in R/utils-bin.R
 \name{bin}
 \alias{bin}
-\title{This function divides the range of ‘x’ into intervals and codes 
-the values in ‘x’ according to which interval they fall}
+\title{Binning}
 \usage{
-bin(x, binWidth, viewport)
+bin(x, binWidth, viewport, stringsAsFactors)
 }
 \arguments{
 \item{x}{Numeric or Date vector to bin}
 
 \item{binWidth}{number to increment bin bounds by, or string for dates ex: 'month'}
+
+\item{viewport}{List of min and max values to consider as the range of data}
+
+\item{stringsAsFactors}{logical indicating whether a factor or character vector should be returned}
 }
 \value{
-Character vector of coded values
+Character vector (or factor) of coded values
 }
 \description{
 This function divides the range of ‘x’ into intervals and codes 
