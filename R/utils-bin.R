@@ -27,6 +27,7 @@ bin.numeric <- function(x, binWidth = NULL, viewport, stringsAsFactors = c(FALSE
   if (!is.null(binWidth)) {
     if (binWidth == 0) {
       bins <- xVP
+      if (stringsAsFactors) bins <- as.factor(bins)
     } else {
       bins <- cut_width(xVP, binWidth, boundary = min(xVP))
     }
@@ -61,9 +62,10 @@ bin.Date <- function(x, binWidth = NULL, viewport, stringsAsFactors = c(FALSE, T
 
   if (binWidth == 0) {
     bins <- xVP
+    if (stringsAsFactors) bins <- as.factor(bins)
   } else {
     binStart <- cut(xVP, breaks=binWidth)
-    binLevelsStart <- levels(binStart)
+    binLevelsStart <- as.Date(levels(binStart))
     binStart <- as.Date(binStart)
     binStart <- pruneViewportAdjustmentFromBins(binStart, xVP, x, viewport)
 

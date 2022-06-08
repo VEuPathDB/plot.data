@@ -116,7 +116,7 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
       } else {
         xRange <- validateBinRange(binRange, xType, verbose)
       }
-      .pd[[x]] <- as.character(bin(.pd[[x]], binWidth, xRange, stringsAsFactors=TRUE))
+      .pd[[x]] <- bin(.pd[[x]], binWidth, xRange, stringsAsFactors=TRUE)
       veupathUtils::logWithTime('Successfully binned continuous x-axis.', verbose)
       
       overlayValues <- levels(.pd[[x]])
