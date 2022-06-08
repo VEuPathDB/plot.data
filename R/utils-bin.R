@@ -205,10 +205,11 @@ binWidthToNumBins <- function(x, binWidth) {
 }
 
 #' @export
-numBinsToBinWidth <- function(x, numBins) UseMethod("numBinsToBinWidth")
+numBinsToBinWidth <- function(x, numBins, na.rm=FALSE) UseMethod("numBinsToBinWidth")
 
 #' @export
-numBinsToBinWidth.default <- function(x, numBins) {
+numBinsToBinWidth.default <- function(x, numBins, na.rm=FALSE) {
+  if (na.rm) x <- x[!is.na(x)]
   if (data.table::uniqueN(x) <= numBins) { return(0) }
 
   numDigits <- ifelse( avgDigits(x) > 6, 4, avgDigits(x) - 1)
