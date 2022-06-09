@@ -1,3 +1,4 @@
+#' importFrom stringi stri_sort
 newMapMarkersPD <- function(.dt = data.table::data.table(),
                          xAxisVariable = list('variableId' = NULL,
                                               'entityId' = NULL,
@@ -22,6 +23,7 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
                          value = character(),
                          binWidth,
                          binReportValue = character(),
+                         binRange,
                          geolocationViewport = list('latitude'=list('xMin'=NULL,
                                                          'xMax'=NULL),
                                          'longitude'=list('left'=NULL,
@@ -48,59 +50,6 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
   lat <- veupathUtils::toColNameOrNull(attr$latitudeVariable)
   lon <- veupathUtils::toColNameOrNull(attr$longitudeVariable)
 
-  if (!length(.pd[[x]])) {
-    rankedValues <- c('')
-    binSlider <- list('min'=jsonlite::unbox(NA), 'max'=jsonlite::unbox(NA), 'step'=jsonlite::unbox(NA))
-    binSpec <- list('type'=jsonlite::unbox(binReportValue), 'value'=jsonlite::unbox(NA))
-    veupathUtils::logWithTime('No complete cases found.', verbose)
-    attr$rankedValues <- rankedValues
-    attr$binSlider <- binSlider
-    attr$binSpec <- binSpec
-  } else {
-    if (xType == 'STRING') {
-      ranked <- .pd[, .N, by=x]
-      data.table::setorderv(ranked, c("N"),-1)
-      rankedValues <- ranked[[x]]
-      if (length(rankedValues) > 8) {
-        rankedValues <- c(rankedValues[1:7], 'Other')
-        .pd[[x]][!.pd[[x]] %in% rankedValues] <- 'Other'
-      }
-      attr$rankedValues <- rankedValues
-    } else {
-      if (binReportValue == 'binWidth') {
-        if (xType %in% c('NUMBER', 'INTEGER')) {
-          binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
-        } else {
-          numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
-          if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
-          unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
-          binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
-        }
-      } else {
-        numBins <- binWidthToNumBins(.pd[[x]], binWidth)
-        veupathUtils::logWithTime('Converted provided bin width to number of bins.', verbose)
-        binSpec <- list('type'=jsonlite::unbox('numBins'), 'value'=jsonlite::unbox(numBins))
-      }
-      binSlider <- findBinSliderValues(.pd[[x]], xType, binWidth, binReportValue, 20)
-      veupathUtils::logWithTime('Determined bin width slider min, max and step values.', verbose)
-      attr$binSpec <- binSpec
-      attr$binSlider <- binSlider
-
-      xRange <- findViewport(.pd[[x]], xType)
-      .pd[[x]] <- as.character(bin(.pd[[x]], binWidth, xRange))
-      veupathUtils::logWithTime('Successfully binned continuous x-axis.', verbose)
-
-      # maybe worth at some point a fxn getRankedValues(x = character(), maxNumValues = integer(), otherBin = c(T,F))
-      # if maxNumValues was exceeded and otherBin = F then it would just put out an error
-      # maxNumValues could be NULL by default maybe?
-      # would something like that be better here or veupathUtils (could mbio use it?)
-      ranked <- .pd[, .N, by=x]
-      data.table::setorderv(ranked, c("N"),-1)
-      rankedValues <- ranked[[x]]
-      attr$rankedValues <- rankedValues
-    }
-  }
-
   if (is.null(geolocationViewport)) {
     geolocationViewport <- findGeolocationViewport(.pd, lat, lon)
     veupathUtils::logWithTime('Determined default viewport.', verbose)
@@ -119,6 +68,74 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
   attr$viewport$longitude <- lapply(attr$viewport$longitude, jsonlite::unbox)
   .pd <- filterToGeolocationViewport(.pd, lat, lon, geolocationViewport)
 
+  if (!length(.pd[[x]])) {
+    rankedValues <- c('')
+    binSlider <- list('min'=jsonlite::unbox(NA), 'max'=jsonlite::unbox(NA), 'step'=jsonlite::unbox(NA))
+    binSpec <- list('type'=jsonlite::unbox(binReportValue), 'value'=jsonlite::unbox(NA))
+    veupathUtils::logWithTime('No complete cases found.', verbose)
+    attr$rankedValues <- rankedValues
+    attr$overlayValues <- rankedValues
+    attr$binSlider <- binSlider
+    attr$binSpec <- binSpec
+  } else {
+    if (xType == 'STRING') {
+      ranked <- .pd[, .N, by=x]
+      data.table::setorderv(ranked, c("N"),-1)
+      rankedValues <- ranked[[x]]
+      if (length(rankedValues) > 8) {
+        rankedValues <- c(rankedValues[1:7], 'Other')
+        .pd[[x]][!.pd[[x]] %in% rankedValues] <- 'Other'
+        overlayValues <- c(stringi::stri_sort(rankedValues[1:7], numeric=TRUE), 'Other')
+      } else {
+        overlayValues <- stringi::stri_sort(rankedValues, numeric=TRUE)
+      }
+      attr$rankedValues <- rankedValues
+      attr$overlayValues <- overlayValues
+    } else {
+      if (is.null(binRange)) {
+        xRange <- findViewport(.pd[[x]], xType)
+      } else {
+        xRange <- validateBinRange(.pd[[x]], binRange, xType, verbose)
+      }
+      xVP <- adjustToViewport(.pd[[x]], xRange)
+
+      if (binReportValue == 'binWidth') {
+        if (xType %in% c('NUMBER', 'INTEGER')) {
+          binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
+        } else {
+          numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
+          if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
+          unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
+          binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
+        }
+      } else {
+        numBins <- binWidthToNumBins(xVP, binWidth)
+        veupathUtils::logWithTime('Converted provided bin width to number of bins.', verbose)
+        binSpec <- list('type'=jsonlite::unbox('numBins'), 'value'=jsonlite::unbox(numBins))
+      }
+      binSlider <- findBinSliderValues(xVP, xType, binWidth, binReportValue, 20)
+      veupathUtils::logWithTime('Determined bin width slider min, max and step values.', verbose)
+      attr$binSpec <- binSpec
+      attr$binSlider <- binSlider
+
+      .pd[[x]] <- bin(.pd[[x]], binWidth, xRange, stringsAsFactors=TRUE)
+      veupathUtils::logWithTime('Successfully binned continuous x-axis.', verbose)
+      
+      overlayValues <- levels(.pd[[x]])
+      .pd[[x]] <- as.character(.pd[[x]])
+      attr$overlayValues <- overlayValues
+
+      # maybe worth at some point a fxn getRankedValues(x = character(), maxNumValues = integer(), otherBin = c(T,F))
+      # if maxNumValues was exceeded and otherBin = F then it would just put out an error
+      # maxNumValues could be NULL by default maybe?
+      # would something like that be better here or veupathUtils (could mbio use it?)
+      ranked <- .pd[, .N, by=x]
+      data.table::setorderv(ranked, c("N"),-1)
+      rankedValues <- ranked[[x]]
+      attr$rankedValues <- rankedValues
+    }
+  }
+
   if (value == 'count' ) {
     .pd$dummy <- 1
     .pd <- groupSize(.pd, x, 'dummy', NULL, NULL, geo, collapse = T)  
@@ -134,6 +151,38 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
   veupathUtils::setAttrFromList(.pd, attr)
 
   return(.pd)
+}
+
+#' @export
+validateBinRange <- function(x, binRange, varType, verbose) {
+  if (!is.list(binRange)) {
+    stop("Invalid bin range provided: Not a list.")
+  } else{
+    if (!all(c('max', 'min') %in% names(binRange)) && !all(c('xMax', 'xMin') %in% names(binRange))) {
+      stop("Invalid bin range provided: No min or max values found.")
+    }
+  }
+
+  min <- ifelse(is.null(binRange$min), binRange$xMin, binRange$min)
+  max <- ifelse(is.null(binRange$max), binRange$xMax, binRange$max)
+
+  #not a viewport, shouldnt subset data range
+  if (min > min(x) || max < max(x)) {
+    stop("Invalid bin range provided: Bin range cannot represent a subset of the data range.")
+  }
+
+  if (varType %in% c('NUMBER', 'INTEGER')) {
+    binRange$xMin <- as.numeric(min)
+    binRange$xMax <- as.numeric(max)
+  } else if (varType == 'DATE') {
+    binRange$xMin <- as.Date(min, format='%Y-%m-%d')
+    binRange$xMax <- as.Date(max, format='%Y-%m-%d')
+  }
+  binRange$min <- NULL
+  binRange$max <- NULL
+  veupathUtils::logWithTime('Provided bin range validated.', verbose)
+
+  return(binRange)
 }
 
 validateGeolocationViewport <- function(geolocationViewport, verbose) {
@@ -208,6 +257,7 @@ validateMapMarkersPD <- function(.map, verbose) {
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
+#' @param binRange List of min and max values to bin the xAxisVariable over
 #' @param viewport List of values indicating the visible range of data
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
@@ -230,6 +280,7 @@ mapMarkers.dt <- function(data,
                    binWidth = NULL,
                    value = c('count', 'proportion'),
                    binReportValue = c('binWidth', 'numBins'),
+                   binRange = NULL,
                    viewport = NULL,  
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
@@ -250,7 +301,14 @@ mapMarkers.dt <- function(data,
   }
   if (is.null(binWidth) && xAxisVariable$dataType != 'STRING') {
     x <- veupathUtils::toColNameOrNull(xAxisVariable)
-    binWidth <- numBinsToBinWidth(data[[x]], 8, na.rm = TRUE)
+
+    if (is.null(binRange)) {
+      binWidth <- numBinsToBinWidth(data[[x]], 8, na.rm = TRUE)
+    } else {
+      xVals <- data[[x]][complete.cases(data[[x]])]
+      xVP <- adjustToViewport(xVals, validateBinRange(xVals, binRange, xAxisVariable$dataType, FALSE))
+      binWidth <- numBinsToBinWidth(xVP, 8)
+    }
   }
 
   geoAggregateVariable <- plotRefMapToList(map, 'geoAggregateVariable')
@@ -274,6 +332,7 @@ mapMarkers.dt <- function(data,
                     value = value,
                     binWidth = binWidth,
                     binReportValue = binReportValue,
+                    binRange = binRange,
                     geolocationViewport = viewport,
                     evilMode = evilMode,
                     verbose = verbose)
@@ -322,6 +381,7 @@ mapMarkers.dt <- function(data,
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
+#' @param binRange List of min and max values to bin the xAxisVariable over
 #' @param viewport List of values indicating the visible range of data
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
@@ -345,13 +405,14 @@ mapMarkers <- function(data,
                 binWidth = NULL,
                 value = c('count', 'proportion'),
                 binReportValue = c('binWidth', 'numBins'),
+                binRange = NULL,
                 viewport = NULL,
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                 verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
 
-  .map <- mapMarkers.dt(data, map, binWidth, value, binReportValue, viewport, evilMode, verbose)
+  .map <- mapMarkers.dt(data, map, binWidth, value, binReportValue, binRange, viewport, evilMode, verbose)
   outFileName <- writeJSON(.map, evilMode, 'mapMarkers', verbose)
 
   return(outFileName)

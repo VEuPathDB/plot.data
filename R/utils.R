@@ -6,12 +6,9 @@ validateValues <- function(valuesOfInterest, valuesOfVariable) {
   }
 }
 
+#' @export
 findViewport <- function(x, xType) {
-  if (xType %in% c('NUMBER', 'INTEGER')) {
-    viewport <- list('xMin' = min(0,min(x)), 'xMax' = max(x))
-  } else {
-    viewport <- list('xMin' = min(x), 'xMax' = max(x))
-  }
+  viewport <- list('xMin' = min(x), 'xMax' = max(x))
 
   return(viewport)
 }

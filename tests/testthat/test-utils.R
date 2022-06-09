@@ -415,29 +415,61 @@ test_that("bin() returns appropriate bins for dates", {
   viewport <- list('xMin'=min(testDF$entity.dateA), 'xMax'=max(testDF$entity.dateA))
   dt <- testDF
 
-  dt$dateBin <- bin(as.Date(testDF$entity.dateA), 'day', viewport)
+  dt$dateBin <- bin(as.Date(dt$entity.dateA), 'day', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-12-01 - 1999-12-02")
 
-  dt$dateBin <- bin(as.Date(testDF$entity.dateA), '4 day', viewport)
+  dt$dateBin <- bin(as.Date(dt$entity.dateA), '4 day', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-11-29 - 1999-12-03")
 
-  dt$dateBin <- bin(as.Date(testDF$entity.dateA), 'week', viewport)
+  dt$dateBin <- bin(as.Date(dt$entity.dateA), 'week', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-11-29 - 1999-12-06")
 
-  dt$dateBin <- bin(as.Date(testDF$entity.dateA), '2 week', viewport)
+  dt$dateBin <- bin(as.Date(dt$entity.dateA), '2 week', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-11-29 - 1999-12-13")
 
-  dt$dateBin <- bin(as.Date(testDF$entity.dateA), 'month', viewport)
+  dt$dateBin <- bin(as.Date(dt$entity.dateA), 'month', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-12-01 - 2000-01-01")
 
-  dt$dateBin <- bin(as.Date(testDF$entity.dateA), '2 month', viewport)
+  dt$dateBin <- bin(as.Date(dt$entity.dateA), '2 month', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-11-01 - 2000-01-01")   
 
-  dt$dateBin <- bin(as.Date(testDF$entity.dateA), 'year', viewport)
+  dt$dateBin <- bin(as.Date(dt$entity.dateA), 'year', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-01-01 - 2000-01-01")
 
-  dt$dateBin <- bin(as.Date(testDF$entity.dateA), '2 year', viewport)
+  dt$dateBin <- bin(as.Date(dt$entity.dateA), '2 year', viewport)
   expect_equal(unique(dt$dateBin[dt$entity.dateA == '1999-12-01']), "1999-01-01 - 2001-01-01")
+})
+
+test_that("bin() returns complete list of possible bins as levels when asked for a factor.", {
+  viewport <- list('xMin'=min(testDF$entity.dateA), 'xMax'=max(testDF$entity.dateA))
+  dt <- testDF
+
+  dt$dateBin <- bin(as.Date(dt$entity.dateA), 'day', viewport, stringsAsFactors=T)
+  expect_equal(uniqueN(dt$dateBin), 393)
+  expect_equal(uniqueN(levels(dt$dateBin)), 3986)
+
+  viewport <- list('xMin'=min(dt$entity.contA), 'xMax'=max(dt$entity.contA))
+  binWidth <- plot.data::findBinWidth(dt$entity.contA) 
+  dt$contBin <- bin(dt$entity.contA, binWidth, viewport, stringsAsFactors=T)
+  expect_equal(uniqueN(dt$contBin), 16)
+  expect_equal(uniqueN(levels(dt$contBin)), 17)
+
+  expandedViewport <- list('xMin'=-20, 'xMax'=20)
+  dt$contBin <- bin(dt$entity.contA, binWidth, expandedViewport, stringsAsFactors=T)
+  expect_equal(uniqueN(dt$contBin), 17)
+  expect_equal(uniqueN(levels(dt$contBin)), 24)
+  
+  viewport <- list('xMin'=min(dt$entity.int6), 'xMax'=max(dt$entity.int6))
+  binWidth <- 0
+  dt$intBin <- bin(dt$entity.int6, binWidth, viewport, stringsAsFactors=T)
+  expect_equal(uniqueN(dt$intBin), 6)
+  expect_equal(uniqueN(levels(dt$intBin)), 6)
+
+  expandedViewport <- list('xMin'=1, 'xMax'=7)
+  dt$intBin <- bin(dt$entity.int6, binWidth, expandedViewport, stringsAsFactors=T)
+  expect_equal(uniqueN(dt$intBin), 6)
+  expect_equal(uniqueN(levels(dt$intBin)), 7)
+
 })
 
 test_that("relativeRisk() returns the right columns", {

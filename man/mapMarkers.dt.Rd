@@ -10,6 +10,7 @@ mapMarkers.dt(
   binWidth = NULL,
   value = c("count", "proportion"),
   binReportValue = c("binWidth", "numBins"),
+  binRange = NULL,
   viewport = NULL,
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
@@ -25,6 +26,8 @@ mapMarkers.dt(
 \item{value}{String indicating how to calculate y-values ('count', 'proportion')}
 
 \item{binReportValue}{String indicating if number of bins or bin width used should be returned}
+
+\item{binRange}{List of min and max values to bin the xAxisVariable over}
 
 \item{viewport}{List of values indicating the visible range of data}
 
