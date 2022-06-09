@@ -87,11 +87,18 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
         .pd[[x]][!.pd[[x]] %in% rankedValues] <- 'Other'
         overlayValues <- c(stringi::stri_sort(rankedValues[1:7], numeric=TRUE), 'Other')
       } else {
-        overlayValues <- stringi::stri_sort(rankedValues[1:7], numeric=TRUE)
+        overlayValues <- stringi::stri_sort(rankedValues, numeric=TRUE)
       }
       attr$rankedValues <- rankedValues
       attr$overlayValues <- overlayValues
     } else {
+      if (is.null(binRange)) {
+        xRange <- findViewport(.pd[[x]], xType)
+      } else {
+        xRange <- validateBinRange(binRange, xType, verbose)
+      }
+      xVP <- adjustToViewport(.pd[[x]], xRange)
+
       if (binReportValue == 'binWidth') {
         if (xType %in% c('NUMBER', 'INTEGER')) {
           binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(binWidth))
@@ -102,20 +109,15 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
             binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
           }
       } else {
-        numBins <- binWidthToNumBins(.pd[[x]], binWidth)
+        numBins <- binWidthToNumBins(xVP, binWidth)
         veupathUtils::logWithTime('Converted provided bin width to number of bins.', verbose)
         binSpec <- list('type'=jsonlite::unbox('numBins'), 'value'=jsonlite::unbox(numBins))
       }
-      binSlider <- findBinSliderValues(.pd[[x]], xType, binWidth, binReportValue, 20)
+      binSlider <- findBinSliderValues(xVP, xType, binWidth, binReportValue, 20)
       veupathUtils::logWithTime('Determined bin width slider min, max and step values.', verbose)
       attr$binSpec <- binSpec
       attr$binSlider <- binSlider
 
-      if (is.null(binRange)) {
-        xRange <- findViewport(.pd[[x]], xType)
-      } else {
-        xRange <- validateBinRange(binRange, xType, verbose)
-      }
       .pd[[x]] <- bin(.pd[[x]], binWidth, xRange, stringsAsFactors=TRUE)
       veupathUtils::logWithTime('Successfully binned continuous x-axis.', verbose)
       
