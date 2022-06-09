@@ -95,7 +95,7 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
       if (is.null(binRange)) {
         xRange <- findViewport(.pd[[x]], xType)
       } else {
-        xRange <- validateBinRange(binRange, xType, verbose)
+        xRange <- validateBinRange(.pd[[x]], binRange, xType, verbose)
       }
       xVP <- adjustToViewport(.pd[[x]], xRange)
 
@@ -154,21 +154,29 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
 }
 
 #' @export
-validateBinRange <- function(binRange, varType, verbose) {
+validateBinRange <- function(x, binRange, varType, verbose) {
   if (!is.list(binRange)) {
-    return(FALSE)
+    stop("Invalid bin range provided: Not a list.")
   } else{
-    if (!all(c('max', 'min') %in% names(binRange))) {
-      return(FALSE)
+    if (!all(c('max', 'min') %in% names(binRange)) && !all(c('xMax', 'xMin') %in% names(binRange))) {
+      stop("Invalid bin range provided: No min or max values found.")
     }
   }
 
+  min <- ifelse(is.null(binRange$min), binRange$xMin, binRange$min)
+  max <- ifelse(is.null(binRange$max), binRange$xMax, binRange$max)
+
+  #not a viewport, shouldnt subset data range
+  if (min > min(x) || max < max(x)) {
+    stop("Invalid bin range provided: Bin range cannot represent a subset of the data range.")
+  }
+
   if (varType %in% c('NUMBER', 'INTEGER')) {
-    binRange$xMin <- as.numeric(binRange$min)
-    binRange$xMax <- as.numeric(binRange$max)
+    binRange$xMin <- as.numeric(min)
+    binRange$xMax <- as.numeric(max)
   } else if (varType == 'DATE') {
-    binRange$xMin <- as.Date(binRange$min, format='%Y-%m-%d')
-    binRange$xMax <- as.Date(binRange$max, format='%Y-%m-%d')
+    binRange$xMin <- as.Date(min, format='%Y-%m-%d')
+    binRange$xMax <- as.Date(max, format='%Y-%m-%d')
   }
   binRange$min <- NULL
   binRange$max <- NULL
@@ -293,7 +301,12 @@ mapMarkers.dt <- function(data,
   }
   if (is.null(binWidth) && xAxisVariable$dataType != 'STRING') {
     x <- veupathUtils::toColNameOrNull(xAxisVariable)
-    binWidth <- numBinsToBinWidth(data[[x]],8)
+    if (is.null(binRange)) {
+      binWidth <- numBinsToBinWidth(data[[x]],8)
+    } else{
+      xVP <- adjustToViewport(data[[x]], validateBinRange(data[[x]], binRange, xAxisVariable$dataType, F))
+      binWidth <- numBinsToBinWidth(xVP,8)
+    }
   }
 
   geoAggregateVariable <- plotRefMapToList(map, 'geoAggregateVariable')
