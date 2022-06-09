@@ -153,6 +153,7 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
   return(.pd)
 }
 
+#' @export
 validateBinRange <- function(binRange, varType, verbose) {
   if (!is.list(binRange)) {
     return(FALSE)
