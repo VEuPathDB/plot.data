@@ -105,9 +105,9 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
         } else {
           numericBinWidth <- as.numeric(gsub("[^0-9.-]", "", binWidth))
           if (is.na(numericBinWidth)) { numericBinWidth <- 1 }
-            unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
-            binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
-          }
+          unit <- veupathUtils::trim(gsub("^[[:digit:]].", "", binWidth))
+          binSpec <- list('type'=jsonlite::unbox('binWidth'), 'value'=jsonlite::unbox(numericBinWidth), 'units'=jsonlite::unbox(unit))
+        }
       } else {
         numBins <- binWidthToNumBins(xVP, binWidth)
         veupathUtils::logWithTime('Converted provided bin width to number of bins.', verbose)
@@ -301,11 +301,13 @@ mapMarkers.dt <- function(data,
   }
   if (is.null(binWidth) && xAxisVariable$dataType != 'STRING') {
     x <- veupathUtils::toColNameOrNull(xAxisVariable)
+
     if (is.null(binRange)) {
-      binWidth <- numBinsToBinWidth(data[[x]],8)
-    } else{
-      xVP <- adjustToViewport(data[[x]], validateBinRange(data[[x]], binRange, xAxisVariable$dataType, F))
-      binWidth <- numBinsToBinWidth(xVP,8)
+      binWidth <- numBinsToBinWidth(data[[x]], 8, na.rm = TRUE)
+    } else {
+      xVals <- data[[x]][complete.cases(data[[x]])]
+      xVP <- adjustToViewport(xVals, validateBinRange(xVals, binRange, xAxisVariable$dataType, FALSE))
+      binWidth <- numBinsToBinWidth(xVP, 8)
     }
   }
 

@@ -746,6 +746,8 @@ test_that("lineplot() returns appropriately formatted json", {
   expect_equal(nrow(jsonList$lineplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 3)
   expect_equal(names(jsonList$lineplot$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$lineplot$config$binSlider),c('min','max','step'))
+  expect_equal(jsonList$lineplot$config$completeCasesAllVars, nrow(df))
+  expect_equal(jsonList$lineplot$config$completeCasesAxesVars, nrow(df))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
@@ -783,6 +785,8 @@ test_that("lineplot() returns appropriately formatted json", {
   expect_equal(nrow(jsonList$lineplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 3)
   expect_equal(names(jsonList$lineplot$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$lineplot$config$binSlider),c('min','max','step'))
+  expect_equal(jsonList$lineplot$config$completeCasesAllVars, nrow(df))
+  expect_equal(jsonList$lineplot$config$completeCasesAxesVars, nrow(df))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
@@ -816,6 +820,8 @@ test_that("lineplot() returns appropriately formatted json", {
   expect_equal(nrow(jsonList$lineplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 3)
   expect_equal(names(jsonList$lineplot$config$viewport),c('xMin','xMax'))
   expect_equal(names(jsonList$lineplot$config$binSlider),c('min','max','step'))
+  expect_equal(jsonList$lineplot$config$completeCasesAllVars, nrow(df))
+  expect_equal(jsonList$lineplot$config$completeCasesAxesVars, nrow(df))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
@@ -862,12 +868,15 @@ test_that("lineplot() returns appropriately formatted json", {
   expect_equal(names(jsonList$lineplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$lineplot$config$xVariableDetails),c('variableId','entityId'))
   expect_equal(jsonList$lineplot$config$xVariableDetails$variableId, 'cat2')
+  expect_equal(jsonList$lineplot$config$completeCasesAllVars, nrow(df))
+  expect_equal(jsonList$lineplot$config$completeCasesAxesVars, nrow(df))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
   expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('cat2', 'cat5', 'int6', 'cat4'))
+  
 })
 
 test_that("lineplot.dt() returns correct information about missing data", {
@@ -911,6 +920,27 @@ test_that("lineplot.dt() returns correct information about missing data", {
   expect_true(attr(dt, 'completeCasesAxesVars')[1] > attr(dt, 'completeCasesAllVars')[1])
   dt <- lineplot.dt(df, map, value = 'mean', evilMode='strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB)))
+
+
+  ## Collection vars
+  # Add nMissing missing values to each column
+  df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+  
+  map <- data.frame('id' = c('entity.contB', 'entity.contC', 'entity.contD', 'entity.repeatedContA'), 
+                    'plotRef' = c('overlayVariable', 'overlayVariable', 'overlayVariable', 'xAxisVariable'), 
+                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER'), 
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'), 
+                    stringsAsFactors=FALSE)
+  
+  dt <- lineplot.dt(df, map, value = 'mean', collectionVariablePlotRef = 'overlayVariable')
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - 10
+  expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
+  # number of completeCases should be <= complete cases for each var
+  expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
+  expect_true(attr(dt, 'completeCasesAllVars')[1] == nrow(df) - nMissing)
+  expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] == nrow(df) - nMissing)
 
 })
 

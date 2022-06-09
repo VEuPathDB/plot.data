@@ -776,11 +776,14 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$boxplot$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
   expect_equal(names(jsonList$boxplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
   expect_equal(nrow(jsonList$boxplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 2)
+  expect_equal(jsonList$box$config$completeCasesAllVars, nrow(df))
+  expect_equal(jsonList$box$config$completeCasesAxesVars, nrow(df))
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(nrow(jsonList$completeCasesTable), 3)
   expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
   
   # Multiple vars to facet1 and computed variable metadata
@@ -806,11 +809,14 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$boxplot$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
   expect_equal(names(jsonList$boxplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
   expect_equal(nrow(jsonList$boxplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 2)
+  expect_equal(jsonList$box$config$completeCasesAllVars, nrow(df))
+  expect_equal(jsonList$box$config$completeCasesAxesVars, nrow(df))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$sampleSizeTable), c('facetVariableDetails','xVariableDetails','size'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(nrow(jsonList$completeCasesTable), 3)
   expect_equal(names(jsonList$statsTable), c('facetVariableDetails','statistic','pvalue','parameter','method','statsError'))
   expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
 
@@ -839,11 +845,14 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$boxplot$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
   expect_equal(names(jsonList$boxplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
   expect_equal(nrow(jsonList$boxplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 2)
+  expect_equal(jsonList$box$config$completeCasesAllVars, nrow(df))
+  expect_equal(jsonList$box$config$completeCasesAxesVars, nrow(df))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$sampleSizeTable), c('facetVariableDetails','xVariableDetails','size'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(nrow(jsonList$completeCasesTable), 4)
   expect_equal(names(jsonList$statsTable), c('facetVariableDetails','statistic','pvalue','parameter','method','statsError'))
   expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
 
@@ -862,11 +871,14 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$boxplot$data), c('overlayVariableDetails','label','min','q1','median','q3','max','lowerfence','upperfence'))
   expect_equal(names(jsonList$boxplot$config), c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
   expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$box$config$completeCasesAllVars, nrow(df))
+  expect_equal(jsonList$box$config$completeCasesAxesVars, nrow(df))
   expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(nrow(jsonList$completeCasesTable), 3)
   expect_equal(names(jsonList$statsTable), c('xVariableDetails','statistic','pvalue','parameter','method','statsError'))
   expect_equal(jsonList$statsTable$xVariableDetails$variableId[1], 'binA')
   expect_equal(class(jsonList$statsTable$statistic), 'numeric')
@@ -918,6 +930,45 @@ test_that("box.dt() returns correct information about missing data", {
   # TODO box cant have evilMode = 'allVariables' bc we cant take median of NA for ex
   #dt <- box.dt(df, map, points = 'none', mean = FALSE, computeStats = TRUE, evilMode = 'allVariables')
   #expect_equal(attr(dt, 'completeCasesAllVars')[1], sum(complete.cases(df[, map$id, with=FALSE])))
+
+  ## Collection vars
+  # Multiple vars to x
+
+  # Add nMissing missing values to each column -- TODO address that setting na to zero above changes df
+  df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+
+  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.cat3'),
+                    'plotRef' = c('xAxisVariable', 'xAxisVariable', 'xAxisVariable', 'overlayVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'),
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'xAxisVariable')
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - nMissing
+  expect_equal(all(completecasestable$completeCases == nrow(df)-nMissing), TRUE)
+  # number of completeCases should be < complete cases for each var
+  expect_true(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases))
+  expect_true(attr(dt, 'completeCasesAllVars')[1] == nrow(df) - nMissing) 
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1])
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] == nrow(df))
+
+
+  # Multiple vars to facet1
+  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.cat3'),
+                    'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable'),
+                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER','STRING'),
+                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  dt <- box.dt(df, map, 'none', FALSE, collectionVariablePlotRef = 'facetVariable1')
+  completecasestable <- completeCasesTable(dt)
+  # Each entry should equal NROW(df) - nMissing
+  expect_equal(all(completecasestable$completeCases == nrow(df)-nMissing), TRUE)
+  # number of completeCases should be < complete cases for each var
+  expect_true(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases))
+  expect_true(attr(dt, 'completeCasesAllVars')[1] == nrow(df) - nMissing) 
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1])
+  expect_true(attr(dt, 'completeCasesAxesVars')[1] == nrow(df) - nMissing)
+
 })
 
 
