@@ -6,6 +6,7 @@ validateValues <- function(valuesOfInterest, valuesOfVariable) {
   }
 }
 
+#' @export
 findViewport <- function(x, xType) {
   viewport <- list('xMin' = min(x), 'xMax' = max(x))
 
