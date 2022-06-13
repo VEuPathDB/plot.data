@@ -942,6 +942,22 @@ test_that("lineplot.dt() returns correct information about missing data", {
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
   expect_true(attr(dt, 'completeCasesAxesVars')[1] == nrow(df) - nMissing)
 
+
+  ## When an entire part of the num or denom is missing (#157)
+  map <- data.frame('id' = c('entity.cat5', 'entity.cat3', 'entity.cat1', 'entity.cat4'),
+                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
+                    'dataType' = c('STRING', 'STRING', 'STRING', 'STRING'),
+                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'ORDINAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  df <- as.data.frame(testDF)
+  df$entity.cat3[df$entity.cat3 == 'cat3_a'] <- 'cat3_b'
+
+  dt <- lineplot.dt(df, map, viewport = NULL, value = 'proportion', binWidth = NULL, numeratorValues = c('cat3_a', 'cat3_b'), denominatorValues = c('cat3_a', 'cat3_b', 'cat3_c'))
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),20)
+  expect_equal(names(dt),c('entity.cat5', 'entity.cat4', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+
 })
 
 test_that("lineplot.dt() always returns data ordered by seriesX/ binStart", {
