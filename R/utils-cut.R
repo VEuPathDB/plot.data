@@ -44,20 +44,25 @@ cut_width <- function(x, width, center = NULL, boundary = NULL, closed = c("righ
 
   # Determine bins
   min_x <- find_origin(x_range, width, boundary)
-  max_x <- max(x, na.rm = TRUE) # + (1 - 1e-08) * binWidth
+  max_x <- max(x, na.rm = TRUE)
 
   breaks <- c(seq(min_x, max_x, width))
   # Round breaks *before* they go into the cut function. This way the data (not rounded)
   # will be correctly divided into the rounded bins
-  breaks <- as.numeric(formatC(0 + breaks, digits = 3, width = 1L))
+  if (all(x %% 1 == 0)) {
+    avgDigits <- 0
+  } else {
+    avgDigits <- floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
+  }
+  breaks <- as.numeric(formatC(0 + breaks, digits = avgDigits, width = 1L))
 
   # If now, after rounded, our max bin does not include the max of the data, add another bin
   if (max(breaks) < max_x) {
-    endBin <- max(x, na.rm = TRUE) + (1 - 1e-08) * width
+    endBin <- max_x + (1 - 1e-08) * width
     breaks <- c(seq(min_x, endBin, width))
-    breaks <- c(breaks, as.numeric(formatC(0 + endBin, digits = 3, width = 1L)))  # Add a formatted last bin
+    breaks <- c(breaks, as.numeric(formatC(0 + endBin, digits = avgDigits, width = 1L)))  # Add a formatted last bin
   }
-  cut(x, breaks, include.lowest = TRUE, right = (closed == "right"), ...)
+  cut(x, breaks, include.lowest = TRUE, right = (closed == "right"), dig.lab = avgDigits, ...)
 }
 
 # Find the left side of left-most bin
