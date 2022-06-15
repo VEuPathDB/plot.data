@@ -2,7 +2,10 @@
 
 validateValues <- function(valuesOfInterest, valuesOfVariable) {
   if (any(valuesOfInterest %ni% valuesOfVariable)) {
-    stop("Values of interest do not exist as real values of the specified variable.")
+    warning("At least one value of interest does not exist as a real value in the specified variable.")
+  }
+  if (all(valuesOfInterest %ni% valuesOfVariable)) {
+    stop("No supplied values of interest exist as real values in the specified variable.")
   }
 }
 
