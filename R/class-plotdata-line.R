@@ -72,7 +72,8 @@ newLinePD <- function(.dt = data.table::data.table(),
       denominatorValues <- unique(.pd[[y]])
     }
     #validate num and denom values actually exist as part of the y values
-    validateValues(numeratorValues, .pd[[y]])
+    # Removing validation for numerator as part of fixing #175. If the numerator is not in the data, we get all 0s.
+    # validateValues(numeratorValues, .pd[[y]])
     validateValues(denominatorValues, .pd[[y]])
     veupathUtils::logWithTime('Numerator and denominator values have been validated.', verbose)
 

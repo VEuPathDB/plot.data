@@ -944,19 +944,29 @@ test_that("lineplot.dt() returns correct information about missing data", {
 
 
   ## When an entire part of the num or denom is missing (#157)
-  map <- data.frame('id' = c('entity.cat5', 'entity.cat3', 'entity.cat1', 'entity.cat4'),
+  map <- data.frame('id' = c('entity.cat5', 'entity.cat2', 'entity.cat1', 'entity.cat4'),
                     'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
                     'dataType' = c('STRING', 'STRING', 'STRING', 'STRING'),
                     'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'ORDINAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
   df <- as.data.frame(testDF)
-  df$entity.cat3[df$entity.cat3 == 'cat3_a'] <- 'cat3_b'
+  df$entity.cat2[df$entity.cat2 == 'cat2_a'] <- 'cat2_b'
 
-  dt <- lineplot.dt(df, map, viewport = NULL, value = 'proportion', binWidth = NULL, numeratorValues = c('cat3_a', 'cat3_b'), denominatorValues = c('cat3_a', 'cat3_b', 'cat3_c'))
+  # Choose as the numerator the value that is present. Should get all 1s
+  dt <- lineplot.dt(df, map, viewport = NULL, value = 'proportion', binWidth = NULL, numeratorValues = c('cat2_b'), denominatorValues = c('cat2_a','cat2_b'))
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),20)
   expect_equal(names(dt),c('entity.cat5', 'entity.cat4', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars'))
   expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+  expect_true(all(dt$seriesY == 1))
+
+  # Choose as the numerator the value that is NOT present. Should get all 0s
+  dt <- lineplot.dt(df, map, viewport = NULL, value = 'proportion', binWidth = NULL, numeratorValues = c('cat2_a'), denominatorValues = c('cat2_a','cat2_b'))
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),20)
+  expect_equal(names(dt),c('entity.cat5', 'entity.cat4', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars'))
+  expect_equal(length(dt$seriesX[[1]]), length(dt$seriesY[[1]]))
+  expect_true(all(dt$seriesY == 0))
 
 })
 
