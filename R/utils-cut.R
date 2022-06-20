@@ -50,19 +50,20 @@ cut_width <- function(x, width, center = NULL, boundary = NULL, closed = c("righ
   # Round breaks *before* they go into the cut function. This way the data (not rounded)
   # will be correctly divided into the rounded bins
   if (all(x %% 1 == 0)) {
-    avgDigits <- 0
+    # if all integers, use default formatting (6 significant digits)
+    requiredDigits <- -1
   } else {
-    avgDigits <- floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
+    requiredDigits <- ceiling(median(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
   }
-  breaks <- as.numeric(formatC(0 + breaks, digits = avgDigits, width = 1L))
+  breaks <- as.numeric(formatC(0 + breaks, digits = requiredDigits, width = 1L))
 
   # If now, after rounded, our max bin does not include the max of the data, add another bin
   if (max(breaks) < max_x) {
     endBin <- max_x + (1 - 1e-08) * width
     breaks <- c(seq(min_x, endBin, width))
-    breaks <- c(breaks, as.numeric(formatC(0 + endBin, digits = avgDigits, width = 1L)))  # Add a formatted last bin
+    breaks <- c(breaks, as.numeric(formatC(0 + endBin, digits = requiredDigits, width = 1L)))  # Add a formatted last bin
   }
-  cut(x, breaks, include.lowest = TRUE, right = (closed == "right"), dig.lab = avgDigits, ...)
+  cut(x, breaks, include.lowest = TRUE, right = (closed == "right"), dig.lab = requiredDigits, ...)
 }
 
 # Find the left side of left-most bin
