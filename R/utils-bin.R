@@ -248,7 +248,7 @@ numBinsToBinWidth.default <- function(x, numBins, na.rm=FALSE) {
 
 #' @export
 numBinsToBinWidth.Date <- function(x, numBins) {
-  if (data.table::uniqueN(x) <= numBins) { return(0) }
+  # if (data.table::uniqueN(x) <= numBins) { return(0) }
 
   paste(ceiling(as.numeric(diff(range(x))/numBins)), 'days')
 }
