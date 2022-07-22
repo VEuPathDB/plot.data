@@ -232,7 +232,7 @@ numBinsToBinWidth <- function(x, numBins, na.rm=FALSE) UseMethod("numBinsToBinWi
 #' @export
 numBinsToBinWidth.default <- function(x, numBins, na.rm=FALSE) {
   if (na.rm) x <- x[!is.na(x)]
-  if (data.table::uniqueN(x) <= numBins) { return(0) }
+  # if (data.table::uniqueN(x) <= numBins) { return(0) }
 
   numDigits <- ifelse( avgDigits(x) > 6, 4, avgDigits(x) - 1)
   binWidth <- veupathUtils::nonZeroRound(diff(range(x)), numDigits)/numBins
@@ -248,7 +248,7 @@ numBinsToBinWidth.default <- function(x, numBins, na.rm=FALSE) {
 
 #' @export
 numBinsToBinWidth.Date <- function(x, numBins) {
-  if (data.table::uniqueN(x) <= numBins) { return(0) }
+  # if (data.table::uniqueN(x) <= numBins) { return(0) }
 
   paste(ceiling(as.numeric(diff(range(x))/numBins)), 'days')
 }
