@@ -763,3 +763,4 @@ test_that("histogram.dt() returns correct information about missing data", {
   dt <- histogram.dt(df, map, binWidth = NULL, value='count', binReportValue = binReportValue, viewport = viewport, evilMode='strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], nrow(df))
 })
+
