@@ -53,15 +53,37 @@ cut_width <- function(x, width, center = NULL, boundary = NULL, closed = c("righ
     # if all integers, use default formatting (6 significant digits)
     requiredDigits <- -1
   } else {
-    requiredDigits <- ceiling(median(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
+    # Determine the appropriate number of digits to round the bin start/ends to.
+    # Start with the number of digits in the binWidth and keep increasing until the breaks are unique.
+    requiredDigits <- stringi::stri_count_regex(as.character(width), "[[:digit:]]")
+    rawBreaks <- breaks
+    repeat {
+      requiredDigits <- requiredDigits + 1
+      breaks <- as.numeric(formatC(0 + rawBreaks, digits = requiredDigits, width = 1L))
+      if (anyDuplicated(breaks) == 0 || requiredDigits > 100) { # safety escape condition
+        break
+      }
+    }
   }
-  breaks <- as.numeric(formatC(0 + breaks, digits = requiredDigits, width = 1L))
 
-  # If now, after rounded, our max bin does not include the max of the data, add another bin
-  if (max(breaks) < max_x) {
+  # If now, after rounding, either of the start and end bin breaks fall INSIDE the range of the data,
+  # add extra bins to one or both ends
+  redoBreaks <- FALSE
+  startBin <- min_x
+  if (min_x < min(breaks)) {
+    startBin <- min_x - (1 - 1e-08) * width
+    # print("ADDING STARTBIN") # gets triggered quite a lot during test-histogram.R tests!
+    redoBreaks <- TRUE
+  }
+  endBin <- max_x
+  if (max_x > max(breaks)) {
     endBin <- max_x + (1 - 1e-08) * width
-    breaks <- c(seq(min_x, endBin, width))
-    breaks <- c(breaks, as.numeric(formatC(0 + endBin, digits = requiredDigits, width = 1L)))  # Add a formatted last bin
+    # print("ADDING ENDBIN") # gets triggered quite a lot during test-histogram.R tests!
+    redoBreaks <- TRUE
+  }
+  if (redoBreaks) {
+    breaks <- c(seq(startBin, endBin, width))
+    breaks <- as.numeric(formatC(0 + breaks, digits = requiredDigits, width = 1L))
   }
   cut(x, breaks, include.lowest = TRUE, right = (closed == "right"), dig.lab = requiredDigits, ...)
 }

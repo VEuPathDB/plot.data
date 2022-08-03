@@ -17,6 +17,5 @@ test_that("histogram.dt does not produce corrupted bins when given TAC data from
   # (the bug gives values like '24]')
   expect_equal(sum(is.na(as.numeric(unlist(dt$binStart)))), 0)
   expect_equal(sum(is.na(as.numeric(unlist(dt$binEnd)))), 0)
-
 })
 
