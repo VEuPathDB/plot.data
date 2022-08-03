@@ -13,6 +13,10 @@ test_that("histogram.dt does not produce corrupted bins when given TAC data from
 
   # check that there are no NAs (which the client is getting as nulls) in the binLabels
   expect_equal(sum(is.na(unlist(dt$binLabel))), 0)
+  # check that the binStart and binEnd strings are all valid numbers
+  # (the bug gives values like '24]')
+  expect_equal(sum(is.na(as.numeric(unlist(dt$binStart)))), 0)
+  expect_equal(sum(is.na(as.numeric(unlist(dt$binEnd)))), 0)
 
 })
 
