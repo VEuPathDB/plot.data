@@ -111,5 +111,5 @@ test_that("bin() adds an extra bin only when necessary due to rounding.", {
                 ,'xMax' = max(x))
 
   bins <- bin(x, binWidth, xRange, stringsAsFactors=TRUE)
-  expect_true((length(levels(bins)) - 7) %in% c(0,1,2))
+  expect_equal(length(levels(bins)), 8)
 })

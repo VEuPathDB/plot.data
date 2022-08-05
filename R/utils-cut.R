@@ -43,62 +43,105 @@ cut_width <- function(x, width, center = NULL, boundary = NULL, closed = c("righ
   boundary <- as.numeric(boundary)
 
   # Determine bins
+
+  # In practice, min_x is always min(x) because cut_width() is only called with
+  # boundary=min(x) and inside find_origin(), shift is always zero, so find_origin()
+  # returns boundary which is min(x).
+  # Perhaps we can rationalise/remove the boundary code if a use-case can't
+  # be described.
   min_x <- find_origin(x_range, width, boundary)
   max_x <- max(x, na.rm = TRUE)
 
   breaks <- c(seq(min_x, max_x, width))
+  # add an extra break if the seq() didn't produce a break >= max_x
+  if (tail(breaks, 1) < max_x) {
+    breaks <- c(breaks, tail(breaks, 1) + width)
+  }
+
+  # safety checks
+  if (tail(breaks, 1) < max_x) {
+    stop("Problem with final bin in utils-cut.R")
+  }
+  if (length(breaks) < 2) {
+    stop("Less than two breaks in utils-cut.R")
+  }
+
+
   # Round breaks *before* they go into the cut function. This way the data (not rounded)
   # will be correctly divided into the rounded bins
-  if (all(x %% 1 == 0)) {
-    # if all integers, use default formatting in cut() (6 significant digits)
-    # But the binWidth might not be an integer? Why don't we round the breaks?
-    # Should that be all(breaks %% 1 == 0) ?? (All tests pass if we do that.)
+  if (all(breaks %% 1 == 0)) {
+    # if breaks are all integers, skip our own rounding
+    # and use default formatting in cut() (6 significant digits)
     requiredDigits <- -1
   } else {
     # Determine the appropriate number of digits to round the bin start/ends to.
-    # Start at 4 and work up!
-    requiredDigits <- 4
+    # Start at 1 and work up!
+    requiredDigits <- 0
     rawBreaks <- breaks
     repeat {
-      breaks <- as.numeric(formatC(0 + rawBreaks, digits = requiredDigits, width = 1L))
-      if (anyDuplicated(breaks) == 0 || requiredDigits > 100) { # safety escape condition
+      requiredDigits <- requiredDigits + 1
+      if (requiredDigits > 20) { # safety escape condition
         break
       }
-      requiredDigits <- requiredDigits + 1
+
+      # round the breaks to requiredDigits significant digits
+      # we use formatC (not signif) because the cut() below uses it too,
+      # and we are aiming for consistency (though maybe we could pass our labels to it?)
+      breaks <- as.numeric(formatC(0 + rawBreaks, digits = requiredDigits, width = 1L))
+
+      # if any breaks are the same, try more significant digits
+      if (anyDuplicated(breaks) > 0) {
+        next
+      }
+
+      # calculate the inter-break differences (binWidths) from rounded values
+      diffs <- diff(breaks)
+
+      # if only one difference (e.g. one bin), we can't do the following part
+      # which checks that the differences are not too different from each other
+      if (length(diffs) < 2) {
+        break
+      }
+
+      # now see if the normalised variance (index of dispersion) of the diffs is small enough to
+      # stop increasing the number of significant digits
+      dispersion <- var(diffs)/mean(diffs)
+      if (dispersion < 1e-05) {
+        break
+      }
     }
   }
 
-  # If, after rounding, either of the start and end bin breaks fall INSIDE the range of the data,
-  # add extra breaks to one or both ends
+  # Now, we know we have enough bins to encompass min_x and max_x, but they could have been
+  # rounded to slightly just above or below, respectively.
+  # If so, we will adjust the first and last bins by subtracting/adding one "least significant digit"
+  # from them.
 
-  # but first catch the case where there is only one break
-  if (length(breaks) == 1) {
-    breaks = c(breaks, tail(breaks,1) + width)
-    #I've left these debugging statements in temporarily in case you're curious
-    #print("ONLY ONE BREAK")
-  }
+## DEBUG ONLY
+unmodifiedBreaks <- breaks
 
-  # note that we work with the already-rounded breaks here
-  # (we used to reround them again after adding new breaks)
-  if (min_x < head(breaks,1)) {
-    breaks = c(head(breaks,1) - diff(head(breaks,2)), breaks)
-    #print("EXTRA START BIN")
-  }
-  # sometimes, due to rounding, one extra bin isn't enough
-  # though I think this happens more with the end bins
-  if (min_x < head(breaks,1)) {
-    breaks = c(head(breaks,1) - diff(head(breaks,2)), breaks)
-    #print("EXTRA EXTRA START BIN")
+  if (min_x < breaks[1]) {
+    newStart <- breaks[1] - signifDigitDelta(breaks[1], requiredDigits)
+    breaks[1] <- as.numeric(formatC(newStart, digits = requiredDigits, width = 1L))
+    print("MODIFIED START BIN")
   }
 
-  if (max_x > tail(breaks,1)) {
-    breaks = c(breaks, tail(breaks,1) + diff(tail(breaks,2)))
-    #print("EXTRA END BIN")
+  lastBreak = breaks[length(breaks)]
+  if (max_x > lastBreak) {
+    newEnd <- lastBreak + signifDigitDelta(lastBreak, requiredDigits)
+    breaks[length(breaks)] <- as.numeric(formatC(newEnd, digits = requiredDigits, width = 1L))
+    print("MODIFIED END BIN")
   }
-  # sometimes, due to rounding, one extra bin isn't enough
-  if (max_x > tail(breaks,1)) {
-    breaks = c(breaks, tail(breaks,1) + diff(tail(breaks,2)))
-    #print("EXTRA EXTRA END BIN")
+
+  # safety checks
+  if (min_x < breaks[1]) {
+    stop("Fatal problem with cut_width start bin extension")
+  }
+  if (max_x > breaks[length(breaks)]) {
+    print(paste('max_x', max_x))
+    print(unmodifiedBreaks)
+    print(breaks)
+    stop("Fatal	problem	with cut_width end bin extension")
   }
 
   cut(x, breaks, include.lowest = TRUE, right = (closed == "right"), dig.lab = requiredDigits, ...)
