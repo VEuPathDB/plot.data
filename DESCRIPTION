@@ -1,6 +1,6 @@
 Package: plot.data
 Title: Create `data.table`s of Ready to Plot Data
-Version: 3.1.4
+Version: 3.1.5
 Authors@R: 
     c(person(given = "Danielle",
            family = "Callan",
@@ -9,7 +9,11 @@ Authors@R:
       person(given = "Ann",
            family = "Blevins",
            role = "aut",
-           email = "annsize@upenn.edu"))
+           email = "annsize@upenn.edu"),
+      person(given = "Bob",
+           family = "MacCallum",
+           role = "aut",
+           email = "r.maccallum@imperial.ac.uk"))
 Imports:
     data.table,
     jsonlite,
