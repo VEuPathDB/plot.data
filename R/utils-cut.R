@@ -53,9 +53,15 @@ cut_width <- function(x, width, center = NULL, boundary = NULL, closed = c("righ
   max_x <- max(x, na.rm = TRUE)
 
   breaks <- c(seq(min_x, max_x, width))
+  last_break = tail(breaks, 1)
   # add an extra break if the seq() didn't produce a break >= max_x
-  if (tail(breaks, 1) < max_x) {
-    breaks <- c(breaks, tail(breaks, 1) + width)
+  # but first test to see if last break is within a (internal R) rounding error of max_x
+  if (max_x - last_break < 1e-08) {
+    # just make the last break equal the max
+    breaks[length(breaks)] <- max_x   
+  } else if (last_break < max_x) {
+    # add a new break
+    breaks <- c(breaks, last_break + width)
   }
 
   # safety checks
@@ -65,7 +71,6 @@ cut_width <- function(x, width, center = NULL, boundary = NULL, closed = c("righ
   if (length(breaks) < 2) {
     stop("Less than two breaks in utils-cut.R")
   }
-
 
   # Round breaks *before* they go into the cut function. This way the data (not rounded)
   # will be correctly divided into the rounded bins
@@ -117,20 +122,15 @@ cut_width <- function(x, width, center = NULL, boundary = NULL, closed = c("righ
   # If so, we will adjust the first and last bins by subtracting/adding one "least significant digit"
   # from them.
 
-## DEBUG ONLY
-unmodifiedBreaks <- breaks
-
   if (min_x < breaks[1]) {
     newStart <- breaks[1] - signifDigitDelta(breaks[1], requiredDigits)
     breaks[1] <- as.numeric(formatC(newStart, digits = requiredDigits, width = 1L))
-    print("MODIFIED START BIN")
   }
 
   lastBreak = breaks[length(breaks)]
   if (max_x > lastBreak) {
     newEnd <- lastBreak + signifDigitDelta(lastBreak, requiredDigits)
     breaks[length(breaks)] <- as.numeric(formatC(newEnd, digits = requiredDigits, width = 1L))
-    print("MODIFIED END BIN")
   }
 
   # safety checks
@@ -138,9 +138,6 @@ unmodifiedBreaks <- breaks
     stop("Fatal problem with cut_width start bin extension")
   }
   if (max_x > breaks[length(breaks)]) {
-    print(paste('max_x', max_x))
-    print(unmodifiedBreaks)
-    print(breaks)
     stop("Fatal	problem	with cut_width end bin extension")
   }
 
