@@ -424,9 +424,9 @@ avgDigits <- function(x) {
 # 0.0123e-05 -> 0.0001e-05 == 1.0e-09
 # -2.34e-02 -> 0.01e-02 == 1.0e-04
 # 
-signifDigitDelta <- function(x, digits) {
+signifDigitEpsilon <- function(x, digits) {
 
-  # '#' flag ensure trailing zeroes
+  # '#' flag ensures trailing zeroes
   # take abs() here because we don't care about sign
   rounded <- formatC(abs(x), digits = digits, width = 1L, flag = '#')
 

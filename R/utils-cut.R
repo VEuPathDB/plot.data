@@ -123,13 +123,13 @@ cut_width <- function(x, width, center = NULL, boundary = NULL, closed = c("righ
   # from them.
 
   if (min_x < breaks[1]) {
-    newStart <- breaks[1] - signifDigitDelta(breaks[1], requiredDigits)
+    newStart <- breaks[1] - signifDigitEpsilon(breaks[1], requiredDigits)
     breaks[1] <- as.numeric(formatC(newStart, digits = requiredDigits, width = 1L))
   }
 
   lastBreak = breaks[length(breaks)]
   if (max_x > lastBreak) {
-    newEnd <- lastBreak + signifDigitDelta(lastBreak, requiredDigits)
+    newEnd <- lastBreak + signifDigitEpsilon(lastBreak, requiredDigits)
     breaks[length(breaks)] <- as.numeric(formatC(newEnd, digits = requiredDigits, width = 1L))
   }
 
