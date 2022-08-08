@@ -445,13 +445,14 @@ signifDigitEpsilon <- function(x, digits) {
       result <- c(result, c)
     } else if (seenSignificant) {
       significantCount <- significantCount + 1
-      if (significantCount == digits) {
-        result <- c(result, '1')
-      } else if (significantCount < digits) {
+      if (significantCount < digits) {
         result <- c(result, '0')
+      } else if (significantCount == digits) {
+        result <- c(result, '1')
       } else {
         # we're out of the significant digits
-        # we must be in the exponent part (if present)
+        # we must be in the exponent part (if present) or in trailing zeroes (e.g. in 101000 example)
+        # so just copy it over
         result <- c(result, c)
       }
     } else {
