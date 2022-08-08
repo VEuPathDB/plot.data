@@ -408,3 +408,58 @@ findColNamesByPredicate <- function(variableList, predicateFunction) {
 avgDigits <- function(x) {
   floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
 }
+
+
+#
+# For any number, return an absolute delta (numeric) at the last
+# significant digit in the number, using the number of digits specified
+#
+# e.g. assuming 3 significant digits
+# 
+# 1.23 -> 0.01
+# 11.0 -> 0.1
+# 12.3 -> 0.1
+# 101000 -> 1000
+# 1.20e-05 -> 0.01e-05 == 1.0e-07
+# 0.0123e-05 -> 0.0001e-05 == 1.0e-09
+# -2.34e-02 -> 0.01e-02 == 1.0e-04
+# 
+signifDigitEpsilon <- function(x, digits) {
+
+  # '#' flag ensures trailing zeroes
+  # take abs() here because we don't care about sign
+  rounded <- formatC(abs(x), digits = digits, width = 1L, flag = '#')
+
+  # split into vector of single characters
+  characters <- strsplit(rounded, '')
+
+  result <- c()
+  seenSignificant <- FALSE
+  significantCount <- 0
+  # walk through string, looking for first non-zero, non decimal point character
+  for (c in unlist(characters)) {
+    if (!(c %in% c('0', '.'))) {
+      seenSignificant <- TRUE
+    }
+    if (c == '.') {
+      result <- c(result, c)
+    } else if (seenSignificant) {
+      significantCount <- significantCount + 1
+      if (significantCount < digits) {
+        result <- c(result, '0')
+      } else if (significantCount == digits) {
+        result <- c(result, '1')
+      } else {
+        # we're out of the significant digits
+        # we must be in the exponent part (if present) or in trailing zeroes (e.g. in 101000 example)
+        # so just copy it over
+        result <- c(result, c)
+      }
+    } else {
+      result <- c(result, '0')
+    }
+  }
+
+  # return joined result as a number
+  as.numeric(paste(result, collapse=""))
+}

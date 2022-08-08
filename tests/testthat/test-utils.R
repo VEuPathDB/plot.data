@@ -14,17 +14,17 @@ test_that("numBinsToBinWidth() returns a binWidth that will actually provide the
   binWidth <- numBinsToBinWidth(testDF$entity.contA, 8)
   viewport <- findViewport(testDF$entity.contA, 'NUMBER')
   x <- bin(testDF$entity.contA, binWidth, viewport)
-  expect_equal(data.table::uniqueN(x),8)
+  expect_equal(data.table::uniqueN(x), 8)
 
-  binWidth <- numBinsToBinWidth(testDF$entity.contA, 27)
+  binWidth <- numBinsToBinWidth(testDF$entity.contA, 23)
   viewport <- findViewport(testDF$entity.contA, 'NUMBER')
   x <- bin(testDF$entity.contA, binWidth, viewport)
-  #expect_equal(data.table::uniqueN(x),27)
+  expect_equal(data.table::uniqueN(x), 23)
 
   binWidth <- numBinsToBinWidth(testDF$entity.contA, 2)
   viewport <- findViewport(testDF$entity.contA, 'NUMBER')
   x <- bin(testDF$entity.contA, binWidth, viewport)
-  expect_equal(data.table::uniqueN(x),2)
+  expect_equal(data.table::uniqueN(x), 2)
 
   binWidth <- numBinsToBinWidth(testDF$entity.contA, 500)
   viewport <- findViewport(testDF$entity.contA, 'NUMBER')
@@ -452,13 +452,13 @@ test_that("bin() returns complete list of possible bins as levels when asked for
   binWidth <- plot.data::findBinWidth(dt$entity.contA) 
   dt$contBin <- bin(dt$entity.contA, binWidth, viewport, stringsAsFactors=T)
   expect_equal(uniqueN(dt$contBin), 16)
-  expect_equal(uniqueN(levels(dt$contBin)), 17)
+  expect_equal(uniqueN(levels(dt$contBin)), 16)
 
   expandedViewport <- list('xMin'=-20, 'xMax'=20)
   dt$contBin <- bin(dt$entity.contA, binWidth, expandedViewport, stringsAsFactors=T)
   expect_equal(uniqueN(dt$contBin), 17)
-  expect_equal(uniqueN(levels(dt$contBin)), 24)
-  
+  expect_equal(uniqueN(levels(dt$contBin)), 23)
+
   viewport <- list('xMin'=min(dt$entity.int6), 'xMax'=max(dt$entity.int6))
   binWidth <- 0
   dt$intBin <- bin(dt$entity.int6, binWidth, viewport, stringsAsFactors=T)
@@ -666,3 +666,15 @@ test_that("findColNamesByPredicate works", {
   expect_equal(names, c('a','b','d'))
 })
 
+
+test_that("signifDigitEpsilon returns appropriate results", {
+  expect_equal(signifDigitEpsilon(1.23, 3), 0.01)
+  expect_equal(signifDigitEpsilon(11.0, 3), 0.1)
+  expect_equal(signifDigitEpsilon(12.3, 3), 0.1)
+  expect_equal(signifDigitEpsilon(101000, 3), 1000)
+  expect_equal(signifDigitEpsilon(1.20e-05, 3), 1.0e-07)
+  expect_equal(signifDigitEpsilon(0.0123e-05, 3), 1.0e-09)
+  expect_equal(signifDigitEpsilon(-2.34e-02, 3), 1.0e-04)
+  expect_equal(signifDigitEpsilon(1234567, 7), 1)
+  expect_equal(signifDigitEpsilon(-1234567, 7), 1)
+})
