@@ -104,8 +104,6 @@ bin.Date <- function(x, binWidth = NULL, viewport, stringsAsFactors = c(FALSE, T
     }
 
     bins <- stringi::stri_c(binStart, " - ", binEnd)
-    # Add space after comma for easier reading of the intervals
-    levels(bins) <- stringi::stri_replace_all_fixed(levels(bins), ",", ", ")
     if (stringsAsFactors) {
       binLevels <- stringi::stri_c(binLevelsStart, " - ", binLevelsEnd)
       bins <- factor(bins, levels=binLevels)
