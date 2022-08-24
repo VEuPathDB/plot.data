@@ -804,7 +804,6 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(names(jsonList$boxplot), c('data','config'))
   expect_equal(names(jsonList$boxplot$data), c('label','min','q1','median','q3','max','lowerfence','upperfence'))
   expect_equal(names(jsonList$boxplot$config), c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','xVariableDetails','yVariableDetails'))
-  expect_equal(jsonList$boxplot$config$completeCasesAllVars, nrow(df))
   expect_equal(names(jsonList$boxplot$config$xVariableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$boxplot$config$yVariableDetails), c('variableId','entityId'))
   expect_equal(names(jsonList$boxplot$config$computedVariableMetadata), c('displayName', 'displayRangeMin', 'displayRangeMax','collectionVariable'))
