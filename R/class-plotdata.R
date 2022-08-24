@@ -167,9 +167,16 @@ newPlotdata <- function(.dt = data.table(),
     collectionVarDataRows <- Reduce("+", completeCasesPerCollectionCol) > 0  # Any row with val=0 means that row was missing for all vars in the collection and should be removed from the count
     # Columns not corresponding to a collection var are treated differently. Calculate their complete cases as normal
     nonColectionVarColNames <- setdiff(c(x,y,z,group, panel), veupathUtils::toColNameOrNull(collectionVariable))
-    nonCollectionVarDataRows <- complete.cases(.dt[, ..nonColectionVarColNames])
-    # Count the rows that we keep from the collection var complete cases *and* non-colection var complete cases
-    completeCasesAllVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows*nonCollectionVarDataRows,]))
+    if (length(nonColectionVarColNames) > 0) {
+      nonCollectionVarDataRows <- complete.cases(.dt[, ..nonColectionVarColNames])
+      # Count the rows that we keep from the collection var complete cases *and* non-colection var complete cases
+      completeCasesAllVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows*nonCollectionVarDataRows,]))
+    } else {
+      # If nonCollectionVarColNames is empty, it will interfere with the multiplication above and return 0 for complete cases always.
+      # Instead, here we only use the collection vars to calculate the complete cases
+      completeCasesAllVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows]))
+    }
+
     if (collectionVariableDetails$collectionVariablePlotRef == 'xAxisVariable') {
       # Since we force the collection value to be the y variable, the whole collection includes x and y.
       completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows,]))
