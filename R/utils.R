@@ -295,14 +295,14 @@ pruneViewportAdjustmentFromBins <- function(bins, xVP, x, viewport) {
   return(bins)
 }
 
-findBinStart <- function(x) {
+findBinStart <- function(x, addTimeZone = c(FALSE, TRUE)) {
   if (!length(x)) {
      return(character(0))
   }
 
   if (all(grepl(" - ",x))) {
     x <- veupathUtils::strSplit(x, " - ")
-    # x <- paste0(x,'T00:00:00')
+    if (addTimeZone) x <- paste0(x,'T00:00:00')
   } else {
     x <- gsub("\\(|\\[", "", veupathUtils::strSplit(as.character(x), ","))
   }
@@ -315,14 +315,14 @@ findBinStart <- function(x) {
   return(x)
 }
 
-findBinEnd <- function(x) {
+findBinEnd <- function(x, addTimeZone = c(FALSE, TRUE)) {
   if (!length(x)) {
     return(character(0))
   }
 
   if (all(grepl(" - ",x))) {
     x <- veupathUtils::strSplit(x, " - ", index = 2)
-    # x <- paste0(x,'T00:00:00')
+    if (addTimeZone) x <- paste0(x,'T00:00:00')
   } else {
     x <- gsub("\\)|\\]", "", veupathUtils::strSplit(as.character(x), ",", index = 2))
   }
