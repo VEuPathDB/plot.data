@@ -296,6 +296,7 @@ pruneViewportAdjustmentFromBins <- function(bins, xVP, x, viewport) {
 }
 
 findBinStart <- function(x, addTimeZone = c(FALSE, TRUE)) {
+  addTimeZone <- veupathUtils::matchArg(addTimeZone)
   if (!length(x)) {
      return(character(0))
   }
@@ -304,7 +305,7 @@ findBinStart <- function(x, addTimeZone = c(FALSE, TRUE)) {
     x <- veupathUtils::strSplit(x, " - ")
     if (addTimeZone) x <- paste0(x,'T00:00:00')
   } else {
-    x <- gsub("\\(|\\[", "", veupathUtils::strSplit(as.character(x), ","))
+    x <- gsub("\\(|\\[", "", veupathUtils::strSplit(as.character(x), ",\\s*", fixed = FALSE))
   }
 
   #try to infer type. may need more robust solution  
@@ -316,6 +317,7 @@ findBinStart <- function(x, addTimeZone = c(FALSE, TRUE)) {
 }
 
 findBinEnd <- function(x, addTimeZone = c(FALSE, TRUE)) {
+  addTimeZone <- veupathUtils::matchArg(addTimeZone)
   if (!length(x)) {
     return(character(0))
   }
@@ -324,7 +326,7 @@ findBinEnd <- function(x, addTimeZone = c(FALSE, TRUE)) {
     x <- veupathUtils::strSplit(x, " - ", index = 2)
     if (addTimeZone) x <- paste0(x,'T00:00:00')
   } else {
-    x <- gsub("\\)|\\]", "", veupathUtils::strSplit(as.character(x), ",", index = 2))
+    x <- gsub("\\)|\\]", "", veupathUtils::strSplit(as.character(x), ",\\s*", index = 2, fixed = FALSE))
   }
 
   return(x)
