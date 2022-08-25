@@ -37,6 +37,10 @@ bin.numeric <- function(x, binWidth = NULL, viewport, stringsAsFactors = c(FALSE
   }
 
   bins <- pruneViewportAdjustmentFromBins(bins, xVP, x, viewport)
+  
+  # Add space after comma for easier reading of the intervals
+  levels(bins) <- stringi::stri_replace_all_fixed(levels(bins), ",", ", ")
+
   if (!stringsAsFactors) bins <- as.character(bins)
 
   return(bins)
