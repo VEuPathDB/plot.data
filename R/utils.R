@@ -182,7 +182,7 @@ setGeneric("findPanelColName",
   signature = c("facet1VarSpec", "facet2VarSpec")
 )
 
-setMethod("findCPanelColName", signature("VariableSpec", "VariableSpec"), function(facet1VarSpec = NULL, facet2VarSpec = NULL) {
+setMethod("findPanelColName", signature("VariableSpec", "VariableSpec"), function(facet1VarSpec = NULL, facet2VarSpec = NULL) {
   if (!is.null(facet1VarSpec) & !is.null(facet2VarSpec)) {
     panel <- 'panel'
   } else if (!is.null(facet1VarSpec)) {

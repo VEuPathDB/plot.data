@@ -48,7 +48,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
 
   if (useGradientColorscale) {
-    if (identical(findDataTypesFromPlotRef(variables, 'overlay')),'DATE')) {
+    if (identical(findDataTypesFromPlotRef(variables, 'overlay'),'DATE')) {
       series$seriesGradientColorscale <- lapply(series$seriesGradientColorscale, format, '%Y-%m-%d')
     } else {
       series$seriesGradientColorscale <- lapply(series$seriesGradientColorscale, as.character)
