@@ -332,31 +332,6 @@ findBinEnd <- function(x, addTimeZone = c(FALSE, TRUE)) {
   return(x)
 }
 
-validatecollectionVar <- function(collectionVariable) {
-
-  # Require all repeated vars to have the same type, shape, and entity
-  if (length(unique(collectionVariable$entityId)) > 1 | length(unique(collectionVariable$dataType)) > 1 | length(unique(collectionVariable$dataShape)) > 1) {
-    stop("collectionVar error: all vars in a collectionVar must have the same entity id, type, and shape.")
-  }
-
-  # Ensure all variables are numbers
-  if (!all(collectionVariable$dataType %in% c('NUMBER', 'INTEGER'))){
-    stop("collectionVar error: All vars must be of type NUMBER or INTEGER.")
-  }
-
-  # Ensure all variables are continuous
-  if (!all(collectionVariable$dataShape == 'CONTINUOUS')){
-    stop("collectionVar error: All vars must be CONTINUOUS.")
-  }
-
-  # Ensure no to variables are the same
-  if (any(duplicated(collectionVariable$variableId))) {
-    stop("collectionVar error: No duplicate vars allowed.")
-  }
-
-  return(collectionVariable)
-}
-
 validateMap <- function(map) {
   # Could add checks for data type, shape, etc presence
 
@@ -384,27 +359,6 @@ validateMap <- function(map) {
   }
 
   return(map)
-}
-
-toIdOrDisplayLabel <- function(colName, plotRef) {
-      varIndex <- which(veupathUtils::toColNameOrNull(plotRef) == colName)
-      if (is.null(plotRef$displayLabel[varIndex]) || identical(plotRef$displayLabel[varIndex], '')) {
-        name <- plotRef$variableId[varIndex]
-      } else {
-        name <- plotRef$displayLabel[varIndex]
-      }
-      return(name)
-    }
-
-
-#' @importFrom purrr map
-findColNamesByPredicate <- function(variableList, predicateFunction) {
-
-  # For each variable in the variable list, return the column name if the predicate is true for that variable
-  colNames <- purrr::map(variableList, function(x) {if (identical(predicateFunction(x), TRUE)) {return(veupathUtils::toColNameOrNull(x))}})
-  colNames <- unlist(colNames)
-
-  return (colNames)
 }
 
 avgDigits <- function(x) {

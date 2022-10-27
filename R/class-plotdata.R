@@ -9,98 +9,49 @@
 
 #' @importFrom stats complete.cases
 newPlotdata <- function(.dt = data.table(),
-                         xAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL,
-                                              'naToZero' = NULL),
-                         yAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL,
-                                              'naToZero' = NULL),
-                         zAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL,
-                                              'naToZero' = NULL),
-                         overlayVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL,
-                                              'naToZero' = NULL),
-                         facetVariable1 = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL,
-                                              'naToZero' = NULL),
-                         facetVariable2 = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL,
-                                              'naToZero' = NULL),
-                         geoAggregateVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL,
-                                              'naToZero' = NULL),
-                         latitudeVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL,
-                                              'naToZero' = NULL),
-                         longitudeVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL,
-                                              'naToZero' = NULL),      
+                         #make sure lat, lon, geoAgg vars are valid plot References
+                         variables = NULL,    
                          useGradientColorscale = FALSE,                
                          evilMode = character(),
-                         collectionVariableDetails = list('inferredVariable' = NULL,
-                                               'inferredVarPlotRef' = NULL,
-                                               'collectionVariablePlotRef' = NULL),
-                         computedVariableMetadata = list('displayName' = NULL,
-                                                         'displayRangeMin' = NULL,
-                                                         'displayRangeMax' = NULL,
-                                                         'collectionVariable' = NULL),
+                         # TODO can this info just be added to variables VariableMetadataList now?
+                         # seems like inferredVariable is a VariableMetadata object that represents the reshaped data
+                         # inferredVarPlotRef is the dependent data (values in orig df), collectionVarPlotRef the independent (cols in original df)
+                         # that means the objective here is to take a single VariableMetadata object w multiple associated colNames and generate
+                         # from that two VariableMetadata objects w a single associated colName
+                         # the two resulting VM objects should have isCollection = FALSE, class TBD but maybe leave it whatever it comes in as
+                         # keep passing these details to this parent class and modify variables obj here
+                         # this should be VariableMetadata object for this class to incorporate into variables once its reshaped the data
+                         inferredVarMetadata = NULL,
                          verbose = logical(),
                          ...,
                          class = character()) {
 
-  x <- veupathUtils::toColNameOrNull(xAxisVariable)
-  xType <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataType))
-  xShape <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataShape))
-  y <- veupathUtils::toColNameOrNull(yAxisVariable)
-  yType <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataType))
-  z <- veupathUtils::toColNameOrNull(zAxisVariable)
-  zType <- veupathUtils::toStringOrNull(as.character(zAxisVariable$dataType))
-  group <- veupathUtils::toColNameOrNull(overlayVariable)
-  groupType <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataType))
-  facet1 <- veupathUtils::toColNameOrNull(facetVariable1)
-  facetType1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataType))
-  facet2 <- veupathUtils::toColNameOrNull(facetVariable2)
-  facetType2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataType))
-  geo <- veupathUtils::toColNameOrNull(geoAggregateVariable)
+  x <- veupathUtils::findColNamesFromPlotRef(variables, 'xAxis')
+  xType <- veupathUtils::findDataTypesFromPlotRef(variables, 'xAxis')
+  xShape <- veupathUtils::findDataShapesFromPlotRef(variables, 'xAxis')
+  y <- veupathUtils::findColNamesFromPlotRef(variables, 'yAxis')
+  yType <- veupathUtils::findDataTypesFromPlotRef(variables, 'yAxis')
+  z <- veupathUtils::findColNamesFromPlotRef(variables, 'zAxis')
+  zType <- veupathUtils::findDataTypesFromPlotRef(variables, 'zAxis')
+  group <- veupathUtils::findColNamesFromPlotRef(variables, 'overlay')
+  groupType <- veupathUtils::findDataTypesFromPlotRef(variables, 'overlay')
+  # TODO decide if this can have the 1, 2 removed or if the PlotReference class needs to discriminate between facet1 and facet2
+  facet1 <- veupathUtils::findColNamesFromPlotRef(variables, 'facet1')
+  facetType1 <- veupathUtils::findDataTypesFromPlotRef(variables, 'facet1')
+  facet2 <- veupathUtils::findColNamesFromPlotRef(variables, 'facet2')
+  facetType2 <- veupathUtils::findDataTypesFromPlotRef(variables, 'facet2')
+  # TODO add geo, lat, long values to PlotReference class
+  geo <- veupathUtils::findColNamesFromPlotRef(variables, 'geo')
 
   #think the only thing we need to do w these at this point is make sure theyre included in the .pd 
-  lat <- veupathUtils::toColNameOrNull(latitudeVariable)
-  lon <- veupathUtils::toColNameOrNull(longitudeVariable)
+  lat <- veupathUtils::findColNamesFromPlotRef(variables, 'latitude')
+  lon <- veupathUtils::findColNamesFromPlotRef(variables, 'longitude')
 
   isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
   
   # Extract names of vars for which naToZero is TRUE
   # Note: if we want to change default behavior in the future, this predicate function is a good place to do it
-  impute0cols <- findColNamesByPredicate(list(xAxisVariable, yAxisVariable, zAxisVariable, overlayVariable, facetVariable1, facetVariable2),
-                                         function(x) {if (identical(x$naToZero, TRUE)) {return(TRUE)}})
+  impute0cols <- veupathUtils::findColNamesByPredicate(variables, function(x) {if (x@imputeZero) TRUE})
 
   # Replace NAs with 0s if naToZero set
   if (!!length(impute0cols)) {
@@ -117,7 +68,9 @@ newPlotdata <- function(.dt = data.table(),
   
   veupathUtils::logWithTime('Determined the number of complete cases per variable.', verbose)
   
-  if (!identical(collectionVariableDetails$collectionVariablePlotRef, 'facetVariable1') & !identical(collectionVariableDetails$collectionVariablePlotRef, 'facetVariable2')) {
+  collectionVarMetadata <- purrr::map(variables, function(x) {if (x@isCollection) {return(x)}})
+
+  if (!identical(collectionVarMetadata@plotReference@value, 'facet1') & !identical(collectionVarMetadata@plotReference@value, 'facet2')) {
     panelData <- makePanels(.dt, facet1, facet2)
     .dt <- data.table::setDT(panelData[[1]])
     panel <- panelData[[2]]
@@ -133,41 +86,54 @@ newPlotdata <- function(.dt = data.table(),
   veupathUtils::logWithTime('Identified facet intersections.', verbose)
 
   # Reshape data and remap variables if collectionVar is specified
-  collectionVariable <- NULL
-  if (!is.null(collectionVariableDetails$collectionVariablePlotRef)) {
+  if (!is.null(collectionVarMetadata)) {    
+    #is this the only thing we support? if so can we make inferredVarMetadata here based on the collectionVarMetadata?
+    inferredVarMetadata <- new("VariableMetadata",
+                                variableClass = collectionVarMetadata@variableClass,
+                                variableSpec = new("VariableSpec", variableId = 'collectionVarValues', entityId = collectionVarMetadata@variableSpec@entityId),
+                                plotReference = new("PlotReference", value = 'yAxis'),
+                                displayName = paste(collectionVarMetadata@displayName, 'values'),
+                                displayRangeMin = collectionVarMetadata@displayRangeMin,
+                                displayRangeMax = collectionVarMetadata@displayRangeMax,
+                                dataType = collectionVarMetadata@dataType,
+                                dataShape = collectionVarMetadata@dataShape,
+                                vocabulary = collectionVarMetadata@vocabulary,
+                                imputeZero = collectionVarMetadata@imputeZero)
 
-    if (collectionVariableDetails$collectionVariablePlotRef == 'xAxisVariable') { collectionVariable <- xAxisVariable
-    } else if (collectionVariableDetails$collectionVariablePlotRef == 'overlayVariable') { collectionVariable <- overlayVariable
-    } else if (collectionVariableDetails$collectionVariablePlotRef == 'facetVariable1') {collectionVariable <- facetVariable1
-    } else if (collectionVariableDetails$collectionVariablePlotRef == 'facetVariable2') {collectionVariable <- facetVariable2
-    } else { stop('collectionVar error: unaccepted value passed as collectionVariablePlotRef')}
-    collectionVariable$collectionVariablePlotRef <- collectionVariableDetails$collectionVariablePlotRef
-    collectionVariable$collectionValuePlotRef <- 'yAxisVariable'
-    listValue <- collectionVariableDetails$inferredVariable
-    veupathUtils::logWithTime('Identified collectionVariable.', verbose)
+    collectionVarMetadata@dataType@value <- 'STRING'
+    collectionVarMetadata@dataShape@value <- 'CATEGORICAL'
+    collectionVarMetadata@displayRangeMin <- NA_real_
+    collectionVarMetadata@displayRangeMax <- NA_real_
+    collectionVarMetadata@imputeZero <- FALSE
+    collectionVarMetadata@vocabulary <- unlist(lapply(as.list(collectionVarMetadata@members), function(x) {x@variableId}))
 
-    # Validation
-    if (is.null(collectionVariableDetails$inferredVariable$variableId)) stop('collectionVar error: listValue variableId must not be NULL')
+    collectionVarMemberColNames <- unlist(lapply(as.list(collectionVarMetadata@members), veupathUtils::getColName))
+    collectionVarMetadata@isCollection = FALSE
+    collectionVarMetadata@members <- new("VariableSpecList")
+ 
+    validObject(collectionVarMetadata)
+    collectionVarIndex <- which(purrr:map(variables, function(x) {if (x@isCollection) {return(TRUE)}}) %in% TRUE)
+    variables[collectionVarIndex] <- collectionVarMetadata
+    variables[length(variables) + 1] <- inferredVarMetadata
+
+    veupathUtils::logWithTime('Identified collection variable members and values.', verbose)
     if (evilMode == 'allVariables') stop('collectionVar error: evilMode = `allVariables` not compatible with collection variable')
-    collectionVariable <- validatecollectionVar(collectionVariable)
-    veupathUtils::logWithTime('collectionVariable has been validated.', verbose)
 
     # Set variable, value names appropriately
-    if (is.null(unique(collectionVariableDetails$inferredVariable$entityId))) {
-      variable.name <- collectionVariableDetails$collectionVariablePlotRef
-      value.name <- collectionVariableDetails$inferredVariable$variableId
+    if (is.null(unique(inferredVarMetadata@variableSpec@entityId))) {
+      variable.name <- collectionVarPlotRef
+      value.name <- inferredVarMetadata@variableSpec@variableId
     } else {
-      variable.name <- paste(unique(collectionVariableDetails$inferredVariable$entityId),collectionVariableDetails$collectionVariablePlotRef, sep='.')
-      value.name <- paste(unique(collectionVariableDetails$inferredVariable$entityId),collectionVariableDetails$inferredVariable$variableId, sep='.')
+      variable.name <- paste(unique(inferredVarMetadata@variableSpec@entityId),collectionVarPlotRef, sep='.')
+      value.name <- paste(unique(inferredVarMetadata@variableSpec@entityId),inferredVarMetadata@variableSpec@variableId, sep='.')
     }
 
     # Calculate complete cases *before* reshaping the data
-    collectionVarColNames <- veupathUtils::toColNameOrNull(collectionVariable)
-    # To count complete cases, we want to only count rows where we have at least one value in one of the collection var columns
-    completeCasesPerCollectionCol <- lapply(collectionVarColNames, function(collectionVar) {return(complete.cases(.dt[, ..collectionVar]))})
+    # only count rows where we have at least one value in one of the collection var member columns
+    completeCasesPerCollectionCol <- lapply(collectionVarMemberColNames, function(collectionVarMember) {return(complete.cases(.dt[, ..collectionVarMember]))})
     collectionVarDataRows <- Reduce("+", completeCasesPerCollectionCol) > 0  # Any row with val=0 means that row was missing for all vars in the collection and should be removed from the count
     # Columns not corresponding to a collection var are treated differently. Calculate their complete cases as normal
-    nonCollectionVarColNames <- setdiff(c(x,y,z,group, panel), collectionVarColNames)
+    nonCollectionVarColNames <- setdiff(c(x,y,z,group, panel), collectionVarMemberColNames)
     if (length(nonCollectionVarColNames) > 0) {
       nonCollectionVarDataRows <- complete.cases(.dt[, ..nonCollectionVarColNames])
       # Count the rows that we keep from the collection var complete cases *and* non-collection var complete cases
@@ -178,7 +144,7 @@ newPlotdata <- function(.dt = data.table(),
       completeCasesAllVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows]))
     }
 
-    if (collectionVariableDetails$collectionVariablePlotRef == 'xAxisVariable') {
+    if (collectionVarMetadata@plotReference@value == 'xAxis') {
       # Since we force the collection value to be the y variable, the whole collection includes x and y.
       completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows,]))
     } else {
@@ -188,61 +154,37 @@ newPlotdata <- function(.dt = data.table(),
     }
 
     # Reshape data
-    .dt <- data.table::melt(.dt, measure.vars = collectionVarColNames,
+    .dt <- data.table::melt(.dt, measure.vars = collectionVarMemberColNames,
                         variable.factor = FALSE,
                         variable.name= variable.name,
                         value.name=value.name)
 
-    veupathUtils::logWithTime('Data reshaped according to collectionVariable.', verbose)
+    veupathUtils::logWithTime('Data reshaped according to collection variable.', verbose)
 
+    # TODO do we really need to do this? seems its just stripping entityIds?
     # Replace collectionVar values (previously column names) with display labels or variableId
-    .dt[[variable.name]] <- lapply(.dt[[variable.name]], toIdOrDisplayLabel, collectionVariable)
+    #.dt[[variable.name]] <- lapply(.dt[[variable.name]], toIdOrDisplayLabel, collectionVariable)
 
-    # Assign new variable details for the created categorical variable
-    newCatVariable <- list('variableId' = collectionVariableDetails$collectionVariablePlotRef,
-                   'entityId' = unique(collectionVariable$entityId),
-                   'dataType' = 'STRING',
-                   'dataShape' = 'CATEGORICAL')
+    .dt[[variable.name]] <- updateType(.dt[[variable.name]], collectionVarMetadata@dataType@value)
+    prefixMap <- list('x' = 'xAxis',
+                      'y' = 'yAXis',
+                      'group' = 'overlay',
+                      'facet1' = 'facet1',
+                      'facet2' = 'facet2')
+    prefix <- names(prefixMap)[prefixMap == collectionVarMetadata@plotReference@value]
+    assign(prefix, veupathUtils::getColName(collectionVarMetadata@variableSpec))
+    assign(paste0(prefix, 'Type'), collectionVarMetadata@dataType@value)
+    assign(paste0(prefix, 'Shape'), collectionVarMetadata@dataShape@value)
 
-    if (collectionVariableDetails$collectionVariablePlotRef == 'xAxisVariable') {
-      xAxisVariable <- newCatVariable
-      x <- veupathUtils::toColNameOrNull(xAxisVariable)
-      xType <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataType))
-      xShape <- veupathUtils::toStringOrNull(as.character(xAxisVariable$dataShape))
-      .dt[[x]] <- updateType(.dt[[x]], xType)
-
-    } else if (collectionVariableDetails$collectionVariablePlotRef == 'overlayVariable') {
-      overlayVariable <- newCatVariable
-      group <- veupathUtils::toColNameOrNull(overlayVariable)
-      groupType <- veupathUtils::toStringOrNull(as.character(overlayVariable$dataType))
-      .dt[[group]] <- updateType(.dt[[group]], groupType)
-
-    } else if (collectionVariableDetails$collectionVariablePlotRef == 'facetVariable1') {
-      facetVariable1 <- newCatVariable
-      facet1 <- veupathUtils::toColNameOrNull(facetVariable1)
-      facetType1 <- veupathUtils::toStringOrNull(as.character(facetVariable1$dataType))
-      .dt[[facet1]] <- updateType(.dt[[facet1]], facetType1) 
-
-      panelData <- makePanels(.dt, facet1, facet2)
-      .dt <- data.table::setDT(panelData[[1]])
-      panel <- panelData[[2]]
-
-    } else if (collectionVariableDetails$collectionVariablePlotRef == 'facetVariable2') {
-      facetVariable2 <- newCatVariable
-      facet2 <- veupathUtils::toColNameOrNull(facetVariable2)
-      facetType2 <- veupathUtils::toStringOrNull(as.character(facetVariable2$dataType))
-      .dt[[facet2]] <- updateType(.dt[[facet2]], facetType2) 
-
+    if (collectionVarMetadata@plotReference@value %in% c('facet1', 'facet2')) {
       panelData <- makePanels(.dt, facet1, facet2)
       .dt <- data.table::setDT(panelData[[1]])
       panel <- panelData[[2]]
       if (uniqueN(.dt[[panel]]) > 25) stop("Maximum number of panels allowed is 25.")
     }
 
-    # Assume inferredVarPlotRef = yAxisVariable always.
-    yAxisVariable <- collectionVariableDetails$inferredVariable
-    y <- veupathUtils::toColNameOrNull(yAxisVariable)
-    yType <- veupathUtils::toStringOrNull(as.character(yAxisVariable$dataType))
+    y <- veupathUtils::getColName(inferredVarMetadata@variableSpec)
+    yType <- veupathUtils::toStringOrNull(inferredVarMetadata@dataType@value)
 
     data.table::setcolorder(.dt, c(x, y, z, group, panel))
 
@@ -302,32 +244,25 @@ newPlotdata <- function(.dt = data.table(),
 
   veupathUtils::logWithTime('Calculated sample sizes per group.', verbose)
 
-  if (is.null(xAxisVariable$dataType)) {
+  if (is.null(xType)) {
+    index <- findVariableIndexByPlotRef(variables, 'xAxis')
     xIsNum = all(!is.na(as.numeric(.dt[[x]])))
-    xAxisVariable$dataType <- 'NUMBER'
+    variables[[index]]@dataType@value <- 'NUMBER'
     xIsDate = !xIsNum && all(!is.na(as.Date(.dt[[x]], format='%Y-%m-%d')))
-    xAxisVariable$dataType <- 'DATE'
+    variables[[index]]@dataType@value <- 'DATE'
     xIsChar = !xIsNum && !xIsDate && all(!is.na(as.character(.dt[[x]])))
-    xAxisVariable$dataType <- 'STRING'
+    variables[[index]]@dataType@value <- 'STRING'
+    validObject(variables[[index]])
   } 
 
   attr <- attributes(.dt)
-  attr$xAxisVariable <-  xAxisVariable
-  if (!is.null(y)) { attr$yAxisVariable <- yAxisVariable }
-  if (!is.null(z)) { attr$yAxisVariable <- zAxisVariable }
+  attr$variables <- variables
   attr$completeCasesAllVars <- completeCasesAllVars
   attr$completeCasesAxesVars <- completeCasesAxesVars
   attr$completeCasesTable <- completeCasesTable
   attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, overlayGroup, panel, geo)
   attr$class = c(class, 'plot.data', attr$class)
-  if (!is.null(lat)) { attr$latitudeVariable <- latitudeVariable }
-  if (!is.null(lon)) { attr$longitudeVariable <- longitudeVariable }
-  if (!is.null(group)) { attr$overlayVariable <- overlayVariable }
-  if (!is.null(facet1)) { attr$facetVariable1 <- facetVariable1 }
-  if (!is.null(facet2)) { attr$facetVariable2 <- facetVariable2 }
-  if (!is.null(geo)) { attr$geoAggregateVariable <- geoAggregateVariable }
   if (!is.null(collectionVariable)) { attr$collectionVariable <- collectionVariable }
-  if (!all(unlist(lapply(computedVariableMetadata, is.null)))) { attr$computedVariableMetadata <- computedVariableMetadata}
 
   veupathUtils::setAttrFromList(.dt, attr)
   .pd <- validatePlotdata(.dt)
@@ -336,23 +271,23 @@ newPlotdata <- function(.dt = data.table(),
   return(.pd)
 }
 
-validateVariableAttr <- function(variableAttr) {
-  if (!is.list(variableAttr)) {
-    return(FALSE)
-  } else {
-    if (!'variableId' %in% names(variableAttr)) {
-      return(FALSE)
-    }
-  }
-
-  return(TRUE)
-}
-
 validatePlotdata <- function(.pd) {
   .dt <- unclass(.pd)
-  xAxisVariable <- attr(.pd, 'xAxisVariable')
-  stopifnot(validateVariableAttr(xAxisVariable))
-  stopifnot(veupathUtils::toColNameOrNull(xAxisVariable) %in% names(.dt))
+  variables <- attr(.pd, 'variables')
+
+  #we need at min an x axis var
+  x <- veupathUtils::findColNamesFromPlotRef(variables, 'xAxis')
+  if (is.null(x)) stop("All plot.data classes require at minimum an x-axis variable.")
+  if (!x %in% names(.pd)) stop("Specified x-axis variable cannot be found in provided data frame.")
+  
+  #unique plot refs
+  plotRefs <- unlist(lapply(as.list(variables)), function(x) {x@plotReference@value})
+  if (length(plotRefs) != data.table::uniqueN(plotRefs)) stop("All PlotReferences must be unique in the provided VariableMetadataList.")
+
+  # also check there is only one collection in variables
+  collectionsCount <- sum(unlist(lapply(as.list(variables)), function(x) {x@isCollection}))
+  if (collectionCount > 1) stop("More than one collection variable was specified.")
+
   class <- attr(.pd, 'class')
   stopifnot(is.character(class))
 
@@ -361,6 +296,7 @@ validatePlotdata <- function(.pd) {
 
 # Additional accessor functions
 sampleSizeTable <- function(.pd) { attr(.pd, 'sampleSizeTable') }
-completeCasesTable <- function(.pd) { attr(.pd, 'completeCasesTable')}
+completeCasesTable <- function(.pd) { attr(.pd, 'completeCasesTable') }
 #these helpers need either validation or to be a dedicated method
 statsTable <- function(.pd) { attr(.pd, 'statsTable') }
+variablesList <- function(.pd) { as.list(attr(.pd, 'variables')) }

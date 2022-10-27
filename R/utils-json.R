@@ -20,6 +20,28 @@ makeVariableDetails <- function(value, variableId, entityId, displayLabel = NULL
   return(variableDetails)
 }
 
+#may end up not needing this. 
+# TODO replace map input w VariableMetadataList input instead of this conversion back and forth..
+# TODO have a variables attr rather than individual xVariableDetails, yVariableDetails etc
+# might need a helper for classes to find col names for different variables given a plot ref
+# then update getJSON below to use veupathUtils::toJSON to build parts of the plot config
+# double check how this impact the makeVariableDetails helper fxn above
+#makeVariableMetadataObject <- function(variableDetails) {
+#  if (is.null(variableDetails$displayLabel)) displayLabel <- NA_character_
+#  if (is.null(variableDetails$displayRangeMin)) displayRangeMin <- NA_real_
+#  if (is.null(variableDetails$displayRangeMax)) displayRangeMax <- NA_real_
+#
+#  new("VariableMetadata",
+#    variableClass = new("VariableClass", value = variableDetails$variableClass),
+#    variableSpec = new("VariableSpec", variableId = variableDetails$variableId, entityId = variableDetails$entityId),
+#    displayName = displayLabel,
+#    displayRangeMin = displayRangeMin,
+#    displayRangeMax = displayRangeMax,
+#    dataType = new("DataType", value = variableDetails$dataType),
+#    dataShape = new("DataShape", value = variableDetails$dataShape)
+#  )
+#}
+
 #intended for table attrs that dont conform to the one row per group structure, but rather one row per var
 addVariableDetailsToColumn <- function(.pd, variableIdColName) {
   namedAttrList <- getPDAttributes(.pd)
@@ -122,21 +144,22 @@ getJSON <- function(.pd, evilMode) {
     completeCasesTable <- veupathUtils::setAttrFromList(completeCasesTable, attr)
   }
 
+  namedAttrList$variable <- new("VariableMetadataList")
   if ('xAxisVariable' %in% names(namedAttrList)) {
-    namedAttrList$xVariableDetails <- makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId,  namedAttrList$xAxisVariable$displayLabel)
+    namedAttrList$variable[[1]] <- makeVariableMetadataObject(namedAttrList$xAxisVariable)
     namedAttrList$xAxisVariable <- NULL
   }
 
   if ('yAxisVariable' %in% names(namedAttrList)) {
-    namedAttrList$yVariableDetails <- makeVariableDetails(NULL, namedAttrList$yAxisVariable$variableId, namedAttrList$yAxisVariable$entityId,  namedAttrList$yAxisVariable$displayLabel)
+    namedAttrList$variable[[length(namedAttrList$variable) + 1]] <- makeVariableMetadataObject(namedAttrList$yAxisVariable)
     namedAttrList$yAxisVariable <- NULL
   }
   if ('zAxisVariable' %in% names(namedAttrList)) {
-    namedAttrList$zVariableDetails <- makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId, namedAttrList$zAxisVariable$displayLabel)
+    namedAttrList$variable[[length(namedAttrList$variable) + 1]] <- makeVariableMetadataObject(namedAttrList$zAxisVariable)
     namedAttrList$zAxisVariable <- NULL
   }
   
-  .pd <- addStrataVariableDetails(.pd, useGradientColorscale)
+  .pd <- addStrataVariableMetadataObjects(.pd, useGradientColorscale)
 
   # If overlay is continuous, handle similarly to x, y, z vars.
   if (!is.null(namedAttrList$overlayVariable$variableId) && useGradientColorscale) {
