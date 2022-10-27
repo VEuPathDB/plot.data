@@ -177,20 +177,24 @@ contingencyDT <- function(data, labels = TRUE) {
   return(data.table::setDT(dt))
 }
 
+setGeneric("findPanelColName", 
+  function(facet1VarSpec, facet2VarSpec) standardGeneric("findPanelColName"),
+  signature = c("facet1VarSpec", "facet2VarSpec")
+)
 
-findPanelColName <- function(facet1 = NULL, facet2 = NULL) {
-  if (!is.null(facet1$variableId) & !is.null(facet2$variableId)) {
+setMethod("findCPanelColName", signature("VariableSpec", "VariableSpec"), function(facet1VarSpec = NULL, facet2VarSpec = NULL) {
+  if (!is.null(facet1VarSpec) & !is.null(facet2VarSpec)) {
     panel <- 'panel'
-  } else if (!is.null(facet1)) {
-    panel <- veupathUtils::toColNameOrNull(facet1)
-  } else if (!is.null(facet2)) {
-    panel <- veupathUtils::toColNameOrNull(facet2)
+  } else if (!is.null(facet1VarSpec)) {
+    panel <- veupathUtils::getColName(facet1VarSpec)
+  } else if (!is.null(facet2VarSpec)) {
+    panel <- veupathUtils::getColName(facet2VarSpec)
   } else {
     panel <- NULL
   }
 
   return(panel)
-}
+})
 
 #' Make Plot Panels
 #'

@@ -8,20 +8,12 @@
 ###   - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul
 
 #' @importFrom stats complete.cases
+#' @importFrom purrr map
 newPlotdata <- function(.dt = data.table(),
                          #make sure lat, lon, geoAgg vars are valid plot References
                          variables = NULL,    
                          useGradientColorscale = FALSE,                
                          evilMode = character(),
-                         # TODO can this info just be added to variables VariableMetadataList now?
-                         # seems like inferredVariable is a VariableMetadata object that represents the reshaped data
-                         # inferredVarPlotRef is the dependent data (values in orig df), collectionVarPlotRef the independent (cols in original df)
-                         # that means the objective here is to take a single VariableMetadata object w multiple associated colNames and generate
-                         # from that two VariableMetadata objects w a single associated colName
-                         # the two resulting VM objects should have isCollection = FALSE, class TBD but maybe leave it whatever it comes in as
-                         # keep passing these details to this parent class and modify variables obj here
-                         # this should be VariableMetadata object for this class to incorporate into variables once its reshaped the data
-                         inferredVarMetadata = NULL,
                          verbose = logical(),
                          ...,
                          class = character()) {
