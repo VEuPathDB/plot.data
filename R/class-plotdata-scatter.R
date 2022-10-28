@@ -15,11 +15,15 @@ newScatterPD <- function(.dt = data.table::data.table(),
                      class = "scatterplot")
 
   attr <- attributes(.pd)
+  variables <- attr$variables
 
   x <- veupathUtils::findColNamesFromPlotRef(variables, 'xAxis')
+  xType <- veupathUtils::findDataTypesFromPlotRef(variables, 'xAxis')
   y <- veupathUtils::findColNamesFromPlotRef(variables, 'yAxis')
+  yType <- veupathUtils::findDataTypesFromPlotRef(variables, 'yAxis')
   group <- veupathUtils::findColNamesFromPlotRef(variables, 'overlay')
-  panel <- findPanelColName(findVariableSpecFromPlotRef(variables, 'facet1'), findVariableSpecFromPlotRef(variables, 'facet2'))
+  panel <- findPanelColName(veupathUtils::findVariableSpecFromPlotRef(variables, 'facet1'), 
+                            veupathUtils::findVariableSpecFromPlotRef(variables, 'facet2'))
 
   if (useGradientColorscale) {
     .pd$overlayMissingData <- is.na(.pd[[group]])
@@ -32,14 +36,14 @@ newScatterPD <- function(.dt = data.table::data.table(),
     data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
   }
  
-  if (findDataTypesFromPlotRef(variables, 'xAxis') == 'DATE') {
+  if (xType == 'DATE') {
     series$seriesX <- lapply(series$seriesX, format, '%Y-%m-%d')
   } else {
     series$seriesX <- lapply(series$seriesX, as.character)
   }
   if (class(series$seriesX) != 'list') series$seriesX <- list(list(series$seriesX))
 
-  if (findDataTypesFromPlotRef(variables, 'yAxis') == 'DATE') {
+  if (yType == 'DATE') {
     series$seriesY <- lapply(series$seriesY, format, '%Y-%m-%d')
   } else {
     series$seriesY <- lapply(series$seriesY, as.character)
@@ -48,7 +52,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
 
   if (useGradientColorscale) {
-    if (identical(findDataTypesFromPlotRef(variables, 'overlay'),'DATE')) {
+    if (identical(veupathUtils::findDataTypesFromPlotRef(variables, 'overlay'),'DATE')) {
       series$seriesGradientColorscale <- lapply(series$seriesGradientColorscale, format, '%Y-%m-%d')
     } else {
       series$seriesGradientColorscale <- lapply(series$seriesGradientColorscale, as.character)
@@ -103,11 +107,11 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
 validateScatterPD <- function(.scatter, verbose) {
   variables <- attr(.scatter, 'variables')
-  xShape <- findDataShapesFromPlotRef(variables, 'xAXis')
+  xShape <- veupathUtils::findDataShapesFromPlotRef(variables, 'xAxis')
   if (!xShape %in% c('CONTINUOUS')) {
     stop('The independent axis must be continuous for scatterplot.')
   }
-  yShape <- findDataShapesFromPlotRef(variables, 'yAxis')
+  yShape <- veupathUtils::findDataShapesFromPlotRef(variables, 'yAxis')
   if (!yShape %in% c('CONTINUOUS')) {
     stop('The dependent axis must be continuous for scatterplot.')
   }
@@ -168,7 +172,7 @@ validateScatterPD <- function(.scatter, verbose) {
 #' dt <- scattergl.dt(df, map, value = 'bestFitLineWithRaw')
 #' @export
 scattergl.dt <- function(data, 
-                         map, 
+                         variables, 
                          value = c('smoothedMean', 
                                    'smoothedMeanWithRaw', 
                                    'bestFitLineWithRaw', 
@@ -188,7 +192,7 @@ scattergl.dt <- function(data,
     data.table::setDT(data)
   }
 
-  xVM <- variables[findIndexFromPlotRef(variables, 'xAxis')]
+  xVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'xAxis')
   if (is.null(xVM)) {
     stop("Must provide x-axis variable for plot type scatter.")
   } else {
@@ -197,8 +201,8 @@ scattergl.dt <- function(data,
     }
   }
 
-  yVM <- findVariableMetadataFromPlotRef(variables, 'xAxis')
-  collectionVM <- findCollectionVariableMetadata(variables)
+  yVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'yAxis')
+  collectionVM <- veupathUtils::findCollectionVariableMetadata(variables)
   if (is.null(yVM)) {
     if (is.null(collectionVM)) {
       stop("Must provide y axis variable for plot type scatter when no collection variable is provided.")
@@ -209,7 +213,7 @@ scattergl.dt <- function(data,
     }
   } 
 
-  groupVM <- findVariableMetadataFromPlotRef(variables, 'overlay')
+  groupVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'overlay')
   # Decide if we should use a gradient colorscale
   # For now the decision is handled internally. Eventually we may allow for this logic to be overridden and it can be a function arg.
   useGradientColorscale <- FALSE

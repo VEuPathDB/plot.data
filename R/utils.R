@@ -182,18 +182,20 @@ setGeneric("findPanelColName",
   signature = c("facet1VarSpec", "facet2VarSpec")
 )
 
-setMethod("findPanelColName", signature("VariableSpec", "VariableSpec"), function(facet1VarSpec = NULL, facet2VarSpec = NULL) {
-  if (!is.null(facet1VarSpec) & !is.null(facet2VarSpec)) {
-    panel <- 'panel'
-  } else if (!is.null(facet1VarSpec)) {
-    panel <- veupathUtils::getColName(facet1VarSpec)
-  } else if (!is.null(facet2VarSpec)) {
-    panel <- veupathUtils::getColName(facet2VarSpec)
-  } else {
-    panel <- NULL
-  }
+setMethod("findPanelColName", signature("NULL", "VariableSpec"), function(facet1VarSpec, facet2VarSpec) {
+  return(veupathUtils::getColName(facet2VarSpec))
+})
 
-  return(panel)
+setMethod("findPanelColName", signature("VariableSpec", "NULL"), function(facet1VarSpec, facet2VarSpec) {
+  return(veupathUtils::getColName(facet1VarSpec))
+})
+
+setMethod("findPanelColName", signature("VariableSpec", "VariableSpec"), function(facet1VarSpec, facet2VarSpec) {
+  return('panel')
+})
+
+setMethod("findPanelColName", signature("NULL", "NULL"), function(facet1VarSpec, facet2VarSpec) {
+  return(NULL)
 })
 
 #' Make Plot Panels

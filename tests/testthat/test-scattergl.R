@@ -329,8 +329,37 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
                     'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'overlayVariable'),
                     'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
                     'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  
-  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable1')
+
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'collection', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'),
+      isCollection = TRUE,
+      members = new("VariableSpecList", SimpleList(
+        new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+        new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+        new("VariableSpec", variableId = 'contC', entityId = 'entity'))
+    )),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contD', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
+
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('entity.cat3', 'entity.facetVariable1', 'seriesX', 'seriesY'))

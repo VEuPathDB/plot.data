@@ -29,9 +29,9 @@ newPlotdata <- function(.dt = data.table(),
   groupType <- veupathUtils::findDataTypesFromPlotRef(variables, 'overlay')
   # TODO decide if this can have the 1, 2 removed or if the PlotReference class needs to discriminate between facet1 and facet2
   facet1 <- veupathUtils::findColNamesFromPlotRef(variables, 'facet1')
-  facetType1 <- veupathUtils::findDataTypesFromPlotRef(variables, 'facet1')
+  facet1Type <- veupathUtils::findDataTypesFromPlotRef(variables, 'facet1')
   facet2 <- veupathUtils::findColNamesFromPlotRef(variables, 'facet2')
-  facetType2 <- veupathUtils::findDataTypesFromPlotRef(variables, 'facet2')
+  facet2Type <- veupathUtils::findDataTypesFromPlotRef(variables, 'facet2')
   # TODO add geo, lat, long values to PlotReference class
   geo <- veupathUtils::findColNamesFromPlotRef(variables, 'geo')
 
@@ -60,7 +60,7 @@ newPlotdata <- function(.dt = data.table(),
   
   veupathUtils::logWithTime('Determined the number of complete cases per variable.', verbose)
   
-  collectionVarMetadata <- purrr::map(variables, function(x) {if (x@isCollection) {return(x)}})
+  collectionVarMetadata <- veupathUtils::findCollectionVariableMetadata(variables) 
 
   if (!identical(collectionVarMetadata@plotReference@value, 'facet1') & !identical(collectionVarMetadata@plotReference@value, 'facet2')) {
     panelData <- makePanels(.dt, facet1, facet2)
@@ -104,20 +104,20 @@ newPlotdata <- function(.dt = data.table(),
     collectionVarMetadata@members <- new("VariableSpecList")
  
     validObject(collectionVarMetadata)
-    collectionVarIndex <- which(purrr:map(variables, function(x) {if (x@isCollection) {return(TRUE)}}) %in% TRUE)
-    variables[collectionVarIndex] <- collectionVarMetadata
-    variables[length(variables) + 1] <- inferredVarMetadata
+    collectionVarIndex <- which(purrr::map(as.list(variables), function(x) {if (x@isCollection) {return(TRUE)}}) %in% TRUE)
+    variables[[collectionVarIndex]] <- collectionVarMetadata
+    variables[[length(variables) + 1]] <- inferredVarMetadata
 
     veupathUtils::logWithTime('Identified collection variable members and values.', verbose)
     if (evilMode == 'allVariables') stop('collectionVar error: evilMode = `allVariables` not compatible with collection variable')
 
     # Set variable, value names appropriately
-    if (is.null(unique(inferredVarMetadata@variableSpec@entityId))) {
+    if (is.na(unique(inferredVarMetadata@variableSpec@entityId))) {
       variable.name <- collectionVarPlotRef
       value.name <- inferredVarMetadata@variableSpec@variableId
     } else {
-      variable.name <- paste(unique(inferredVarMetadata@variableSpec@entityId),collectionVarPlotRef, sep='.')
-      value.name <- paste(unique(inferredVarMetadata@variableSpec@entityId),inferredVarMetadata@variableSpec@variableId, sep='.')
+      variable.name <- veupathUtils::getColName(collectionVarMetadata@variableSpec)
+      value.name <- veupathUtils::getColName(inferredVarMetadata@variableSpec)
     }
 
     # Calculate complete cases *before* reshaping the data
@@ -169,7 +169,11 @@ newPlotdata <- function(.dt = data.table(),
     assign(paste0(prefix, 'Shape'), collectionVarMetadata@dataShape@value)
 
     if (collectionVarMetadata@plotReference@value %in% c('facet1', 'facet2')) {
+      print(facet1)
+      print(facet2)
       panelData <- makePanels(.dt, facet1, facet2)
+      print(panelData)
+      print('checkpoint')
       .dt <- data.table::setDT(panelData[[1]])
       panel <- panelData[[2]]
       if (uniqueN(.dt[[panel]]) > 25) stop("Maximum number of panels allowed is 25.")
@@ -254,7 +258,6 @@ newPlotdata <- function(.dt = data.table(),
   attr$completeCasesTable <- completeCasesTable
   attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, overlayGroup, panel, geo)
   attr$class = c(class, 'plot.data', attr$class)
-  if (!is.null(collectionVariable)) { attr$collectionVariable <- collectionVariable }
 
   veupathUtils::setAttrFromList(.dt, attr)
   .pd <- validatePlotdata(.dt)
@@ -273,12 +276,12 @@ validatePlotdata <- function(.pd) {
   if (!x %in% names(.pd)) stop("Specified x-axis variable cannot be found in provided data frame.")
   
   #unique plot refs
-  plotRefs <- unlist(lapply(as.list(variables)), function(x) {x@plotReference@value})
+  plotRefs <- unlist(lapply(as.list(variables), function(x) {x@plotReference@value}))
   if (length(plotRefs) != data.table::uniqueN(plotRefs)) stop("All PlotReferences must be unique in the provided VariableMetadataList.")
 
   # also check there is only one collection in variables
-  collectionsCount <- sum(unlist(lapply(as.list(variables)), function(x) {x@isCollection}))
-  if (collectionCount > 1) stop("More than one collection variable was specified.")
+  collectionsCount <- sum(unlist(lapply(as.list(variables), function(x) {x@isCollection})))
+  if (collectionsCount > 1) stop("More than one collection variable was specified.")
 
   class <- attr(.pd, 'class')
   stopifnot(is.character(class))

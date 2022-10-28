@@ -1,62 +1,28 @@
 newBoxPD <- function(.dt = data.table::data.table(),
-                         xAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         yAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         overlayVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         facetVariable1 = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         facetVariable2 = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                         variables = new("VariableMetadataList"),
                          points = character(),
                          mean = logical(),
                          computeStats = logical(),
                          evilMode = character(),
-                         collectionVariableDetails = list('inferredVariable' = NULL,
-                                               'inferredVarPlotRef' = NULL,
-                                               'collectionVariablePlotRef' = NULL),
-                         computedVariableMetadata = list('displayName' = NULL,
-                                                         'displayRangeMin' = NULL,
-                                                         'displayRangeMax' = NULL,
-                                                         'collectionVariable' = NULL),
                          verbose = logical(),
                          ...,
                          class = character()) {
 
   .pd <- newPlotdata(.dt = .dt,
-                     xAxisVariable = xAxisVariable,
-                     yAxisVariable = yAxisVariable,
-                     overlayVariable = overlayVariable,
-                     facetVariable1 = facetVariable1,
-                     facetVariable2 = facetVariable2,
+                     variables = variables,
                      evilMode = evilMode,
-                     collectionVariableDetails = collectionVariableDetails,
-                     computedVariableMetadata = computedVariableMetadata,
                      verbose = verbose,
                      class = "boxplot")
 
   attr <- attributes(.pd)
+  variables <- attr$variables
 
-  x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
-  y <- veupathUtils::toColNameOrNull(attr$yAxisVariable)
-  group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
-  panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
+  x <- veupathUtils::findColNamesFromPlotRef(variables, 'xAxis')
+  y <- veupathUtils::findColNamesFromPlotRef(variables, 'yAxis')
+  group <- veupathUtils::findColNamesFromPlotRef(variables, 'overlay')
+  panel <- findPanelColName(veupathUtils::findVariableSpecFromPlotRef(variables, 'facet1'), 
+                            veupathUtils::findVariableSpecFromPlotRef(variables, 'facet2'))
+
   .pd[[x]] <- as.character(.pd[[x]])
 
   summary <- groupSummary(.pd, x, y, group, panel)
@@ -137,8 +103,8 @@ newBoxPD <- function(.dt = data.table::data.table(),
 }
 
 validateBoxPD <- function(.box, verbose) {
-  yAxisVariable <- attr(.box, 'yAxisVariable')
-  if (!yAxisVariable$dataType %in% c('NUMBER', 'INTEGER')) {
+  variables <- attr(.box, 'variables')
+  if (!veupathUtils::findDataTypesFromPlotRef(variables, 'yAxis') %in% c('NUMBER', 'INTEGER')) {
     stop('The dependent axis must be of type number or integer for boxplot.')
   }
   veupathUtils::logWithTime('Boxplot request has been validated!', verbose)
@@ -165,21 +131,12 @@ validateBoxPD <- function(.box, verbose) {
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
-#' @section Map Structure:
-#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-#' - id: the variable name. Must match column name in the data exactly. \cr
-#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
-#' - naToZero: Options are TRUE, FALSE, or ''. Optional. Indicates whether to replaces NAs with 0, assuming the column is numeric. If set to TRUE, all NAs found within the column should be replaced with 0. Passing '' will result in using the function default, which in plot.data is FALSE. Setting naToZero=TRUE for a string var will throw an error. \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param variables veupathUtils VariableMetadataList
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
-#' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.
-#' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
 #' Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
@@ -199,13 +156,11 @@ validateBoxPD <- function(.box, verbose) {
 #' dt <- box.dt(df, map, points = 'outliers', mean=F, computeStats=T)
 #' @export
 
-box.dt <- function(data, map, 
+box.dt <- function(data, variables, 
                    points = c('outliers', 'all', 'none'), 
                    mean = c(FALSE, TRUE), 
                    computeStats = c(FALSE, TRUE), 
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
-                   collectionVariablePlotRef = NULL,
-                   computedVariableMetadata = NULL,
                    verbose = c(TRUE, FALSE)) {
 
   points <- veupathUtils::matchArg(points)
@@ -223,61 +178,29 @@ box.dt <- function(data, map,
     data.table::setDT(data)
   }
 
-  map <- validateMap(map)
-  veupathUtils::logWithTime('Map has been validated.', verbose)
-
-  # If there is a duplicated plotRef in map, it must match collectionVariablePlotRef
-  if (any(duplicated(map$plotRef))) {
-    if (!identical(collectionVariablePlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
-      stop('collectionVar error: duplicated map plotRef does not match collectionVariablePlotRef.')
-    }
+  xVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'xAxis')
+  if (is.null(xVM)) {
+    stop("Must provide x-axis variable for plot type box.")
   }
-
-  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
-  if (is.null(xAxisVariable$variableId)) {
-    stop("Must provide xAxisVariable for plot type box.")
+  
+  yVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'yAxis')
+  collectionVM <- veupathUtils::findCollectionVariableMetadata(variables)
+  if (is.null(yVM) & is.null(collectionVM)) {
+    stop("Must provide y-axis variable for plot type box.")
   }
-  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  if (is.null(yAxisVariable$variableId) & is.null(collectionVariablePlotRef)) {
-    stop("Must provide yAxisVariable for plot type box.")
-  }
-  overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
   
   # Handle collectionVars
-  collectionVariableDetails <- list('inferredVariable' = NULL,
-                         'inferredVarPlotRef' = 'yAxisVariable',
-                         'collectionVariablePlotRef' = collectionVariablePlotRef)
-
-  if (!is.null(collectionVariablePlotRef)) {
-    if (identical(collectionVariablePlotRef, 'xAxisVariable')) { inferredVarEntityId <- unique(xAxisVariable$entityId)
-    } else if (identical(collectionVariablePlotRef, 'facetVariable1')) { inferredVarEntityId <- unique(facetVariable1$entityId)
-    } else if (identical(collectionVariablePlotRef, 'facetVariable2')) { inferredVarEntityId <- unique(facetVariable2$entityId)
-    } else { stop('collectionVar error: collectionVariablePlotRef must be either xAxisVariable, facetVariable1, or facetVariable2 for box.')
-    }
-
-    collectionVariableDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
-                                          'entityId' = inferredVarEntityId,
-                                          'dataType' = 'NUMBER',
-                                          'dataShape' = 'CONTINUOUS')
-
-    veupathUtils::logWithTime('Created inferred variable from collectionVariable.', verbose)
+  if (!is.null(collectionVM)) {
+    if (!collectionVM@plotReference@value %in% c('overlay', 'facet1', 'facet2')) stop('collectionVar error: collectionVariablePlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for scatter.')
   }
 
 
   .box <- newBoxPD(.dt = data,
-                    xAxisVariable = xAxisVariable,
-                    yAxisVariable = yAxisVariable,
-                    overlayVariable = overlayVariable,
-                    facetVariable1 = facetVariable1,
-                    facetVariable2 = facetVariable2,
+                    variables = variables,
                     points = points,
                     mean = mean,
                     computeStats = computeStats,
                     evilMode = evilMode,
-                    collectionVariableDetails = collectionVariableDetails,
-                    computedVariableMetadata = computedVariableMetadata,
                     verbose = verbose)
 
   .box <- validateBoxPD(.box, verbose)
@@ -305,22 +228,12 @@ box.dt <- function(data, map,
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
-#' @section Map Structure:
-#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-#' - id: the variable name. Must match column name in the data exactly. \cr
-#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
-#' - naToZero: Options are TRUE, FALSE, or ''. Optional. Indicates whether to replaces NAs with 0, assuming the column is numeric. If set to TRUE, all NAs found within the column should be replaced with 0. Passing '' will result in using the function default, which in plot.data is FALSE. Setting naToZero=TRUE for a string var will throw an error. \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param variables veupathUtils VariableMetadataList
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
-#' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.
-#' @param computedVariableMetadata named list containing metadata about a computed variable(s) involved in a plot. 
-#' Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @examples
@@ -338,25 +251,21 @@ box.dt <- function(data, map,
 #' # Returns the name of a json file
 #' box(df, map, points = 'outliers', mean=F, computeStats=T)
 #' @export
-box <- function(data, map, 
+box <- function(data, variables, 
                 points = c('outliers', 'all', 'none'), 
                 mean = c(FALSE, TRUE), 
                 computeStats = c(FALSE, TRUE), 
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
-                collectionVariablePlotRef = NULL,
-                computedVariableMetadata = NULL,
                 verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
 
   .box <- box.dt(data,
-                 map,
+                 variables = variables,
                  points = points,
                  mean = mean,
                  computeStats = computeStats,
                  evilMode = evilMode,
-                 collectionVariablePlotRef = collectionVariablePlotRef,
-                 computedVariableMetadata = computedVariableMetadata,
                  verbose = verbose)
   outFileName <- writeJSON(.box, evilMode, 'boxplot', verbose)
 
