@@ -6,14 +6,7 @@
 \usage{
 newMapMarkersPD(
   .dt = data.table::data.table(),
-  xAxisVariable = list(variableId = NULL, entityId = NULL, dataType = NULL, dataShape =
-    NULL, displayLabel = NULL),
-  geoAggregateVariable = list(variableId = NULL, entityId = NULL, dataType = NULL,
-    dataShape = NULL, displayLabel = NULL),
-  latitudeVariable = list(variableId = NULL, entityId = NULL, dataType = NULL,
-    dataShape = NULL, displayLabel = NULL),
-  longitudeVariable = list(variableId = NULL, entityId = NULL, dataType = NULL,
-    dataShape = NULL, displayLabel = NULL),
+  variables = new("VariableMetadataList"),
   value = character(),
   binWidth,
   binReportValue = character(),

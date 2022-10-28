@@ -6,7 +6,7 @@
 \usage{
 scattergl.dt(
   data,
-  map,
+  variables,
   value = c("smoothedMean", "smoothedMeanWithRaw", "bestFitLineWithRaw", "density",
     "raw"),
   evilMode = c("noVariables", "allVariables", "strataVariables"),
@@ -18,6 +18,10 @@ scattergl.dt(
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
 
+\item{variables}{veupathUtil::VariableMetadataList
+sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 
+'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'}
+
 \item{value}{character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw'
  or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' 
 to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous 
@@ -26,10 +30,6 @@ overlay variable.}
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 
 \item{verbose}{boolean indicating if timed logging is desired}
-
-\item{variables}{veupathUtil::VariableMetadataList
-sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 
-'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'}
 }
 \value{
 data.table plot-ready data
@@ -63,16 +63,35 @@ mislead you and steal your soul \cr
 
 \examples{
 # Construct example data
-df <- data.table('xvar' = rnorm(100),
-                 'yvar' = rnorm(100),
-                 'overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
+df <- data.table('entity.xvar' = rnorm(100),
+                 'entity.yvar' = rnorm(100),
+                 'entity.overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
 
-# Create map that specifies variable role in the plot and supplies variable metadata
-map <- data.frame('id' = c('xvar', 'yvar', 'overlay'),
-                 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'),
-                 'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
-                 'dataShape' = c('CONTINUOUT', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-
+# Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+variables <- new("VariableMetadataList",
+  new("VariableMetadata",
+    variableClass = new("VariableClass", value = 'native'),
+    variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
+    plotReference = new("PlotReference", value = 'xAxis'),
+    dataType = new("DataType", value = 'NUMBER'),
+    dataShape = new("DataShape", value = 'CONTINUOUS')
+  ),
+  new("VariableMetadata",
+    variableClass = new("VariableClass", value = 'native'),
+    variableSpec = new("VariableSpec", variableId = 'overlay', entityId = 'entity'),
+    plotReference = new("PlotReference", value = 'overlay'),
+    dataType = new("DataType", value = 'STRING'),
+    dataShape = new("DataShape", value = 'CATEGORICAL')
+  ),
+  new("VariableMetadata",
+    variableClass = new("VariableClass", value = 'native'),
+    variableSpec = new("VariableSpec", variableId = 'yvar', entityId = 'entity'),
+    plotReference = new("PlotReference", value = 'yAxis'),
+    dataType = new("DataType", value = 'NUMBER'),
+    dataShape = new("DataShape", value = 'CONTINUOUS')
+  )
+)
+ 
 # Returns a data table with plot-ready data
 dt <- scattergl.dt(df, map, value = 'bestFitLineWithRaw')
 }

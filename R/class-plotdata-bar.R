@@ -80,14 +80,26 @@ validateBarPD <- function(.bar, verbose) {
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
 #' # Construct example data
-#' df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
-#'                  'overlay' = sample(c('red','green','blue'), 100, replace=T))
+#' df <- data.table('entity.xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'entity.overlay' = sample(c('red','green','blue'), 100, replace=T))
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'overlay'),
-#'                  'plotRef' = c('xAxisVariable', 'overlayVariable'),
-#'                  'dataType' = c('STRING', 'STRING'),
-#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- new("VariableMetadataList",
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'xAxis'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   ),
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'overlay', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'overlay'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   )
+#' )
 #' 
 #' # Returns a data table with plot-ready data
 #' dt <- bar.dt(df,map,value='count')
@@ -154,15 +166,27 @@ bar.dt <- function(data,
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
 #' # Construct example data
-#' df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
-#'                  'overlay' = sample(c('red','green','blue'), 100, replace=T))
+#' df <- data.table('entity.xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'entity.overlay' = sample(c('red','green','blue'), 100, replace=T))
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'overlay'),
-#'                  'plotRef' = c('xAxisVariable', 'overlayVariable'),
-#'                  'dataType' = c('STRING', 'STRING'),
-#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-#'
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- new("VariableMetadataList",
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'xAxis'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   ),
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'overlay', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'overlay'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   )
+#' )
+#' 
 #' # Returns the name of a json file
 #' bar(df,map,value='count')
 #' @return character name of json file containing plot-ready data

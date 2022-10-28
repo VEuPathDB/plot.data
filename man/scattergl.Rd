@@ -60,16 +60,35 @@ mislead you and steal your soul \cr
 
 \examples{
 # Construct example data
-df <- data.table('xvar' = rnorm(100),
-                 'yvar' = rnorm(100),
-                 'overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
+df <- data.table('entity.xvar' = rnorm(100),
+                 'entity.yvar' = rnorm(100),
+                 'entity.overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
 
-# Create map that specifies variable role in the plot and supplies variable metadata
-map <- data.frame('id' = c('xvar', 'yvar', 'overlay'),
-                 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'),
-                 'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
-                 'dataShape' = c('CONTINUOUT', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-
+# Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+variables <- new("VariableMetadataList",
+  new("VariableMetadata",
+    variableClass = new("VariableClass", value = 'native'),
+    variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
+    plotReference = new("PlotReference", value = 'xAxis'),
+    dataType = new("DataType", value = 'NUMBER'),
+    dataShape = new("DataShape", value = 'CONTINUOUS')
+  ),
+  new("VariableMetadata",
+    variableClass = new("VariableClass", value = 'native'),
+    variableSpec = new("VariableSpec", variableId = 'overlay', entityId = 'entity'),
+    plotReference = new("PlotReference", value = 'overlay'),
+    dataType = new("DataType", value = 'STRING'),
+    dataShape = new("DataShape", value = 'CATEGORICAL')
+  ),
+  new("VariableMetadata",
+    variableClass = new("VariableClass", value = 'native'),
+    variableSpec = new("VariableSpec", variableId = 'yvar', entityId = 'entity'),
+    plotReference = new("PlotReference", value = 'yAxis'),
+    dataType = new("DataType", value = 'NUMBER'),
+    dataShape = new("DataShape", value = 'CONTINUOUS')
+  )
+)
+ 
 # Returns the name of a json file
 scattergl(df, map, value = 'bestFitLineWithRaw')
 }

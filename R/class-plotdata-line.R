@@ -193,15 +193,26 @@ validateLinePD <- function(.line, verbose) {
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @examples
-#' # Construct example data
-#' df <- data.table('xvar' = sample(1:20, 100, replace=T),
-#'                  'yvar' = rnorm(100), stringsAsFactors = F)
+#' df <- data.table('entity.xvar' = sample(1:20, 100, replace=T),
+#'                  'entity.yvar' = rnorm(100), stringsAsFactors = F)
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'yvar'),
-#'                  'plotRef' = c('xAxisVariable', 'yAxisVariable'),
-#'                  'dataType' = c('NUMBER', 'NUMBER'),
-#'                  'dataShape' = c('CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- new("VariableMetadataList",
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'xAxis'),
+#'     dataType = new("DataType", value = 'NUMBER'),
+#'     dataShape = new("DataShape", value = 'CONTINUOUS')
+#'   ),
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'yvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'yAxis'),
+#'     dataType = new("DataType", value = 'NUMBER'),
+#'     dataShape = new("DataShape", value = 'CONTINUOUS')
+#'   )
+#' )
 #' 
 #' # Returns a data table with plot-ready data
 #' dt <- lineplot.dt(df, map, value = 'median')
@@ -309,14 +320,26 @@ lineplot.dt <- function(data,
 #' @return character name of json file containing plot-ready data
 #' @examples
 #' # Construct example data
-#' df <- data.table('xvar' = sample(1:20, 100, replace=T),
-#'                  'yvar' = rnorm(100), stringsAsFactors = F)
+#' df <- data.table('entity.xvar' = sample(1:20, 100, replace=T),
+#'                  'entity.yvar' = rnorm(100), stringsAsFactors = F)
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'yvar'),
-#'                  'plotRef' = c('xAxisVariable', 'yAxisVariable'),
-#'                  'dataType' = c('NUMBER', 'NUMBER'),
-#'                  'dataShape' = c('CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- new("VariableMetadataList",
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'xAxis'),
+#'     dataType = new("DataType", value = 'NUMBER'),
+#'     dataShape = new("DataShape", value = 'CONTINUOUS')
+#'   ),
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'yvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'yAxis'),
+#'     dataType = new("DataType", value = 'NUMBER'),
+#'     dataShape = new("DataShape", value = 'CONTINUOUS')
+#'   )
+#' )
 #' 
 #' # Returns the name of a json file
 #' lineplot(df, map, value = 'median')

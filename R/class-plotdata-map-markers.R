@@ -236,14 +236,26 @@ validateMapMarkersPD <- function(.map, verbose) {
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
 #' # Construct example data
-#' df <- data.table('xAxis' = sample(c('a','b','c'), 100, replace=T),
-#'                  'facet' = sample(c('red','green','blue'), 100, replace=T))
+#' df <- data.table('entity.xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'entity.facet' = sample(c('red','green','blue'), 100, replace=T))
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('facet', 'xAxis'),
-#'                  'plotRef' = c('geoAggregateVariable', 'xAxisVariable'),
-#'                  'dataType' = c('STRING', 'STRING'),
-#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- new("VariableMetadataList",
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'xAxis'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   ),
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'facet', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'geo'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   )
+#' )
 #' 
 #' # Returns a data table with plot-ready data
 #' dt <- mapMarkers.dt(df,map,value='count')
@@ -351,15 +363,27 @@ mapMarkers.dt <- function(data,
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
 #' # Construct example data
-#' df <- data.table('xAxis' = sample(c('a','b','c'), 100, replace=T),
-#'                  'facet' = sample(c('red','green','blue'), 100, replace=T))
+#' df <- data.table('entity.xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'entity.facet' = sample(c('red','green','blue'), 100, replace=T))
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('facet', 'xAxis'),
-#'                  'plotRef' = c('geoAggregateVariable', 'xAxisVariable'),
-#'                  'dataType' = c('STRING', 'STRING'),
-#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-#'
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- new("VariableMetadataList",
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'xAxis'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   ),
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'facet', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'geo'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   )
+#' )
+#' 
 #' # Returns the name of a json file
 #' mapMarkers(df,map,value='count')
 #' @return character name of json file containing plot-ready data

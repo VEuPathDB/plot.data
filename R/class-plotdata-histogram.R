@@ -199,15 +199,26 @@ validateHistogramPD <- function(.histo, verbose) {
 #' @importFrom jsonlite unbox
 #' @examples
 #' # Construct example data
-#' df <- data.table('xvar' = rnorm(100),
-#'                  'overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
+#' df <- data.table('entity.xvar' = rnorm(100),
+#'                  'entity.overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
 #' 
-#' TODO replace the map in these examples and the readme file
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'overlay'),
-#'                  'plotRef' = c('xAxisVariable', 'overlayVariable'),
-#'                  'dataType' = c('NUMBER', 'STRING'),
-#'                  'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- new("VariableMetadataList",
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'xAxis'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   ),
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'overlay', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'overlay'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   )
+#' )
 #' 
 #' viewport <- list('xMin'=min(df$xvar), 'xMax'=max(df$xvar))
 #' 
@@ -292,14 +303,26 @@ histogram.dt <- function(data,
 #' @importFrom jsonlite unbox
 #' @examples
 #' # Construct example data
-#' df <- data.table('xvar' = rnorm(100),
-#'                  'overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
+#' df <- data.table('entity.xvar' = rnorm(100),
+#'                  'entity.overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'overlay'),
-#'                  'plotRef' = c('xAxisVariable', 'overlayVariable'),
-#'                  'dataType' = c('NUMBER', 'STRING'),
-#'                  'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- new("VariableMetadataList",
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'xAxis'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   ),
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'overlay', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'overlay'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   )
+#' )
 #' 
 #' viewport <- list('xMin'=min(df$xvar), 'xMax'=max(df$xvar))
 #' 

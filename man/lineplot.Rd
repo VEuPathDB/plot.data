@@ -6,7 +6,7 @@
 \usage{
 lineplot(
   data,
-  map,
+  variables,
   binWidth = NULL,
   value = c("mean", "median", "geometricMean", "proportion"),
   errorBars = c(TRUE, FALSE),
@@ -22,7 +22,7 @@ lineplot(
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
 
-\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId 
+\item{variables}{veupathUtils::VariableMetadataList
 and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 
 'overlayVariable', 'facetVariable1' and 'facetVariable2'}
 
@@ -73,26 +73,28 @@ the strata vars \cr
 mislead you and steal your soul \cr
 }
 
-\section{Map Structure}{
-
-The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-- id: the variable name. Must match column name in the data exactly. \cr
-- plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-- dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-- dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
-- naToZero: Options are TRUE, FALSE, or ''. Optional. Indicates whether to replaces NAs with 0, assuming the column is numeric. If set to TRUE, all NAs found within the column should be replaced with 0. Passing '' will result in using the function default, which in plot.data is FALSE. Setting naToZero=TRUE for a string var will throw an error. \cr
-}
-
 \examples{
 # Construct example data
-df <- data.table('xvar' = sample(1:20, 100, replace=T),
-                 'yvar' = rnorm(100), stringsAsFactors = F)
+df <- data.table('entity.xvar' = sample(1:20, 100, replace=T),
+                 'entity.yvar' = rnorm(100), stringsAsFactors = F)
 
-# Create map that specifies variable role in the plot and supplies variable metadata
-map <- data.frame('id' = c('xvar', 'yvar'),
-                 'plotRef' = c('xAxisVariable', 'yAxisVariable'),
-                 'dataType' = c('NUMBER', 'NUMBER'),
-                 'dataShape' = c('CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
+# Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+variables <- new("VariableMetadataList",
+  new("VariableMetadata",
+    variableClass = new("VariableClass", value = 'native'),
+    variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
+    plotReference = new("PlotReference", value = 'xAxis'),
+    dataType = new("DataType", value = 'NUMBER'),
+    dataShape = new("DataShape", value = 'CONTINUOUS')
+  ),
+  new("VariableMetadata",
+    variableClass = new("VariableClass", value = 'native'),
+    variableSpec = new("VariableSpec", variableId = 'yvar', entityId = 'entity'),
+    plotReference = new("PlotReference", value = 'yAxis'),
+    dataType = new("DataType", value = 'NUMBER'),
+    dataShape = new("DataShape", value = 'CONTINUOUS')
+  )
+)
 
 # Returns the name of a json file
 lineplot(df, map, value = 'median')

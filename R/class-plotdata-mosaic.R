@@ -73,14 +73,26 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' @return data.table plot-ready data
 #' @examples
 #' # Construct example data
-#' df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
-#'                  'yvar' = sample(c('1','2','3'), 100, replace=T), stringsAsFactors = F)
+#' df <- data.table('entity.xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'entity.yvar' = sample(c('1','2','3'), 100, replace=T), stringsAsFactors = F)
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'yvar'),
-#'                  'plotRef' = c('xAxisVariable', 'yAxisVariable'),
-#'                  'dataType' = c('STRING', 'STRING'),
-#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- new("VariableMetadataList",
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'xAxis'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   ),
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'yvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'yAxis'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   )
+#' )
 #' 
 #' # Returns a data table with plot-ready data
 #' dt <- mosaic.dt(df, map)
@@ -167,14 +179,26 @@ mosaic.dt <- function(data, variables,
 #' @return character name of json file containing plot-ready data
 #' @examples
 #' # Construct example data
-#' df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
-#'                  'yvar' = sample(c('1','2','3'), 100, replace=T), stringsAsFactors = F)
+#' df <- data.table('entity.xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'entity.yvar' = sample(c('1','2','3'), 100, replace=T), stringsAsFactors = F)
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'yvar'),
-#'                  'plotRef' = c('xAxisVariable', 'yAxisVariable'),
-#'                  'dataType' = c('STRING', 'STRING'),
-#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- new("VariableMetadataList",
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'xAxis'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   ),
+#'   new("VariableMetadata",
+#'     variableClass = new("VariableClass", value = 'native'),
+#'     variableSpec = new("VariableSpec", variableId = 'yvar', entityId = 'entity'),
+#'     plotReference = new("PlotReference", value = 'yAxis'),
+#'     dataType = new("DataType", value = 'STRING'),
+#'     dataShape = new("DataShape", value = 'CATEGORICAL')
+#'   )
+#' )
 #' 
 #' # Returns the name of a json file
 #' mosaic(df, map)
