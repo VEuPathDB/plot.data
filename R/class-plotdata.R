@@ -12,7 +12,7 @@
 newPlotdata <- function(.dt = data.table(),
                          #make sure lat, lon, geoAgg vars are valid plot References
                          variables = NULL,    
-                         useGradientColorscale = FALSE,                
+                         useGradientColorscale = logical(),                
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -60,9 +60,10 @@ newPlotdata <- function(.dt = data.table(),
   
   veupathUtils::logWithTime('Determined the number of complete cases per variable.', verbose)
   
-  collectionVarMetadata <- veupathUtils::findCollectionVariableMetadata(variables) 
+  collectionVarMetadata <- veupathUtils::findCollectionVariableMetadata(variables)
+  isFacetCollection <- ifelse(is.null(collectionVarMetadata), FALSE, ifelse(collectionVarMetadata@plotReference@value %in% c('facet1', 'facet2'), TRUE, FALSE))
 
-  if (!identical(collectionVarMetadata@plotReference@value, 'facet1') & !identical(collectionVarMetadata@plotReference@value, 'facet2')) {
+  if (!isFacetCollection) {
     panelData <- makePanels(.dt, facet1, facet2)
     .dt <- data.table::setDT(panelData[[1]])
     panel <- panelData[[2]]
@@ -211,7 +212,7 @@ newPlotdata <- function(.dt = data.table(),
     # Assign NA strata values to 'No data', with the exception of continuous overlays which should stay numeric
     # TODO at some point i want to make sure our logic here is solid. 
     # is it possible for a continuous overlay to represent something other than color for ex? and what then?
-    if (!is.null(group) && !identical(overlayVariable$dataShape,'CONTINUOUS')) { .dt[[group]][is.na(.dt[[group]])] <- 'No data' }
+    if (!is.null(group) && !identical(veupathUtils::findVariableMetadataFromPlotRef(variables, 'overlay')@dataShape@value,'CONTINUOUS')) { .dt[[group]][is.na(.dt[[group]])] <- 'No data' }
     if (!is.null(panel)) { .dt[[panel]][is.na(.dt[[panel]])] <- 'No data' }
     if (!is.null(geo)) { .dt[[geo]][is.na(.dt[[geo]])] <- 'No data'}
     if (evilMode == 'allVariables') {
