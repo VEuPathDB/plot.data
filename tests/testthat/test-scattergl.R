@@ -608,7 +608,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('entity.cat3', 'entity.collection', 'seriesX', 'seriesY'))
-  expect_equal(unique(dt$entity.collection), c('entity.contA','entity.contB','entity.contC'))
+  expect_equal(unique(dt$entity.collection), c('contA','contB','contC'))
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'facet1')@variableId, 'collection')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
   
@@ -685,7 +685,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('entity.collection', 'entity.cat3', 'seriesX', 'seriesY'))
-  expect_equal(unique(dt$entity.collection), c('entity.contA','entity.contB','entity.contC'))
+  expect_equal(unique(dt$entity.collection), c('contA','contB','contC'))
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'overlay')@variableId, 'collection')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
   collectionVM <- veupathUtils::findVariableMetadataFromPlotRef(attr(dt, 'variables'), 'yAxis')
@@ -727,7 +727,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt), c('entity.collection', 'entity.cat3', 'seriesX', 'seriesY'))
-  expect_equal(unique(dt$entity.collection), c('entity.contB'))
+  expect_equal(unique(dt$entity.collection), c('contB'))
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'overlay')@variableId, 'collection')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues') 
   
@@ -1260,23 +1260,22 @@ test_that("scattergl.dt() returns correct information about missing data", {
       variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
       plotReference = new("PlotReference", value = 'xAxis'),
       dataType = new("DataType", value = 'NUMBER'),
-      dataShape = new("DataShape", value = 'CONTINUOUS')
+      dataShape = new("DataShape", value = 'CONTINUOUS'),
+      imputeZero = TRUE
     ),
     new("VariableMetadata",
       variableClass = new("VariableClass", value = 'native'),
       variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
       plotReference = new("PlotReference", value = 'facet1'),
       dataType = new("DataType", value = 'STRING'),
-      dataShape = new("DataShape", value = 'CATEGORICAL'),
-      imputeZero = TRUE
+      dataShape = new("DataShape", value = 'CATEGORICAL')
     ),
     new("VariableMetadata",
       variableClass = new("VariableClass", value = 'native'),
       variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
       plotReference = new("PlotReference", value = 'overlay'),
-      dataType = new("DataType", value = 'STRING'),
-      dataShape = new("DataShape", value = 'CATEGORICAL'),
-      imputeZero = NA
+      dataType = new("DataType", value = "STRING"),
+      dataShape = new("DataShape", value = "CATEGORICAL")
     )
   ))
 

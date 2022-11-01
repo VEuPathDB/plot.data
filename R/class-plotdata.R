@@ -43,7 +43,7 @@ newPlotdata <- function(.dt = data.table(),
   
   # Extract names of vars for which naToZero is TRUE
   # Note: if we want to change default behavior in the future, this predicate function is a good place to do it
-  impute0cols <- veupathUtils::findColNamesByPredicate(variables, function(x) {if (x@imputeZero) TRUE})
+  impute0cols <- veupathUtils::findColNamesByPredicate(variables, function(x) {ifelse(is.na(x@imputeZero), FALSE, x@imputeZero)})
 
   # Replace NAs with 0s if naToZero set
   if (!!length(impute0cols)) {
@@ -113,7 +113,7 @@ newPlotdata <- function(.dt = data.table(),
     if (evilMode == 'allVariables') stop('collectionVar error: evilMode = `allVariables` not compatible with collection variable')
 
     # Set variable, value names appropriately
-    if (is.na(unique(inferredVarMetadata@variableSpec@entityId))) {
+    if (is.na(inferredVarMetadata@variableSpec@entityId)) {
       variable.name <- collectionVarPlotRef
       value.name <- inferredVarMetadata@variableSpec@variableId
     } else {
@@ -154,9 +154,8 @@ newPlotdata <- function(.dt = data.table(),
 
     veupathUtils::logWithTime('Data reshaped according to collection variable.', verbose)
 
-    # TODO do we really need to do this? seems its just stripping entityIds?
-    # Replace collectionVar values (previously column names) with display labels or variableId
-    #.dt[[variable.name]] <- lapply(.dt[[variable.name]], toIdOrDisplayLabel, collectionVariable)
+    # strip entityId from value
+    .dt[[variable.name]] <- gsub(paste0(inferredVarMetadata@variableSpec@entityId, '.'), '', .dt[[variable.name]])
 
     .dt[[variable.name]] <- updateType(.dt[[variable.name]], collectionVarMetadata@dataType@value)
     prefixMap <- list('x' = 'xAxis',
@@ -170,11 +169,7 @@ newPlotdata <- function(.dt = data.table(),
     assign(paste0(prefix, 'Shape'), collectionVarMetadata@dataShape@value)
 
     if (collectionVarMetadata@plotReference@value %in% c('facet1', 'facet2')) {
-      print(facet1)
-      print(facet2)
       panelData <- makePanels(.dt, facet1, facet2)
-      print(panelData)
-      print('checkpoint')
       .dt <- data.table::setDT(panelData[[1]])
       panel <- panelData[[2]]
       if (uniqueN(.dt[[panel]]) > 25) stop("Maximum number of panels allowed is 25.")
