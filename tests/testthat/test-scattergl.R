@@ -1065,7 +1065,7 @@ test_that("scattergl() returns appropriately formatted json", {
     new("VariableMetadata",
       variableClass = new("VariableClass", value = 'computed'),
       variableSpec = new("VariableSpec", variableId = 'collection', entityId = 'entity'),
-      plotReference = new("PlotReference", value = 'facet1'),
+      plotReference = new("PlotReference", value = 'facet2'),
       dataType = new("DataType", value = 'NUMBER'),
       dataShape = new("DataShape", value = 'CONTINUOUS'),
       displayName = "Label",
@@ -1080,14 +1080,14 @@ test_that("scattergl() returns appropriately formatted json", {
     )
   ))
 
-  dt <- scattergl.dt(df, variables, 'raw', collectionVariablePlotRef = 'facetVariable2', computedVariableMetadata = computedVariableMetadata)
+  dt <- scattergl.dt(df, variables, 'raw')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
   expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY'))
-  expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
+  expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value','displayLabel'))
   expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
   expect_equal(jsonList$scatterplot$config$completeCasesAllVars, nrow(df))
   expect_equal(jsonList$scatterplot$config$completeCasesAxesVars, nrow(df))
@@ -1137,7 +1137,7 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
   expect_equal(names(jsonList$scatterplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY'))
-  expect_equal(names(jsonList$scatterplot$data$overlayVariableDetails),c('variableId','entityId','value'))
+  expect_equal(names(jsonList$scatterplot$data$overlayVariableDetails),c('variableId','entityId','value','displayLabel'))
   expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
   expect_equal(jsonList$scatterplot$config$completeCasesAllVars, nrow(df))
   expect_equal(jsonList$scatterplot$config$completeCasesAxesVars, nrow(df))
@@ -1395,7 +1395,7 @@ test_that("scattergl.dt() returns correct information about missing data", {
       members = new("VariableSpecList", SimpleList(
         new("VariableSpec", variableId = "contB", entityId = "entity"),
         new("VariableSpec", variableId = "contC", entityId = "entity"),
-        new("VariableSpec", variableId = "contD", entityId = "entity"),
+        new("VariableSpec", variableId = "contD", entityId = "entity")
       ))
     ),
     new("VariableMetadata",
@@ -1429,7 +1429,7 @@ test_that("scattergl.dt() returns correct information about missing data", {
       members = new("VariableSpecList", SimpleList(
         new("VariableSpec", variableId = "contB", entityId = "entity"),
         new("VariableSpec", variableId = "contC", entityId = "entity"),
-        new("VariableSpec", variableId = "contD", entityId = "entity"),
+        new("VariableSpec", variableId = "contD", entityId = "entity")
       ))
     ),
     new("VariableMetadata",

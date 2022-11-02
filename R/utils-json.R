@@ -1,7 +1,34 @@
-makeVariableDetails <- function(value, variableMetadata) {
-  variableId <- variableMetadata@variableSpec@variableId
-  entityId <- variableMetadata@variableSpec@entityId
-  displayLabel <- variableMetadata@displayName
+setGeneric("makeVariableDetails", 
+  function(value, object) standardGeneric("makeVariableDetails"),
+  signature = "object"
+)
+
+#' @export
+setMethod("makeVariableDetails", signature("VariableSpec"), function(value, object) {
+  variableId <- object@variableId
+  entityId <- object@entityId
+
+  if (!is.null(value)) {
+    if (length(value) == 1) {
+      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=jsonlite::unbox(as.character(value)))
+    } else {
+      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=as.character(value))
+    }
+  } else {
+    if (length(variableId) > 1) {
+      variableDetails <- list('variableId'=variableId, 'entityId'=entityId)
+    } else {
+      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId))
+    }
+  }
+
+  return(variableDetails)    
+})
+
+setMethod("makeVariableDetails", signature("VariableMetadata"), function(value, object) {
+  variableId <- object@variableSpec@variableId
+  entityId <- object@variableSpec@entityId
+  displayLabel <- object@displayName
   if (is.na(displayLabel)) displayLabel <- NULL
 
   if (!is.null(value)) {
@@ -23,7 +50,7 @@ makeVariableDetails <- function(value, variableMetadata) {
   }
 
   return(variableDetails)
-}
+})
 
 #intended for table attrs that dont conform to the one row per group structure, but rather one row per var
 addVariableDetailsToColumn <- function(.pd, variableIdColName) {
@@ -31,14 +58,21 @@ addVariableDetailsToColumn <- function(.pd, variableIdColName) {
   plotRefs <- unlist(lapply(as.list(namedAttrList$variables), function(x) {x@plotReference@value}))
    
   # Add variable details for any variable in the variableIdCol
-  if ('xAxis' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'xAXis')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'xAxis')))
+  if ('xAxis' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'xAxis')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'xAxis')))
   if ('yAxis' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'yAxis')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'yAxis')))
   if ('zAxis' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'zAxis')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'zAxis')))
   if ('overlay' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'overlay')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'overlay')))
   if ('facet1' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'facet1')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'facet1')))
   if ('facet2' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'facet2')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'facet2')))
   if ('geo' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'geo')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'geo')))
- # if ('collectionVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] %in% veupathUtils::toColNameOrNull(namedAttrList$collectionVariable)] <- lapply(seq_along(namedAttrList$collectionVariable$variableId), function(varInd) {makeVariableDetails(NULL, namedAttrList$collectionVariable$variableId[varInd], namedAttrList$collectionVariable$entityId[varInd], namedAttrList$collectionVariable$displayLabel[varInd])})
+ 
+  index <- which(purrr::map(as.list(namedAttrList$variables), function(x) { x@variableSpec@variableId == 'collection' }) %in% TRUE)
+  if (!!length(index)) {
+    collectionVM <- namedAttrList$variables[[index]]
+    collectionColNames <- paste0(collectionVM@variableSpec@entityId, '.', collectionVM@vocabulary)
+    collectionVarSpecs <- lapply(collectionVM@vocabulary, function(x) { new("VariableSpec", variableId = x, entityId = collectionVM@variableSpec@entityId) })
+    .pd[[variableIdColName]][.pd[[variableIdColName]] %in% collectionColNames] <- lapply(as.list(collectionVarSpecs), function(x) {makeVariableDetails(NULL, x)})
+  } 
   
   return(.pd)
 }
