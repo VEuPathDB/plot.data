@@ -149,7 +149,7 @@ beeswarm.dt <- function(data, variables,
     data.table::setDT(data)
   }
 
-  xVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'xAXis')
+  xVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'xAxis')
   if (is.null(xVM)) {
     stop("Must provide x-axis variable for plot type beeswarm.")
   }
@@ -162,7 +162,7 @@ beeswarm.dt <- function(data, variables,
   
   # Handle collectionVars
   if (!is.null(collectionVM)) {
-    if (!collectionVM@plotReference@value %in% c('overlay', 'facet1', 'facet2')) stop('collectionVar error: collectionVariablePlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for scatter.')
+    if (!collectionVM@plotReference@value %in% c('xAxis', 'facet1', 'facet2')) stop('Collection variable PlotReference must be either xAxis, facet1 or facet2 for beeswarm.')
   }
 
   .beeswarm <- newBeeswarmPD(.dt = data,
