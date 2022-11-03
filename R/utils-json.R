@@ -143,11 +143,12 @@ getJSON <- function(.pd, evilMode) {
     sampleSizeTable <- addStrataVariableDetails(sampleSizeTable, useGradientColorscale)
     attr$names <- names(sampleSizeTable)
     sampleSizeTable <- veupathUtils::setAttrFromList(sampleSizeTable, attr)
-    if ('xAxisVariable' %in% names(namedAttrList)) {
-      x <- veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable)
+    xVM <- veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'xAxis')
+    if (!is.null(xVM)) {
+      x <- veupathUtils::getColName(xVM@variableSpec)
       if (x %in% names(sampleSizeTable)) {
         names(sampleSizeTable)[names(sampleSizeTable) == x] <- 'xVariableDetails'
-        sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
+        sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, xVM)
       }
     }
   }

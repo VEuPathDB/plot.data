@@ -12,7 +12,7 @@
 newPlotdata <- function(.dt = data.table(),
                          #make sure lat, lon, geoAgg vars are valid plot References
                          variables = NULL,    
-                         useGradientColorscale = logical(),                
+                         useGradientColorscale = FALSE,                
                          evilMode = character(),
                          verbose = logical(),
                          ...,
