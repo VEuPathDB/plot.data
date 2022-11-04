@@ -1,20 +1,31 @@
 context('mapMarkers')
 
 test_that("mapMarkers.dt does not fail when there are no complete cases.", {
-  map <- data.frame('id' = c('entity.binary1', 'entity.int'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binary1', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
   df <- data.noneComplete[is.na(entity.binary1),]
 
-  dt <- mapMarkers.dt(df, map, value='count')  
+  dt <- mapMarkers.dt(df, variables, value='count')  
   attr <- attributes(dt)
   expect_equal(attr$completeCasesAllVars[1], 0)
   expect_equal(is.list(dt$label), TRUE)
   expect_equal(is.list(dt$value), TRUE)
 
-  dt <- mapMarkers.dt(df, map, value='proportion')  
+  dt <- mapMarkers.dt(df, variables, value='proportion')  
   attr <- attributes(dt)
   expect_equal(attr$completeCasesAllVars[1], 0)
   expect_equal(is.list(dt$label), TRUE)
@@ -22,18 +33,29 @@ test_that("mapMarkers.dt does not fail when there are no complete cases.", {
 })
 
 test_that("mapMarkers.dt() returns a valid plot.data mapMarkers object", {
-  map <- data.frame('id' = c('entity.cat6', 'entity.cat4'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
   df <- as.data.frame(testDF)
 
-  dt <- mapMarkers.dt(df, map, value='count')
+  dt <- mapMarkers.dt(df, variables, value='count')
   expect_is(dt, 'plot.data')
   expect_is(dt, 'mapMarkers')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','geoAggregateVariable','viewport','rankedValues','overlayValues'))
+  expect_equal(names(namedAttrList),c('variables', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','viewport','rankedValues','overlayValues'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 2)
@@ -45,13 +67,25 @@ test_that("mapMarkers.dt() returns a valid plot.data mapMarkers object", {
 
 
 test_that("mapMarkers.dt() returns plot data and config of the appropriate types", {
-  map <- data.frame('id' = c('entity.cat6', 'entity.cat5'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat5', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
+
   df <- as.data.frame(testDF)
 
-  dt <- mapMarkers.dt(df, map, value='count')
+  dt <- mapMarkers.dt(df, variables, value='count')
   expect_is(dt$label, 'list')
   expect_equal(class(unlist(dt$label)), 'character')
   expect_is(dt$value, 'list')
@@ -68,19 +102,31 @@ test_that("mapMarkers.dt() returns plot data and config of the appropriate types
 })
 
 test_that("mapMarkers.dt() returns an appropriately sized data.table", {
-  map <- data.frame('id' = c('entity.cat6', 'entity.cat4'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
+
   df <- as.data.frame(testDF)
 
-  dt <- mapMarkers.dt(df, map, value='count')
+  dt <- mapMarkers.dt(df, variables, value='count')
   expect_is(dt, 'data.table')
   expect_is(dt, 'mapMarkers')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('entity.cat4', 'label', 'value'))
   
-  dt <- mapMarkers.dt(df, map, value='proportion')
+  dt <- mapMarkers.dt(df, variables, value='proportion')
   expect_is(dt, 'data.table')
   expect_is(dt, 'mapMarkers')
   expect_equal(nrow(dt),4)
@@ -90,24 +136,44 @@ test_that("mapMarkers.dt() returns an appropriately sized data.table", {
   expect_equal(all(lapply(dt$value, sum) == 1), TRUE)
   
   # With factors
-  map <- data.frame('id' = c('entity.cat6', 'entity.factor6'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-
-  dt <- mapMarkers.dt(df, map, value='count')
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'factor6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
+  
+  dt <- mapMarkers.dt(df, variables, value='count')
   expect_is(dt, 'data.table')
   expect_is(dt, 'mapMarkers')
   expect_equal(nrow(dt),6)
   expect_equal(names(dt),c('entity.factor6', 'label', 'value'))
   expect_equal(class(dt$entity.factor6), 'character')
 
-  map <- data.frame('id' = c('entity.cat6', 'entity.factor6'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'factor6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mapMarkers.dt(df, map, value='count')
+  dt <- mapMarkers.dt(df, variables, value='count')
   expect_is(dt, 'data.table')
   expect_is(dt, 'mapMarkers')
   expect_equal(nrow(dt),6)
@@ -116,18 +182,28 @@ test_that("mapMarkers.dt() returns an appropriately sized data.table", {
 
 
   # With continuous x var (< 9 values)
-  map <- data.frame('id' = c('entity.int6', 'entity.cat4'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('NUMBER', 'STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'))
+  ))
 
-  dt <- mapMarkers.dt(df, map, value='count')
+  dt <- mapMarkers.dt(df, variables, value='count')
   expect_is(dt, 'data.table')
   expect_is(dt, 'mapMarkers')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('entity.cat4', 'label', 'value'))
   
-  dt <- mapMarkers.dt(df, map, value='proportion')
+  dt <- mapMarkers.dt(df, variables, value='proportion')
   expect_is(dt, 'data.table')
   expect_is(dt, 'mapMarkers')
   expect_equal(nrow(dt),4)
@@ -139,10 +215,33 @@ test_that("mapMarkers.dt() returns an appropriately sized data.table", {
 })
 
 test_that("mapMarkers() returns appropriately formatted json", {
-  map <- data.frame('id' = c('entity.int11', 'entity.cat5', 'entity.cont5', 'entity.cont6'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable', 'latitudeVariable', 'longitudeVariable'),
-                    'dataType' = c('STRING', 'STRING', 'NUMBER', 'NUMBER'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CONTINUOUS', 'LONGITUDE'), stringsAsFactors=FALSE)
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cont6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'longitude'),
+      dataType = new("DataType", value = 'LONGITUDE'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cont5', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'latitude'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat5', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int11', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
   df <- as.data.frame(testDF)
   df$entity.int11 <- as.character(df$entity.int11)
@@ -151,20 +250,20 @@ test_that("mapMarkers() returns appropriately formatted json", {
                    'longitude'=list('left'=-.5,
                                     'right'=.5))
 
-  dt <- mapMarkers.dt(df, map, value='count', viewport=viewport)
+  dt <- mapMarkers.dt(df, variables, value='count', viewport=viewport)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('mapMarkers','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$mapMarkers), c('data','config'))
   expect_equal(names(jsonList$mapMarkers$data), c('geoAggregateVariableDetails','label','value'))
-  expect_equal(names(jsonList$mapMarkers$config), c('completeCasesAllVars','completeCasesAxesVars','latitudeVariable','longitudeVariable','viewport','rankedValues','overlayValues','xVariableDetails'))
+  expect_equal(names(jsonList$mapMarkers$config), c('variables','completeCasesAllVars','completeCasesAxesVars','viewport','rankedValues','overlayValues'))
   expect_equal(jsonList$mapMarkers$config$rankedValues, c('5','8','3','9','7','4','2','Other'))
   expect_equal(class(jsonList$mapMarkers$config$rankedValues), 'character')
   expect_equal(jsonList$mapMarkers$config$overlayValues, c('2','3','4','5','7','8','9','Other'))
   expect_equal(class(jsonList$mapMarkers$config$overlayValues), 'character')
-  expect_equal(names(jsonList$mapMarkers$config$xVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$mapMarkers$config$variables$variableSpec), c('variableId','entityId'))
   expect_equal(class(unlist(jsonList$mapMarkers$config$viewport)), 'numeric')
-  expect_equal(jsonList$mapMarkers$config$xVariableDetails$variableId, 'int11')
+  expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('cont6','cont5','cat5','int11'))
   expect_equal(names(jsonList$sampleSizeTable), c('geoAggregateVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$geoAggregateVariableDetails$value[[1]]), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
@@ -173,28 +272,38 @@ test_that("mapMarkers() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int11', 'cat5'))
 
-  map <- data.frame('id' = c('entity.int11', 'entity.cat5'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat5', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int11', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
   df <- as.data.frame(testDF)
   df$entity.int11 <- as.character(df$entity.int11)
 
-  dt <- mapMarkers.dt(df, map, value='count')
+  dt <- mapMarkers.dt(df, variables, value='count')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('mapMarkers','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$mapMarkers), c('data','config'))
   expect_equal(names(jsonList$mapMarkers$data), c('geoAggregateVariableDetails','label','value'))
-  expect_equal(names(jsonList$mapMarkers$config), c('completeCasesAllVars','completeCasesAxesVars','viewport','rankedValues','overlayValues','xVariableDetails'))
+  expect_equal(names(jsonList$mapMarkers$config), c('variables','completeCasesAllVars','completeCasesAxesVars','viewport','rankedValues','overlayValues'))
   expect_equal(jsonList$mapMarkers$config$rankedValues, c('5','3','9','8','10','2','6','Other'))
   expect_equal(class(jsonList$mapMarkers$config$rankedValues), 'character')
   expect_equal(jsonList$mapMarkers$config$overlayValues, c('2','3','5','6','8','9','10','Other'))
   expect_equal(class(jsonList$mapMarkers$config$overlayValues), 'character')
-  expect_equal(names(jsonList$mapMarkers$config$xVariableDetails), c('variableId','entityId'))
+  expect_equal(names(jsonList$mapMarkers$config$variables$variableSpec), c('variableId','entityId'))
   expect_equal(class(unlist(jsonList$mapMarkers$config$viewport)), 'NULL')
-  expect_equal(jsonList$mapMarkers$config$xVariableDetails$variableId, 'int11')
+  expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('cat5','int11'))
   expect_equal(names(jsonList$sampleSizeTable), c('geoAggregateVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$geoAggregateVariableDetails$value[[1]]), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
@@ -203,26 +312,36 @@ test_that("mapMarkers() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int11', 'cat5'))
 
-  map <- data.frame('id' = c('entity.cat6', 'entity.cat5'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat5', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
   df <- as.data.frame(testDF)
 
-  dt <- mapMarkers.dt(df, map, value='count')
+  dt <- mapMarkers.dt(df, variables, value='count')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('mapMarkers','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$mapMarkers), c('data','config'))
   expect_equal(names(jsonList$mapMarkers$data), c('geoAggregateVariableDetails','label','value'))
-  expect_equal(names(jsonList$mapMarkers$config), c('completeCasesAllVars','completeCasesAxesVars','viewport','rankedValues','overlayValues','xVariableDetails'))
+  expect_equal(names(jsonList$mapMarkers$config), c('variables','completeCasesAllVars','completeCasesAxesVars','viewport','rankedValues','overlayValues'))
   expect_equal(jsonList$mapMarkers$config$rankedValues, c('cat6_e','cat6_b','cat6_d','cat6_a','cat6_c','cat6_f'))
   expect_equal(class(jsonList$mapMarkers$config$rankedValues), 'character')
   expect_equal(jsonList$mapMarkers$config$overlayValues, c('cat6_a','cat6_b','cat6_c','cat6_d','cat6_e','cat6_f'))
   expect_equal(class(jsonList$mapMarkers$config$overlayValues), 'character')
-  expect_equal(names(jsonList$mapMarkers$config$xVariableDetails), c('variableId','entityId'))
-  expect_equal(jsonList$mapMarkers$config$xVariableDetails$variableId, 'cat6')
+  expect_equal(names(jsonList$mapMarkers$config$variables$variableSpec), c('variableId','entityId'))
+  expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('cat5','cat6'))
   expect_equal(names(jsonList$sampleSizeTable), c('geoAggregateVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$geoAggregateVariableDetails$value[[1]]), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
@@ -231,25 +350,36 @@ test_that("mapMarkers() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('cat6', 'cat5'))
 
-  map <- data.frame('id' = c('entity.cat6', 'entity.cat5'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'),
-                    'displayLabel' = c('xLabel','panelLabel'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat5', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      displayName = "panelLabel",
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      displayName = "xLabel",
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mapMarkers.dt(df, map, value='count')
+  dt <- mapMarkers.dt(df, variables, value='count')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('mapMarkers','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$mapMarkers), c('data','config'))
   expect_equal(names(jsonList$mapMarkers$data), c('geoAggregateVariableDetails','label','value'))
-  expect_equal(names(jsonList$mapMarkers$config), c('completeCasesAllVars','completeCasesAxesVars','viewport','rankedValues','overlayValues','xVariableDetails'))
+  expect_equal(names(jsonList$mapMarkers$config), c('variables','completeCasesAllVars','completeCasesAxesVars','viewport','rankedValues','overlayValues'))
   expect_equal(jsonList$mapMarkers$config$rankedValues, c('cat6_e','cat6_b','cat6_d','cat6_a','cat6_c','cat6_f'))
   expect_equal(class(jsonList$mapMarkers$config$rankedValues), 'character')
   expect_equal(jsonList$mapMarkers$config$overlayValues, c('cat6_a','cat6_b','cat6_c','cat6_d','cat6_e','cat6_f'))
   expect_equal(class(jsonList$mapMarkers$config$overlayValues), 'character')
-  expect_equal(names(jsonList$mapMarkers$config$xVariableDetails), c('variableId','entityId','displayLabel'))
-  expect_equal(jsonList$mapMarkers$config$xVariableDetails$variableId, 'cat6')
+  expect_equal(names(jsonList$mapMarkers$config$variables$variableSpec), c('variableId','entityId'))
+  expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('cat5','cat6'))
   expect_equal(names(jsonList$sampleSizeTable), c('geoAggregateVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$geoAggregateVariableDetails$value[[1]]), 'character')
   expect_equal(jsonList$sampleSizeTable$geoAggregateVariableDetails$variableId[[1]], 'cat5')
@@ -259,45 +389,63 @@ test_that("mapMarkers() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId','displayLabel'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('cat6', 'cat5'))
   
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat5', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      displayName = "panelLabel",
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  map <- data.frame('id' = c('entity.cat6', 'entity.cat5'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'),
-                    'displayLabel' = c('','panelLabel'), stringsAsFactors=FALSE)
-
-  dt <- mapMarkers.dt(df, map, value='count')
+  dt <- mapMarkers.dt(df, variables, value='count')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('mapMarkers','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$mapMarkers$data$geoAggregateVariableDetails), c('variableId','entityId','value','displayLabel'))
   expect_equal(jsonList$mapMarkers$data$geoAggregateVariableDetails$variableId[[1]], 'cat5')
-  expect_equal(names(jsonList$mapMarkers$config), c('completeCasesAllVars','completeCasesAxesVars','viewport','rankedValues','overlayValues','xVariableDetails'))
+  expect_equal(names(jsonList$mapMarkers$config), c('variables','completeCasesAllVars','completeCasesAxesVars','viewport','rankedValues','overlayValues'))
   expect_equal(jsonList$mapMarkers$config$rankedValues, c('cat6_e','cat6_b','cat6_d','cat6_a','cat6_c','cat6_f'))
   expect_equal(class(jsonList$mapMarkers$config$rankedValues), 'character')
   expect_equal(jsonList$mapMarkers$config$overlayValues, c('cat6_a','cat6_b','cat6_c','cat6_d','cat6_e','cat6_f'))
   expect_equal(class(jsonList$mapMarkers$config$overlayValues), 'character')
-  expect_equal(names(jsonList$mapMarkers$config$xVariableDetails), c('variableId','entityId'))
-  expect_equal(jsonList$mapMarkers$config$xVariableDetails$variableId, 'cat6')
+  expect_equal(names(jsonList$mapMarkers$config$variables$variableSpec), c('variableId','entityId'))
+  expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('cat5','cat6'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId','displayLabel'))
   expect_equal(class(jsonList$sampleSizeTable$geoAggregateVariableDetails$value[[1]]), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   
-  
-  map <- data.frame('id' = c('entity.int7', 'entity.int6'),
-                    'plotRef' = c('geoAggregateVariable', 'xAxisVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
-  
-  dt <- mapMarkers.dt(df, map, value='count')
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int7', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'))
+  ))
+
+  dt <- mapMarkers.dt(df, variables, value='count')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('mapMarkers','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$mapMarkers), c('data','config'))
   expect_equal(names(jsonList$mapMarkers$data), c('geoAggregateVariableDetails','label','value'))
-  expect_equal(names(jsonList$mapMarkers$config), c('completeCasesAllVars','completeCasesAxesVars','viewport','binSpec','binSlider','overlayValues','rankedValues','xVariableDetails'))
-  expect_equal(names(jsonList$mapMarkers$config$xVariableDetails), c('variableId','entityId'))
-  expect_equal(jsonList$mapMarkers$config$xVariableDetails$variableId, 'int6')
+  expect_equal(names(jsonList$mapMarkers$config), c('variables','completeCasesAllVars','completeCasesAxesVars','viewport','binSpec','binSlider','overlayValues','rankedValues'))
+  expect_equal(names(jsonList$mapMarkers$config$variables$variableSpec), c('variableId','entityId'))
+  expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('int7','int6'))
   expect_equal(jsonList$mapMarkers$config$rankedValues, c('[1, 2]', '(5, 6]', '(2, 3]', '(3, 4]', '(4, 5]'))
   expect_equal(class(jsonList$mapMarkers$config$rankedValues), 'character')
   expect_equal(jsonList$mapMarkers$config$overlayValues, c('[1, 2]','(2, 3]','(3, 4]','(4, 5]','(5, 6]'))
@@ -311,22 +459,32 @@ test_that("mapMarkers() returns appropriately formatted json", {
 
 
   # With continuous x var (< 9 values)
-  map <- data.frame('id' = c('entity.int6', 'entity.cat5'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('NUMBER', 'STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat5', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'))
+  ))
 
   df <- as.data.frame(testDF)
 
-  dt <- mapMarkers.dt(df, map, value='count')
+  dt <- mapMarkers.dt(df, variables, value='count')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('mapMarkers','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$mapMarkers), c('data','config'))
   expect_equal(names(jsonList$mapMarkers$data), c('geoAggregateVariableDetails','label','value'))
-  expect_equal(names(jsonList$mapMarkers$config), c('completeCasesAllVars','completeCasesAxesVars','viewport','binSpec','binSlider','overlayValues','rankedValues','xVariableDetails'))
-  expect_equal(names(jsonList$mapMarkers$config$xVariableDetails), c('variableId','entityId'))
-  expect_equal(jsonList$mapMarkers$config$xVariableDetails$variableId, 'int6')
+  expect_equal(names(jsonList$mapMarkers$config), c('variables','completeCasesAllVars','completeCasesAxesVars','viewport','binSpec','binSlider','overlayValues','rankedValues'))
+  expect_equal(names(jsonList$mapMarkers$config$variables$variableSpec), c('variableId','entityId'))
+  expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('cat5','int6'))
   expect_equal(jsonList$mapMarkers$config$rankedValues, c('[1, 2]', '(5, 6]', '(2, 3]', '(3, 4]', '(4, 5]'))
   expect_equal(class(jsonList$mapMarkers$config$rankedValues), 'character')
   expect_equal(jsonList$mapMarkers$config$overlayValues, c('[1, 2]','(2, 3]','(3, 4]','(4, 5]','(5, 6]'))
@@ -343,48 +501,70 @@ test_that("mapMarkers() returns appropriately formatted json", {
 
 
 test_that("mapMarkers.dt() returns correct information about missing data", {
-  map <- data.frame('id' = c('entity.contA', 'entity.cat4'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
   # Add nMissing missing values to each column
   nMissing <- 10
   df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
 
-  dt <- mapMarkers.dt(df, map, value='count')
+  dt <- mapMarkers.dt(df, variables, value='count')
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - nMissing
   expect_equal(all(completecasestable$completeCases == nrow(df)-nMissing), TRUE)
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-  dt <- mapMarkers.dt(df, map, value='count', evilMode = 'strataVariables')
+  dt <- mapMarkers.dt(df, variables, value='count', evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA)))
-  dt <- mapMarkers.dt(df, map, value='count', evilMode = 'allVariables')
-  expect_equal(attr(dt, 'completeCasesAllVars')[1], sum(complete.cases(df[, map$id, with=FALSE])))
+  dt <- mapMarkers.dt(df, variables, value='count', evilMode = 'allVariables')
+  cols <- unlist(lapply(as.list(variables), function(x) {veupathUtils::getColName(x@variableSpec)}))
+  expect_equal(attr(dt, 'completeCasesAllVars')[1], sum(complete.cases(df[, cols, with=FALSE])))
 
 
   # Numeric x
-  map <- data.frame('id' = c('entity.contA', 'entity.cat4'),
-                    'plotRef' = c('xAxisVariable', 'geoAggregateVariable'),
-                    'dataType' = c('NUMERIC', 'STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'))
+  ))
 
   # Add nMissing missing values to each column
   nMissing <- 10
   df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
 
-  dt <- mapMarkers.dt(df, map, value='count')
+  dt <- mapMarkers.dt(df, variables, value='count')
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - nMissing
   expect_equal(all(completecasestable$completeCases == nrow(df)-nMissing), TRUE)
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-  dt <- mapMarkers.dt(df, map, value='count', evilMode = 'strataVariables')
+  dt <- mapMarkers.dt(df, variables, value='count', evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA)))
   # TODO box cant have evilMode = 'allVariables' bc we cant calculate bins with NA
-  # dt <- mapMarkers.dt(df, map, value='count', evilMode = 'allVariables')
+  # dt <- mapMarkers.dt(df, variables, value='count', evilMode = 'allVariables')
   # expect_equal(attr(dt, 'completeCasesAllVars')[1], sum(complete.cases(df[, map$id, with=FALSE])))
 })
