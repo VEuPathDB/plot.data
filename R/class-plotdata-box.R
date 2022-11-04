@@ -210,7 +210,7 @@ box.dt <- function(data, variables,
   
   # Handle collectionVars
   if (!is.null(collectionVM)) {
-    if (!collectionVM@plotReference@value %in% c('overlay', 'facet1', 'facet2')) stop('collectionVar error: collectionVariablePlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for scatter.')
+    if (!collectionVM@plotReference@value %in% c('xAxis', 'facet1', 'facet2')) stop('Collection variable PlotReference must be either xAxis, facet1, or facet2 for boxplot.')
   }
 
 

@@ -128,10 +128,13 @@ getJSON <- function(.pd, evilMode) {
     statsTable <- addStrataVariableDetails(statsTable, useGradientColorscale)
     attr$names <- names(statsTable)
     statsTable <- veupathUtils::setAttrFromList(statsTable, attr)
-    if (veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable) %in% names(statsTable)) {
-      x <- veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable)
-      names(statsTable)[names(statsTable) == x] <- 'xVariableDetails'
-      statsTable$xVariableDetails <- lapply(statsTable$xVariableDetails, makeVariableDetails, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
+    xVM <- veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'xAxis')
+    if (!is.null(xVM)) {
+      x <- veupathUtils::getColName(xVM@variableSpec)
+      if (x %in% names(statsTable)) {
+        names(statsTable)[names(statsTable) == x] <- 'xVariableDetails'
+        statsTable$xVariableDetails <- lapply(statsTable$xVariableDetails, makeVariableDetails, xVM)
+      }
     }
   }
 
