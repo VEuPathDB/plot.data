@@ -247,7 +247,7 @@ scattergl.dt <- function(data,
 
   # Handle collectionVars
   if (!is.null(collectionVM)) {
-    if (!collectionVM@plotReference@value %in% c('overlay', 'facet1', 'facet2')) stop('collectionVar error: collectionVariablePlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for scatter.')
+    if (!collectionVM@plotReference@value %in% c('overlay', 'facet1', 'facet2')) stop('Collection variable PlotReference must be either overlayVariable, facetVariable1, or facetVariable2 for scatter.')
   }
 
   .scatter <- newScatterPD(.dt = data,

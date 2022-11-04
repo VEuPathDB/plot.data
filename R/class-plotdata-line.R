@@ -244,16 +244,18 @@ lineplot.dt <- function(data,
   if (is.null(xVM)) {
     stop("Must provide x-axis variable for plot type line.")
   }
+
   yVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'yAxis')
+  collectionVM <- veupathUtils::findCollectionVariableMetadata(variables)
   if (is.null(yVM)) {
-    if (is.null(veupathUtils::findCollectionVariableMetadata(variables))) {
+    if (is.null(collectionVM)) {
       stop("Must provide y-axis variable for plot type line.")
     }
   }
 
   # Handle collectionVars
   if (!is.null(collectionVM)) {
-    if (!collectionVM@plotReference@value %in% c('overlay', 'facet1', 'facet2')) stop('collectionVar error: collectionVariablePlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for scatter.')
+    if (!collectionVM@plotReference@value %in% c('overlay', 'facet1', 'facet2')) stop('Collection variable PlotReference must be either overlay, facet1, or facet2 for lineplot.')
   }
 
 
