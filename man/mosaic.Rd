@@ -50,20 +50,20 @@ df <- data.table('entity.xvar' = sample(c('a','b','c'), 100, replace=T),
                  'entity.yvar' = sample(c('1','2','3'), 100, replace=T), stringsAsFactors = F)
 
 # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
-variables <- new("VariableMetadataList",
-  new("VariableMetadata",
-    variableClass = new("VariableClass", value = 'native'),
-    variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
-    plotReference = new("PlotReference", value = 'xAxis'),
-    dataType = new("DataType", value = 'STRING'),
-    dataShape = new("DataShape", value = 'CATEGORICAL')
+variables <- veupathUtils::VariableMetadataList(
+  veupathUtils::VariableMetadata(
+    variableClass = veupathUtils::VariableClass(value = 'native'),
+    variableSpec = veupathUtils::VariableSpec(variableId = 'xvar', entityId = 'entity'),
+    plotReference = veupathUtils::PlotReference(value = 'xAxis'),
+    dataType = veupathUtils::DataType(value = 'STRING'),
+    dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
   ),
-  new("VariableMetadata",
-    variableClass = new("VariableClass", value = 'native'),
-    variableSpec = new("VariableSpec", variableId = 'yvar', entityId = 'entity'),
-    plotReference = new("PlotReference", value = 'yAxis'),
-    dataType = new("DataType", value = 'STRING'),
-    dataShape = new("DataShape", value = 'CATEGORICAL')
+  veupathUtils::VariableMetadata(
+    variableClass = veupathUtils::VariableClass(value = 'native'),
+    variableSpec = veupathUtils::VariableSpec(variableId = 'yvar', entityId = 'entity'),
+    plotReference = veupathUtils::PlotReference(value = 'yAxis'),
+    dataType = veupathUtils::DataType(value = 'STRING'),
+    dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
   )
 )
 

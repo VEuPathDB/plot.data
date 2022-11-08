@@ -6,7 +6,7 @@
 \usage{
 newMapMarkersPD(
   .dt = data.table::data.table(),
-  variables = new("VariableMetadataList"),
+  variables = veupathUtils::VariableMetadataList(),
   value = character(),
   binWidth,
   binReportValue = character(),

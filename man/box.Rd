@@ -59,27 +59,27 @@ df <- data.table('entity.xvar' = sample(c('a','b','c'), 100, replace=T),
                  'entity.overlay' = sample(c('red','green','blue'), 100, replace=T))
 
 # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
-variables <- new("VariableMetadataList",
-  new("VariableMetadata",
-    variableClass = new("VariableClass", value = 'native'),
-    variableSpec = new("VariableSpec", variableId = 'xvar', entityId = 'entity'),
-    plotReference = new("PlotReference", value = 'xAxis'),
-    dataType = new("DataType", value = 'STRING'),
-    dataShape = new("DataShape", value = 'CATEGORICAL')
+variables <- veupathUtils::VariableMetadataList(
+  veupathUtils::VariableMetadata(
+    variableClass = veupathUtils::VariableClass(value = 'native'),
+    variableSpec = veupathUtils::VariableSpec(variableId = 'xvar', entityId = 'entity'),
+    plotReference = veupathUtils::PlotReference(value = 'xAxis'),
+    dataType = veupathUtils::DataType(value = 'STRING'),
+    dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
   ),
-  new("VariableMetadata",
-    variableClass = new("VariableClass", value = 'native'),
-    variableSpec = new("VariableSpec", variableId = 'overlay', entityId = 'entity'),
-    plotReference = new("PlotReference", value = 'overlay'),
-    dataType = new("DataType", value = 'STRING'),
-    dataShape = new("DataShape", value = 'CATEGORICAL')
+  veupathUtils::VariableMetadata(
+    variableClass = veupathUtils::VariableClass(value = 'native'),
+    variableSpec = veupathUtils::VariableSpec(variableId = 'overlay', entityId = 'entity'),
+    plotReference = veupathUtils::PlotReference(value = 'overlay'),
+    dataType = veupathUtils::DataType(value = 'STRING'),
+    dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
   ),
-  new("VariableMetadata",
-    variableClass = new("VariableClass", value = 'native'),
-    variableSpec = new("VariableSpec", variableId = 'yvar', entityId = 'entity'),
-    plotReference = new("PlotReference", value = 'yAxis'),
-    dataType = new("DataType", value = 'NUMBER'),
-    dataShape = new("DataShape", value = 'CONTINUOUS')
+  veupathUtils::VariableMetadata(
+    variableClass = veupathUtils::VariableClass(value = 'native'),
+    variableSpec = veupathUtils::VariableSpec(variableId = 'yvar', entityId = 'entity'),
+    plotReference = veupathUtils::PlotReference(value = 'yAxis'),
+    dataType = veupathUtils::DataType(value = 'NUMBER'),
+    dataShape = veupathUtils::DataShape(value = 'CONTINUOUS')
   )
 )
 
