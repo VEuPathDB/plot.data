@@ -70,7 +70,7 @@ addVariableDetailsToColumn <- function(.pd, variableIdColName) {
   if (!!length(index)) {
     collectionVM <- namedAttrList$variables[[index]]
     collectionColNames <- paste0(collectionVM@variableSpec@entityId, '.', collectionVM@vocabulary)
-    collectionVarSpecs <- lapply(collectionVM@vocabulary, function(x) { new("VariableSpec", variableId = x, entityId = collectionVM@variableSpec@entityId) })
+    collectionVarSpecs <- lapply(collectionVM@vocabulary, function(x) { veupathUtils::VariableSpec(variableId = x, entityId = collectionVM@variableSpec@entityId) })
     .pd[[variableIdColName]][.pd[[variableIdColName]] %in% collectionColNames] <- lapply(as.list(collectionVarSpecs), function(x) {makeVariableDetails(NULL, x)})
   } 
   

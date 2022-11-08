@@ -1,5 +1,5 @@
 newHeatmapPD <- function(.dt = data.table::data.table(),
-                         variables = new("VariableMetadataList"),
+                         variables = veupathUtils::VariableMetadataList(),
                          value = character(),
                          evilMode = character(),
                          verbose = logical(),

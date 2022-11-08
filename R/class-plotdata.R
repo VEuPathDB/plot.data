@@ -81,10 +81,10 @@ newPlotdata <- function(.dt = data.table(),
   # Reshape data and remap variables if collectionVar is specified
   if (!is.null(collectionVarMetadata)) {    
     #is this the only thing we support? if so can we make inferredVarMetadata here based on the collectionVarMetadata?
-    inferredVarMetadata <- new("VariableMetadata",
+    inferredVarMetadata <- veupathUtils::VariableMetadata(
                                 variableClass = collectionVarMetadata@variableClass,
-                                variableSpec = new("VariableSpec", variableId = 'collectionVarValues', entityId = collectionVarMetadata@variableSpec@entityId),
-                                plotReference = new("PlotReference", value = 'yAxis'),
+                                variableSpec = veupathUtils::VariableSpec(variableId = 'collectionVarValues', entityId = collectionVarMetadata@variableSpec@entityId),
+                                plotReference = veupathUtils::PlotReference(value = 'yAxis'),
                                 displayName = paste(collectionVarMetadata@displayName, 'values'),
                                 displayRangeMin = collectionVarMetadata@displayRangeMin,
                                 displayRangeMax = collectionVarMetadata@displayRangeMax,
@@ -102,7 +102,7 @@ newPlotdata <- function(.dt = data.table(),
 
     collectionVarMemberColNames <- unlist(lapply(as.list(collectionVarMetadata@members), veupathUtils::getColName))
     collectionVarMetadata@isCollection = FALSE
-    collectionVarMetadata@members <- new("VariableSpecList")
+    collectionVarMetadata@members <- veupathUtils::VariableSpecList()
  
     validObject(collectionVarMetadata)
     collectionVarIndex <- which(purrr::map(as.list(variables), function(x) {if (x@isCollection) {return(TRUE)}}) %in% TRUE)
