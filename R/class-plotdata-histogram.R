@@ -1,25 +1,6 @@
 #' @importFrom zoo as.yearmon
 newHistogramPD <- function(.dt = data.table::data.table(),
-                         xAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         overlayVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         facetVariable1 = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         facetVariable2 = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                         variables = veupathUtils::VariableMetadataList(),
                          viewport = list('xMin' = NULL,
                                          'xMax' = NULL),
                          binWidth,
@@ -32,19 +13,19 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          class = character()) {
 
   .pd <- newPlotdata(.dt = .dt,
-                     xAxisVariable = xAxisVariable,
-                     overlayVariable = overlayVariable,
-                     facetVariable1 = facetVariable1,
-                     facetVariable2 = facetVariable2,
+                     variables = variables,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "histogram")
 
   attr <- attributes(.pd)
-  x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
-  xType <- attr$xAxisVariable$dataType
-  group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
-  panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
+  variables <- attr$variables
+
+  x <- veupathUtils::findColNamesFromPlotRef(variables, 'xAxis')
+  xType <- veupathUtils::findDataTypesFromPlotRef(variables, 'xAxis')
+  group <- veupathUtils::findColNamesFromPlotRef(variables, 'overlay')
+  panel <- findPanelColName(veupathUtils::findVariableSpecFromPlotRef(variables, 'facet1'), 
+                            veupathUtils::findVariableSpecFromPlotRef(variables, 'facet2'))
 
   if (!length(.pd[[x]])) {
     binSlider <- list('min'=jsonlite::unbox(NA), 'max'=jsonlite::unbox(NA), 'step'=jsonlite::unbox(NA))
@@ -168,15 +149,17 @@ validateViewport <- function(viewport, xType, verbose) {
 validateHistogramPD <- function(.histo, verbose) {
   binSlider <- attr(.histo, 'binSlider')
   stopifnot(validateBinSlider(binSlider))
-  xAxisVariable <- attr(.histo, 'xAxisVariable')
-  if (!xAxisVariable$dataShape == 'CONTINUOUS') {
+  variables <- attr(.histo, 'variables')
+  xtype <- veupathUtils::findDataTypesFromPlotRef(variables, 'xAxis')
+  xShape <- veupathUtils::findDataShapesFromPlotRef(variables, 'xAxis')
+  if (!xShape == 'CONTINUOUS') {
     stop('The independent axis must be continuous for a histogram.')
   }
   binWidth <- attr(.histo, 'binWidth')
   if (!is.null(binWidth)) {
-    if (xAxisVariable$dataType == 'DATE' && !is.character(binWidth)) {
+    if (xType == 'DATE' && !is.character(binWidth)) {
       stop("binWidth must be a character string for histograms of date values.")
-    } else if (xAxisVariable$dataType %in% c('NUMBER', 'INTEGER') && !is.numeric(binWidth)) {
+    } else if (xType %in% c('NUMBER', 'INTEGER') && !is.numeric(binWidth)) {
       stop("binWidth must be numeric for histograms of numeric values.")
     }
   }
@@ -202,15 +185,8 @@ validateHistogramPD <- function(.histo, verbose) {
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
-#' @section Map Structure:
-#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-#' - id: the variable name. Must match column name in the data exactly. \cr
-#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
-#' - naToZero: Options are TRUE, FALSE, or ''. Optional. Indicates whether to replaces NAs with 0, assuming the column is numeric. If set to TRUE, all NAs found within the column should be replaced with 0. Passing '' will result in using the function default, which in plot.data is FALSE. Setting naToZero=TRUE for a string var will throw an error. \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param variables veupathUtils::VariableMetadataList
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
 #' @param value String indicating how to calculate y-values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
@@ -223,14 +199,26 @@ validateHistogramPD <- function(.histo, verbose) {
 #' @importFrom jsonlite unbox
 #' @examples
 #' # Construct example data
-#' df <- data.table('xvar' = rnorm(100),
-#'                  'overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
+#' df <- data.table('entity.xvar' = rnorm(100),
+#'                  'entity.overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'overlay'),
-#'                  'plotRef' = c('xAxisVariable', 'overlayVariable'),
-#'                  'dataType' = c('NUMBER', 'STRING'),
-#'                  'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- veupathUtils::VariableMetadataList(
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'xAxis'),
+#'     dataType = veupathUtils::DataType(value = 'STRING'),
+#'     dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+#'   ),
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'overlay', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'overlay'),
+#'     dataType = veupathUtils::DataType(value = 'STRING'),
+#'     dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+#'   )
+#' )
 #' 
 #' viewport <- list('xMin'=min(df$xvar), 'xMax'=max(df$xvar))
 #' 
@@ -238,7 +226,7 @@ validateHistogramPD <- function(.histo, verbose) {
 #' dt <- histogram.dt(df, map, binWidth=0.3, value='count', barmode='stack', viewport=viewport)
 #' @export
 histogram.dt <- function(data, 
-                         map, 
+                         variables, 
                          binWidth = NULL, 
                          value = c('count', 'proportion'), 
                          binReportValue = c('binWidth', 'numBins'),
@@ -257,26 +245,20 @@ histogram.dt <- function(data,
     data.table::setDT(data)
   }
 
-  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
-  if (is.null(xAxisVariable$variableId)) {
-    stop("Must provide xAxisVariable for plot type histogram.")
+  xVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'xAxis')
+  if (is.null(xVM)) {
+    stop("Must provide x-axis variable for plot type histogram.")
   } else {
-    if (xAxisVariable$dataType %in% c('NUMBER', 'INTEGER') & !is.null(binWidth)) {
+    if (xVM@dataType@value %in% c('NUMBER', 'INTEGER') & !is.null(binWidth)) {
       binWidth <- suppressWarnings(as.numeric(binWidth))
       if (is.na(binWidth)) {
         stop("binWidth must be numeric for histograms of numeric values.")
       }
     }
   }
-  overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
   .histo <- newHistogramPD(.dt = data,
-                           xAxisVariable = xAxisVariable,
-                           overlayVariable = overlayVariable,
-                           facetVariable1 = facetVariable1,
-                           facetVariable2 = facetVariable2,
+                           variables = variables,
                            viewport = viewport,
                            binWidth = binWidth,
                            binReportValue = binReportValue,
@@ -308,15 +290,8 @@ histogram.dt <- function(data,
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
-#' @section Map Structure:
-#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-#' - id: the variable name. Must match column name in the data exactly. \cr
-#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
-#' - naToZero: Options are TRUE, FALSE, or ''. Optional. Indicates whether to replaces NAs with 0, assuming the column is numeric. If set to TRUE, all NAs found within the column should be replaced with 0. Passing '' will result in using the function default, which in plot.data is FALSE. Setting naToZero=TRUE for a string var will throw an error. \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
+#' @param variables veupathUtils::VariableMetadataList
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date 
 #' @param value String indicating how to calculate y-values ('count, 'proportion')
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
@@ -328,14 +303,26 @@ histogram.dt <- function(data,
 #' @importFrom jsonlite unbox
 #' @examples
 #' # Construct example data
-#' df <- data.table('xvar' = rnorm(100),
-#'                  'overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
+#' df <- data.table('entity.xvar' = rnorm(100),
+#'                  'entity.overlay' = sample(c('red','green','blue'), 100, replace=T), stringsAsFactors = F)
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'overlay'),
-#'                  'plotRef' = c('xAxisVariable', 'overlayVariable'),
-#'                  'dataType' = c('NUMBER', 'STRING'),
-#'                  'dataShape' = c('CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- veupathUtils::VariableMetadataList(
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'xAxis'),
+#'     dataType = veupathUtils::DataType(value = 'STRING'),
+#'     dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+#'   ),
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'overlay', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'overlay'),
+#'     dataType = veupathUtils::DataType(value = 'STRING'),
+#'     dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+#'   )
+#' )
 #' 
 #' viewport <- list('xMin'=min(df$xvar), 'xMax'=max(df$xvar))
 #' 
@@ -343,7 +330,7 @@ histogram.dt <- function(data,
 #' histogram(df, map, binWidth=0.3, value='count', barmode='stack', viewport=viewport)
 #' @export
 histogram <- function(data, 
-                      map, 
+                      variables, 
                       binWidth = NULL, 
                       value = c('count', 'proportion'), 
                       binReportValue = c('binWidth', 'numBins'), 
@@ -354,7 +341,7 @@ histogram <- function(data,
 
   verbose <- veupathUtils::matchArg(verbose)
 
-  .histo <- histogram.dt(data, map, binWidth, value, binReportValue, barmode, viewport, evilMode, verbose)
+  .histo <- histogram.dt(data, variables, binWidth, value, binReportValue, barmode, viewport, evilMode, verbose)
   outFileName <- writeJSON(.histo, evilMode, 'histogram', verbose)
 
   return(outFileName)

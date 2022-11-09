@@ -1,40 +1,72 @@
 context('mosaic')
 
 test_that("mosaic.dt() does not fail when 2x2 version only has 1 value on an axis.", {
-  map <- data.frame('id' = c('entity.cat1', 'entity.cat2'),
-                    'plotRef' = c('xAxisVariable', 'yAxisVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'),
-                    stringsAsFactors = FALSE)
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat2', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat1', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
+
   df <- testDF
 
-  dt <- mosaic.dt(df, map, 'bothRatios')
+  dt <- mosaic.dt(df, variables, 'bothRatios')
   expect_equal(dt$xLabel[[1]], 'cat1_a')
   expect_equal(dt$yLabel[[1]][[1]], c('cat2_a', 'cat2_b'))
   expect_equal(dt$value[[1]][[1]], c(251, 249))
 
-  map <- data.frame('id' = c('entity.cat1', 'entity.cat2'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'),
-                    stringsAsFactors = FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat1', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat2', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
+  
   df <- testDF
 
-  dt <- mosaic.dt(df, map, 'bothRatios')
+  dt <- mosaic.dt(df, variables, 'bothRatios')
   expect_equal(dt$xLabel[[1]], c('cat2_a', 'cat2_b'))
   expect_equal(dt$yLabel[[1]][[1]], 'cat1_a')
   expect_equal(dt$value[[1]][[1]], 251)
 })
 
 test_that("mosaic.dt() does not fail when there are no complete cases.", {
-  map <- data.frame('id' = c('entity.binary1', 'entity.binary2'),
-                    'plotRef' = c('xAxisVariable', 'yAxisVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'),
-                    stringsAsFactors = FALSE)
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binary2', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binary1', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
+  
   df <- data.noneComplete
 
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   attr <- attributes(dt)
   expect_equal(attr$completeCasesAllVars[1], 0)
   expect_equal(is.na(attr$statsTable$oddsratio), TRUE)
@@ -46,18 +78,35 @@ test_that("mosaic.dt() does not fail when there are no complete cases.", {
 })
 
 test_that("mosaic.dt() returns a valid plot.data mosaic object", {
-  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+ 
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
   df <- as.data.frame(testDF)
 
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   expect_is(dt, 'plot.data')
   expect_is(dt, 'mosaic')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','facetVariable1', 'statsTable'))
+  expect_equal(names(namedAttrList),c('variables', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','statsTable'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 3)
@@ -66,16 +115,32 @@ test_that("mosaic.dt() returns a valid plot.data mosaic object", {
   expect_equal(nrow(sampleSizes), 4)
   expect_equal(names(namedAttrList$statsTable), c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','entity.cat4'))
 
-  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mosaic.dt(df, map, statistic='chiSq')
+  dt <- mosaic.dt(df, variables, statistic='chiSq')
   expect_is(dt, 'plot.data')
   expect_is(dt, 'mosaic')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','facetVariable1', 'statsTable'))
+  expect_equal(names(namedAttrList),c('variables', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','statsTable'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 3)
@@ -84,16 +149,32 @@ test_that("mosaic.dt() returns a valid plot.data mosaic object", {
   expect_equal(nrow(sampleSizes), 4)
   expect_equal(names(namedAttrList$statsTable), c('chisq','pvalue', 'degreesFreedom','entity.cat4'))
 
-  map <- data.frame('id' = c('entity.cat3', 'entity.cat7', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat7', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   expect_is(dt, 'plot.data')
   expect_is(dt, 'mosaic')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','facetVariable1', 'statsTable'))
+  expect_equal(names(namedAttrList),c('variables', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','statsTable'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 3)
@@ -104,14 +185,31 @@ test_that("mosaic.dt() returns a valid plot.data mosaic object", {
 })
 
 test_that("mosaic.dt() returns plot data and config of the appropriate types", {
-  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
   df <- as.data.frame(testDF)
 
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   expect_equal(class(unlist(dt$xLabel)), 'character')
   expect_equal(class(unlist(dt$yLabel)), 'character')
   expect_equal(class(unlist(dt$entity.cat4)), 'character')
@@ -132,12 +230,28 @@ test_that("mosaic.dt() returns plot data and config of the appropriate types", {
   expect_equal(class(unlist(namedAttrList$statsTable$pvalue)), c('scalar', 'numeric'))
   expect_equal(class(unlist(namedAttrList$statsTable$entity.cat4)), 'character')
 
-  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mosaic.dt(df, map, statistic = 'chiSq')
+  dt <- mosaic.dt(df, variables, statistic = 'chiSq')
   expect_equal(class(unlist(dt$xLabel)), 'character')
   expect_equal(class(unlist(dt$yLabel)), 'character')
   expect_equal(class(unlist(dt$entity.cat4)), 'character')
@@ -156,12 +270,28 @@ test_that("mosaic.dt() returns plot data and config of the appropriate types", {
   expect_equal(class(unlist(namedAttrList$statsTable$pvalue)), c('scalar', 'numeric'))
   expect_equal(class(unlist(namedAttrList$statsTable$entity.cat4)), 'character')
 
-  map <- data.frame('id' = c('entity.cat3', 'entity.cat7', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat7', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   expect_equal(class(unlist(dt$xLabel)), 'character')
   expect_equal(class(unlist(dt$yLabel)), 'character')
   expect_equal(class(unlist(dt$entity.cat4)), 'character')
@@ -182,14 +312,31 @@ test_that("mosaic.dt() returns plot data and config of the appropriate types", {
 })
 
 test_that("mosaic.dt() returns an appropriately sized data.table", {
-  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
+  
   df <- as.data.frame(testDF)
 
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   expect_is(dt, 'data.table')
   expect_is(dt$value, 'list')
   expect_is(dt$value[[1]], 'list')
@@ -205,12 +352,22 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(names(sampleSizeTable),c('entity.cat4','entity.binA','size'))
   expect_equal(class(sampleSizeTable$entity.binA[[1]]), 'character')
 
-  map <- data.frame('id' = c('entity.binB', 'entity.binA'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   expect_is(dt, 'data.table')
   expect_is(dt$value, 'list')
   expect_is(dt$value[[1]], 'list')
@@ -226,12 +383,28 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(names(sampleSizeTable),c('entity.binA','size'))
   expect_equal(class(sampleSizeTable$entity.binA[[1]]), 'character')
 
-  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mosaic.dt(df, map, statistic = 'chiSq')
+  dt <- mosaic.dt(df, variables, statistic = 'chiSq')
   expect_is(dt, 'data.table')
   expect_is(dt$value, 'list')
   expect_is(dt$value[[1]], 'list')
@@ -247,12 +420,22 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(names(sampleSizeTable),c('entity.cat4','entity.binA','size'))
   expect_equal(class(sampleSizeTable$entity.binA[[1]]), 'character')
 
-  map <- data.frame('id' = c('entity.binB', 'entity.binA'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mosaic.dt(df, map, statistic = 'chiSq')
+  dt <- mosaic.dt(df, variables, statistic = 'chiSq')
   expect_is(dt, 'data.table')
   expect_is(dt$value, 'list')
   expect_is(dt$value[[1]], 'list')
@@ -268,12 +451,28 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(names(sampleSizeTable),c('entity.binA','size'))
   expect_equal(class(sampleSizeTable$entity.binA[[1]]), 'character')
 
-  map <- data.frame('id' = c('entity.cat3', 'entity.cat7', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat7', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   expect_is(dt, 'data.table')
   expect_is(dt$value, 'list')
   expect_is(dt$value[[1]], 'list')
@@ -289,12 +488,22 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(names(sampleSizeTable),c('entity.cat4','entity.cat7','size'))
   expect_equal(class(sampleSizeTable$entity.cat7[[1]]), 'character')
 
-  map <- data.frame('id' = c('entity.cat3', 'entity.cat7'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat7', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   expect_is(dt, 'data.table')
   expect_is(dt$value, 'list')
   expect_is(dt$value[[1]], 'list')
@@ -311,12 +520,22 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(class(sampleSizeTable$entity.cat7[[1]]), 'character')
 
   # With factors
-  map <- data.frame('id' = c('entity.factor3', 'entity.factor6'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'factor3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'factor6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   expect_is(dt, 'data.table')
   expect_is(dt$value, 'list')
   expect_is(dt$value[[1]], 'list')
@@ -332,13 +551,28 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(names(sampleSizeTable),c('entity.factor6','size'))
   expect_equal(class(sampleSizeTable$entity.factor6[[1]]), 'character')
 
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'factor3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat7', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  map <- data.frame('id' = c('entity.cat3', 'entity.cat7', 'entity.factor3'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   expect_is(dt, 'data.table')
   expect_is(dt$value, 'list')
   expect_is(dt$value[[1]], 'list')
@@ -354,13 +588,34 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(names(sampleSizeTable),c('entity.factor3','entity.cat7','size'))
   expect_equal(class(sampleSizeTable$entity.cat7[[1]]), 'character')
 
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'factor6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet2'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'factor3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  map <- data.frame('id' = c('entity.cat3', 'entity.int6', 'entity.factor3', 'entity.factor6'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2'),
-                    'dataType' = c('STRING', 'STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   expect_is(dt, 'data.table')
   expect_is(dt$value, 'list')
   expect_is(dt$value[[1]], 'list')
@@ -375,40 +630,32 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   sampleSizeTable <- sampleSizeTable(dt)
   expect_equal(names(sampleSizeTable),c('panel','entity.int6','size'))
   expect_equal(class(sampleSizeTable$entity.int6[[1]]), 'character')
-  
-  
-  # w forceStringType implemented we shouldnt see categorical numbers any longer
-  #map <- data.frame('id' = c('entity.int6', 'entity.int7', 'entity.cat5'),
-  #                  'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-  #                  'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
-  #                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  
-  #dt <- mosaic.dt(df, map)
-  #expect_is(dt, 'data.table')
-  #expect_is(dt$value, 'list')
-  #expect_is(dt$value[[1]], 'list')
-  #expect_equal(nrow(dt),5)
-  #expect_equal(names(dt),c('xLabel', 'yLabel', 'value', 'entity.cat5'))
-  #expect_equal(dt$xLabel[[1]],c('1','2','3','4','5','6','7'))
-  #expect_equal(dt$yLabel[[1]][[1]],c('1','2','3','4','5','6'))
-  #expect_equal(length(dt$value[[1]]),7)
-  #expect_equal(length(dt$value[[1]][[1]]),6)
-  #statsTable <- statsTable(dt)
-  #expect_equal(names(statsTable), c(c('chisq', 'pvalue', 'degreesFreedom', 'entity.cat5')))
-  #sampleSizeTable <- sampleSizeTable(dt)
-  #expect_equal(names(sampleSizeTable),c('entity.cat5','entity.int7','size'))
-  #expect_equal(class(sampleSizeTable$entity.int7[[1]]), 'character')
-
-  
 })
 
 test_that("mosaic() returns appropriately formatted json", {
-  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat1'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-
-  dt <- mosaic.dt(testDF, map)
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat1', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
+  
+  dt <- mosaic.dt(testDF, variables)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
 
@@ -418,9 +665,9 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$mosaic$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$mosaic$data$facetVariableDetails), 1)
   expect_equal(jsonList$mosaic$data$facetVariableDetails[[1]]$variableId, 'cat1')
-  expect_equal(names(jsonList$mosaic$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
-  expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
-  expect_equal(jsonList$mosaic$config$xVariableDetails$variableId, 'binA')
+  expect_equal(names(jsonList$mosaic$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$mosaic$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$mosaic$config$variables$variableSpec$variableId, c('cat1','binB','binA'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
@@ -430,14 +677,30 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('binA', 'binB', 'cat1'))
 
-  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
   df <- as.data.frame(testDF)
 
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
@@ -447,9 +710,9 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$mosaic$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$mosaic$data$facetVariableDetails), 4)
   expect_equal(jsonList$mosaic$data$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$mosaic$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
-  expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
-  expect_equal(jsonList$mosaic$config$xVariableDetails$variableId, 'binA')
+  expect_equal(names(jsonList$mosaic$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$mosaic$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$mosaic$config$variables$variableSpec$variableId, c('cat4','binB','binA'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
@@ -459,13 +722,31 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('binA', 'binB', 'cat4'))
 
-  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'),
-                    'displayLabel' = c('groupLabel','varLabel','panelLabel'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      displayName = "panelLabel",
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      displayName = "groupLabel",
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      displayName = "varLabel",
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
 
@@ -475,10 +756,9 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$mosaic$data$facetVariableDetails[[1]]),c('variableId','entityId','value', 'displayLabel'))
   expect_equal(length(jsonList$mosaic$data$facetVariableDetails), 4)
   expect_equal(jsonList$mosaic$data$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$mosaic$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
-  expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId', 'displayLabel'))
-  expect_equal(jsonList$mosaic$config$xVariableDetails$variableId, 'binA')
-  expect_equal(names(jsonList$mosaic$config$yVariableDetails),c('variableId','entityId', 'displayLabel'))
+  expect_equal(names(jsonList$mosaic$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$mosaic$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$mosaic$config$variables$variableSpec$variableId, c('cat4','binB','binA'))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
@@ -488,61 +768,95 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId', 'displayLabel'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('binA', 'binB', 'cat4'))
 
-  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'),
-                    'displayLabel' = c('','varLabel',''), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      displayName = "varLabel",
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
 
   expect_equal(names(jsonList$mosaic$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$mosaic$data$facetVariableDetails), 4)
-  expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId', 'displayLabel'))
-  expect_equal(names(jsonList$mosaic$config$yVariableDetails),c('variableId','entityId'))
+  expect_equal(names(jsonList$mosaic$config$variables$variableSpec),c('variableId','entityId'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId', 'displayLabel'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int7', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'))
+  ))
 
-  map <- data.frame('id' = c('entity.int6', 'entity.int7'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
   expect_equal(names(jsonList),c('mosaic','sampleSizeTable','statsTable','completeCasesTable'))
   expect_equal(names(jsonList$mosaic),c('data','config'))
   expect_equal(names(jsonList$mosaic$data),c('xLabel','yLabel','value'))
-  expect_equal(names(jsonList$mosaic$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
-  expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
-  expect_equal(jsonList$mosaic$config$xVariableDetails$variableId, 'int7')
+  expect_equal(names(jsonList$mosaic$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$mosaic$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$mosaic$config$variables$variableSpec$variableId, c('int6','int7'))
   expect_equal(names(jsonList$sampleSizeTable),c('xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$statsTable),c('chisq','pvalue','degreesFreedom'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
 
-  map <- data.frame('id' = c('entity.int6', 'entity.int7'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int7', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'))
+  ))
 
-  dt <- mosaic.dt(df, map, evilMode = 'strataVariables')
+  dt <- mosaic.dt(df, variables, evilMode = 'strataVariables')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
   expect_equal(names(jsonList),c('mosaic','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$mosaic),c('data','config'))
   expect_equal(names(jsonList$mosaic$data),c('xLabel','yLabel','value'))
-  expect_equal(names(jsonList$mosaic$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
-  expect_equal(names(jsonList$mosaic$config$xVariableDetails),c('variableId','entityId'))
-  expect_equal(jsonList$mosaic$config$xVariableDetails$variableId, 'int7')
+  expect_equal(names(jsonList$mosaic$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$mosaic$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$mosaic$config$variables$variableSpec$variableId, c('int6','int7'))
   expect_equal(names(jsonList$sampleSizeTable),c('xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
@@ -550,16 +864,33 @@ test_that("mosaic() returns appropriately formatted json", {
 })
 
 test_that("mosaic.dt() returns correct information about missing data", {
-  map <- data.frame('id' = c('entity.binB', 'entity.binA', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'STRING', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
   # Add nMissing missing values to each column
   nMissing <- 10
   df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
   
-  dt <- mosaic.dt(df, map)
+  dt <- mosaic.dt(df, variables)
   expect_equal(names(statsTable(dt)),c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'entity.cat4'))
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - nMissing
@@ -567,29 +898,62 @@ test_that("mosaic.dt() returns correct information about missing data", {
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE) 
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-  dt <- mosaic.dt(df, map, evilMode = 'strataVariables')
+  dt <- mosaic.dt(df, variables, evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.binB) & !is.na(df$entity.binA)))
-  dt <- mosaic.dt(df, map, evilMode = 'allVariables')
-  expect_equal(attr(dt, 'completeCasesAllVars')[1], sum(complete.cases(df[, map$id, with=FALSE])))
+  dt <- mosaic.dt(df, variables, evilMode = 'allVariables')
+  cols <- unlist(lapply(as.list(variables), function(x) {veupathUtils::getColName(x@variableSpec)}))
+  expect_equal(attr(dt, 'completeCasesAllVars')[1], sum(complete.cases(df[, cols, with=FALSE])))
 })
 
 test_that("mosaic.dt() returns same shaped outputs for string cats and num cats.", {
   
   df <- testDF
   
-  map_string <- data.frame('id' = c('entity.cat7', 'entity.cat6', 'entity.cat4'),
-                           'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                           'dataType' = c('STRING', 'STRING', 'STRING'),
-                           'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables_string <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat7', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
 
-  dt_string <- mosaic.dt(df, map_string)
+  dt_string <- mosaic.dt(df, variables_string)
   
-  map_num <- data.frame('id' = c('entity.int7', 'entity.int6', 'entity.cat4'),
-                        'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                        'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
-                        'dataShape' = c('CATEGORICAL', 'CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-                        
-  dt_num <- mosaic.dt(df, map_num)
+  variables_num <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int7', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'))
+  ))  
+
+  dt_num <- mosaic.dt(df, variables_num)
   
   expect_equal(nrow(dt_string), nrow(dt_num))
   expect_equal(names(dt_string), names(dt_num))

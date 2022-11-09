@@ -6,7 +6,7 @@
 \usage{
 heatmap(
   data,
-  map,
+  variables,
   value = c("series", "collection"),
   evilMode = c("noVariables", "allVariables", "strataVariables")
 )
@@ -14,7 +14,7 @@ heatmap(
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
 
-\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'}
+\item{variables}{veupathUtils VariableMetadataList}
 
 \item{value}{String indicating which of the three methods to use to calculate z-values ('collection', 'series')}
 
@@ -47,15 +47,5 @@ An `evilMode` exists. It will do the following: \cr
 - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 - return a total count of plotted incomplete cases \cr
 - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
-}
-
-\section{Map Structure}{
-
-The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-- id: the variable name. Must match column name in the data exactly. \cr
-- plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-- dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-- dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
-- naToZero: Options are TRUE, FALSE, or ''. Optional. Indicates whether to replaces NAs with 0, assuming the column is numeric. If set to TRUE, all NAs found within the column should be replaced with 0. Passing '' will result in using the function default, which in plot.data is FALSE. Setting naToZero=TRUE for a string var will throw an error. \cr
 }
 

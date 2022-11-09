@@ -1,34 +1,5 @@
 newHeatmapPD <- function(.dt = data.table::data.table(),
-                         xAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         yAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         zAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         overlayVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         facetVariable1 = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         facetVariable2 = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                         variables = veupathUtils::VariableMetadataList(),
                          value = character(),
                          evilMode = character(),
                          verbose = logical(),
@@ -36,25 +7,22 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
                          class = character()) {
 
   .pd <- newPlotdata(.dt = .dt,
-                     xAxisVariable = xAxisVariable,
-                     overlayVariable = overlayVariable,
-                     facetVariable1 = facetVariable1,
-                     facetVariable2 = facetVariable2,
+                     variables = variables,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "heatmap")
 
   attr <- attributes(.pd)
-  attr$yAxisVariable <- yAxisVariable
-  attr$zAxisVariable <- zAxisVariable
+  variables <- attr$variables
 
   #NOTE: one or the other of these could be a list for 'collection'
-  x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
-  y <- veupathUtils::toColNameOrNull(attr$yAxisVariable)
+  x <- veupathUtils::findColNamesFromPlotRef(variables, 'xAxis')
+  y <- veupathUtils::findColNamesFromPlotRef(variables, 'yAxis')
   #NOTE: this for the case of 'series'
-  z <- veupathUtils::toColNameOrNull(attr$zAxisVariable)
-  group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
-  panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
+  z <- veupathUtils::findColNamesFromPlotRef(variables, 'zAxis')
+  group <- veupathUtils::findColNamesFromPlotRef(variables, 'overlay')
+  panel <- findPanelColName(veupathUtils::findVariableSpecFromPlotRef(variables, 'facet1'), 
+                            veupathUtils::findVariableSpecFromPlotRef(variables, 'facet2'))
 
   if (value == 'collection') {
     data <- groupSplit(data, x, y, NULL, NULL, panel)
@@ -74,8 +42,8 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
 }
 
 validateHeatmapPD <- function(.heatmap) {
-  zAxisVariable <- attr(.heatmap, 'zAxisVariable')
-  if (!zAxisVariable$dataType %in% c('NUMBER')) {
+  variables <- attr(.heatmap, 'variables')
+  if (!veupathUtils::findDataTypesFromPlotRef(variables, 'zAxis') %in% c('NUMBER')) {
     stop('The dependent axis must be of type number or date for heatmapplot.')
   }
 
@@ -104,21 +72,14 @@ validateHeatmapPD <- function(.heatmap) {
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
-#' @section Map Structure:
-#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-#' - id: the variable name. Must match column name in the data exactly. \cr
-#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
-#' - naToZero: Options are TRUE, FALSE, or ''. Optional. Indicates whether to replaces NAs with 0, assuming the column is numeric. If set to TRUE, all NAs found within the column should be replaced with 0. Passing '' will result in using the function default, which in plot.data is FALSE. Setting naToZero=TRUE for a string var will throw an error. \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
+#' @param variables veupathUtils::VariableMetadataList
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
-heatmap.dt <- function(data, map, 
+heatmap.dt <- function(data, variables, 
                        value = c('series', 'collection'), 
                        evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                        verbose = c(TRUE, FALSE)) {
@@ -131,26 +92,17 @@ heatmap.dt <- function(data, map,
     data.table::setDT(data)
   }
 
-  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
-  if (is.null(xAxisVariable$variableId)) {
-    stop("Must provide xAxisVariable for plot type scatter.")
+  xVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'xAxis')
+  if (is.null(xVM)) {
+    stop("Must provide x-axis variable for plot type scatter.")
   }
-  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  if (is.null(yAxisVariable$variableId)) {
-    stop("Must provide yAxisVariable for plot type scatter.")
+  yVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'yAxis')
+  if (is.null(yVM)) {
+    stop("Must provide y-axis variable for plot type scatter.")
   }
-  zAxisVariable <- plotRefMapToList(map, 'zAxisVariable')
-  overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
  
   .heatmap <- newHeatmapPD(.dt = data,
-                            xAxisVariable = xAxisVariable,
-                            yAxisVariable = yAxisVariable,
-                            zAxisVariable = zAxisVariable,
-                            overlayVariable = overlayVariable,
-                            facetVariable1 = facetVariable1,
-                            facetVariable2 = facetVariable2,
+                            variables = variables,
                             value = value,
                             evilMode = evilMode,
                             verbose = verbose)
@@ -184,26 +136,19 @@ heatmap.dt <- function(data, map,
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
-#' @section Map Structure:
-#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-#' - id: the variable name. Must match column name in the data exactly. \cr
-#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
-#' - naToZero: Options are TRUE, FALSE, or ''. Optional. Indicates whether to replaces NAs with 0, assuming the column is numeric. If set to TRUE, all NAs found within the column should be replaced with 0. Passing '' will result in using the function default, which in plot.data is FALSE. Setting naToZero=TRUE for a string var will throw an error. \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'facetVariable1' and 'facetVariable2'
+#' @param variables veupathUtils VariableMetadataList
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
-heatmap <- function(data, map, 
+heatmap <- function(data, variables, 
                     value = c('series','collection'), 
                     evilMode = c('noVariables', 'allVariables', 'strataVariables')) {
   verbose <- veupathUtils::matchArg(verbose)
  
-  .heatmap <- heatmap.dt(data, map, value, evilMode, verbose)
+  .heatmap <- heatmap.dt(data, variables, value, evilMode, verbose)
   outFileName <- writeJSON(.heatmap, evilMode, 'heatmap', verbose)
 
   return(outFileName)

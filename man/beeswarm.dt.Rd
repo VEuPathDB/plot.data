@@ -6,30 +6,23 @@
 \usage{
 beeswarm.dt(
   data,
-  map,
+  variables,
   jitter = NULL,
   median = c(FALSE, TRUE),
   evilMode = c("noVariables", "allVariables", "strataVariables"),
-  collectionVariablePlotRef = NULL,
-  computedVariableMetadata = NULL,
   verbose = c(TRUE, FALSE)
 )
 }
 \arguments{
 \item{data}{data.frame to make plot-ready data for}
 
-\item{map}{data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'}
+\item{variables}{veupathUtils VariableMetadataList}
 
 \item{jitter}{numeric indicating the maximum width by which to randomly offset points.}
 
 \item{median}{boolean indicating whether to return median value per group (per panel)}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
-
-\item{collectionVariablePlotRef}{string indicating the plotRef to be considered as a collectionVariable. Accepted values are 'xAxisVariable' and 'facetVariable1'. Required whenever a set of variables should be interpreted as a collectionVariable.}
-
-\item{computedVariableMetadata}{named list containing metadata about a computed variable(s) involved in a plot. 
-Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.}
 
 \item{verbose}{boolean indicating if timed logging is desired}
 }
@@ -56,27 +49,36 @@ An `evilMode` exists. It will do the following: \cr
 - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 }
 
-\section{Map Structure}{
-
-The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-- id: the variable name. Must match column name in the data exactly. \cr
-- plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-- dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-- dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
-- naToZero: Options are TRUE, FALSE, or ''. Optional. Indicates whether to replaces NAs with 0, assuming the column is numeric. If set to TRUE, all NAs found within the column should be replaced with 0. Passing '' will result in using the function default, which in plot.data is FALSE. Setting naToZero=TRUE for a string var will throw an error. \cr
-}
-
 \examples{
 # Construct example data
-df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
-                 'yvar' = rnorm(100),
-                 'overlay' = sample(c('red','green','blue'), 100, replace=T))
+df <- data.table('entity.xvar' = sample(c('a','b','c'), 100, replace=T),
+                 'entity.yvar' = rnorm(100),
+                 'entity.overlay' = sample(c('red','green','blue'), 100, replace=T))
 
-# Create map that specifies variable role in the plot and supplies variable metadata
-map <- data.frame('id' = c('xvar', 'yvar', 'overlay'),
-                 'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'),
-                 'dataType' = c('STRING', 'NUMBER', 'STRING'),
-                 'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+# Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+variables <- veupathUtils::VariableMetadataList(
+  veupathUtils::VariableMetadata(
+    variableClass = veupathUtils::VariableClass(value = 'native'),
+    variableSpec = veupathUtils::VariableSpec(variableId = 'xvar', entityId = 'entity'),
+    plotReference = veupathUtils::PlotReference(value = 'xAxis'),
+    dataType = veupathUtils::DataType(value = 'STRING'),
+    dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+  ),
+  veupathUtils::VariableMetadata(
+    variableClass = veupathUtils::VariableClass(value = 'native'),
+    variableSpec = veupathUtils::VariableSpec(variableId = 'overlay', entityId = 'entity'),
+    plotReference = veupathUtils::PlotReference(value = 'overlay'),
+    dataType = veupathUtils::DataType(value = 'STRING'),
+    dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+  ),
+  veupathUtils::VariableMetadata(
+    variableClass = veupathUtils::VariableClass(value = 'native'),
+    variableSpec = veupathUtils::VariableSpec(variableId = 'yvar', entityId = 'entity'),
+    plotReference = veupathUtils::PlotReference(value = 'yAxis'),
+    dataType = veupathUtils::DataType(value = 'NUMBER'),
+    dataShape = veupathUtils::DataShape(value = 'CONTINUOUS')
+  )
+)
 
 # Returns a data table with plot-ready data
 dt <- beeswarm.dt(df, map, jitter=0.3)

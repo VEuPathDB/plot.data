@@ -1,4 +1,36 @@
-makeVariableDetails <- function(value, variableId, entityId, displayLabel = NULL) {
+setGeneric("makeVariableDetails", 
+  function(value, object) standardGeneric("makeVariableDetails"),
+  signature = "object"
+)
+
+#' @export
+setMethod("makeVariableDetails", signature("VariableSpec"), function(value, object) {
+  variableId <- object@variableId
+  entityId <- object@entityId
+
+  if (!is.null(value)) {
+    if (length(value) == 1) {
+      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=jsonlite::unbox(as.character(value)))
+    } else {
+      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=as.character(value))
+    }
+  } else {
+    if (length(variableId) > 1) {
+      variableDetails <- list('variableId'=variableId, 'entityId'=entityId)
+    } else {
+      variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId))
+    }
+  }
+
+  return(variableDetails)    
+})
+
+setMethod("makeVariableDetails", signature("VariableMetadata"), function(value, object) {
+  variableId <- object@variableSpec@variableId
+  entityId <- object@variableSpec@entityId
+  displayLabel <- object@displayName
+  if (is.na(displayLabel)) displayLabel <- NULL
+
   if (!is.null(value)) {
     if (length(value) == 1) {
       variableDetails <- list('variableId'=jsonlite::unbox(variableId), 'entityId'=jsonlite::unbox(entityId), 'value'=jsonlite::unbox(as.character(value)))
@@ -18,54 +50,62 @@ makeVariableDetails <- function(value, variableId, entityId, displayLabel = NULL
   }
 
   return(variableDetails)
-}
+})
 
 #intended for table attrs that dont conform to the one row per group structure, but rather one row per var
 addVariableDetailsToColumn <- function(.pd, variableIdColName) {
   namedAttrList <- getPDAttributes(.pd)
+  plotRefs <- unlist(lapply(as.list(namedAttrList$variables), function(x) {x@plotReference@value}))
    
   # Add variable details for any variable in the variableIdCol
-  if ('xAxisVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable)] <- list(makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel))
-  if ('yAxisVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$yAxisVariable)] <- list(makeVariableDetails(NULL, namedAttrList$yAxisVariable$variableId, namedAttrList$yAxisVariable$entityId, namedAttrList$yAxisVariable$displayLabel))
-  if ('zAxisVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$zAxisVariable)] <- list(makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId, namedAttrList$zAxisVariable$displayLabel))
-  if ('overlayVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$overlayVariable)] <- list(makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel))
-  if ('facetVariable1' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$facetVariable1)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId, namedAttrList$facetVariable1$displayLabel))
-  if ('facetVariable2' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$facetVariable2)] <- list(makeVariableDetails(NULL, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel))
-  if ('geoAggregateVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::toColNameOrNull(namedAttrList$geoAggregateVariable)] <- list(makeVariableDetails(NULL, namedAttrList$geoAggregateVariable$variableId, namedAttrList$geoAggregateVariable$entityId, namedAttrList$geoAggregateVariable$displayLabel))
-  if ('collectionVariable' %in% names(namedAttrList)) .pd[[variableIdColName]][.pd[[variableIdColName]] %in% veupathUtils::toColNameOrNull(namedAttrList$collectionVariable)] <- lapply(seq_along(namedAttrList$collectionVariable$variableId), function(varInd) {makeVariableDetails(NULL, namedAttrList$collectionVariable$variableId[varInd], namedAttrList$collectionVariable$entityId[varInd], namedAttrList$collectionVariable$displayLabel[varInd])})
+  if ('xAxis' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'xAxis')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'xAxis')))
+  if ('yAxis' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'yAxis')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'yAxis')))
+  if ('zAxis' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'zAxis')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'zAxis')))
+  if ('overlay' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'overlay')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'overlay')))
+  if ('facet1' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'facet1')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'facet1')))
+  if ('facet2' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'facet2')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'facet2')))
+  if ('geo' %in% plotRefs) .pd[[variableIdColName]][.pd[[variableIdColName]] == veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'geo')] <- list(makeVariableDetails(NULL, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'geo')))
+ 
+  index <- which(purrr::map(as.list(namedAttrList$variables), function(x) { x@variableSpec@variableId == 'collection' }) %in% TRUE)
+  if (!!length(index)) {
+    collectionVM <- namedAttrList$variables[[index]]
+    collectionColNames <- paste0(collectionVM@variableSpec@entityId, '.', collectionVM@vocabulary)
+    collectionVarSpecs <- lapply(collectionVM@vocabulary, function(x) { veupathUtils::VariableSpec(variableId = x, entityId = collectionVM@variableSpec@entityId) })
+    .pd[[variableIdColName]][.pd[[variableIdColName]] %in% collectionColNames] <- lapply(as.list(collectionVarSpecs), function(x) {makeVariableDetails(NULL, x)})
+  } 
   
   return(.pd)
 }
 
 addStrataVariableDetails <- function(.pd, useGradientColorscale=FALSE) {
   namedAttrList <- getPDAttributes(.pd)
-  group <- veupathUtils::toColNameOrNull(namedAttrList$overlayVariable)
-  facet1 <- veupathUtils::toColNameOrNull(namedAttrList$facetVariable1)
-  facet2 <- veupathUtils::toColNameOrNull(namedAttrList$facetVariable2)
-  geo <- veupathUtils::toColNameOrNull(namedAttrList$geoAggregateVariable)
+  group <- veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'overlay')
+  facet1 <- veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'facet1')
+  facet2 <- veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'facet2')
+  geo <- veupathUtils::findColNamesFromPlotRef(namedAttrList$variables, 'geo')
 
   # !!!!! work off a copy while writing json
   # since we have two exported fxns, dont want calling one changing the result of the other
   if (!is.null(group) && !useGradientColorscale && (group %in% names(.pd))) {
     names(.pd)[names(.pd) == group] <- 'overlayVariableDetails'
-    .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
+    .pd$overlayVariableDetails <- lapply(.pd$overlayVariableDetails, makeVariableDetails, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'overlay'))
   }
 
   if (!is.null(geo)) {
     names(.pd)[names(.pd) == geo] <- 'geoAggregateVariableDetails'
-    .pd$geoAggregateVariableDetails <- lapply(.pd$geoAggregateVariableDetails, makeVariableDetails, namedAttrList$geoAggregateVariable$variableId, namedAttrList$geoAggregateVariable$entityId, namedAttrList$geoAggregateVariable$displayLabel)
+    .pd$geoAggregateVariableDetails <- lapply(.pd$geoAggregateVariableDetails, makeVariableDetails, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'geo'))
   }
 
   if (!is.null(facet1) & !is.null(facet2)) {
     names(.pd)[names(.pd) == 'panel'] <- 'facetVariableDetails' 
-    .pd$facetVariableDetails <- Map(list, lapply(veupathUtils::strSplit(.pd$facetVariableDetails, '.||.'), makeVariableDetails, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId, namedAttrList$facetVariable1$displayLabel), lapply(veupathUtils::strSplit(.pd$facetVariableDetails, '.||.', index=2), makeVariableDetails, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel))
+    .pd$facetVariableDetails <- Map(list, lapply(veupathUtils::strSplit(.pd$facetVariableDetails, '.||.'), makeVariableDetails, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'facet1')), lapply(veupathUtils::strSplit(.pd$facetVariableDetails, '.||.', index=2), makeVariableDetails, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'facet2')))
   } else {
     if (!is.null(facet1)) {
       names(.pd)[names(.pd) == facet1] <- 'facetVariableDetails'
-      .pd$facetVariableDetails <- lapply(lapply(.pd$facetVariableDetails, makeVariableDetails, namedAttrList$facetVariable1$variableId, namedAttrList$facetVariable1$entityId, namedAttrList$facetVariable1$displayLabel), list)
+      .pd$facetVariableDetails <- lapply(lapply(.pd$facetVariableDetails, makeVariableDetails, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'facet1')), list)
     } else if (!is.null(facet2)) {
       names(.pd)[names(.pd) == facet2] <- 'facetVariableDetails'
-      .pd$facetVariableDetails <- lapply(lapply(.pd$facetVariableDetails, makeVariableDetails, namedAttrList$facetVariable2$variableId, namedAttrList$facetVariable2$entityId, namedAttrList$facetVariable2$displayLabel), list)
+      .pd$facetVariableDetails <- lapply(lapply(.pd$facetVariableDetails, makeVariableDetails, veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'facet2')), list)
     } 
   }
   if (nrow(.pd) == 1 && 'facetVariableDetails' %in% names(.pd)) { 
@@ -88,10 +128,13 @@ getJSON <- function(.pd, evilMode) {
     statsTable <- addStrataVariableDetails(statsTable, useGradientColorscale)
     attr$names <- names(statsTable)
     statsTable <- veupathUtils::setAttrFromList(statsTable, attr)
-    if (veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable) %in% names(statsTable)) {
-      x <- veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable)
-      names(statsTable)[names(statsTable) == x] <- 'xVariableDetails'
-      statsTable$xVariableDetails <- lapply(statsTable$xVariableDetails, makeVariableDetails, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
+    xVM <- veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'xAxis')
+    if (!is.null(xVM)) {
+      x <- veupathUtils::getColName(xVM@variableSpec)
+      if (x %in% names(statsTable)) {
+        names(statsTable)[names(statsTable) == x] <- 'xVariableDetails'
+        statsTable$xVariableDetails <- lapply(statsTable$xVariableDetails, makeVariableDetails, xVM)
+      }
     }
   }
 
@@ -103,11 +146,12 @@ getJSON <- function(.pd, evilMode) {
     sampleSizeTable <- addStrataVariableDetails(sampleSizeTable, useGradientColorscale)
     attr$names <- names(sampleSizeTable)
     sampleSizeTable <- veupathUtils::setAttrFromList(sampleSizeTable, attr)
-    if ('xAxisVariable' %in% names(namedAttrList)) {
-      x <- veupathUtils::toColNameOrNull(namedAttrList$xAxisVariable)
+    xVM <- veupathUtils::findVariableMetadataFromPlotRef(namedAttrList$variables, 'xAxis')
+    if (!is.null(xVM)) {
+      x <- veupathUtils::getColName(xVM@variableSpec)
       if (x %in% names(sampleSizeTable)) {
         names(sampleSizeTable)[names(sampleSizeTable) == x] <- 'xVariableDetails'
-        sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId, namedAttrList$xAxisVariable$displayLabel)
+        sampleSizeTable$xVariableDetails <- lapply(sampleSizeTable$xVariableDetails, makeVariableDetails, xVM)
       }
     }
   }
@@ -122,59 +166,16 @@ getJSON <- function(.pd, evilMode) {
     completeCasesTable <- veupathUtils::setAttrFromList(completeCasesTable, attr)
   }
 
-  if ('xAxisVariable' %in% names(namedAttrList)) {
-    namedAttrList$xVariableDetails <- makeVariableDetails(NULL, namedAttrList$xAxisVariable$variableId, namedAttrList$xAxisVariable$entityId,  namedAttrList$xAxisVariable$displayLabel)
-    namedAttrList$xAxisVariable <- NULL
-  }
-
-  if ('yAxisVariable' %in% names(namedAttrList)) {
-    namedAttrList$yVariableDetails <- makeVariableDetails(NULL, namedAttrList$yAxisVariable$variableId, namedAttrList$yAxisVariable$entityId,  namedAttrList$yAxisVariable$displayLabel)
-    namedAttrList$yAxisVariable <- NULL
-  }
-  if ('zAxisVariable' %in% names(namedAttrList)) {
-    namedAttrList$zVariableDetails <- makeVariableDetails(NULL, namedAttrList$zAxisVariable$variableId, namedAttrList$zAxisVariable$entityId, namedAttrList$zAxisVariable$displayLabel)
-    namedAttrList$zAxisVariable <- NULL
-  }
-  
   .pd <- addStrataVariableDetails(.pd, useGradientColorscale)
 
-  # If overlay is continuous, handle similarly to x, y, z vars.
-  if (!is.null(namedAttrList$overlayVariable$variableId) && useGradientColorscale) {
-    namedAttrList$overlayVariableDetails <- makeVariableDetails(NULL, namedAttrList$overlayVariable$variableId, namedAttrList$overlayVariable$entityId, namedAttrList$overlayVariable$displayLabel)
-  }
-
-  # Remove useGradientColorscale
+  # Remove useGradientColorscale and handle variables attr separately
   namedAttrList$useGradientColorscale <- NULL
-  
-  namedAttrList$facetVariable1 <- NULL
-  namedAttrList$facetVariable2 <- NULL
-  namedAttrList$overlayVariable <- NULL
-  namedAttrList$geoAggregateVariable <- NULL
+  # id love if this worked but its not quite right
+  #variablesJSON <- veupathUtils::toJSON(namedAttrList$variables, named = FALSE)
+  #namedAttrList$variables <- jsonlite::fromJSON(variablesJSON)
+  variables <- namedAttrList$variables
+  namedAttrList$variables <- NULL
 
-  # Ensure computedVariableMetadata meets api
-  if ('computedVariableMetadata' %in% names(namedAttrList)) {
-
-    computedVariableMetadata <- namedAttrList$computedVariableMetadata
-
-    # Note - returning range min and max as strings in order to better handle dates.
-    if (!is.null(computedVariableMetadata$displayName)) {computedVariableMetadata$displayName <- as.character(computedVariableMetadata$displayName)}
-    if (!is.null(computedVariableMetadata$displayRangeMin)) {computedVariableMetadata$displayRangeMin <- jsonlite::unbox(as.character(computedVariableMetadata$displayRangeMin))}
-    if (!is.null(computedVariableMetadata$displayRangeMax)) {computedVariableMetadata$displayRangeMax <- jsonlite::unbox(as.character(computedVariableMetadata$displayRangeMax))}
-    if (!is.null(computedVariableMetadata$collectionVariable$collectionType)) {computedVariableMetadata$collectionVariable$collectionType <- jsonlite::unbox(as.character(computedVariableMetadata$collectionVariable$collectionType))}
-    
-    # Include collection variable details in compute metadata for now
-    if ('collectionVariable' %in% names(namedAttrList)) {
-      computedVariableMetadata$collectionVariable$collectionVariablePlotRef <- jsonlite::unbox(namedAttrList$collectionVariable$collectionVariablePlotRef)
-      computedVariableMetadata$collectionVariable$collectionValuePlotRef <- jsonlite::unbox(namedAttrList$collectionVariable$collectionValuePlotRef)
-      
-      computedVariableMetadata$collectionVariable$collectionVariableDetails <- lapply(seq_along(namedAttrList$collectionVariable$variableId), function(varInd) {makeVariableDetails(NULL, namedAttrList$collectionVariable$variableId[varInd], namedAttrList$collectionVariable$entityId[varInd], namedAttrList$collectionVariable$displayLabel[varInd])})
-
-      namedAttrList$collectionVariable <- NULL
-    }
-
-    namedAttrList$computedVariableMetadata <- computedVariableMetadata
-  }
-  
   outList <- list(class = list('data'=.pd, 'config'=namedAttrList))
 
   if (!inherits(sampleSizeTable, 'function')) {
@@ -189,6 +190,8 @@ getJSON <- function(.pd, evilMode) {
 
   names(outList)[1] <- class
   outJson <- jsonlite::toJSON(outList, na='null')
+
+  outJson <- gsub('"config":{', paste0('"config":{"variables":', veupathUtils::toJSON(variables, named = FALSE), ","), outJson, fixed = TRUE)
 
   return(outJson)
 }

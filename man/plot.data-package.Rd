@@ -22,6 +22,7 @@ Useful links:
 Authors:
 \itemize{
   \item Ann Blevins \email{annsize@upenn.edu}
+  \item Bob MacCallum \email{r.maccallum@imperial.ac.uk}
 }
 
 }

@@ -1,24 +1,5 @@
 newMosaicPD <- function(.dt = data.table::data.table(),
-                         xAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         yAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         facetVariable1 = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         facetVariable2 = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                         variables = veupathUtils::VariableMetadataList(),
                          statistic = character(),
                          evilMode = character(),
                          verbose = logical(),
@@ -26,19 +7,18 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                          class = character()) {
 
   .pd <- newPlotdata(.dt = .dt,
-                     xAxisVariable = xAxisVariable,
-                     yAxisVariable = yAxisVariable,
-                     facetVariable1 = facetVariable1,
-                     facetVariable2 = facetVariable2,
+                     variables = variables,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "mosaic")
 
   attr <- attributes(.pd)
+  variables <- attr$variables
 
-  x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
-  y <- veupathUtils::toColNameOrNull(attr$yAxisVariable)
-  panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
+  x <- veupathUtils::findColNamesFromPlotRef(variables, 'xAxis')
+  y <- veupathUtils::findColNamesFromPlotRef(variables, 'yAxis')
+  panel <- findPanelColName(veupathUtils::findVariableSpecFromPlotRef(variables, 'facet1'),
+                            veupathUtils::findVariableSpecFromPlotRef(variables, 'facet2'))
 
   isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
   if (!isEvil) {
@@ -85,37 +65,43 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
-#' @section Map Structure:
-#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-#' - id: the variable name. Must match column name in the data exactly. \cr
-#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
-#' - naToZero: Options are TRUE, FALSE, or ''. Optional. Indicates whether to replaces NAs with 0, assuming the column is numeric. If set to TRUE, all NAs found within the column should be replaced with 0. Passing '' will result in using the function default, which in plot.data is FALSE. Setting naToZero=TRUE for a string var will throw an error. \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
+#' @param variables veupathUtil::VariableMetadataList
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @examples
 #' # Construct example data
-#' df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
-#'                  'yvar' = sample(c('1','2','3'), 100, replace=T), stringsAsFactors = F)
+#' df <- data.table('entity.xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'entity.yvar' = sample(c('1','2','3'), 100, replace=T), stringsAsFactors = F)
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'yvar'),
-#'                  'plotRef' = c('xAxisVariable', 'yAxisVariable'),
-#'                  'dataType' = c('STRING', 'STRING'),
-#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- veupathUtils::VariableMetadataList(
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'xAxis'),
+#'     dataType = veupathUtils::DataType(value = 'STRING'),
+#'     dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+#'   ),
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'yvar', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'yAxis'),
+#'     dataType = veupathUtils::DataType(value = 'STRING'),
+#'     dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+#'   )
+#' )
 #' 
 #' # Returns a data table with plot-ready data
 #' dt <- mosaic.dt(df, map)
 #' @export
-mosaic.dt <- function(data, map, 
+mosaic.dt <- function(data, variables, 
                       statistic = NULL, 
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       verbose = c(TRUE, FALSE)) {
+
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
 
@@ -128,17 +114,17 @@ mosaic.dt <- function(data, map,
     data.table::setDT(data)
   }
 
-  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
-  if (is.null(xAxisVariable$variableId)) {
-    stop("Must provide xAxisVariable for plot type mosaic.")
+  xVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'xAxis')
+  if (is.null(xVM)) {
+    stop("Must provide x-axis variable for plot type mosaic.")
   }
-  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  if (is.null(yAxisVariable$variableId)) {
-    stop("Must provide yAxisVariable for plot type mosaic.")
+  yVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'yAxis')
+  if (is.null(yVM)) {
+    stop("Must provide y-axis variable for plot type mosaic.")
   }
 
-  x <- veupathUtils::toColNameOrNull(xAxisVariable)
-  y <- veupathUtils::toColNameOrNull(yAxisVariable)
+  x <- veupathUtils::getColName(xVM@variableSpec)
+  y <- veupathUtils::getColName(yVM@variableSpec)
 
   if (!is.null(statistic)) {
     if (!statistic %in% c('chiSq','bothRatios')) {
@@ -157,14 +143,8 @@ mosaic.dt <- function(data, map,
     veupathUtils::logWithTime(paste('No statistic specified, using:', ifelse(statistic=='chiSq', 'chi-squared', 'odds ratio and relative risk')), verbose)
   }
   
-  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
-
   .mosaic <- newMosaicPD(.dt = data,
-                            xAxisVariable = xAxisVariable,
-                            yAxisVariable = yAxisVariable,
-                            facetVariable1 = facetVariable1,
-                            facetVariable2 = facetVariable2,
+                            variables = variables,
                             statistic = statistic,
                             evilMode = evilMode,
                             verbose = verbose)
@@ -191,40 +171,45 @@ mosaic.dt <- function(data, map,
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
-#' @section Map Structure:
-#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-#' - id: the variable name. Must match column name in the data exactly. \cr
-#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
-#' - naToZero: Options are TRUE, FALSE, or ''. Optional. Indicates whether to replaces NAs with 0, assuming the column is numeric. If set to TRUE, all NAs found within the column should be replaced with 0. Passing '' will result in using the function default, which in plot.data is FALSE. Setting naToZero=TRUE for a string var will throw an error. \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 'facetVariable1' and 'facetVariable2'
+#' @param variables veupathUtils::VariableMetadataList
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @examples
 #' # Construct example data
-#' df <- data.table('xvar' = sample(c('a','b','c'), 100, replace=T),
-#'                  'yvar' = sample(c('1','2','3'), 100, replace=T), stringsAsFactors = F)
+#' df <- data.table('entity.xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'entity.yvar' = sample(c('1','2','3'), 100, replace=T), stringsAsFactors = F)
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'yvar'),
-#'                  'plotRef' = c('xAxisVariable', 'yAxisVariable'),
-#'                  'dataType' = c('STRING', 'STRING'),
-#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- veupathUtils::VariableMetadataList(
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'xAxis'),
+#'     dataType = veupathUtils::DataType(value = 'STRING'),
+#'     dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+#'   ),
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'yvar', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'yAxis'),
+#'     dataType = veupathUtils::DataType(value = 'STRING'),
+#'     dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+#'   )
+#' )
 #' 
 #' # Returns the name of a json file
 #' mosaic(df, map)
 #' @export
-mosaic <- function(data, map, 
+mosaic <- function(data, variables, 
                    statistic = NULL, 
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
   verbose <- veupathUtils::matchArg(verbose)
 
-  .mosaic <- mosaic.dt(data, map, statistic, evilMode, verbose)
+  .mosaic <- mosaic.dt(data, variables, statistic, evilMode, verbose)
   outFileName <- writeJSON(.mosaic, evilMode, 'mosaic', verbose)
 
   return(outFileName)

@@ -1,45 +1,75 @@
 context('scattergl')
 
 test_that("scatter.dt does not fail when there are no complete cases.", {
-  map <- data.frame('id' = c('entity.int', 'entity.cont'),
-                    'plotRef' = c('xAxisVariable', 'yAxisVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS'),
-                    stringsAsFactors = FALSE)
+
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cont', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    )
+  ))
+
   df <- data.noneComplete[is.na(entity.int),]
 
-  dt <- scattergl.dt(df, map, 'raw')  
+  dt <- scattergl.dt(df, variables, 'raw')  
   attr <- attributes(dt)
   expect_equal(attr$completeCasesAllVars[1], 0)
   expect_equal(is.list(dt$seriesX), TRUE)
   expect_equal(is.list(dt$seriesY), TRUE)
 
-  dt <- scattergl.dt(df, map, value='smoothedMeanWithRaw')  
+  dt <- scattergl.dt(df, variables, value='smoothedMeanWithRaw')  
   attr <- attributes(dt)
   expect_equal(attr$completeCasesAllVars[1], 0)
   expect_equal(is.list(dt$seriesX), TRUE)
   expect_equal(is.list(dt$seriesY), TRUE)
 
-  dt <- scattergl.dt(df, map, value='bestFitLineWithRaw')  
+  dt <- scattergl.dt(df, variables, value='bestFitLineWithRaw')  
   attr <- attributes(dt)
   expect_equal(attr$completeCasesAllVars[1], 0)
   expect_equal(is.list(dt$seriesX), TRUE)
   expect_equal(is.list(dt$seriesY), TRUE)
 
-  dt <- scattergl.dt(df, map, value='density')  
+  dt <- scattergl.dt(df, variables, value='density')  
   attr <- attributes(dt)
   expect_equal(attr$completeCasesAllVars[1], 0)
   expect_equal(is.list(dt$densityX), TRUE)
   expect_equal(is.list(dt$densityY), TRUE)
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cont', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binary2', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
-  map <- data.frame('id' = c('entity.cont', 'entity.int', 'entity.binary2'),
-                    'plotRef' = c('xAxisVariable', 'yAxisVariable', 'overlayVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'),
-                    stringsAsFactors = FALSE)
   df <- data.noneComplete
 
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   attr <- attributes(dt)
   expect_equal(attr$completeCasesAllVars[1], 0)
   expect_equal(is.list(dt$seriesX), TRUE)
@@ -47,18 +77,44 @@ test_that("scatter.dt does not fail when there are no complete cases.", {
 })
 
 test_that("scattergl.dt() returns a valid plot.data scatter object", {
-  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.dateA', 'entity.cat4'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
   df <- as.data.frame(testDF)
 
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'plot.data')
   expect_is(dt, 'scatterplot')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('xAxisVariable', 'yAxisVariable', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','overlayVariable', 'facetVariable1'))
+  expect_equal(names(namedAttrList),c('variables', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 4)
@@ -68,14 +124,40 @@ test_that("scattergl.dt() returns a valid plot.data scatter object", {
 })
 
 test_that("scattergl.dt() returns plot data and config of the appropriate types", {
-  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.dateA', 'entity.cat4'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'dateA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'DATE'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
   df <- as.data.frame(testDF)
 
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(class(unlist(dt$entity.cat4)), 'character')
   expect_equal(class(unlist(dt$entity.cat3)), 'character')
   expect_equal(class(unlist(dt$seriesX)), 'character')
@@ -90,13 +172,37 @@ test_that("scattergl.dt() returns plot data and config of the appropriate types"
   expect_equal(class(unlist(sampleSizes$entity.cat4)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
 
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
-  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.contA', 'entity.cat4'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(class(unlist(dt$entity.cat4)), 'character')
   expect_equal(class(unlist(dt$entity.cat3)), 'character')
   expect_equal(class(unlist(dt$seriesX)), 'character')
@@ -113,353 +219,660 @@ test_that("scattergl.dt() returns plot data and config of the appropriate types"
 
 })
 
-test_that("scattergl.dt() returns an appropriately sized data.table", {
-  
-  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.dateA', 'entity.cat4', ''),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2'),
-                    'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING', ''),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', ''), stringsAsFactors=FALSE)
+test_that("scattergl.dt() returns an appropriately sized data.table", { 
+
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'dateA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'DATE'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
   df <- as.data.frame(testDF)
-  
-  dt <- scattergl.dt(df, map, 'raw')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY'))
-  expect_equal(as.character(range(df$entity.dateA)), range(dt$seriesX))
-  
-  dt <- scattergl.dt(df, map, 'smoothedMean')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
-  
-  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
-  
-  dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
-  
-  map <- data.frame('id' = c('entity.cat3', 'entity.contA', 'entity.dateA', 'entity.cat4'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'NUMBER', 'DATE', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY'))
   expect_equal(as.character(range(df$entity.dateA)), range(dt$seriesX))
 
-  dt <- scattergl.dt(df, map, 'smoothedMean')
+  dt <- scattergl.dt(df, variables, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
 
-  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
+  dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
 
-  dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
+  dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
 
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
-  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.contA', 'entity.cat4'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY'))
   numericSeriesX <- lapply(dt$seriesX, as.numeric)
   expect_equal(range(df$entity.contA), range(numericSeriesX))
 
-  dt <- scattergl.dt(df, map, 'smoothedMean')
+  dt <- scattergl.dt(df, variables, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
 
-  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
+  dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
 
-  dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
+  dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
   
-  dt <- scattergl.dt(df, map, 'density')
+  dt <- scattergl.dt(df, variables, 'density')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
   expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'densityX', 'densityY'))
 
-  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.contA'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('STRING', 'NUMBER', 'NUMBER'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS'), stringsAsFactors = FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),3)
   expect_equal(names(dt),c('entity.cat3', 'seriesX', 'seriesY'))
 
-  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
+  dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),3)
   expect_equal(names(dt),c('entity.cat3', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
   
-  dt <- scattergl.dt(df, map, 'smoothedMean')
+  dt <- scattergl.dt(df, variables, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),3)
   expect_equal(names(dt),c('entity.cat3', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
  
-  dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
+  dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),3)
   expect_equal(names(dt),c('entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
  
-  dt <- scattergl.dt(df, map, 'density')
+  dt <- scattergl.dt(df, variables, 'density')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),3)
   expect_equal(names(dt),c('entity.cat3', 'densityX', 'densityY'))
 
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat4'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors = FALSE)
-
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('entity.cat4', 'seriesX', 'seriesY'))
 
-  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
+  dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('entity.cat4', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
   
-  dt <- scattergl.dt(df, map, 'smoothedMean')
+  dt <- scattergl.dt(df, variables, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('entity.cat4', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
   
-  dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
+  dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('entity.cat4', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
 
-  dt <- scattergl.dt(df, map, 'density')
+  dt <- scattergl.dt(df, variables, 'density')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
   expect_equal(names(dt),c('entity.cat4', 'densityX', 'densityY'))
   
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    )
+  ))
 
-  map <- data.frame('id' = c('entity.contB', 'entity.contA'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS'), stringsAsFactors = FALSE)
-
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('seriesX', 'seriesY'))
 
-  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
+  dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
   
-  dt <- scattergl.dt(df, map, 'smoothedMean')
+  dt <- scattergl.dt(df, variables, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
     
-  dt <- scattergl.dt(df, map, 'bestFitLineWithRaw')
+  dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
 
-  dt <- scattergl.dt(df, map, 'density')
+  dt <- scattergl.dt(df, variables, 'density')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
   expect_equal(names(dt),c('densityX', 'densityY'))
 
-  map <- data.frame('id' = c('entity.contC', 'entity.contB', 'entity.contA'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contC', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    )
+  ))
   
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(nrow(dt), 1)
   expect_equal(names(dt), c('seriesX', 'seriesY', 'seriesGradientColorscale'))
   expect_true(identical(dt$seriesGradientColorscale[[1]], as.character(df$entity.contC)))
   
-  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.contA', 'entity.cat4', 'entity.contC'),
-                    'plotRef' = c('facetVariable2', 'yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'),
-                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING', 'NUMBER'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet2'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contC', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    )
+  ))
   
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(nrow(dt), 12)
   expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'seriesGradientColorscale'))
   expect_equal(length(dt$seriesGradientColorscale[[1]]), length(dt$seriesX[[1]]))
+
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contC', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
   
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat4', 'entity.contC'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
-  
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(nrow(dt), 4)
   expect_equal(names(dt), c('entity.cat4', 'seriesX', 'seriesY', 'seriesGradientColorscale'))
   expect_equal(length(dt$seriesGradientColorscale[[1]]), length(dt$seriesX[[1]]))
 
   ## Collection vars
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
-                    'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'overlayVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  
-  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable1')
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'collection', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'),
+      isCollection = TRUE,
+      members = new("VariableSpecList", SimpleList(
+        new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+        new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+        new("VariableSpec", variableId = 'contC', entityId = 'entity'))
+    )),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contD', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
+
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('entity.cat3', 'entity.facetVariable1', 'seriesX', 'seriesY'))
-  expect_equal(unique(dt$entity.facetVariable1), c('contA','contB','contC'))
-  expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
-  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
+  expect_equal(names(dt), c('entity.cat3', 'entity.collection', 'seriesX', 'seriesY'))
+  expect_equal(unique(dt$entity.collection), c('contA','contB','contC'))
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'facet1')@variableId, 'collection')
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
   
-  
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
-                    'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'facetVariable2'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('Y','X','Z','',''), stringsAsFactors=FALSE)
-  
-  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable1')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY'))
-  expect_equal(dt$panel[1], 'X.||.cat3_a')
-  expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
-  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(names(attr(dt, 'facetVariable2')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel', 'naToZero'))
-  
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
-                    'plotRef' = c('facetVariable2', 'facetVariable2', 'facetVariable2', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  
-  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable2')
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'collection', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet2'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'),
+      isCollection = TRUE,
+      members = new("VariableSpecList", SimpleList(
+        new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+        new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+        new("VariableSpec", variableId = 'contC', entityId = 'entity'))
+    )),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contD', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
+
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('panel', 'seriesX', 'seriesY'))
   expect_equal(dt$panel[1], 'cat3_a.||.contA')
-  expect_equal(attr(dt, 'facetVariable2')$variableId, 'facetVariable2')
-  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(names(attr(dt, 'facetVariable1')), c('variableId', 'entityId', 'dataType', 'dataShape', 'displayLabel', 'naToZero'))
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'facet2')@variableId, 'collection')
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
   
-  # With computed var
-  computedVariableMetadata = list('displayName' = 'Pielou\'s Evenness',
-                                  'displayRangeMin' = '0',
-                                  'displayRangeMax' = '1',
-                                  'collectionVariable' = list('collectionType' = 'abundance'))
-  
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
-                    'plotRef' = c('overlayVariable', 'overlayVariable', 'overlayVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 'displayLabel' = c('Y','X','Z','',''), stringsAsFactors=FALSE)
-  
-  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'overlayVariable', computedVariableMetadata = computedVariableMetadata)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'computed'),
+      variableSpec = new("VariableSpec", variableId = 'collection', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'),
+      displayName = "Peilou's Evenness",
+      displayRangeMin = 0,
+      displayRangeMax = 1,
+      isCollection = TRUE,
+      members = new("VariableSpecList", SimpleList(
+        new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+        new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+        new("VariableSpec", variableId = 'contC', entityId = 'entity'))
+    )),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contD', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
+
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('entity.overlayVariable', 'entity.cat3', 'seriesX', 'seriesY'))
-  expect_equal(unique(dt$entity.overlayVariable), c('X','Y','Z'))
-  expect_equal(attr(dt, 'overlayVariable')$variableId, 'overlayVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  expect_equal(names(attr(dt, 'computedVariableMetadata')), c('displayName','displayRangeMin','displayRangeMax','collectionVariable'))
-  expect_equal(attr(dt, 'computedVariableMetadata')$displayRangeMin, computedVariableMetadata$displayRangeMin)
-  expect_equal(attr(dt, 'computedVariableMetadata')$displayRangeMax, computedVariableMetadata$displayRangeMax)
-  expect_equal(attr(dt, 'computedVariableMetadata')$displayName, computedVariableMetadata$displayName)
-  expect_equal(attr(dt, 'computedVariableMetadata')$collectionVariable$collectionType, computedVariableMetadata$collectionVariable$collectionType)
+  expect_equal(names(dt), c('entity.collection', 'entity.cat3', 'seriesX', 'seriesY'))
+  expect_equal(unique(dt$entity.collection), c('contA','contB','contC'))
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'overlay')@variableId, 'collection')
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
+  collectionVM <- veupathUtils::findVariableMetadataFromPlotRef(attr(dt, 'variables'), 'yAxis')
+  expect_equal(collectionVM@displayRangeMin, 0)
+  expect_equal(collectionVM@displayRangeMax, 1)
+  expect_equal(collectionVM@displayName, "Peilou's Evenness values")
+  collectionVM <- veupathUtils::findVariableMetadataFromPlotRef(attr(dt, 'variables'), 'overlay')
+  expect_equal(collectionVM@displayName, "Peilou's Evenness")
   
   # Only one var in the collectionVar
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat3'),
-                    'plotRef' = c('overlayVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('NUMBER', 'NUMBER','STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'collection', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'),
+      isCollection = TRUE,
+      members = new("VariableSpecList", SimpleList(
+        new("VariableSpec", variableId = 'contB', entityId = 'entity'))
+    )),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
-  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'overlayVariable')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
-  expect_equal(names(dt), c('entity.overlayVariable', 'entity.cat3', 'seriesX', 'seriesY'))
-  expect_equal(unique(dt$entity.overlayVariable), c('contB'))
-  expect_equal(attr(dt, 'overlayVariable')$variableId, 'overlayVariable')
-  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat3'),
-                    'plotRef' = c('facetVariable1', 'xAxisVariable', 'overlayVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER','STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-
-  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable1')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt), 3)
-  expect_equal(names(dt), c('entity.cat3', 'entity.facetVariable1', 'seriesX', 'seriesY'))
-  expect_equal(unique(dt$entity.facetVariable1), c('contB'))
-  expect_equal(attr(dt, 'facetVariable1')$variableId, 'facetVariable1')
-  expect_equal(attr(dt, 'yAxisVariable')$variableId, 'yAxisVariable')
-  
+  expect_equal(names(dt), c('entity.collection', 'entity.cat3', 'seriesX', 'seriesY'))
+  expect_equal(unique(dt$entity.collection), c('contB'))
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'overlay')@variableId, 'collection')
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues') 
   
   # With factors
-  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.contA', 'entity.factor3'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'factor3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('entity.cat3', 'entity.factor3','seriesX','seriesY'))
   expect_equal(class(dt$entity.factor3), 'character')
-  
-  map <- data.frame('id' = c('entity.factor6', 'entity.contB', 'entity.contA', 'entity.factor3'),
-                    'plotRef' = c('facetVariable2', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
 
-  dt <- scattergl.dt(df, map, 'raw')
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'factor6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet2'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'factor3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
+
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(nrow(dt), 18)
   expect_equal(names(dt), c('panel','seriesX','seriesY'))
   expect_equal(class(dt$panel), 'character')
 
-  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.contA', 'entity.factor3'),
-                    'plotRef' = c('facetVariable2', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet2'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'factor3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('panel','seriesX','seriesY'))
   expect_equal(class(dt$panel), 'character')
 })
 
 test_that("scattergl() returns appropriately formatted json", {
-  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.contA', 'entity.cat4'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
   df <- as.data.frame(testDF)
 
-  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
+  dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
 
@@ -469,9 +882,9 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 12)
   expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
-  expect_equal(names(jsonList$scatterplot$config$xVariableDetails),c('variableId','entityId'))
-  expect_equal(jsonList$scatterplot$config$xVariableDetails$variableId, 'contA')
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config$variables),c("variableClass","variableSpec","plotReference","dataType","dataShape","isCollection","imputeZero"))
+  expect_equal(jsonList$scatterplot$config$variables$variableSpec$variableId, c("contB","contA","cat3","cat4"))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
@@ -479,41 +892,38 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA', 'contB', 'cat3', 'cat4'))
   
-
-  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.contA', 'entity.cat4', ''),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1', 'facetVariable2'),
-                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING', ''),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', ''), stringsAsFactors=FALSE)
-
-  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
-  outJson <- getJSON(dt, FALSE)
-  jsonList <- jsonlite::fromJSON(outJson)
-
-  expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
-  expect_equal(names(jsonList$scatterplot),c('data','config'))
-  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE','smoothedMeanError'))
-  expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
-  expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 12)
-  expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
-  expect_equal(names(jsonList$scatterplot$config$xVariableDetails),c('variableId','entityId'))
-  expect_equal(jsonList$scatterplot$config$xVariableDetails$variableId, 'contA')
-  expect_equal(jsonList$scatterplot$config$yVariableDetails$variableId, 'contB')
-  expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','size'))
-  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
-  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
-  expect_equal(jsonList$sampleSizeTable$overlayVariableDetails$variableId[1], 'cat3')
-  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
-  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId')) 
-  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','cat3','cat4'))
-  
   # Continuous overlay with > 8 values
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat4', 'entity.contC'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
-  
-  dt <- scattergl.dt(df, map, 'raw')
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contC', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
+
+  dt <- scattergl.dt(df, variables, 'raw')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
@@ -523,9 +933,9 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 4)
   expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails','overlayVariableDetails'))
-  expect_equal(names(jsonList$scatterplot$config$overlayVariableDetails),c('variableId','entityId'))
-  expect_equal(jsonList$scatterplot$config$overlayVariableDetails$variableId, 'contC')
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$scatterplot$config$variables$variableSpec$variableId[jsonList$scatterplot$config$variables$plotReference == 'overlay'], 'contC')
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(jsonList$sampleSizeTable$facetVariableDetails[[1]]$variableId, 'cat4')
@@ -533,66 +943,38 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','contC','cat4'))
 
-
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat4', 'entity.contC'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), 'displayLabel' = c('yDisplay', 'xDisplay', 'panelDisplay', 'zDisplay'), stringsAsFactors=FALSE)
-  
-  dt <- scattergl.dt(df, map, 'raw')
-  outJson <- getJSON(dt, FALSE)
-  jsonList <- jsonlite::fromJSON(outJson)
-  
-  expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
-  expect_equal(names(jsonList$scatterplot),c('data','config'))
-  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY','seriesGradientColorscale'))
-  expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value', 'displayLabel'))
-  expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 4)
-  expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails','overlayVariableDetails'))
-  expect_equal(names(jsonList$scatterplot$config$overlayVariableDetails),c('variableId','entityId', 'displayLabel'))
-  expect_equal(jsonList$scatterplot$config$overlayVariableDetails$variableId, 'contC')
-  expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
-  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
-  expect_equal(jsonList$sampleSizeTable$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
-  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId', 'displayLabel'))
-  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','contC','cat4'))
-  
-  
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat4', 'entity.contC'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), 'displayLabel' = c('', 'xDisplay', '', 'zDisplay'), stringsAsFactors=FALSE)
-  
-  dt <- scattergl.dt(df, map, 'raw')
-  outJson <- getJSON(dt, FALSE)
-  jsonList <- jsonlite::fromJSON(outJson)
-  
-  expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
-  expect_equal(names(jsonList$scatterplot),c('data','config'))
-  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY','seriesGradientColorscale'))
-  expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
-  expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 4)
-  expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails','overlayVariableDetails'))
-  expect_equal(names(jsonList$scatterplot$config$overlayVariableDetails),c('variableId','entityId', 'displayLabel'))
-  expect_equal(jsonList$scatterplot$config$overlayVariableDetails$variableId, 'contC')
-  expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
-  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
-  expect_equal(jsonList$sampleSizeTable$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
-  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId', 'displayLabel'))
-  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','contC','cat4'))
-
-
   # Continuous overlay with < 9 values
-  map <- data.frame('id' = c('entity.int6', 'entity.contB', 'entity.contA', 'entity.cat4'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
-  dt <- scattergl.dt(df, map, 'smoothedMeanWithRaw')
+  dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
 
@@ -602,10 +984,9 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 24)
   expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails'))
-  expect_equal(names(jsonList$scatterplot$config$xVariableDetails),c('variableId','entityId'))
-  expect_equal(jsonList$scatterplot$config$xVariableDetails$variableId, 'contA')
-  expect_equal(jsonList$scatterplot$config$yVariableDetails$variableId, 'contB')
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config$variables),c("variableClass","variableSpec","plotReference","dataType","dataShape","isCollection","imputeZero"))
+  expect_equal(jsonList$scatterplot$config$variables$variableSpec$variableId, c("contB","contA","int6","cat4"))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
@@ -615,17 +996,40 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','int6','cat4'))
 
   # With collection vars and computed variable metadata
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
-                    'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable', 'overlayVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  
-  computedVariableMetadata = list('displayName' = c('VarLabel1','VarLabel2'),
-                                  'displayRangeMin' = '0',
-                                  'displayRangeMax' = '1',
-                                  'collectionVariable' = list('collectionType' = 'abundance'))
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contD', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'computed'),
+      variableSpec = new("VariableSpec", variableId = 'collection', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'),
+      displayName = "Label",
+      displayRangeMin = 0,
+      displayRangeMax = 1,
+      isCollection = TRUE,
+      members = new("VariableSpecList", SimpleList(
+        new("VariableSpec", variableId = "contB", entityId = "entity"),
+        new("VariableSpec", variableId = "contA", entityId = "entity"),
+        new("VariableSpec", variableId = "contC", entityId = "entity")
+      ))
+    )
+  ))
 
-  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable1', computedVariableMetadata = computedVariableMetadata)
+  dt <- scattergl.dt(df, variables, 'raw')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
@@ -633,14 +1037,7 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$scatterplot),c('data','config'))
   expect_equal(names(jsonList$scatterplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY'))
   expect_equal(names(jsonList$scatterplot$data$overlayVariableDetails),c('variableId','entityId','value'))
-  expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','xVariableDetails','yVariableDetails'))
-  expect_equal(names(jsonList$scatterplot$config$computedVariableMetadata), c('displayName','displayRangeMin','displayRangeMax','collectionVariable'))
-  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayRangeMin, computedVariableMetadata$displayRangeMin)
-  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayRangeMax, computedVariableMetadata$displayRangeMax)
-  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayName, computedVariableMetadata$displayName)
-  expect_equal(names(jsonList$scatterplot$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
-  expect_equal(names(jsonList$scatterplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
-  expect_equal(nrow(jsonList$scatterplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 3)
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
   expect_equal(jsonList$scatterplot$config$completeCasesAllVars, nrow(df))
   expect_equal(jsonList$scatterplot$config$completeCasesAxesVars, nrow(df))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails','size'))
@@ -650,30 +1047,48 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(length(jsonList$completeCasesTable$variableDetails$variableId), 5)
 
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
-                    'plotRef' = c('facetVariable2', 'facetVariable2', 'facetVariable2', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  
-  computedVariableMetadata = list('displayRangeMin' = '0.5',
-                                  'displayRangeMax' = '1.5',
-                                  'collectionVariable' = list('collectionType' ='abundance'))
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contD', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'computed'),
+      variableSpec = new("VariableSpec", variableId = 'collection', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet2'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'),
+      displayName = "Label",
+      displayRangeMin = 0.5,
+      displayRangeMax = 1.5,
+      isCollection = TRUE,
+      members = new("VariableSpecList", SimpleList(
+        new("VariableSpec", variableId = "contB", entityId = "entity"),
+        new("VariableSpec", variableId = "contA", entityId = "entity"),
+        new("VariableSpec", variableId = "contC", entityId = "entity")
+      ))
+    )
+  ))
 
-  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable2', computedVariableMetadata = computedVariableMetadata)
+  dt <- scattergl.dt(df, variables, 'raw')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
   expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY'))
-  expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
-  expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','xVariableDetails','yVariableDetails'))
-  expect_equal(names(jsonList$scatterplot$config$computedVariableMetadata), c('displayRangeMin','displayRangeMax','collectionVariable'))
-  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayRangeMin, computedVariableMetadata$displayRangeMin)
-  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayRangeMax, computedVariableMetadata$displayRangeMax)
-  expect_equal(names(jsonList$scatterplot$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
-  expect_equal(names(jsonList$scatterplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
-  expect_equal(nrow(jsonList$scatterplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 3)
+  expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value','displayLabel'))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
   expect_equal(jsonList$scatterplot$config$completeCasesAllVars, nrow(df))
   expect_equal(jsonList$scatterplot$config$completeCasesAxesVars, nrow(df))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
@@ -682,29 +1097,48 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(length(jsonList$completeCasesTable$variableDetails$variableId), 5)
   
-  
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.contC', 'entity.contD', 'entity.cat3'),
-                    'plotRef' = c('overlayVariable', 'overlayVariable', 'overlayVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
-  
-  computedVariableMetadata = list('displayName' = c('VarLabel1','VarLabel2'),
-                                  'collectionVariable' = list('collectionType' = 'abundance'))
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contD', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'computed'),
+      variableSpec = new("VariableSpec", variableId = 'collection', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'),
+      displayName = "Label",
+      displayRangeMin = 0,
+      displayRangeMax = 1,
+      isCollection = TRUE,
+      members = new("VariableSpecList", SimpleList(
+        new("VariableSpec", variableId = "contB", entityId = "entity"),
+        new("VariableSpec", variableId = "contA", entityId = "entity"),
+        new("VariableSpec", variableId = "contC", entityId = "entity")
+      ))
+    )
+  ))
 
-  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'overlayVariable', computedVariableMetadata = computedVariableMetadata)
+  dt <- scattergl.dt(df, variables, 'raw', collectionVariablePlotRef = 'overlayVariable', computedVariableMetadata = computedVariableMetadata)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
   expect_equal(names(jsonList$scatterplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY'))
-  expect_equal(names(jsonList$scatterplot$data$overlayVariableDetails),c('variableId','entityId','value'))
-  expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','computedVariableMetadata','xVariableDetails','yVariableDetails'))
-  expect_equal(names(jsonList$scatterplot$config$computedVariableMetadata), c('displayName','collectionVariable'))
-  expect_equal(jsonList$scatterplot$config$computedVariableMetadata$displayName, computedVariableMetadata$displayName)
-  expect_equal(names(jsonList$scatterplot$config$computedVariableMetadata$collectionVariable), c('collectionType','collectionVariablePlotRef','collectionValuePlotRef','collectionVariableDetails'))
-  expect_equal(names(jsonList$scatterplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), c('variableId','entityId'))
-  expect_equal(nrow(jsonList$scatterplot$config$computedVariableMetadata$collectionVariable$collectionVariableDetails), 3)
+  expect_equal(names(jsonList$scatterplot$data$overlayVariableDetails),c('variableId','entityId','value','displayLabel'))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
   expect_equal(jsonList$scatterplot$config$completeCasesAllVars, nrow(df))
   expect_equal(jsonList$scatterplot$config$completeCasesAxesVars, nrow(df))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails','size'))
@@ -717,15 +1151,41 @@ test_that("scattergl() returns appropriately formatted json", {
 
   # When we have only one data point and the plot has only one group, ensure seriesX and seriesY
   # will be arrays
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat4', 'entity.contC'),
-                    'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'),
-                    'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'),
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), 'displayLabel' = c('yDisplay', 'xDisplay', 'panelDisplay', 'zDisplay'), stringsAsFactors=FALSE)
-  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contC', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    )
+  ))
+
   df <- as.data.frame(testDF)
   df <- df[1, ]
 
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(typeof(jsonList$scatterplot$data$seriesX), 'list')
@@ -735,38 +1195,90 @@ test_that("scattergl() returns appropriately formatted json", {
 
 
 test_that("scattergl.dt() returns correct information about missing data", {
-  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.contA', 'entity.cat4'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), stringsAsFactors=FALSE)
+  
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
 
   # Add nMissing missing values to each column
   set.seed(123)
   nMissing <- 10
   df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
   
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - nMissing
   expect_equal(all(completecasestable$completeCases == nrow(df)-nMissing), TRUE)
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE) 
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-  dt <- scattergl.dt(df, map, value = 'raw', evilMode = 'strataVariables')
+  dt <- scattergl.dt(df, variables, value = 'raw', evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA) & !is.na(df$entity.contB)))
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], length(unlist(dt$seriesX)))
-  #dt <- scattergl.dt(df, map, value = 'raw', evilMode = 'allVariables')
+  #dt <- scattergl.dt(df, variables, value = 'raw', evilMode = 'allVariables')
   #expect_equal(attr(dt, 'completeCasesAllVars')[1], sum(complete.cases(df[, map$id, with=FALSE])))
 
   ## Using naToZero to change some NAs to 0
-  map <- data.frame('id' = c('entity.cat3', 'entity.contB', 'entity.contA', 'entity.cat4'),
-                    'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable', 'facetVariable1'),
-                    'dataType' = c('STRING', 'NUMBER', 'NUMBER', 'STRING'),
-                    'dataShape' = c('CATEGORICAL', 'CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL'), 
-                    'naToZero' = c(FALSE,'', 'TRUE', NA), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'),
+      imputeZero = TRUE
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = "STRING"),
+      dataShape = new("DataShape", value = "CATEGORICAL")
+    )
+  ))
 
-
-  dt <- scattergl.dt(df, map, 'raw')
+  dt <- scattergl.dt(df, variables, 'raw')
   completecasestable <- completeCasesTable(dt)
   # Each entry except 'contA' should equal NROW(df) - nMissing
   expect_equal(sum(completecasestable$completeCases == nrow(df)-nMissing), 3)
@@ -774,28 +1286,73 @@ test_that("scattergl.dt() returns correct information about missing data", {
   # number of completeCases should be < complete cases for each var
   expect_true(all(attr(dt, 'completeCasesAllVars')[1] < completecasestable$completeCases)) 
   expect_true(attr(dt, 'completeCasesAxesVars')[1] > attr(dt, 'completeCasesAllVars')[1])
-  dt <- scattergl.dt(df, map, value = 'raw', evilMode='strataVariables')
+  dt <- scattergl.dt(df, variables, value = 'raw', evilMode='strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contB)))
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], length(unlist(dt$seriesX)))
 
   # SeriesGradientColorscale with no data
-  map <- data.frame('id' = c('entity.contC', 'entity.contB', 'entity.contA'),
-                  'plotRef' = c('overlayVariable', 'yAxisVariable', 'xAxisVariable'),
-                  'dataType' = c('NUMBER', 'NUMBER', 'NUMBER'),
-                  'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contC', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    )
+  ))
 
-  dt <- scattergl.dt(df, map, 'raw', evilMode = 'strataVariables')
+  dt <- scattergl.dt(df, variables, 'raw', evilMode = 'strataVariables')
   expect_equal(nrow(dt), 2)
   expect_equal(names(dt), c('seriesX', 'seriesY', 'seriesGradientColorscale'))
   expect_equal(lapply(dt$seriesGradientColorscale, length), lapply(dt$seriesX, length))
   expect_true(all(is.na(dt$seriesGradientColorscale[[2]])))
 
-  map <- data.frame('id' = c('entity.contB', 'entity.contA', 'entity.cat4', 'entity.contC'),
-                  'plotRef' = c('yAxisVariable', 'xAxisVariable', 'facetVariable1', 'overlayVariable'),
-                  'dataType' = c('NUMBER', 'NUMBER', 'STRING', 'NUMBER'),
-                  'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CATEGORICAL', 'CONTINUOUS'), stringsAsFactors=FALSE)
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contC', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    )
+  ))
 
-  dt <- scattergl.dt(df, map, 'raw', evilMode = 'strataVariables')
+  dt <- scattergl.dt(df, variables, 'raw', evilMode = 'strataVariables')
   expect_equal(names(dt), c('entity.cat4', 'seriesX', 'seriesY', 'seriesGradientColorscale'))
   expect_equal(lapply(dt$seriesGradientColorscale, length), lapply(dt$seriesX, length))
   expect_true(all(is.na(dt$seriesGradientColorscale[[2]])))
@@ -811,9 +1368,9 @@ test_that("scattergl.dt() returns correct information about missing data", {
   expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 10)
   expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
   expect_true(all(is.na(jsonList$scatterplot$data$seriesGradientColorscale[[2]]))) # should be null in the json file, but fromJSON converts to NA
-  expect_equal(names(jsonList$scatterplot$config),c('completeCasesAllVars','completeCasesAxesVars','xVariableDetails','yVariableDetails','overlayVariableDetails'))
-  expect_equal(names(jsonList$scatterplot$config$overlayVariableDetails),c('variableId','entityId'))
-  expect_equal(jsonList$scatterplot$config$overlayVariableDetails$variableId, 'contC')
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$scatterplot$config$variables$variableSpec$variableId[jsonList$scatterplot$config$variables$plotReference == 'overlay'], 'contC')
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(jsonList$sampleSizeTable$facetVariableDetails[[1]]$variableId, 'cat4')
@@ -827,13 +1384,30 @@ test_that("scattergl.dt() returns correct information about missing data", {
   df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
   
   # Multiple vars to overlay
-  map <- data.frame('id' = c('entity.contB', 'entity.contC', 'entity.contD', 'entity.repeatedContA'), 
-                    'plotRef' = c('overlayVariable', 'overlayVariable', 'overlayVariable', 'xAxisVariable'), 
-                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER'), 
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'), 
-                    stringsAsFactors=FALSE)
-  
-  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'overlayVariable')
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'collection', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'),
+      isCollection = TRUE,
+      members = new("VariableSpecList", SimpleList(
+        new("VariableSpec", variableId = "contB", entityId = "entity"),
+        new("VariableSpec", variableId = "contC", entityId = "entity"),
+        new("VariableSpec", variableId = "contD", entityId = "entity")
+      ))
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'repeatedContA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    )
+  ))
+
+  dt <- scattergl.dt(df, variables, 'raw', collectionVariablePlotRef = 'overlayVariable')
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - 10
   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)
@@ -844,13 +1418,30 @@ test_that("scattergl.dt() returns correct information about missing data", {
   expect_true(attr(dt, 'completeCasesAxesVars')[1] == nrow(df) - nMissing)
 
   # Multiple vars to facet1
-  map <- data.frame('id' = c('entity.contB', 'entity.contC', 'entity.contD', 'entity.repeatedContA'), 
-                    'plotRef' = c('facetVariable1', 'facetVariable1', 'facetVariable1', 'xAxisVariable'), 
-                    'dataType' = c('NUMBER', 'NUMBER', 'NUMBER', 'NUMBER'), 
-                    'dataShape' = c('CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS', 'CONTINUOUS'), 
-                    stringsAsFactors=FALSE)
-  
-  dt <- scattergl.dt(df, map, 'raw', collectionVariablePlotRef = 'facetVariable1')
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'collection', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'),
+      isCollection = TRUE,
+      members = new("VariableSpecList", SimpleList(
+        new("VariableSpec", variableId = "contB", entityId = "entity"),
+        new("VariableSpec", variableId = "contC", entityId = "entity"),
+        new("VariableSpec", variableId = "contD", entityId = "entity")
+      ))
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'repeatedContA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    )
+  ))
+
+  dt <- scattergl.dt(df, variables, 'raw', collectionVariablePlotRef = 'facetVariable1')
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - 10
   expect_equal(all(completecasestable$completeCases == nrow(df)-10), TRUE)

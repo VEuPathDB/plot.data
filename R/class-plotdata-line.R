@@ -1,29 +1,5 @@
 newLinePD <- function(.dt = data.table::data.table(),
-                         xAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         yAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         overlayVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         facetVariable1 = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         facetVariable2 = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
+                         variables = veupathUtils::VariableMetadataList(),
                          viewport = list('xMin' = NULL,
                                          'xMax' = NULL),
                          binWidth,
@@ -32,23 +8,12 @@ newLinePD <- function(.dt = data.table::data.table(),
                          evilMode = character(),
                          numeratorValues = character(),
                          denominatorValues = character(),
-                         collectionVariableDetails = list('inferredVariable' = NULL,
-                                               'inferredVarPlotRef' = NULL,
-                                               'collectionVariablePlotRef' = NULL),
-                         computedVariableMetadata = list('displayName' = NULL,
-                                                         'displayRangeMin' = NULL,
-                                                         'displayRangeMax' = NULL,
-                                                         'collectionVariable' = NULL),
                          verbose = logical(),
                          ...,
                          class = character()) {
 
   .pd <- newPlotdata(.dt = .dt,
-                     xAxisVariable = xAxisVariable,
-                     yAxisVariable = yAxisVariable,
-                     overlayVariable = overlayVariable,
-                     facetVariable1 = facetVariable1,
-                     facetVariable2 = facetVariable2,
+                     variables = variables,
                      evilMode = evilMode,
                      collectionVariableDetails = collectionVariableDetails,
                      computedVariableMetadata = computedVariableMetadata,
@@ -56,13 +21,15 @@ newLinePD <- function(.dt = data.table::data.table(),
                      class = "lineplot")
 
   attr <- attributes(.pd)
+  variables <- attr$variables
 
-  x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
-  xType <- attr$xAxisVariable$dataType
-  y <- veupathUtils::toColNameOrNull(attr$yAxisVariable)
-  yType <- attr$yAxisVariable$dataType
-  group <- veupathUtils::toColNameOrNull(attr$overlayVariable)
-  panel <- findPanelColName(attr$facetVariable1, attr$facetVariable2)
+  x <- veupathUtils::findColNamesFromPlotRef(variables, 'xAxis')
+  xType <- veupathUtils::findDataTypesFromPlotRef(variables, 'xAxis')
+  y <- veupathUtils::findColNamesFromPlotRef(variables, 'yAxis')
+  yType <- veupathUtils::findDataTypesFromPlotRef(variables, 'yAxis')
+  group <- veupathUtils::findColNamesFromPlotRef(variables, 'overlay')
+  panel <- findPanelColName(veupathUtils::findVariableSpecFromPlotRef(variables, 'facet1'), 
+                            veupathUtils::findVariableSpecFromPlotRef(variables, 'facet2'))
 
   if (yType == 'STRING') {
     if (is.null(numeratorValues)) {
@@ -178,8 +145,9 @@ newLinePD <- function(.dt = data.table::data.table(),
 }
 
 validateLinePD <- function(.line, verbose) {
-  xAxisVariable <- attr(.line, 'xAxisVariable')
-  if (!xAxisVariable$dataShape %in% c('CONTINUOUS','ORDINAL')) {
+  variables <- attr(.line, 'variables')
+  xShape <- veupathUtils::findDataShapesFromPlotRef(variables, 'xAxis')
+  if (!xShape %in% c('CONTINUOUS','ORDINAL')) {
     stop('The independent axis must be continuous or ordinal for lineplot.')
   }
   veupathUtils::logWithTime('Line plot request has been validated!', verbose)
@@ -206,15 +174,8 @@ validateLinePD <- function(.line, verbose) {
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, 
 #' mislead you and steal your soul \cr
-#' @section Map Structure:
-#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-#' - id: the variable name. Must match column name in the data exactly. \cr
-#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
-#' - naToZero: Options are TRUE, FALSE, or ''. Optional. Indicates whether to replaces NAs with 0, assuming the column is numeric. If set to TRUE, all NAs found within the column should be replaced with 0. Passing '' will result in using the function default, which in plot.data is FALSE. Setting naToZero=TRUE for a string var will throw an error. \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable 
+#' @param variables veupathUtils::VariableMetadataList
 #' sourceId and its position in the plot. Recognized plotRef values are 'xAxisVariable', 
 #' 'yAxisVariable', 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
@@ -232,21 +193,32 @@ validateLinePD <- function(.line, verbose) {
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @examples
-#' # Construct example data
-#' df <- data.table('xvar' = sample(1:20, 100, replace=T),
-#'                  'yvar' = rnorm(100), stringsAsFactors = F)
+#' df <- data.table('entity.xvar' = sample(1:20, 100, replace=T),
+#'                  'entity.yvar' = rnorm(100), stringsAsFactors = F)
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'yvar'),
-#'                  'plotRef' = c('xAxisVariable', 'yAxisVariable'),
-#'                  'dataType' = c('NUMBER', 'NUMBER'),
-#'                  'dataShape' = c('CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- veupathUtils::VariableMetadataList(
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'xAxis'),
+#'     dataType = veupathUtils::DataType(value = 'NUMBER'),
+#'     dataShape = veupathUtils::DataShape(value = 'CONTINUOUS')
+#'   ),
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'yvar', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'yAxis'),
+#'     dataType = veupathUtils::DataType(value = 'NUMBER'),
+#'     dataShape = veupathUtils::DataShape(value = 'CONTINUOUS')
+#'   )
+#' )
 #' 
 #' # Returns a data table with plot-ready data
 #' dt <- lineplot.dt(df, map, value = 'median')
 #' @export
 lineplot.dt <- function(data, 
-                         map, 
+                         variables, 
                          binWidth = NULL, 
                          value = c('mean',
                                    'median',
@@ -257,8 +229,6 @@ lineplot.dt <- function(data,
                          numeratorValues = NULL,
                          denominatorValues = NULL,
                          evilMode = c('noVariables', 'allVariables', 'strataVariables'),
-                         collectionVariablePlotRef = NULL,
-                         computedVariableMetadata = NULL,
                          verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
@@ -270,59 +240,27 @@ lineplot.dt <- function(data,
     data.table::setDT(data)
   }
 
-  map <- validateMap(map)
-  veupathUtils::logWithTime('Map has been validated.', verbose)
-
-  # If there is a duplicated plotRef in map, it must match collectionVariablePlotRef
-  if (any(duplicated(map$plotRef))) {
-    if (!identical(collectionVariablePlotRef, unique(map$plotRef[duplicated(map$plotRef)]))) {
-      stop('collectionVar error: duplicated map plotRef does not match collectionVariablePlotRef.')
-    }
+  xVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'xAxis')
+  if (is.null(xVM)) {
+    stop("Must provide x-axis variable for plot type line.")
   }
 
-  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
-  if (is.null(xAxisVariable$variableId)) {
-    stop("Must provide xAxisVariable for plot type line.")
-  }
-  yAxisVariable <- plotRefMapToList(map, 'yAxisVariable')
-  if (is.null(yAxisVariable$variableId)) {
-    if (is.null(collectionVariablePlotRef)) {
-      stop("Must provide yAxisVariable for plot type line.")
+  yVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'yAxis')
+  collectionVM <- veupathUtils::findCollectionVariableMetadata(variables)
+  if (is.null(yVM)) {
+    if (is.null(collectionVM)) {
+      stop("Must provide y-axis variable for plot type line.")
     }
   }
-  overlayVariable <- plotRefMapToList(map, 'overlayVariable')
-  facetVariable1 <- plotRefMapToList(map, 'facetVariable1')
-  facetVariable2 <- plotRefMapToList(map, 'facetVariable2')
 
   # Handle collectionVars
-  collectionVariableDetails <- list('inferredVariable' = NULL,
-                         'inferredVarPlotRef' = 'yAxisVariable',
-                         'collectionVariablePlotRef' = collectionVariablePlotRef)
-  if (!is.null(collectionVariablePlotRef)) {
-    if (identical(collectionVariablePlotRef, 'overlayVariable')) { 
-      inferredVarEntityId <- unique(overlayVariable$entityId)
-    } else if (identical(collectionVariablePlotRef, 'facetVariable1')) { 
-      inferredVarEntityId <- unique(facetVariable1$entityId)
-    } else if (identical(collectionVariablePlotRef, 'facetVariable2')) { 
-      inferredVarEntityId <- unique(facetVariable2$entityId)
-    } else { 
-      stop('collectionVar error: collectionVariablePlotRef must be either overlayVariable, facetVariable1, or facetVariable2 for line.')
-    }
-
-    collectionVariableDetails$inferredVariable <- list('variableId' = 'yAxisVariable',
-                                          'entityId' = inferredVarEntityId,
-                                          'dataType' = 'NUMBER',
-                                          'dataShape' = 'CONTINUOUS')
-
-    veupathUtils::logWithTime('Created inferred variable from collectionVariable.', verbose)
+  if (!is.null(collectionVM)) {
+    if (!collectionVM@plotReference@value %in% c('overlay', 'facet1', 'facet2')) stop('Collection variable PlotReference must be either overlay, facet1, or facet2 for lineplot.')
   }
 
+
   .line <- newLinePD(.dt = data,
-                            xAxisVariable = xAxisVariable,
-                            yAxisVariable = yAxisVariable,
-                            overlayVariable = overlayVariable,
-                            facetVariable1 = facetVariable1,
-                            facetVariable2 = facetVariable2,
+                            variables = variables,
                             viewport = viewport,
                             numeratorValues = numeratorValues,
                             denominatorValues = denominatorValues,
@@ -330,8 +268,6 @@ lineplot.dt <- function(data,
                             value = value,
                             errorBars = errorBars,
                             evilMode = evilMode,
-                            collectionVariableDetails = collectionVariableDetails,
-                            computedVariableMetadata = computedVariableMetadata,
                             verbose = verbose)
 
   .line <- validateLinePD(.line, verbose)
@@ -366,15 +302,8 @@ lineplot.dt <- function(data,
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, 
 #' mislead you and steal your soul \cr
-#' @section Map Structure:
-#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-#' - id: the variable name. Must match column name in the data exactly. \cr
-#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
-#' - naToZero: Options are TRUE, FALSE, or ''. Optional. Indicates whether to replaces NAs with 0, assuming the column is numeric. If set to TRUE, all NAs found within the column should be replaced with 0. Passing '' will result in using the function default, which in plot.data is FALSE. Setting naToZero=TRUE for a string var will throw an error. \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId 
+#' @param variables veupathUtils::VariableMetadataList
 #' and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yAxisVariable', 
 #' 'overlayVariable', 'facetVariable1' and 'facetVariable2'
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
@@ -393,20 +322,32 @@ lineplot.dt <- function(data,
 #' @return character name of json file containing plot-ready data
 #' @examples
 #' # Construct example data
-#' df <- data.table('xvar' = sample(1:20, 100, replace=T),
-#'                  'yvar' = rnorm(100), stringsAsFactors = F)
+#' df <- data.table('entity.xvar' = sample(1:20, 100, replace=T),
+#'                  'entity.yvar' = rnorm(100), stringsAsFactors = F)
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('xvar', 'yvar'),
-#'                  'plotRef' = c('xAxisVariable', 'yAxisVariable'),
-#'                  'dataType' = c('NUMBER', 'NUMBER'),
-#'                  'dataShape' = c('CONTINUOUS', 'CONTINUOUS'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- veupathUtils::VariableMetadataList(
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'xAxis'),
+#'     dataType = veupathUtils::DataType(value = 'NUMBER'),
+#'     dataShape = veupathUtils::DataShape(value = 'CONTINUOUS')
+#'   ),
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'yvar', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'yAxis'),
+#'     dataType = veupathUtils::DataType(value = 'NUMBER'),
+#'     dataShape = veupathUtils::DataShape(value = 'CONTINUOUS')
+#'   )
+#' )
 #' 
 #' # Returns the name of a json file
 #' lineplot(df, map, value = 'median')
 #' @export
 lineplot <- function(data,
-                      map,
+                      variables,
                       binWidth = NULL,
                       value = c('mean', 
                                 'median',
@@ -424,7 +365,7 @@ lineplot <- function(data,
   verbose <- veupathUtils::matchArg(verbose)
 
   .line <- lineplot.dt(data,
-                           map,
+                           variables,
                            binWidth,
                            value = value,
                            errorBars = errorBars,
@@ -432,8 +373,6 @@ lineplot <- function(data,
                            numeratorValues = numeratorValues,
                            denominatorValues = denominatorValues,
                            evilMode = evilMode,
-                           collectionVariablePlotRef = collectionVariablePlotRef,
-                           computedVariableMetadata = computedVariableMetadata,
                            verbose = verbose)
                            
   outFileName <- writeJSON(.line, evilMode, 'lineplot', verbose)

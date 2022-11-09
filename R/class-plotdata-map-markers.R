@@ -1,25 +1,6 @@
 #' importFrom stringi stri_sort
 newMapMarkersPD <- function(.dt = data.table::data.table(),
-                         xAxisVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         geoAggregateVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         latitudeVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),
-                         longitudeVariable = list('variableId' = NULL,
-                                              'entityId' = NULL,
-                                              'dataType' = NULL,
-                                              'dataShape' = NULL,
-                                              'displayLabel' = NULL),                     
+                         variables = veupathUtils::VariableMetadataList(),                 
                          value = character(),
                          binWidth,
                          binReportValue = character(),
@@ -34,21 +15,19 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
                          class = character()) {
 
   .pd <- newPlotdata(.dt = .dt,
-                     xAxisVariable = xAxisVariable,
-                     geoAggregateVariable = geoAggregateVariable,
-                     latitudeVariable = latitudeVariable,
-                     longitudeVariable = longitudeVariable,
+                     variables = variables,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "mapMarkers")
 
   attr <- attributes(.pd)
+  variables <- attr$variables
 
-  x <- veupathUtils::toColNameOrNull(attr$xAxisVariable)
-  xType <- attr$xAxisVariable$dataType
-  geo <- veupathUtils::toColNameOrNull(attr$geoAggregateVariable)
-  lat <- veupathUtils::toColNameOrNull(attr$latitudeVariable)
-  lon <- veupathUtils::toColNameOrNull(attr$longitudeVariable)
+  x <- veupathUtils::findColNamesFromPlotRef(variables, 'xAxis')
+  xType <- veupathUtils::findDataTypesFromPlotRef(variables, 'xAxis')
+  geo <- veupathUtils::findColNamesFromPlotRef(variables, 'geo')
+  lat <- veupathUtils::findColNamesFromPlotRef(variables, 'latitude')
+  lon <- veupathUtils::findColNamesFromPlotRef(variables, 'longitude')
 
   if (is.null(geolocationViewport)) {
     geolocationViewport <- findGeolocationViewport(.pd, lat, lon)
@@ -237,12 +216,6 @@ validateMapMarkersPD <- function(.map, verbose) {
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
-#' @section Map Structure:
-#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-#' - id: the variable name. Must match column name in the data exactly. \cr
-#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr
 #' @section Geolocation Viewport Structure:
 #' This is a list of lists taking the form: \cr
 #' *latitude \cr
@@ -253,7 +226,7 @@ validateMapMarkersPD <- function(.map, verbose) {
 #' **right = numeric \cr
 #' @return data.table plot-ready data
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot. See section below for organization.
+#' @param variables veupathUtils::VariableMetadataList
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
@@ -263,20 +236,32 @@ validateMapMarkersPD <- function(.map, verbose) {
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
 #' # Construct example data
-#' df <- data.table('xAxis' = sample(c('a','b','c'), 100, replace=T),
-#'                  'facet' = sample(c('red','green','blue'), 100, replace=T))
+#' df <- data.table('entity.xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'entity.facet' = sample(c('red','green','blue'), 100, replace=T))
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('facet', 'xAxis'),
-#'                  'plotRef' = c('geoAggregateVariable', 'xAxisVariable'),
-#'                  'dataType' = c('STRING', 'STRING'),
-#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- veupathUtils::VariableMetadataList(
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'xAxis'),
+#'     dataType = veupathUtils::DataType(value = 'STRING'),
+#'     dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+#'   ),
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'facet', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'geo'),
+#'     dataType = veupathUtils::DataType(value = 'STRING'),
+#'     dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+#'   )
+#' )
 #' 
 #' # Returns a data table with plot-ready data
 #' dt <- mapMarkers.dt(df,map,value='count')
 #' @export
 mapMarkers.dt <- function(data, 
-                   map,
+                   variables,
                    binWidth = NULL,
                    value = c('count', 'proportion'),
                    binReportValue = c('binWidth', 'numBins'),
@@ -294,13 +279,13 @@ mapMarkers.dt <- function(data,
     data.table::setDT(data)
   }
 
-  xAxisVariable <- plotRefMapToList(map, 'xAxisVariable')
+  xVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'xAxis')
   # if we didnt require this, itd just return counts unstratified and could replace the java map plugin?
-  if (is.null(xAxisVariable$variableId)) {
+  if (is.null(xVM)) {
     stop("Must provide xAxisVariable for plot type mapMarkers.")
   }
-  if (is.null(binWidth) && xAxisVariable$dataType != 'STRING') {
-    x <- veupathUtils::toColNameOrNull(xAxisVariable)
+  if (is.null(binWidth) && xVM@dataType@value != 'STRING') {
+    x <- veupathUtils::getColName(xVM@variableSpec)
 
     if (is.null(binRange)) {
       binWidth <- numBinsToBinWidth(data[[x]], 8, na.rm = TRUE)
@@ -311,24 +296,21 @@ mapMarkers.dt <- function(data,
     }
   }
 
-  geoAggregateVariable <- plotRefMapToList(map, 'geoAggregateVariable')
-  if (is.null(geoAggregateVariable$variableId)) {
+  geoVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'geo')
+  if (is.null(geoVM)) {
     stop("Must provide geoAggregateVariable for plot type mapMarkers.")
   }
-  latitudeVariable <- plotRefMapToList(map, 'latitudeVariable')
-  if (is.null(latitudeVariable$variableId) && !is.null(viewport)) {
+  latitudeVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'latitude')
+  if (is.null(latitudeVM) && !is.null(viewport)) {
     stop("Must provide latitudeVariable for plot type mapMarkers.")
   }
-  longitudeVariable <- plotRefMapToList(map, 'longitudeVariable')
-  if (is.null(longitudeVariable$variableId) && !is.null(viewport)) {
+  longitudeVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'longitude')
+  if (is.null(longitudeVM) && !is.null(viewport)) {
     stop("Must provide longitudeVariable for plot type mapMarkers.")
   }
 
   .map <- newMapMarkersPD(.dt = data,
-                    xAxisVariable = xAxisVariable,
-                    geoAggregateVariable = geoAggregateVariable,
-                    latitudeVariable = latitudeVariable,
-                    longitudeVariable = longitudeVariable,
+                    variables = variables,
                     value = value,
                     binWidth = binWidth,
                     binReportValue = binReportValue,
@@ -362,12 +344,6 @@ mapMarkers.dt <- function(data,
 #' - allow smoothed means and agg values etc over axes values where we have no data for the strata vars \cr
 #' - return a total count of plotted incomplete cases \cr
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
-#' @section Map Structure:
-#' The 'map' associates columns in the data with plot elements, as well as passes information about each variable relevant for plotting. Specifically, the `map` argument is a data.frame with the following columns: \cr
-#' - id: the variable name. Must match column name in the data exactly. \cr
-#' - plotRef: The plot element to which that variable will be mapped. Options are 'xAxisVariable', 'yAxisVariable', 'zAxisVariable', 'overlayVariable', 'facetVariable1', 'facetVariable2'.  \cr
-#' - dataType: Options are 'NUMBER', 'INTEGER', 'STRING', or 'DATE'. Optional. \cr
-#' - dataShape: Options are 'CONTINUOUS', 'CATEGORICAL', 'ORDINAL', 'BINARY. Optional. \cr 
 #' @section Geolocation Viewport Structure:
 #' This is a list of lists taking the form: \cr
 #' *latitude \cr
@@ -377,7 +353,7 @@ mapMarkers.dt <- function(data,
 #' **left = numeric \cr
 #' **right = numeric \cr
 #' @param data data.frame to make plot-ready data for
-#' @param map data.frame with at least two columns (id, plotRef) indicating a variable sourceId and its position in the plot.
+#' @param variables veupathUtils::VariableMetadataList
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
 #' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
@@ -387,21 +363,33 @@ mapMarkers.dt <- function(data,
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
 #' # Construct example data
-#' df <- data.table('xAxis' = sample(c('a','b','c'), 100, replace=T),
-#'                  'facet' = sample(c('red','green','blue'), 100, replace=T))
+#' df <- data.table('entity.xvar' = sample(c('a','b','c'), 100, replace=T),
+#'                  'entity.facet' = sample(c('red','green','blue'), 100, replace=T))
 #' 
-#' # Create map that specifies variable role in the plot and supplies variable metadata
-#' map <- data.frame('id' = c('facet', 'xAxis'),
-#'                  'plotRef' = c('geoAggregateVariable', 'xAxisVariable'),
-#'                  'dataType' = c('STRING', 'STRING'),
-#'                  'dataShape' = c('CATEGORICAL', 'CATEGORICAL'), stringsAsFactors=FALSE)
-#'
+#' # Create VariableMetadataList that specifies variable role in the plot and supplies variable metadata
+#' variables <- veupathUtils::VariableMetadataList(
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'xvar', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'xAxis'),
+#'     dataType = veupathUtils::DataType(value = 'STRING'),
+#'     dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+#'   ),
+#'   veupathUtils::VariableMetadata(
+#'     variableClass = veupathUtils::VariableClass(value = 'native'),
+#'     variableSpec = veupathUtils::VariableSpec(variableId = 'facet', entityId = 'entity'),
+#'     plotReference = veupathUtils::PlotReference(value = 'geo'),
+#'     dataType = veupathUtils::DataType(value = 'STRING'),
+#'     dataShape = veupathUtils::DataShape(value = 'CATEGORICAL')
+#'   )
+#' )
+#' 
 #' # Returns the name of a json file
 #' mapMarkers(df,map,value='count')
 #' @return character name of json file containing plot-ready data
 #' @export
 mapMarkers <- function(data, 
-                map,
+                variables,
                 binWidth = NULL,
                 value = c('count', 'proportion'),
                 binReportValue = c('binWidth', 'numBins'),
@@ -412,7 +400,7 @@ mapMarkers <- function(data,
 
   verbose <- veupathUtils::matchArg(verbose)
 
-  .map <- mapMarkers.dt(data, map, binWidth, value, binReportValue, binRange, viewport, evilMode, verbose)
+  .map <- mapMarkers.dt(data, variables, binWidth, value, binReportValue, binRange, viewport, evilMode, verbose)
   outFileName <- writeJSON(.map, evilMode, 'mapMarkers', verbose)
 
   return(outFileName)

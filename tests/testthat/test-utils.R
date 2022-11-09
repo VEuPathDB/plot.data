@@ -332,38 +332,6 @@ test_that("plotRefMapToNull handles many naToZero inputs", {
 
 })
 
-test_that("toColNameOrNull works", {
-  varDetailsList <- list('variableId' = 'var',
-                         'entityId' = 'entity',
-                         'dataType' = NULL,
-                         'dataShape' = NULL)
-  colName <- toColNameOrNull(varDetailsList)
-
-  expect_equal(colName, 'entity.var')
-
-  varDetailsList <- list('variableId' = 'var',
-                         'entityId' = NULL,
-                         'dataType' = NULL,
-                         'dataShape' = NULL)
-  colName <- toColNameOrNull(varDetailsList)
-
-  expect_equal(colName, 'var')
-
-  varDetailsList <- list('variableId' = NULL,
-                         'entityId' = NULL,
-                         'dataType' = NULL,
-                         'dataShape' = NULL)
-  colName <- toColNameOrNull(varDetailsList)
-
-  expect_equal(is.null(colName), TRUE)
-
-  varDetailsList <- list('variableId' = '',
-                         'entityId' = '',
-                         'dataType' = NULL,
-                         'dataShape' = NULL)
-  expect_equal(is.null(colName), TRUE)
-})
-
 test_that("smoothedMean passes along error messages for method `gam` w few values", {
   dt <- data.table::data.table(x = c(1, 5, 2, 3, 4), y = 1:5)
   sm <- smoothedMean(dt, 'gam')
@@ -650,22 +618,6 @@ test_that("breaks returns appropriate results", {
   dt <- breaks(df, 'width', binwidth=0.5)
   expect_equal(length(dt), 59)
 })
-
-test_that("findColNamesByPredicate works", {
-
-  varList <- list(
-    list('variableId' = 'a', 'id' = 1)
-    , list('variableId' = 'b', 'id' = 1)
-    , list('variableId' = 'c', 'id' = 2)
-    , list('variableId' = 'd', 'id' = 4)
-  )
-
-  names <- findColNamesByPredicate(varList, function(x) {if (x$id == 1) return(TRUE)})
-  expect_equal(names, c('a','b'))
-  names <- findColNamesByPredicate(varList, function(x) {if (x$id != 2) return(TRUE)})
-  expect_equal(names, c('a','b','d'))
-})
-
 
 test_that("signifDigitEpsilon returns appropriate results", {
   expect_equal(signifDigitEpsilon(1.23, 3), 0.01)
