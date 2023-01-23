@@ -1,6 +1,8 @@
 newMosaicPD <- function(.dt = data.table::data.table(),
                          variables = veupathUtils::VariableMetadataList(),
                          statistic = character(),
+                         columnReferenceValue = character(),
+                         rowReferenceValue = character(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -25,18 +27,15 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   if (!isEvil) {
     if (statistic = 'all') {
       # currently only valid for 2x2
-
-      # it also needs to build a cont table object and call various methods
-      # still need to decide how to store the results here
-      #     a separate attribute so statsTable for rxc can keep doing its thing without having to change the api there too?
+      attr$allStatsTable <- panelAllStats(.pd, x, y, panel, columnReferenceValue, rowReferenceValue)
+      veupathUtils::logWithTime('Calculated all relevant statistics.', verbose)
     } else if (statistic == 'chiSq') {
-      statsTable <- panelChiSq(.pd, x, y, panel)
+      attr$statsTable <- panelChiSq(.pd, x, y, panel)
       veupathUtils::logWithTime('Calculated chi-squared statistic.', verbose)
     } else {
-      statsTable <- panelBothRatios(.pd, x, y, panel)
+      attr$statsTable <- panelBothRatios(.pd, x, y, panel)
       veupathUtils::logWithTime('Calculated odds ratio and relative risk.', verbose)
     }
-    attr$statsTable <- statsTable
   } else {
     veupathUtils::logWithTime('No statistics calculated when evilMode is `allVariables` or `strataVariables`.', verbose)
   }
@@ -75,6 +74,8 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' @param data data.frame to make plot-ready data for
 #' @param variables veupathUtil::VariableMetadataList
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
+#' @param columnReferenceValue String representing a value present in the column names of the contingency table
+#' @param rowReferenceValue String representing a value present in the row names of the contingency table
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
@@ -106,6 +107,8 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' @export
 mosaic.dt <- function(data, variables, 
                       statistic = NULL, 
+                      columnReferenceValue = NULL,
+                      rowReferenceValue = NULL,
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       verbose = c(TRUE, FALSE)) {
 
@@ -153,6 +156,8 @@ mosaic.dt <- function(data, variables,
   .mosaic <- newMosaicPD(.dt = data,
                             variables = variables,
                             statistic = statistic,
+                            columnReferenceValue = columnReferenceValue,
+                            rowReferenceValue = rowReferenceValue,
                             evilMode = evilMode,
                             verbose = verbose)
 
@@ -181,6 +186,8 @@ mosaic.dt <- function(data, variables,
 #' @param data data.frame to make plot-ready data for
 #' @param variables veupathUtils::VariableMetadataList
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
+#' @param columnReferenceValue String representing a value present in the column names of the contingency table
+#' @param rowReferenceValue String representing a value present in the row names of the contingency table
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
@@ -211,12 +218,14 @@ mosaic.dt <- function(data, variables,
 #' mosaic(df, map)
 #' @export
 mosaic <- function(data, variables, 
-                   statistic = NULL, 
+                   statistic = NULL,
+                   columnReferenceValue = NULL,
+                   rowReferenceValue = NULL,
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
   verbose <- veupathUtils::matchArg(verbose)
 
-  .mosaic <- mosaic.dt(data, variables, statistic, evilMode, verbose)
+  .mosaic <- mosaic.dt(data, variables, statistic, columnReferenceValue, rowReferenceValue, evilMode, verbose)
   outFileName <- writeJSON(.mosaic, evilMode, 'mosaic', verbose)
 
   return(outFileName)
