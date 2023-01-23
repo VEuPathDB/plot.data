@@ -21,8 +21,15 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                             veupathUtils::findVariableSpecFromPlotRef(variables, 'facet2'))
 
   isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
+  
   if (!isEvil) {
-    if (statistic == 'chiSq') {
+    if (statistic = 'all') {
+      # currently only valid for 2x2
+
+      # it also needs to build a cont table object and call various methods
+      # still need to decide how to store the results here
+      #     a separate attribute so statsTable for rxc can keep doing its thing without having to change the api there too?
+    } else if (statistic == 'chiSq') {
       statsTable <- panelChiSq(.pd, x, y, panel)
       veupathUtils::logWithTime('Calculated chi-squared statistic.', verbose)
     } else {
