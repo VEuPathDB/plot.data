@@ -44,18 +44,19 @@ setMethod("chiSqResults", signature("TwoByTwoTable"), function(object) {
   object <- orderByReferenceValues(object)
   tbl <- object@data
 
-  if (!length(tbl)) {
+  chisq <- try(chisq.test(tbl))
+
+  if (!veupathUtils::is.error(chisq)) {
     return(Statistic('name'='chiSq', 
                      'value'=NA_real_,
-                     'confidenceInterval'=Range(),
+                     'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
                      'pvalue'=NA_real_))
   }
-
-  chisq <- chisq.test(tbl)
+  
   stat <- Statistic('name'='chiSq', 
                      'value'=signif(as.numeric(chisq$statistic), 2),
-                     'confidenceInterval'=Range(),
+                     'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
                      'pvalue'=formatPValue(as.numeric(chisq$p.value)))
 
@@ -78,18 +79,19 @@ setMethod("fishersTest", signature("TwoByTwoTable"), function(object) {
   object <- orderByReferenceValues(object)
   tbl <- object@data
 
-  if (!length(tbl)) {
+  fisher <- try(fisher.test(tbl))
+
+  if (veupathUtils::is.error(fisher)) {
     return(Statistic('name'='fisher', 
                      'value'=NA_real_,
-                     'confidenceInterval'=Range(),
+                     'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
                      'pvalue'=NA_real_))
   }
-
-  fisher <- fisher.test(tbl)
+  
   stat <- Statistic('name'='fisher', 
                      'value'=signif(as.numeric(fisher$estimate), 2),
-                     'confidenceInterval'=Range('minimum'=signif(fisher$conf.int[1],2), 'maximum'=signif(fisher$conf.int[2],2)),
+                     'confidenceInterval'=veupathUtils::Range('minimum'=signif(fisher$conf.int[1],2), 'maximum'=signif(fisher$conf.int[2],2)),
                      'confidenceLevel'=attr(fisher$conf.int, 'conf.level'),
                      'pvalue'=formatPValue(as.numeric(fisher$p.value)))
 
@@ -115,7 +117,7 @@ setMethod("prevalence", signature("TwoByTwoTable"), function(object) {
   if (!length(tbl)) {
     return(Statistic('name'='prevalence', 
                      'value'=NA_real_,
-                     'confidenceInterval'=Range(),
+                     'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
                      'pvalue'=NA_real_))
   }
@@ -123,10 +125,10 @@ setMethod("prevalence", signature("TwoByTwoTable"), function(object) {
   nRows <- nrow(tbl)
   nCols <- ncol(tbl)
 
-  a <- tbl[1]
-  b <- ifelse(nRows > 1, tbl[2], 0)
-  c <- ifelse(nCols > 1, tbl[3], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[4], 0)
+  a <- tbl[1,1]
+  b <- ifelse(nRows > 1, tbl[2,1], 0)
+  c <- ifelse(nCols > 1, tbl[1,2], 0)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
 
   numerator <- a+c
   denominator <- a+b+c+d
@@ -134,7 +136,7 @@ setMethod("prevalence", signature("TwoByTwoTable"), function(object) {
 
   stat <- Statistic('name'='prevalence', 
                      'value'=out$est,
-                     'confidenceInterval'=Range('minimum'=out$low, 'maximum'=out$upp),
+                     'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
                      'pvalue'=NA_real_)
 
@@ -160,7 +162,7 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
   if (!length(tbl)) {
     return(Statistic('name'='relativeRisk', 
                      'value'=NA_real_,
-                     'confidenceInterval'=Range(),
+                     'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
                      'pvalue'=NA_real_))
   }
@@ -168,10 +170,10 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
   nRows <- nrow(tbl)
   nCols <- ncol(tbl)
 
-  a <- tbl[1]
-  b <- ifelse(nRows > 1, tbl[2], 0)
-  c <- ifelse(nCols > 1, tbl[3], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[4], 0)
+  a <- tbl[1,1]
+  b <- ifelse(nRows > 1, tbl[2,1], 0)
+  c <- ifelse(nCols > 1, tbl[1,2], 0)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
 
   numerator <- (a/(a+b))
   denominator <- (c/(c+d))
@@ -179,7 +181,7 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
 
   stat <- Statistic('name'='relativeRisk',
                     'value'=out$est, 
-                    'confidenceInterval'=Range('minimum'=out$low, 'maximum'=out$upp),
+                    'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                     'confidenceLevel'=.95, 
                     'pvalue'=NA_real_)
 
@@ -205,7 +207,7 @@ setMethod("oddsRatio", signature("TwoByTwoTable"), function(object) {
   if (!length(tbl)) {
     return(Statistic('name'='oddsRatio', 
                      'value'=NA_real_,
-                     'confidenceInterval'=Range(),
+                     'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
                      'pvalue'=NA_real_))
   }
@@ -213,10 +215,10 @@ setMethod("oddsRatio", signature("TwoByTwoTable"), function(object) {
   nRows <- nrow(tbl)
   nCols <- ncol(tbl)
 
-  a <- tbl[1]
-  b <- ifelse(nRows > 1, tbl[2], 0)
-  c <- ifelse(nCols > 1, tbl[3], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[4], 0)
+  a <- tbl[1,1]
+  b <- ifelse(nRows > 1, tbl[2,1], 0)
+  c <- ifelse(nCols > 1, tbl[1,2], 0)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
 
   numerator <- (a*d)
   denominator <- (b*c)
@@ -224,7 +226,7 @@ setMethod("oddsRatio", signature("TwoByTwoTable"), function(object) {
  
   stat <- Statistic('name'='oddsRatio',
                     'value'=out$est, 
-                    'confidenceInterval'=Range('minimum'=out$low, 'maximum'=out$upp),
+                    'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                     'confidenceLevel'=.95, 
                     'pvalue'=NA_real_)
 
@@ -250,7 +252,7 @@ setMethod("sensitivity", signature("TwoByTwoTable"), function(object) {
   if (!length(tbl)) {
     return(Statistic('name'='sensitivity', 
                      'value'=NA_real_,
-                     'confidenceInterval'=Range(),
+                     'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
                      'pvalue'=NA_real_))
   }
@@ -258,10 +260,10 @@ setMethod("sensitivity", signature("TwoByTwoTable"), function(object) {
   nRows <- nrow(tbl)
   nCols <- ncol(tbl)
 
-  a <- tbl[1]
-  b <- ifelse(nRows > 1, tbl[2], 0)
-  c <- ifelse(nCols > 1, tbl[3], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[4], 0)
+  a <- tbl[1,1]
+  b <- ifelse(nRows > 1, tbl[2,1], 0)
+  c <- ifelse(nCols > 1, tbl[1,2], 0)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
 
   numerator <- a
   denominator <- a+c
@@ -269,7 +271,7 @@ setMethod("sensitivity", signature("TwoByTwoTable"), function(object) {
 
   stat <- Statistic('name'='sensitivity', 
                      'value'=out$est,
-                     'confidenceInterval'=Range('minimum'=out$low, 'maximum'=out$upp),
+                     'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
                      'pvalue'=NA_real_)
 
@@ -295,7 +297,7 @@ setMethod("specificity", signature("TwoByTwoTable"), function(object) {
   if (!length(tbl)) {
     return(Statistic('name'='specificity', 
                      'value'=NA_real_,
-                     'confidenceInterval'=Range(),
+                     'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
                      'pvalue'=NA_real_))
   }
@@ -303,10 +305,10 @@ setMethod("specificity", signature("TwoByTwoTable"), function(object) {
   nRows <- nrow(tbl)
   nCols <- ncol(tbl)
 
-  a <- tbl[1]
-  b <- ifelse(nRows > 1, tbl[2], 0)
-  c <- ifelse(nCols > 1, tbl[3], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[4], 0)
+  a <- tbl[1,1]
+  b <- ifelse(nRows > 1, tbl[2,1], 0)
+  c <- ifelse(nCols > 1, tbl[1,2], 0)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
 
   numerator <- d
   denominator <- b+d
@@ -314,7 +316,7 @@ setMethod("specificity", signature("TwoByTwoTable"), function(object) {
 
   stat <- Statistic('name'='specificity', 
                      'value'=out$est,
-                     'confidenceInterval'=Range('minimum'=out$low, 'maximum'=out$upp),
+                     'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
                      'pvalue'=NA_real_)
 
@@ -340,7 +342,7 @@ setMethod("posPredictiveValue", signature("TwoByTwoTable"), function(object) {
   if (!length(tbl)) {
     return(Statistic('name'='posPredictiveValue', 
                      'value'=NA_real_,
-                     'confidenceInterval'=Range(),
+                     'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
                      'pvalue'=NA_real_))
   }
@@ -348,10 +350,10 @@ setMethod("posPredictiveValue", signature("TwoByTwoTable"), function(object) {
   nRows <- nrow(tbl)
   nCols <- ncol(tbl)
 
-  a <- tbl[1]
-  b <- ifelse(nRows > 1, tbl[2], 0)
-  c <- ifelse(nCols > 1, tbl[3], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[4], 0)
+  a <- tbl[1,1]
+  b <- ifelse(nRows > 1, tbl[2,1], 0)
+  c <- ifelse(nCols > 1, tbl[1,2], 0)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
 
   numerator <- a
   denominator <- a+b
@@ -359,7 +361,7 @@ setMethod("posPredictiveValue", signature("TwoByTwoTable"), function(object) {
 
   stat <- Statistic('name'='posPredictiveValue', 
                      'value'=out$est,
-                     'confidenceInterval'=Range('minimum'=out$low, 'maximum'=out$upp),
+                     'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
                      'pvalue'=NA_real_)
 
@@ -385,7 +387,7 @@ setMethod("negPredictiveValue", signature("TwoByTwoTable"), function(object) {
   if (!length(tbl)) {
     return(Statistic('name'='negPredictiveValue', 
                      'value'=NA_real_,
-                     'confidenceInterval'=Range(),
+                     'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
                      'pvalue'=NA_real_))
   }
@@ -393,10 +395,10 @@ setMethod("negPredictiveValue", signature("TwoByTwoTable"), function(object) {
   nRows <- nrow(tbl)
   nCols <- ncol(tbl)
 
-  a <- tbl[1]
-  b <- ifelse(nRows > 1, tbl[2], 0)
-  c <- ifelse(nCols > 1, tbl[3], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[4], 0)
+  a <- tbl[1,1]
+  b <- ifelse(nRows > 1, tbl[2,1], 0)
+  c <- ifelse(nCols > 1, tbl[1,2], 0)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
 
   numerator <- d
   denominator <- c+d
@@ -404,7 +406,7 @@ setMethod("negPredictiveValue", signature("TwoByTwoTable"), function(object) {
 
   stat <- Statistic('name'='negPredictiveValue', 
                      'value'=out$est,
-                     'confidenceInterval'=Range('minimum'=out$low, 'maximum'=out$upp),
+                     'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
                      'pvalue'=NA_real_)
 

@@ -104,8 +104,8 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' @export
 mosaic.dt <- function(data, variables, 
                       statistic = NULL, 
-                      columnReferenceValue = NULL,
-                      rowReferenceValue = NULL,
+                      columnReferenceValue = NA_character_,
+                      rowReferenceValue = NA_character_,
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       verbose = c(TRUE, FALSE)) {
 
@@ -216,8 +216,8 @@ mosaic.dt <- function(data, variables,
 #' @export
 mosaic <- function(data, variables, 
                    statistic = NULL,
-                   columnReferenceValue = NULL,
-                   rowReferenceValue = NULL,
+                   columnReferenceValue = NA_character_,
+                   rowReferenceValue = NA_character_,
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
   verbose <- veupathUtils::matchArg(verbose)

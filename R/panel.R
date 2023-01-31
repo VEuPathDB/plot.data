@@ -1,28 +1,28 @@
 #very specifically not setting these names by ref
 #since the new col names 'x' 'y' arent meaningful
 
-panelAllStats <- function(data, x, y, panel = NULL, columnReferenceValue, rowReferenceValue) {
+panelAllStats <- function(data, x, y, panel = NULL, columnReferenceValue = NA_character_, rowReferenceValue = NA_character_) {
   names(data)[names(data) == x] <- 'x'
   names(data)[names(data) == y] <- 'y'
   x <- 'x'
   y <- 'y'
 
   if (is.null(panel)) {
-    tbl <- tableXY(.pd)
-    tbl <- TwoByTwoTable(tbl, columnReferenceValue, rowReferenceValue)
+    tbl <- tableXY(data)
+    tbl <- TwoByTwoTable('data'=tbl, 'columnReferenceValue'=columnReferenceValue, 'rowReferenceValue'=rowReferenceValue)
     statistics <- allStats(tbl)
-    dt <- plot.data::as.data.table(statistics)
+    dt <- veupathUtils::as.data.table(statistics)
   } else {
     dt.list <- split(data, list(data[[panel]]))
     dt.list <- lapply(dt.list, tableXY)
     dt.list <- lapply(dt.list, TwoByTwoTable, columnReferenceValue, rowReferenceValue)
-    dt.list <- lapply(dt.list, allStats)
-    dt.list <- lapply(dt.list, plot.data::as.data.table)
+    statistics <- lapply(dt.list, allStats)
+    dt.list <- lapply(dt.list, veupathUtils::as.data.table)
     dt <- purrr::reduce(dt.list, rbind)
     dt[[panel]] <- names(dt.list)
   }
 
-  return(dt) 
+  return(statistics) 
 }
 
 panelBothRatios <- function(data, x, y, panel = NULL) {

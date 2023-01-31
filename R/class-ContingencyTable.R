@@ -59,7 +59,7 @@ check_twobytwo_table <- function(object) {
     errors <- character()
     tbl <- object@data
     
-    if (length(tbl) != 4 || nrow(tbl) != 2) {
+    if (!(length(tbl) <= 4) || !(nrow(tbl) <= 2)) {
       msg <- "Provided table is not the correct size. A table with two columns and two rows is required."
       errors <- c(errors, msg)
     }
