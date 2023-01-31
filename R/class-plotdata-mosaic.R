@@ -25,16 +25,13 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
   
   if (!isEvil) {
-    if (statistic = 'all') {
+    if (statistic == 'all') {
       # currently only valid for 2x2
       attr$allStatsTable <- panelAllStats(.pd, x, y, panel, columnReferenceValue, rowReferenceValue)
       veupathUtils::logWithTime('Calculated all relevant statistics.', verbose)
     } else if (statistic == 'chiSq') {
       attr$statsTable <- panelChiSq(.pd, x, y, panel)
       veupathUtils::logWithTime('Calculated chi-squared statistic.', verbose)
-    } else {
-      attr$statsTable <- panelBothRatios(.pd, x, y, panel)
-      veupathUtils::logWithTime('Calculated odds ratio and relative risk.', verbose)
     }
   } else {
     veupathUtils::logWithTime('No statistics calculated when evilMode is `allVariables` or `strataVariables`.', verbose)
@@ -73,7 +70,7 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param variables veupathUtil::VariableMetadataList
-#' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
+#' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'all', the second of which will return odds ratios and relative risk.
 #' @param columnReferenceValue String representing a value present in the column names of the contingency table
 #' @param rowReferenceValue String representing a value present in the row names of the contingency table
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -137,8 +134,8 @@ mosaic.dt <- function(data, variables,
   y <- veupathUtils::getColName(yVM@variableSpec)
 
   if (!is.null(statistic)) {
-    if (!statistic %in% c('chiSq','bothRatios')) {
-      stop('`statistic` argument must be one of either \'chiSq\' or \'bothRatios\', the second of which returns both odds ratios and relative risk.')
+    if (!statistic %in% c('chiSq','all')) {
+      stop('`statistic` argument must be one of either \'chiSq\' or \'all\', the second of which returns both odds ratios and relative risk.')
     }
     #na.rm should be safe, since x and y axes will later have NA removed anyhow in the plot.data parent class
     if ((data.table::uniqueN(data[[x]], na.rm = TRUE) > 2 || data.table::uniqueN(data[[y]], na.rm = TRUE) > 2) && statistic == 'bothRatios') {
@@ -185,7 +182,7 @@ mosaic.dt <- function(data, variables,
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param variables veupathUtils::VariableMetadataList
-#' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
+#' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'all', the second of which will return odds ratios and relative risk.
 #' @param columnReferenceValue String representing a value present in the column names of the contingency table
 #' @param rowReferenceValue String representing a value present in the row names of the contingency table
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 

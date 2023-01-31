@@ -19,7 +19,7 @@ test_that("mosaic.dt() does not fail when 2x2 version only has 1 value on an axi
 
   df <- testDF
 
-  dt <- mosaic.dt(df, variables, 'bothRatios')
+  dt <- mosaic.dt(df, variables, 'all')
   expect_equal(dt$xLabel[[1]], 'cat1_a')
   expect_equal(dt$yLabel[[1]][[1]], c('cat2_a', 'cat2_b'))
   expect_equal(dt$value[[1]][[1]], c(251, 249))
@@ -41,7 +41,7 @@ test_that("mosaic.dt() does not fail when 2x2 version only has 1 value on an axi
   
   df <- testDF
 
-  dt <- mosaic.dt(df, variables, 'bothRatios')
+  dt <- mosaic.dt(df, variables, 'all')
   expect_equal(dt$xLabel[[1]], c('cat2_a', 'cat2_b'))
   expect_equal(dt$yLabel[[1]][[1]], 'cat1_a')
   expect_equal(dt$value[[1]][[1]], 251)

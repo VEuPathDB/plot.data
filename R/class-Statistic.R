@@ -11,22 +11,29 @@ check_statistic_with_confidence <- function(object) {
         errors <- c(errors, msg)
     } else
 
-    # TODO should we allow NA here?
-    if (length(pvalue) != 1) {
+    if (!is.na(pvalue)) {
+      if (length(pvalue) != 1) {
         msg <- "The slot `pvalue` must have a single value."
         errors <- c(errors, msg)
-    } else if (pvalue < 0 || pvalue > 1) {
+      } else if (pvalue < 0 || pvalue > 1) {
         msg <- "Provided p-value is invalid."
         errors <- c(errors, msg)
-    }
+      }
+    }  
 
-    # TODO should it also err if we dont provide a conf level? or just assume .95?
-    if (is.null(object@confidenceInterval)) {
+    # false for NaN, while is.na is TRUE for NaN
+    is.NA <- function(object) { ifelse(is.na(object), ifelse(is.nan(object), FALSE, TRUE), FALSE) }
+
+    if (is.NA(ciMax) || is.NA(ciMin)) {
       if (!is.na(ciLevel)) {
         msg <- "A confidence level was provided without a confidence interval."
         errors <- c(errors, msg)
       }
     } else {
+      #just to guarantee the below condition works
+      if (is.nan(ciMin)) ciMin <- -Inf
+      if (is.nan(ciMax)) ciMax <- Inf
+
       if (value < ciMin || value > ciMax) {
         msg <- "Provided value is not within the specified confidence interval."
         errors <- c(errors, msg)

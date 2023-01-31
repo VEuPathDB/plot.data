@@ -1,3 +1,30 @@
+formatPValue <- function(pvalue) {
+  if (pvalue < 0.0001) return("<0.0001")
+  return(signif(pvalue, 2))
+}
+
+zexact <- function(numerator, denominator, conf.level){
+  # Exact binomial confidence limits from function binom::binom.confint. 
+  alpha <- 1 - conf.level
+  alpha2 <- 0.5 * alpha
+  
+  p <- numerator / denominator
+  a1 <- numerator == 0
+  a2 <- numerator == denominator
+  lb <- ub <- numerator
+  lb[a1] <- 1
+  ub[a2] <- denominator[a2] - 1
+  low <- 1 - qbeta(1 - alpha2, denominator + 1 - numerator, lb)
+  upp <- 1 - qbeta(alpha2, denominator - ub, numerator + 1)
+  
+  if (any(a1)) low[a1] <- rep(0, sum(a1))
+  
+  if (any(a2)) upp[a2] <- rep(1, sum(a2))
+  
+  return(data.frame(est = signif(p, 2), lower = signif(low, 2), upper = signif(upp, 2)))
+}
+
+
 medianCI <- function(x, conf.level=.95) {
   x <- x[order(x)]
   n <- length(x)
@@ -302,142 +329,142 @@ smoothedMean <- function(dt, method, collapse = TRUE) {
   return(dt)
 }
 
-#' Odds Ratio
-#'
-#' This function calculates odds ratio, confidence intervals and p-values for epidemiologic data 
-#' @param tbl A frequency table of two binary variables.
-#' @return data.table
-#' @importFrom stats chisq.test
-#' @export
-oddsRatio <- function(tbl) {
-  if (!length(tbl)) {
-    return(data.table::data.table('oddsratio'=jsonlite::unbox(NA), 
-                                  'orInterval'=jsonlite::unbox(NA), 
-                                  'pvalue'=jsonlite::unbox(NA)))
-  }
-
-  nRows <- nrow(tbl)
-  nCols <- ncol(tbl)
-
-  a <- tbl[1,1]
-  b <- ifelse(nRows > 1, tbl[2,1], 0)
-  c <- ifelse(nCols > 1, tbl[1,2], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
-
-  OR <- (a*d)/(b*c)
-  OR <- round(OR, digits=4)
-  alpha <- 0.05
-  siglog <- sqrt((1/a) + (1/b) + (1/c) + (1/d))
-  zalph <- qnorm(1 - alpha/2)
-  logOR <- log(OR)
-  logloOR <- logOR - zalph * siglog
-  loghiOR <- logOR + zalph * siglog
-  ORlo <- round(exp(logloOR), digits=4)
-  ORhi <- round(exp(loghiOR), digits=4)
-
-  p <- chisq.test(tbl)
-  p <- p$p.value
-  p <- round(p, digits=4)
- 
-  dt <- data.table::data.table('oddsratio'=jsonlite::unbox(OR), 
-                               'orInterval'=jsonlite::unbox(paste0(ORlo, "-", ORhi)), 
-                               'pvalue'=jsonlite::unbox(p))
-
-  return(dt)
-}
-
-#' Relative Risk
-#'
-#' This function calculates relative risk, confidence intervals and p-values for epidemiologic data 
-#' @param tbl A frequency table of two binary variables.
-#' @return data.table
-#' @export
-relativeRisk <- function(tbl) {
-  if (!length(tbl)) {
-    return(data.table::data.table('relativerisk'=jsonlite::unbox(NA), 
-                                  'rrInterval'=jsonlite::unbox(NA), 
-                                  'pvalue'=jsonlite::unbox(NA)))
-  }
-  
-  nRows <- nrow(tbl)
-  nCols <- ncol(tbl)
-
-  a <- tbl[1,1]
-  b <- ifelse(nRows > 1, tbl[2,1], 0)
-  c <- ifelse(nCols > 1, tbl[1,2], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
-
-  RR <- (a/(a+b)) / (c/(c+d))
-  RR <- round(RR, digits=4)
-  alpha <- 0.05
-  siglog <- sqrt((1/a) + (1/b) + (1/c) + (1/d))
-  zalph <- qnorm(1 - alpha/2)
-  logRR <- log(RR)
-  logloRR <- logRR - zalph * siglog
-  loghiRR <- logRR + zalph * siglog
-  RRlo <- round(exp(logloRR), digits=4)
-  RRhi <- round(exp(loghiRR), digits=4)
-
-  p <- chisq.test(tbl)
-  p <- p$p.value
-  p <- round(p, digits=4)
-
-  dt <- data.table::data.table('relativerisk'=jsonlite::unbox(RR), 
-                               'rrInterval'=jsonlite::unbox(paste0(RRlo, "-", RRhi)), 
-                               'pvalue'=jsonlite::unbox(p))
-
-  return(dt)
-}
-
-bothRatios <- function(tbl, collapse = TRUE) {
-  if (!length(tbl)) {
-    return(data.table::data.table('oddsratio'=jsonlite::unbox(NA), 
-                                  'relativerisk'=jsonlite::unbox(NA), 
-                                  'orInterval'=jsonlite::unbox(NA), 
-                                  'rrInterval'=jsonlite::unbox(NA), 
-                                  'pvalue'=jsonlite::unbox(NA)))
-  }
-
-  nRows <- nrow(tbl)
-  nCols <- ncol(tbl)
-
-  a <- tbl[1,1]
-  b <- ifelse(nRows > 1, tbl[2,1], 0)
-  c <- ifelse(nCols > 1, tbl[1,2], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
-
-  OR <- (a*d)/(b*c)
-  RR <- (a/(a+b)) / (c/(c+d))
-  OR <- round(OR, digits=4)
-  RR <- round(RR, digits=4)
-
-  alpha <- 0.05
-  siglog <- sqrt((1/a) + (1/b) + (1/c) + (1/d))
-  zalph <- qnorm(1 - alpha/2)
-  logOR <- log(OR)
-  logRR <- log(RR)
-  logloOR <- logOR - zalph * siglog
-  logloRR <- logRR - zalph * siglog
-  loghiOR <- logOR + zalph * siglog
-  loghiRR <- logRR + zalph * siglog
-
-  ORlo <- round(exp(logloOR), digits=4)
-  RRlo <- round(exp(logloRR), digits=4)
-  ORhi <- round(exp(loghiOR), digits=4)
-  RRhi <- round(exp(loghiRR), digits=4)
-
-  p <- chisq.test(tbl)
-  p <- p$p.value
-  p <- round(p, digits=4)
-
-  dt <- data.table::data.table('oddsratio'=jsonlite::unbox(OR), 
-                               'relativerisk'=jsonlite::unbox(RR), 
-                               'orInterval'=jsonlite::unbox(paste0(ORlo, '-', ORhi)), 
-                               'rrInterval'=jsonlite::unbox(paste0(RRlo, '-', RRhi)), 
-                               'pvalue'=jsonlite::unbox(p))
-
-  return(dt)
-}
+##' Odds Ratio
+##'
+##' This function calculates odds ratio, confidence intervals and p-values for epidemiologic data 
+##' @param tbl A frequency table of two binary variables.
+##' @return data.table
+##' @importFrom stats chisq.test
+##' @export
+#oddsRatio <- function(tbl) {
+#  if (!length(tbl)) {
+#    return(data.table::data.table('oddsratio'=jsonlite::unbox(NA), 
+#                                  'orInterval'=jsonlite::unbox(NA), 
+#                                  'pvalue'=jsonlite::unbox(NA)))
+#  }
+#
+#  nRows <- nrow(tbl)
+#  nCols <- ncol(tbl)
+#
+#  a <- tbl[1,1]
+#  b <- ifelse(nRows > 1, tbl[2,1], 0)
+#  c <- ifelse(nCols > 1, tbl[1,2], 0)
+#  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
+#
+#  OR <- (a*d)/(b*c)
+#  OR <- round(OR, digits=4)
+#  alpha <- 0.05
+#  siglog <- sqrt((1/a) + (1/b) + (1/c) + (1/d))
+#  zalph <- qnorm(1 - alpha/2)
+#  logOR <- log(OR)
+#  logloOR <- logOR - zalph * siglog
+#  loghiOR <- logOR + zalph * siglog
+#  ORlo <- round(exp(logloOR), digits=4)
+#  ORhi <- round(exp(loghiOR), digits=4)
+#
+#  p <- chisq.test(tbl)
+#  p <- p$p.value
+#  p <- round(p, digits=4)
+# 
+#  dt <- data.table::data.table('oddsratio'=jsonlite::unbox(OR), 
+#                               'orInterval'=jsonlite::unbox(paste0(ORlo, "-", ORhi)), 
+#                               'pvalue'=jsonlite::unbox(p))
+#
+#  return(dt)
+#}
+#
+##' Relative Risk
+##'
+##' This function calculates relative risk, confidence intervals and p-values for epidemiologic data 
+##' @param tbl A frequency table of two binary variables.
+##' @return data.table
+##' @export
+#relativeRisk <- function(tbl) {
+#  if (!length(tbl)) {
+#    return(data.table::data.table('relativerisk'=jsonlite::unbox(NA), 
+#                                  'rrInterval'=jsonlite::unbox(NA), 
+#                                  'pvalue'=jsonlite::unbox(NA)))
+#  }
+#  
+#  nRows <- nrow(tbl)
+#  nCols <- ncol(tbl)
+#
+#  a <- tbl[1,1]
+#  b <- ifelse(nRows > 1, tbl[2,1], 0)
+#  c <- ifelse(nCols > 1, tbl[1,2], 0)
+#  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
+#
+#  RR <- (a/(a+b)) / (c/(c+d))
+#  RR <- round(RR, digits=4)
+#  alpha <- 0.05
+#  siglog <- sqrt((1/a) + (1/b) + (1/c) + (1/d))
+#  zalph <- qnorm(1 - alpha/2)
+#  logRR <- log(RR)
+#  logloRR <- logRR - zalph * siglog
+#  loghiRR <- logRR + zalph * siglog
+#  RRlo <- round(exp(logloRR), digits=4)
+#  RRhi <- round(exp(loghiRR), digits=4)
+#
+#  p <- chisq.test(tbl)
+#  p <- p$p.value
+#  p <- round(p, digits=4)
+#
+#  dt <- data.table::data.table('relativerisk'=jsonlite::unbox(RR), 
+#                               'rrInterval'=jsonlite::unbox(paste0(RRlo, "-", RRhi)), 
+#                               'pvalue'=jsonlite::unbox(p))
+#
+#  return(dt)
+#}
+#
+#bothRatios <- function(tbl, collapse = TRUE) {
+#  if (!length(tbl)) {
+#    return(data.table::data.table('oddsratio'=jsonlite::unbox(NA), 
+#                                  'relativerisk'=jsonlite::unbox(NA), 
+#                                  'orInterval'=jsonlite::unbox(NA), 
+#                                  'rrInterval'=jsonlite::unbox(NA), 
+#                                  'pvalue'=jsonlite::unbox(NA)))
+#  }
+#
+#  nRows <- nrow(tbl)
+#  nCols <- ncol(tbl)
+#
+#  a <- tbl[1,1]
+#  b <- ifelse(nRows > 1, tbl[2,1], 0)
+#  c <- ifelse(nCols > 1, tbl[1,2], 0)
+#  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
+#
+#  OR <- (a*d)/(b*c)
+#  RR <- (a/(a+b)) / (c/(c+d))
+#  OR <- round(OR, digits=4)
+#  RR <- round(RR, digits=4)
+#
+#  alpha <- 0.05
+#  siglog <- sqrt((1/a) + (1/b) + (1/c) + (1/d))
+#  zalph <- qnorm(1 - alpha/2)
+#  logOR <- log(OR)
+#  logRR <- log(RR)
+#  logloOR <- logOR - zalph * siglog
+#  logloRR <- logRR - zalph * siglog
+#  loghiOR <- logOR + zalph * siglog
+#  loghiRR <- logRR + zalph * siglog
+#
+#  ORlo <- round(exp(logloOR), digits=4)
+#  RRlo <- round(exp(logloRR), digits=4)
+#  ORhi <- round(exp(loghiOR), digits=4)
+#  RRhi <- round(exp(loghiRR), digits=4)
+#
+#  p <- chisq.test(tbl)
+#  p <- p$p.value
+#  p <- round(p, digits=4)
+#
+#  dt <- data.table::data.table('oddsratio'=jsonlite::unbox(OR), 
+#                               'relativerisk'=jsonlite::unbox(RR), 
+#                               'orInterval'=jsonlite::unbox(paste0(ORlo, '-', ORhi)), 
+#                               'rrInterval'=jsonlite::unbox(paste0(RRlo, '-', RRhi)), 
+#                               'pvalue'=jsonlite::unbox(p))
+#
+#  return(dt)
+#}
 
 chiSq <- function(tbl, collapse = TRUE) {
   if (!length(tbl)) {
