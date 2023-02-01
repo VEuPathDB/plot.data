@@ -3,6 +3,7 @@ formatPValue <- function(pvalue) {
   return(signif(pvalue, 2))
 }
 
+#' @importFrom stats qbeta
 zexact <- function(numerator, denominator, conf.level){
   # Exact binomial confidence limits from function binom::binom.confint. 
   alpha <- 1 - conf.level
@@ -14,8 +15,8 @@ zexact <- function(numerator, denominator, conf.level){
   lb <- ub <- numerator
   lb[a1] <- 1
   ub[a2] <- denominator[a2] - 1
-  low <- 1 - suppressWarnings(qbeta(1 - alpha2, denominator + 1 - numerator, lb))
-  upp <- 1 - suppressWarnings(qbeta(alpha2, denominator - ub, numerator + 1))
+  low <- 1 - suppressWarnings(stats::qbeta(1 - alpha2, denominator + 1 - numerator, lb))
+  upp <- 1 - suppressWarnings(stats::qbeta(alpha2, denominator - ub, numerator + 1))
   
   if (!is.na(a1)) if (any(a1)) low[a1] <- rep(0, sum(a1))
   

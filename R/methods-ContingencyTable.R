@@ -3,7 +3,6 @@ setGeneric("orderByReferenceValues",
   signature = "object"
 )
 
-# TODO make this do stuff using table class NOT data.table
 setMethod("orderByReferenceValues", signature("TwoByTwoTable"), function(object) {
   tbl <- object@data
   columnReferenceValue <- object@columnReferenceValue
@@ -33,6 +32,7 @@ setMethod("orderByReferenceValues", signature("TwoByTwoTable"), function(object)
 #' This function calculates Chi Square Results for a contingency table.
 #' @param object A ContingencyTable or TwoByTwoTable object
 #' @return A Statistic object
+#' @importFrom stats chisq.test
 #' @export
 setGeneric("chiSqResults", 
   function(object) standardGeneric("chiSqResults"),
@@ -44,7 +44,7 @@ setMethod("chiSqResults", signature("TwoByTwoTable"), function(object) {
   object <- orderByReferenceValues(object)
   tbl <- object@data
 
-  chisq <- try(suppressWarnings(chisq.test(tbl)))
+  chisq <- try(suppressWarnings(stats::chisq.test(tbl)))
 
   if (veupathUtils::is.error(chisq)) {
     return(Statistic('name'='chiSq', 
@@ -68,6 +68,7 @@ setMethod("chiSqResults", signature("TwoByTwoTable"), function(object) {
 #' This function calculates fisher's Exact Test for a contingency table.
 #' @param object A ContingencyTable or TwoByTwoTable object
 #' @return A Statistic object
+#' @importFrom stats fisher.test
 #' @export
 setGeneric("fishersTest", 
   function(object) standardGeneric("fishersTest"),
@@ -79,7 +80,7 @@ setMethod("fishersTest", signature("TwoByTwoTable"), function(object) {
   object <- orderByReferenceValues(object)
   tbl <- object@data
 
-  fisher <- try(suppressWarnings(fisher.test(tbl)))
+  fisher <- try(suppressWarnings(stats::fisher.test(tbl)))
 
   if (veupathUtils::is.error(fisher)) {
     return(Statistic('name'='fisher', 
