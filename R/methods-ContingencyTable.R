@@ -31,7 +31,7 @@ setMethod("orderByReferenceValues", signature("TwoByTwoTable"), function(object)
 #' 
 #' This function calculates Chi Square Results for a contingency table.
 #' @param object A ContingencyTable or TwoByTwoTable object
-#' @return A Statistic object
+#' @return A veupathUtils::Statistic object
 #' @importFrom stats chisq.test
 #' @export
 setGeneric("chiSqResults", 
@@ -47,14 +47,14 @@ setMethod("chiSqResults", signature("TwoByTwoTable"), function(object) {
   chisq <- try(suppressWarnings(stats::chisq.test(tbl)))
 
   if (veupathUtils::is.error(chisq)) {
-    return(Statistic('name'='chiSq', 
+    return(veupathUtils::Statistic('name'='chiSq', 
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
                      'pvalue'=NA_real_))
   }
   
-  stat <- Statistic('name'='chiSq', 
+  stat <- veupathUtils::Statistic('name'='chiSq', 
                      'value'=signif(as.numeric(chisq$statistic), 2),
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
@@ -67,7 +67,7 @@ setMethod("chiSqResults", signature("TwoByTwoTable"), function(object) {
 #' 
 #' This function calculates fisher's Exact Test for a contingency table.
 #' @param object A ContingencyTable or TwoByTwoTable object
-#' @return A Statistic object
+#' @return A veupathUtils::Statistic object
 #' @importFrom stats fisher.test
 #' @export
 setGeneric("fishersTest", 
@@ -83,14 +83,14 @@ setMethod("fishersTest", signature("TwoByTwoTable"), function(object) {
   fisher <- try(suppressWarnings(stats::fisher.test(tbl)))
 
   if (veupathUtils::is.error(fisher)) {
-    return(Statistic('name'='fisher', 
+    return(veupathUtils::Statistic('name'='fisher', 
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
                      'pvalue'=NA_real_))
   }
   
-  stat <- Statistic('name'='fisher', 
+  stat <- veupathUtils::Statistic('name'='fisher', 
                      'value'=signif(as.numeric(fisher$estimate), 2),
                      'confidenceInterval'=veupathUtils::Range('minimum'=signif(fisher$conf.int[1],2), 'maximum'=signif(fisher$conf.int[2],2)),
                      'confidenceLevel'=attr(fisher$conf.int, 'conf.level'),
@@ -103,7 +103,7 @@ setMethod("fishersTest", signature("TwoByTwoTable"), function(object) {
 #' 
 #' This function calculates Prevalence for a contingency table.
 #' @param object A ContingencyTable or TwoByTwoTable object
-#' @return A Statistic object
+#' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("prevalence", 
   function(object) standardGeneric("prevalence"),
@@ -116,7 +116,7 @@ setMethod("prevalence", signature("TwoByTwoTable"), function(object) {
   tbl <- object@data
 
   if (!length(tbl)) {
-    return(Statistic('name'='prevalence', 
+    return(veupathUtils::Statistic('name'='prevalence', 
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
@@ -135,7 +135,7 @@ setMethod("prevalence", signature("TwoByTwoTable"), function(object) {
   denominator <- a+b+c+d
   out <- zexact(numerator, denominator, .95)
 
-  stat <- Statistic('name'='prevalence', 
+  stat <- veupathUtils::Statistic('name'='prevalence', 
                      'value'=out$est,
                      'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
@@ -148,7 +148,7 @@ setMethod("prevalence", signature("TwoByTwoTable"), function(object) {
 #' 
 #' This function calculates relative risk for a contingency table.
 #' @param object A ContingencyTable or TwoByTwoTable object
-#' @return A Statistic object
+#' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("relativeRisk", 
   function(object) standardGeneric("relativeRisk"),
@@ -161,7 +161,7 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
   tbl <- object@data
 
   if (!length(tbl)) {
-    return(Statistic('name'='relativeRisk', 
+    return(veupathUtils::Statistic('name'='relativeRisk', 
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
@@ -180,7 +180,7 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
   denominator <- (c/(c+d))
   out <- zexact(numerator, denominator, .95)
 
-  stat <- Statistic('name'='relativeRisk',
+  stat <- veupathUtils::Statistic('name'='relativeRisk',
                     'value'=out$est, 
                     'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                     'confidenceLevel'=.95, 
@@ -193,7 +193,7 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
 #' 
 #' This function calculates Odds Ratio for a contingency table.
 #' @param object A ContingencyTable or TwoByTwoTable object
-#' @return A Statistic object
+#' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("oddsRatio", 
   function(object) standardGeneric("oddsRatio"),
@@ -206,7 +206,7 @@ setMethod("oddsRatio", signature("TwoByTwoTable"), function(object) {
   tbl <- object@data
 
   if (!length(tbl)) {
-    return(Statistic('name'='oddsRatio', 
+    return(veupathUtils::Statistic('name'='oddsRatio', 
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
@@ -225,7 +225,7 @@ setMethod("oddsRatio", signature("TwoByTwoTable"), function(object) {
   denominator <- (b*c)
   out <- zexact(numerator, denominator, .95)
  
-  stat <- Statistic('name'='oddsRatio',
+  stat <- veupathUtils::Statistic('name'='oddsRatio',
                     'value'=out$est, 
                     'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                     'confidenceLevel'=.95, 
@@ -238,7 +238,7 @@ setMethod("oddsRatio", signature("TwoByTwoTable"), function(object) {
 #' 
 #' This function calculates Sensitivity for a contingency table.
 #' @param object A ContingencyTable or TwoByTwoTable object
-#' @return A Statistic object
+#' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("sensitivity", 
   function(object) standardGeneric("sensitivity"),
@@ -251,7 +251,7 @@ setMethod("sensitivity", signature("TwoByTwoTable"), function(object) {
   tbl <- object@data
 
   if (!length(tbl)) {
-    return(Statistic('name'='sensitivity', 
+    return(veupathUtils::Statistic('name'='sensitivity', 
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
@@ -270,7 +270,7 @@ setMethod("sensitivity", signature("TwoByTwoTable"), function(object) {
   denominator <- a+c
   out <- zexact(numerator, denominator, .95)
 
-  stat <- Statistic('name'='sensitivity', 
+  stat <- veupathUtils::Statistic('name'='sensitivity', 
                      'value'=out$est,
                      'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
@@ -283,7 +283,7 @@ setMethod("sensitivity", signature("TwoByTwoTable"), function(object) {
 #' 
 #' This function calculates Specificity for a contingency table.
 #' @param object A ContingencyTable or TwoByTwoTable object
-#' @return A Statistic object
+#' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("specificity", 
   function(object) standardGeneric("specificity"),
@@ -296,7 +296,7 @@ setMethod("specificity", signature("TwoByTwoTable"), function(object) {
   tbl <- object@data
 
   if (!length(tbl)) {
-    return(Statistic('name'='specificity', 
+    return(veupathUtils::Statistic('name'='specificity', 
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
@@ -315,7 +315,7 @@ setMethod("specificity", signature("TwoByTwoTable"), function(object) {
   denominator <- b+d
   out <- zexact(numerator, denominator, .95)
 
-  stat <- Statistic('name'='specificity', 
+  stat <- veupathUtils::Statistic('name'='specificity', 
                      'value'=out$est,
                      'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
@@ -328,7 +328,7 @@ setMethod("specificity", signature("TwoByTwoTable"), function(object) {
 #' 
 #' This function calculates positive predictive value for a contingency table.
 #' @param object A ContingencyTable or TwoByTwoTable object
-#' @return A Statistic object
+#' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("posPredictiveValue", 
   function(object) standardGeneric("posPredictiveValue"),
@@ -341,7 +341,7 @@ setMethod("posPredictiveValue", signature("TwoByTwoTable"), function(object) {
   tbl <- object@data
 
   if (!length(tbl)) {
-    return(Statistic('name'='posPredictiveValue', 
+    return(veupathUtils::Statistic('name'='posPredictiveValue', 
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
@@ -360,7 +360,7 @@ setMethod("posPredictiveValue", signature("TwoByTwoTable"), function(object) {
   denominator <- a+b
   out <- zexact(numerator, denominator, .95)
 
-  stat <- Statistic('name'='posPredictiveValue', 
+  stat <- veupathUtils::Statistic('name'='posPredictiveValue', 
                      'value'=out$est,
                      'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
@@ -373,7 +373,7 @@ setMethod("posPredictiveValue", signature("TwoByTwoTable"), function(object) {
 #' 
 #' This function calculates negative predictive value for a contingency table.
 #' @param object A ContingencyTable or TwoByTwoTable object
-#' @return A Statistic object
+#' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("negPredictiveValue", 
   function(object) standardGeneric("negPredictiveValue"),
@@ -386,7 +386,7 @@ setMethod("negPredictiveValue", signature("TwoByTwoTable"), function(object) {
   tbl <- object@data
 
   if (!length(tbl)) {
-    return(Statistic('name'='negPredictiveValue', 
+    return(veupathUtils::Statistic('name'='negPredictiveValue', 
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
@@ -405,7 +405,7 @@ setMethod("negPredictiveValue", signature("TwoByTwoTable"), function(object) {
   denominator <- c+d
   out <- zexact(numerator, denominator, .95)
 
-  stat <- Statistic('name'='negPredictiveValue', 
+  stat <- veupathUtils::Statistic('name'='negPredictiveValue', 
                      'value'=out$est,
                      'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
@@ -414,12 +414,12 @@ setMethod("negPredictiveValue", signature("TwoByTwoTable"), function(object) {
   return(stat)
 })
 
-#' All Available Statistics for Contingency Table
+#' All Available veupathUtils::Statistics for Contingency Table
 #' 
 #' This function calculates any and all statistics which are 
 #' relevant for the class of contingency table that it receives.
 #' @param object A ContingencyTable or TwoByTwoTable object
-#' @return A StatisticList object
+#' @return A veupathUtils::StatisticList object
 #' @export
 setGeneric("allStats", 
   function(object) standardGeneric("allStats"),
@@ -429,7 +429,7 @@ setGeneric("allStats",
 #' @export
 setMethod("allStats", signature("TwoByTwoTable"), function(object) {
    #TODO get list of methods from class and somehow automatically apply?
-   return(StatisticList(SimpleList(
+   return(veupathUtils::StatisticList(SimpleList(
     chiSqResults(object),
     fishersTest(object),
     oddsRatio(object),
