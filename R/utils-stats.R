@@ -14,12 +14,12 @@ zexact <- function(numerator, denominator, conf.level){
   lb <- ub <- numerator
   lb[a1] <- 1
   ub[a2] <- denominator[a2] - 1
-  low <- 1 - qbeta(1 - alpha2, denominator + 1 - numerator, lb)
-  upp <- 1 - qbeta(alpha2, denominator - ub, numerator + 1)
+  low <- 1 - suppressWarnings(qbeta(1 - alpha2, denominator + 1 - numerator, lb))
+  upp <- 1 - suppressWarnings(qbeta(alpha2, denominator - ub, numerator + 1))
   
-  if (any(a1)) low[a1] <- rep(0, sum(a1))
+  if (!is.na(a1)) if (any(a1)) low[a1] <- rep(0, sum(a1))
   
-  if (any(a2)) upp[a2] <- rep(1, sum(a2))
+  if (!is.na(a2)) if (any(a2)) upp[a2] <- rep(1, sum(a2))
   
   return(data.frame(est = signif(p, 2), lower = signif(low, 2), upper = signif(upp, 2)))
 }

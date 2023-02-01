@@ -44,9 +44,9 @@ setMethod("chiSqResults", signature("TwoByTwoTable"), function(object) {
   object <- orderByReferenceValues(object)
   tbl <- object@data
 
-  chisq <- try(chisq.test(tbl))
+  chisq <- try(suppressWarnings(chisq.test(tbl)))
 
-  if (!veupathUtils::is.error(chisq)) {
+  if (veupathUtils::is.error(chisq)) {
     return(Statistic('name'='chiSq', 
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
@@ -79,7 +79,7 @@ setMethod("fishersTest", signature("TwoByTwoTable"), function(object) {
   object <- orderByReferenceValues(object)
   tbl <- object@data
 
-  fisher <- try(fisher.test(tbl))
+  fisher <- try(suppressWarnings(fisher.test(tbl)))
 
   if (veupathUtils::is.error(fisher)) {
     return(Statistic('name'='fisher', 

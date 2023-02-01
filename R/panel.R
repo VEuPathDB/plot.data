@@ -13,16 +13,23 @@ panelAllStats <- function(data, x, y, panel = NULL, columnReferenceValue = NA_ch
     statistics <- allStats(tbl)
     dt <- veupathUtils::as.data.table(statistics)
   } else {
+    buildTwoByTwo <- function(tbl) {
+      TwoByTwoTable('data' = tbl, 'columnReferenceValue' = columnReferenceValue, 'rowReferenceValue' = rowReferenceValue)
+    }
+
     dt.list <- split(data, list(data[[panel]]))
     dt.list <- lapply(dt.list, tableXY)
-    dt.list <- lapply(dt.list, TwoByTwoTable, columnReferenceValue, rowReferenceValue)
-    statistics <- lapply(dt.list, allStats)
+    dt.list <- lapply(dt.list, buildTwoByTwo)
+    dt.list <- lapply(dt.list, allStats)
     dt.list <- lapply(dt.list, veupathUtils::as.data.table)
-    dt <- purrr::reduce(dt.list, rbind)
+    colNames <- names(dt.list[[1]])
+    dt <- data.table::as.data.table(lapply(as.list(colNames), function(name) { lapply( dt.list, function(x) {x[[name]]} ) } ))
+    data.table::setnames(dt, colNames)
+    #dt <- purrr::reduce(dt.list, rbind)
     dt[[panel]] <- names(dt.list)
   }
 
-  return(statistics) 
+  return(dt) 
 }
 
 panelBothRatios <- function(data, x, y, panel = NULL) {
@@ -53,11 +60,11 @@ panelChiSq <- function(data, x, y, panel = NULL) {
 
   if (is.null(panel)) {
     tbl <- tableXY(data)
-    dt <- chiSq(tbl)
+    dt <- suppressWarnings(chiSq(tbl))
   } else {
     dt.list <- split(data, list(data[[panel]]))
     dt.list <- lapply(dt.list, tableXY)
-    dt.list <- lapply(dt.list, chiSq)
+    dt.list <- lapply(dt.list, function(x) {suppressWarnings(chiSq(x))})
     dt <- purrr::reduce(dt.list, rbind)
     dt[[panel]] <- names(dt.list)
   }

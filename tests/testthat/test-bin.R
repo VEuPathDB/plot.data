@@ -2,7 +2,7 @@ context('bin')
 
 test_that("binProportion() returns an appropriately sized data.table", {
   viewport <- list('xMin'=min(testDF$entity.contB), 'xMax'=max(testDF$entity.contB))
-  testDF <- as.data.table(testDF)
+  testDF <- data.table::as.data.table(testDF)
   df <- testDF[, 'entity.contB']
 
   dt <- binProportion(df,'entity.contB', binWidth=.1, barmode='overlay', viewport=viewport)

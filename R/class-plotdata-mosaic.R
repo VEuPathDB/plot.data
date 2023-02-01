@@ -27,7 +27,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   if (!isEvil) {
     if (statistic == 'all') {
       # currently only valid for 2x2
-      attr$allStatsTable <- panelAllStats(.pd, x, y, panel, columnReferenceValue, rowReferenceValue)
+      attr$statsTable <- panelAllStats(.pd, x, y, panel, columnReferenceValue, rowReferenceValue)
       veupathUtils::logWithTime('Calculated all relevant statistics.', verbose)
     } else if (statistic == 'chiSq') {
       attr$statsTable <- panelChiSq(.pd, x, y, panel)
@@ -138,14 +138,14 @@ mosaic.dt <- function(data, variables,
       stop('`statistic` argument must be one of either \'chiSq\' or \'all\', the second of which returns both odds ratios and relative risk.')
     }
     #na.rm should be safe, since x and y axes will later have NA removed anyhow in the plot.data parent class
-    if ((data.table::uniqueN(data[[x]], na.rm = TRUE) > 2 || data.table::uniqueN(data[[y]], na.rm = TRUE) > 2) && statistic == 'bothRatios') {
+    if ((data.table::uniqueN(data[[x]], na.rm = TRUE) > 2 || data.table::uniqueN(data[[y]], na.rm = TRUE) > 2) && statistic == 'all') {
       stop('Odds ratio and relative risk can only be calculated for 2x2 contingency tables. Please use statistic `chiSq` instead.')
     }
   } else {
     if (data.table::uniqueN(data[[x]], na.rm = TRUE) > 2 || data.table::uniqueN(data[[y]], na.rm = TRUE) > 2) {
       statistic <- 'chiSq'
     } else {
-      statistic <- 'bothRatios'
+      statistic <- 'all'
     }
     veupathUtils::logWithTime(paste('No statistic specified, using:', ifelse(statistic=='chiSq', 'chi-squared', 'odds ratio and relative risk')), verbose)
   }

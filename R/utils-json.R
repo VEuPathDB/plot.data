@@ -188,12 +188,6 @@ getJSON <- function(.pd, evilMode) {
     }
   }
 
-  # the new 2x2 stats table has a different api, so this workaround lets us maintain two different apis until they unite
-  if ('allStatsTable' %in% names(namedAttrList)) {
-    statsTable <- attributes(.pd)$allStatsTable
-    namedAttrList$allStatsTable <- NULL
-  }
-
   if ('sampleSizeTable' %in% names(namedAttrList)) {
     sampleSizeTable <- sampleSizeTable(.pd)
     namedAttrList$sampleSizeTable <- NULL

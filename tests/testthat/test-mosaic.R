@@ -69,7 +69,7 @@ test_that("mosaic.dt() does not fail when there are no complete cases.", {
   dt <- mosaic.dt(df, variables)
   attr <- attributes(dt)
   expect_equal(attr$completeCasesAllVars[1], 0)
-  expect_equal(is.na(attr$statsTable$oddsratio), TRUE)
+  expect_equal(is.na(attr$statsTable$oddsRatio@value), TRUE)
   expect_equal(is.list(dt$xLabel), TRUE)
   expect_equal(is.list(dt$yLabel), TRUE)
   expect_equal(is.list(dt$yLabel[[1]]), TRUE)
@@ -113,7 +113,7 @@ test_that("mosaic.dt() returns a valid plot.data mosaic object", {
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(names(sampleSizes), c('entity.cat4','entity.binA','size'))
   expect_equal(nrow(sampleSizes), 4)
-  expect_equal(names(namedAttrList$statsTable), c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','entity.cat4'))
+  expect_equal(names(namedAttrList$statsTable), c('chiSq','fisher','oddsRatio','relativeRisk','prevalence','sensitivity','specificity','posPredictiveValue','negPredictiveValue','entity.cat4'))
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -223,12 +223,6 @@ test_that("mosaic.dt() returns plot data and config of the appropriate types", {
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(class(unlist(sampleSizes$entity.cat4)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
-  expect_equal(class(unlist(namedAttrList$statsTable$oddsratio)), c('scalar', 'numeric'))
-  expect_equal(class(unlist(namedAttrList$statsTable$relativerisk)), c('scalar', 'numeric'))
-  expect_equal(class(unlist(namedAttrList$statsTable$orInterval)), c('scalar', 'character'))
-  expect_equal(class(unlist(namedAttrList$statsTable$rrInterval)), c('scalar', 'character'))
-  expect_equal(class(unlist(namedAttrList$statsTable$pvalue)), c('scalar', 'numeric'))
-  expect_equal(class(unlist(namedAttrList$statsTable$entity.cat4)), 'character')
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -346,8 +340,8 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(dt$yLabel[[1]][[1]],c('binB_a','binB_b'))
   expect_equal(length(dt$value[[1]]),2)
   expect_equal(length(dt$value[[1]][[1]]),2)
-  statsTable <- statsTable(dt)
-  expect_equal(names(statsTable), c(c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'entity.cat4')))
+  statsTable <- attributes(dt)$statsTable
+  expect_equal(names(statsTable), c(c('chiSq', 'fisher', 'oddsRatio', 'relativeRisk', 'prevalence','sensitivity','specificity','posPredictiveValue','negPredictiveValue','entity.cat4')))
   sampleSizeTable <- sampleSizeTable(dt)
   expect_equal(names(sampleSizeTable),c('entity.cat4','entity.binA','size'))
   expect_equal(class(sampleSizeTable$entity.binA[[1]]), 'character')
@@ -377,8 +371,8 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(dt$yLabel[[1]][[1]],c('binB_a','binB_b'))
   expect_equal(length(dt$value[[1]]),2)
   expect_equal(length(dt$value[[1]][[1]]),2)
-  statsTable <- statsTable(dt)
-  expect_equal(names(statsTable), c(c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue')))
+  statsTable <- attributes(dt)$statsTable
+  expect_equal(names(statsTable), c(c('chiSq', 'fisher', 'oddsRatio', 'relativeRisk', 'prevalence','sensitivity','specificity','posPredictiveValue','negPredictiveValue')))
   sampleSizeTable <- sampleSizeTable(dt)
   expect_equal(names(sampleSizeTable),c('entity.binA','size'))
   expect_equal(class(sampleSizeTable$entity.binA[[1]]), 'character')
@@ -672,7 +666,7 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(jsonList$sampleSizeTable$xVariableDetails$variableId[[1]], 'binA')
-  expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','facetVariableDetails'))
+  expect_equal(names(jsonList$statsTable),c('chiSq', 'fisher', 'oddsRatio', 'relativeRisk', 'prevalence','sensitivity','specificity','posPredictiveValue','negPredictiveValue','facetVariableDetails'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('binA', 'binB', 'cat1'))
@@ -717,7 +711,7 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(jsonList$sampleSizeTable$xVariableDetails$variableId[[1]], 'binA')
-  expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','facetVariableDetails'))
+  expect_equal(names(jsonList$statsTable),c('chiSq', 'fisher', 'oddsRatio', 'relativeRisk', 'prevalence','sensitivity','specificity','posPredictiveValue','negPredictiveValue','facetVariableDetails'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('binA', 'binB', 'cat4'))
@@ -763,7 +757,7 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(jsonList$sampleSizeTable$xVariableDetails$variableId[[1]], 'binA')
-  expect_equal(names(jsonList$statsTable),c('oddsratio','relativerisk','orInterval','rrInterval','pvalue','facetVariableDetails'))
+  expect_equal(names(jsonList$statsTable),c('chiSq', 'fisher', 'oddsRatio', 'relativeRisk', 'prevalence','sensitivity','specificity','posPredictiveValue','negPredictiveValue','facetVariableDetails'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId', 'displayLabel'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('binA', 'binB', 'cat4'))
@@ -891,7 +885,7 @@ test_that("mosaic.dt() returns correct information about missing data", {
   df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
   
   dt <- mosaic.dt(df, variables)
-  expect_equal(names(statsTable(dt)),c('oddsratio', 'relativerisk', 'orInterval', 'rrInterval', 'pvalue', 'entity.cat4'))
+  expect_equal(names(attributes(dt)$statsTable),c('chiSq', 'fisher', 'oddsRatio', 'relativeRisk', 'prevalence','sensitivity','specificity','posPredictiveValue','negPredictiveValue', 'entity.cat4'))
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - nMissing
   expect_equal(all(completecasestable$completeCases == nrow(df)-nMissing), TRUE)
