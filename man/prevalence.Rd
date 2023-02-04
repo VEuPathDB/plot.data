@@ -7,10 +7,10 @@
 prevalence(object)
 }
 \arguments{
-\item{object}{A ContingencyTable or TwoByTwoTable object}
+\item{object}{A TwoByTwoTable object}
 }
 \value{
-A Statistic object
+A veupathUtils::Statistic object
 }
 \description{
 This function calculates Prevalence for a contingency table.

@@ -10,7 +10,7 @@ fishersTest(object)
 \item{object}{A ContingencyTable or TwoByTwoTable object}
 }
 \value{
-A Statistic object
+A veupathUtils::Statistic object
 }
 \description{
 This function calculates fisher's Exact Test for a contingency table.

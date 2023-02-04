@@ -7,10 +7,10 @@
 sensitivity(object)
 }
 \arguments{
-\item{object}{A ContingencyTable or TwoByTwoTable object}
+\item{object}{A TwoByTwoTable object}
 }
 \value{
-A Statistic object
+A veupathUtils::Statistic object
 }
 \description{
 This function calculates Sensitivity for a contingency table.

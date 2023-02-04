@@ -81,11 +81,6 @@ check_twobytwo_table <- function(object) {
 #' @name TwoByTwoTable-class
 #' @rdname TwoByTwoTable-class
 #' @export 
-TwoByTwoTable <- setClass("TwoByTwoTable", representation(
-    data = 'table',
-    columnReferenceValue = 'character',
-    rowReferenceValue = 'character'
-), prototype = prototype(
-    columnReferenceValue = NA_character_,
-    rowReferenceValue = NA_character_
-), validity = check_twobytwo_table)
+ TwoByTwoTable <- setClass("TwoByTwoTable", 
+ contains = "ContingencyTable",
+ validity = check_twobytwo_table)

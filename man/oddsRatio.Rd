@@ -7,10 +7,10 @@
 oddsRatio(object)
 }
 \arguments{
-\item{object}{A ContingencyTable or TwoByTwoTable object}
+\item{object}{A TwoByTwoTable object}
 }
 \value{
-A Statistic object
+A veupathUtils::Statistic object
 }
 \description{
 This function calculates Odds Ratio for a contingency table.

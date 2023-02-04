@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods-ContingencyTable.R
 \name{allStats}
 \alias{allStats}
-\title{All Available Statistics for Contingency Table}
+\title{All Available veupathUtils::Statistics for Contingency Table}
 \usage{
 allStats(object)
 }
@@ -10,7 +10,7 @@ allStats(object)
 \item{object}{A ContingencyTable or TwoByTwoTable object}
 }
 \value{
-A StatisticList object
+A veupathUtils::StatisticList object
 }
 \description{
 This function calculates any and all statistics which are 

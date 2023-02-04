@@ -102,7 +102,7 @@ setMethod("fishersTest", signature("TwoByTwoTable"), function(object) {
 #' Prevalence
 #' 
 #' This function calculates Prevalence for a contingency table.
-#' @param object A ContingencyTable or TwoByTwoTable object
+#' @param object A TwoByTwoTable object
 #' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("prevalence", 
@@ -147,7 +147,7 @@ setMethod("prevalence", signature("TwoByTwoTable"), function(object) {
 #' Relative Risk
 #' 
 #' This function calculates relative risk for a contingency table.
-#' @param object A ContingencyTable or TwoByTwoTable object
+#' @param object A TwoByTwoTable object
 #' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("relativeRisk", 
@@ -192,7 +192,7 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
 #' Odds ratio
 #' 
 #' This function calculates Odds Ratio for a contingency table.
-#' @param object A ContingencyTable or TwoByTwoTable object
+#' @param object A TwoByTwoTable object
 #' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("oddsRatio", 
@@ -237,7 +237,7 @@ setMethod("oddsRatio", signature("TwoByTwoTable"), function(object) {
 #' Sensitivity
 #' 
 #' This function calculates Sensitivity for a contingency table.
-#' @param object A ContingencyTable or TwoByTwoTable object
+#' @param object A TwoByTwoTable object
 #' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("sensitivity", 
@@ -282,7 +282,7 @@ setMethod("sensitivity", signature("TwoByTwoTable"), function(object) {
 #' Specificity
 #' 
 #' This function calculates Specificity for a contingency table.
-#' @param object A ContingencyTable or TwoByTwoTable object
+#' @param object A TwoByTwoTable object
 #' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("specificity", 
@@ -327,7 +327,7 @@ setMethod("specificity", signature("TwoByTwoTable"), function(object) {
 #' Positivite Predictive Value
 #' 
 #' This function calculates positive predictive value for a contingency table.
-#' @param object A ContingencyTable or TwoByTwoTable object
+#' @param object A TwoByTwoTable object
 #' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("posPredictiveValue", 
@@ -372,7 +372,7 @@ setMethod("posPredictiveValue", signature("TwoByTwoTable"), function(object) {
 #' Negative Predictive Value
 #' 
 #' This function calculates negative predictive value for a contingency table.
-#' @param object A ContingencyTable or TwoByTwoTable object
+#' @param object A TwoByTwoTable object
 #' @return A veupathUtils::Statistic object
 #' @export
 setGeneric("negPredictiveValue", 

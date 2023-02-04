@@ -7,10 +7,10 @@
 posPredictiveValue(object)
 }
 \arguments{
-\item{object}{A ContingencyTable or TwoByTwoTable object}
+\item{object}{A TwoByTwoTable object}
 }
 \value{
-A Statistic object
+A veupathUtils::Statistic object
 }
 \description{
 This function calculates positive predictive value for a contingency table.

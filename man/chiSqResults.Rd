@@ -10,7 +10,7 @@ chiSqResults(object)
 \item{object}{A ContingencyTable or TwoByTwoTable object}
 }
 \value{
-A Statistic object
+A veupathUtils::Statistic object
 }
 \description{
 This function calculates Chi Square Results for a contingency table.
