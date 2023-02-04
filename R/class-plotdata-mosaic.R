@@ -1,6 +1,8 @@
 newMosaicPD <- function(.dt = data.table::data.table(),
                          variables = veupathUtils::VariableMetadataList(),
                          statistic = character(),
+                         columnReferenceValue = character(),
+                         rowReferenceValue = character(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -21,15 +23,16 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                             veupathUtils::findVariableSpecFromPlotRef(variables, 'facet2'))
 
   isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
+  
   if (!isEvil) {
-    if (statistic == 'chiSq') {
-      statsTable <- panelChiSq(.pd, x, y, panel)
+    if (statistic == 'all') {
+      # currently only valid for 2x2
+      attr$statsTable <- panelAllStats(.pd, x, y, panel, columnReferenceValue, rowReferenceValue)
+      veupathUtils::logWithTime('Calculated all relevant statistics.', verbose)
+    } else if (statistic == 'chiSq') {
+      attr$statsTable <- panelChiSq(.pd, x, y, panel)
       veupathUtils::logWithTime('Calculated chi-squared statistic.', verbose)
-    } else {
-      statsTable <- panelBothRatios(.pd, x, y, panel)
-      veupathUtils::logWithTime('Calculated odds ratio and relative risk.', verbose)
     }
-    attr$statsTable <- statsTable
   } else {
     veupathUtils::logWithTime('No statistics calculated when evilMode is `allVariables` or `strataVariables`.', verbose)
   }
@@ -67,7 +70,9 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param variables veupathUtil::VariableMetadataList
-#' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
+#' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'all', the second of which will return odds ratios and relative risk.
+#' @param columnReferenceValue String representing a value present in the column names of the contingency table
+#' @param rowReferenceValue String representing a value present in the row names of the contingency table
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
@@ -99,6 +104,8 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' @export
 mosaic.dt <- function(data, variables, 
                       statistic = NULL, 
+                      columnReferenceValue = NA_character_,
+                      rowReferenceValue = NA_character_,
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       verbose = c(TRUE, FALSE)) {
 
@@ -127,18 +134,18 @@ mosaic.dt <- function(data, variables,
   y <- veupathUtils::getColName(yVM@variableSpec)
 
   if (!is.null(statistic)) {
-    if (!statistic %in% c('chiSq','bothRatios')) {
-      stop('`statistic` argument must be one of either \'chiSq\' or \'bothRatios\', the second of which returns both odds ratios and relative risk.')
+    if (!statistic %in% c('chiSq','all')) {
+      stop('`statistic` argument must be one of either \'chiSq\' or \'all\', the second of which returns both odds ratios and relative risk.')
     }
     #na.rm should be safe, since x and y axes will later have NA removed anyhow in the plot.data parent class
-    if ((data.table::uniqueN(data[[x]], na.rm = TRUE) > 2 || data.table::uniqueN(data[[y]], na.rm = TRUE) > 2) && statistic == 'bothRatios') {
+    if ((data.table::uniqueN(data[[x]], na.rm = TRUE) > 2 || data.table::uniqueN(data[[y]], na.rm = TRUE) > 2) && statistic == 'all') {
       stop('Odds ratio and relative risk can only be calculated for 2x2 contingency tables. Please use statistic `chiSq` instead.')
     }
   } else {
     if (data.table::uniqueN(data[[x]], na.rm = TRUE) > 2 || data.table::uniqueN(data[[y]], na.rm = TRUE) > 2) {
       statistic <- 'chiSq'
     } else {
-      statistic <- 'bothRatios'
+      statistic <- 'all'
     }
     veupathUtils::logWithTime(paste('No statistic specified, using:', ifelse(statistic=='chiSq', 'chi-squared', 'odds ratio and relative risk')), verbose)
   }
@@ -146,6 +153,8 @@ mosaic.dt <- function(data, variables,
   .mosaic <- newMosaicPD(.dt = data,
                             variables = variables,
                             statistic = statistic,
+                            columnReferenceValue = columnReferenceValue,
+                            rowReferenceValue = rowReferenceValue,
                             evilMode = evilMode,
                             verbose = verbose)
 
@@ -173,7 +182,9 @@ mosaic.dt <- function(data, variables,
 #' - represent missingness poorly, conflate the stories of completeness and missingness, mislead you and steal your soul \cr
 #' @param data data.frame to make plot-ready data for
 #' @param variables veupathUtils::VariableMetadataList
-#' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.
+#' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'all', the second of which will return odds ratios and relative risk.
+#' @param columnReferenceValue String representing a value present in the column names of the contingency table
+#' @param rowReferenceValue String representing a value present in the row names of the contingency table
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
@@ -204,12 +215,14 @@ mosaic.dt <- function(data, variables,
 #' mosaic(df, map)
 #' @export
 mosaic <- function(data, variables, 
-                   statistic = NULL, 
+                   statistic = NULL,
+                   columnReferenceValue = NA_character_,
+                   rowReferenceValue = NA_character_,
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
   verbose <- veupathUtils::matchArg(verbose)
 
-  .mosaic <- mosaic.dt(data, variables, statistic, evilMode, verbose)
+  .mosaic <- mosaic.dt(data, variables, statistic, columnReferenceValue, rowReferenceValue, evilMode, verbose)
   outFileName <- writeJSON(.mosaic, evilMode, 'mosaic', verbose)
 
   return(outFileName)

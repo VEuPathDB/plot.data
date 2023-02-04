@@ -8,6 +8,8 @@ mosaic(
   data,
   variables,
   statistic = NULL,
+  columnReferenceValue = NA_character_,
+  rowReferenceValue = NA_character_,
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
@@ -17,7 +19,11 @@ mosaic(
 
 \item{variables}{veupathUtils::VariableMetadataList}
 
-\item{statistic}{String indicating which statistic to calculate. Vaid options are 'chiSq' and 'bothRatios', the second of which will return odds ratios and relative risk.}
+\item{statistic}{String indicating which statistic to calculate. Vaid options are 'chiSq' and 'all', the second of which will return odds ratios and relative risk.}
+
+\item{columnReferenceValue}{String representing a value present in the column names of the contingency table}
+
+\item{rowReferenceValue}{String representing a value present in the row names of the contingency table}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

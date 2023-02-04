@@ -441,19 +441,31 @@ test_that("bin() returns complete list of possible bins as levels when asked for
 })
 
 test_that("relativeRisk() returns the right columns", {
-  data <- data.table('x' = as.factor(rnorm(10)), 'y' = as.factor(rep(c(1,2),5)))
-  tbl <- tableXY(data)
-  dt <- relativeRisk(tbl)
+  data <- data.table('x' = as.factor(rep(c(3,4),5)), 'y' = as.factor(rep(c(1,2),5)))
+  tbl <- TwoByTwoTable('data'=tableXY(data))
+  .stat <- relativeRisk(tbl)
 
-  expect_equal(names(dt), c('relativerisk', 'rrInterval', 'pvalue'))
+  expect_equal(inherits(.stat, 'Statistic'), TRUE)
+  expect_equal(.stat@pvalue, NA_real_)
+  expect_equal(.stat@confidenceLevel, .95)
+  expect_equal(.stat@confidenceInterval@minimum, 1)
+  expect_equal(.stat@confidenceInterval@maximum, NaN)
+  expect_equal(.stat@value, Inf)
+  expect_equal(.stat@name, 'relativeRisk')
 })
 
 test_that("oddsRatio() returns the right columns", {
-  data <- data.table('x' = as.factor(rnorm(10)), 'y' = as.factor(rep(c(1,2),5)))
-  tbl <- tableXY(data)
-  dt <- oddsRatio(tbl)
+  data <- data.table('x' = as.factor(rep(c(3,4),5)), 'y' = as.factor(rep(c(1,2),5)))
+  tbl <- TwoByTwoTable('data'=tableXY(data))
+  .stat <- oddsRatio(tbl)
 
-  expect_equal(names(dt), c('oddsratio', 'orInterval', 'pvalue'))
+  expect_equal(inherits(.stat, 'Statistic'), TRUE)
+  expect_equal(.stat@pvalue, NA_real_)
+  expect_equal(.stat@confidenceLevel, .95)
+  expect_equal(.stat@confidenceInterval@minimum, NaN)
+  expect_equal(.stat@confidenceInterval@maximum, NaN)
+  expect_equal(.stat@value, Inf)
+  expect_equal(.stat@name, 'oddsRatio')
 })
 
 
