@@ -426,10 +426,11 @@ setGeneric("allStats",
   signature = "object"
 )
 
+#' @importFrom S4Vectors SimpleList
 #' @export
 setMethod("allStats", signature("TwoByTwoTable"), function(object) {
    #TODO get list of methods from class and somehow automatically apply?
-   return(veupathUtils::StatisticList(SimpleList(
+   return(veupathUtils::StatisticList(S4Vectors::SimpleList(
     chiSqResults(object),
     fishersTest(object),
     oddsRatio(object),
