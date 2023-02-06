@@ -13,7 +13,7 @@ check_contingency_table <- function(object) {
             msg <- "Column reference must have a single value."
             errors <- c(errors, msg)
         } else if (!colRef %in% attributes(tbl)$dimnames[[2]]) {
-            msg <- "Specified column reference value does not exist in the provided table."
+            msg <- paste0("Specified column reference (", colRef, ") value does not exist in the provided table. Available values are: ", paste(attributes(tbl)$dimnames[[2]], collapse=", "))
             errors <- c(errors, msg)
         }
         if (is.na(rowRef)) {
@@ -24,7 +24,7 @@ check_contingency_table <- function(object) {
                 msg <- "Row reference must have a single value."
                 errors <- c(errors, msg)
             } else if (!rowRef %in% attributes(tbl)$dimnames[[1]]) {
-                msg <- "Specified row reference value does not exist in the provided table."
+                msg <- paste0("Specified row reference (", rowRef, ") value does not exist in the provided table. Available values are: ", paste(attributes(tbl)$dimnames[[1]], collapse=", "))
                 errors <- c(errors, msg)
             }
         }
