@@ -1,3 +1,42 @@
+setGeneric("getQuadrantValues",
+  function(object, imputeZero = c(TRUE, FALSE)) standardGeneric("getQuadrantValues"),
+  signature = "object"
+)
+
+setMethod("getQuadrantValues", signature("TwoByTwoTable"), function(object, imputeZero = c(TRUE, FALSE)) {
+  tbl <- object@data
+  imputeZero <- veupathUtils::matchArg(imputeZero)
+  emptyQuadrantValue <- NA_real_; if (imputeZero) emptyQuadrantValue <- 0
+
+  nRows <- nrow(tbl)
+  nCols <- ncol(tbl)
+
+  a <- tbl[1,1]
+  b <- ifelse(nRows > 1, tbl[2,1], emptyQuadrantValue)
+  c <- ifelse(nCols > 1, tbl[1,2], emptyQuadrantValue)
+  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], emptyQuadrantValue)
+
+  return(list('a'=a,'b'=b,'c'=c,'d'=d))
+})
+
+setGeneric("setQuadrantValues",
+  function(object, quadrantValues) standardGeneric("setQuadrantValues"),
+  signature = "object"
+)
+
+setMethod("setQuadrantValues", signature("TwoByTwoTable"), function(object, quadrantValues) {
+  tbl <- object@data
+
+  if (!is.na(quadrantValues$a)) tbl[1,1] <- quadrantValues$a
+  if (!is.na(quadrantValues$b)) tbl[2,1] <- quadrantValues$b
+  if (!is.na(quadrantValues$c)) tbl[1,2] <- quadrantValues$c
+  if (!is.na(quadrantValues$d)) tbl[2,2] <- quadrantValues$d
+
+  object@data <- tbl
+
+  return(object)
+})
+
 setGeneric("orderByReferenceValues",
   function(object) standardGeneric("orderByReferenceValues"),
   signature = "object"
@@ -10,17 +49,25 @@ setMethod("orderByReferenceValues", signature("TwoByTwoTable"), function(object)
 
   if (!is.na(columnReferenceValue)) {
     if (attributes(tbl)$dimnames[[2]][1] != columnReferenceValue) {
-      attributes(tbl)$dimnames[[2]] <- rev(attributes(tbl)$dimnames[[2]])
-      a <- tbl[1]; b <- tbl[2]; c <- tbl[3]; d <- tbl[4]
-      tbl[1] <- c; tbl[2] <- d; tbl[3] <- a; tbl[4] <- b
+      attr <- attributes(tbl)
+      attr$dimnames[[2]] <- rev(attr$dimnames[[2]])
+      quadrantValues <- getQuadrantValues(object, FALSE)
+      a <- quadrantValues$c; b <- quadrantValues$d; c <- quadrantValues$a; d <- quadrantValues$b
+      object <- setQuadrantValues(object, list('a'=a,'b'=b,'c'=c,'d'=d))
+      tbl <- object@data
+      attributes(tbl) <- attr
     }
   }
 
   if (!is.na(rowReferenceValue)) {
     if (attributes(tbl)$dimnames[[1]][1] != rowReferenceValue) {
-      attributes(tbl)$dimnames[[1]] <- rev(attributes(tbl)$dimnames[[1]])
-      a <- tbl[1]; b <- tbl[2]; c <- tbl[3]; d <- tbl[4]
-      tbl[1] <- b; tbl[2] <- a; tbl[3] <- d; tbl[4] <- c
+      attr <- attributes(tbl)
+      attr$dimnames[[1]] <- rev(attr$dimnames[[1]])
+      quadrantValues <- getQuadrantValues(object, FALSE)
+      a <- quadrantValues$b; b <- quadrantValues$a; c <- quadrantValues$d; d <- quadrantValues$c
+      object <- setQuadrantValues(object, list('a'=a,'b'=b,'c'=c,'d'=d))
+      tbl <- object@data
+      attributes(tbl) <- attr
     }
   }
   
@@ -123,16 +170,10 @@ setMethod("prevalence", signature("TwoByTwoTable"), function(object) {
                      'pvalue'=NA_real_))
   }
   
-  nRows <- nrow(tbl)
-  nCols <- ncol(tbl)
+  quadrantValues <- getQuadrantValues(object)
 
-  a <- tbl[1,1]
-  b <- ifelse(nRows > 1, tbl[2,1], 0)
-  c <- ifelse(nCols > 1, tbl[1,2], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
-
-  numerator <- a+c
-  denominator <- a+b+c+d
+  numerator <- quadrantValues$a + quadrantValues$c
+  denominator <- quadrantValues$a + quadrantValues$b + quadrantValues$c + quadrantValues$d
   out <- zexact(numerator, denominator, .95)
 
   stat <- veupathUtils::Statistic('name'='prevalence', 
@@ -168,16 +209,10 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
                      'pvalue'=NA_real_))
   }
   
-  nRows <- nrow(tbl)
-  nCols <- ncol(tbl)
+  quadrantValues <- getQuadrantValues(object)
 
-  a <- tbl[1,1]
-  b <- ifelse(nRows > 1, tbl[2,1], 0)
-  c <- ifelse(nCols > 1, tbl[1,2], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
-
-  numerator <- (a/(a+b))
-  denominator <- (c/(c+d))
+  numerator <- (quadrantValues$a/(quadrantValues$a+quadrantValues$b))
+  denominator <- (quadrantValues$c/(quadrantValues$c+quadrantValues$d))
   out <- zexact(numerator, denominator, .95)
 
   stat <- veupathUtils::Statistic('name'='relativeRisk',
@@ -213,16 +248,10 @@ setMethod("oddsRatio", signature("TwoByTwoTable"), function(object) {
                      'pvalue'=NA_real_))
   }
 
-  nRows <- nrow(tbl)
-  nCols <- ncol(tbl)
+  quadrantValues <- getQuadrantValues(object)
 
-  a <- tbl[1,1]
-  b <- ifelse(nRows > 1, tbl[2,1], 0)
-  c <- ifelse(nCols > 1, tbl[1,2], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
-
-  numerator <- (a*d)
-  denominator <- (b*c)
+  numerator <- (quadrantValues$a*quadrantValues$d)
+  denominator <- (quadrantValues$b*quadrantValues$c)
   out <- zexact(numerator, denominator, .95)
  
   stat <- veupathUtils::Statistic('name'='oddsRatio',
@@ -258,16 +287,10 @@ setMethod("sensitivity", signature("TwoByTwoTable"), function(object) {
                      'pvalue'=NA_real_))
   }
   
-  nRows <- nrow(tbl)
-  nCols <- ncol(tbl)
+  quadrantValues <- getQuadrantValues(object)
 
-  a <- tbl[1,1]
-  b <- ifelse(nRows > 1, tbl[2,1], 0)
-  c <- ifelse(nCols > 1, tbl[1,2], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
-
-  numerator <- a
-  denominator <- a+c
+  numerator <- quadrantValues$a
+  denominator <- quadrantValues$a+quadrantValues$c
   out <- zexact(numerator, denominator, .95)
 
   stat <- veupathUtils::Statistic('name'='sensitivity', 
@@ -303,16 +326,10 @@ setMethod("specificity", signature("TwoByTwoTable"), function(object) {
                      'pvalue'=NA_real_))
   }
   
-  nRows <- nrow(tbl)
-  nCols <- ncol(tbl)
+  quadrantValues <- getQuadrantValues(object)
 
-  a <- tbl[1,1]
-  b <- ifelse(nRows > 1, tbl[2,1], 0)
-  c <- ifelse(nCols > 1, tbl[1,2], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
-
-  numerator <- d
-  denominator <- b+d
+  numerator <- quadrantValues$d
+  denominator <- quadrantValues$b+quadrantValues$d
   out <- zexact(numerator, denominator, .95)
 
   stat <- veupathUtils::Statistic('name'='specificity', 
@@ -348,16 +365,10 @@ setMethod("posPredictiveValue", signature("TwoByTwoTable"), function(object) {
                      'pvalue'=NA_real_))
   }
   
-  nRows <- nrow(tbl)
-  nCols <- ncol(tbl)
+  quadrantValues <- getQuadrantValues(object)
 
-  a <- tbl[1,1]
-  b <- ifelse(nRows > 1, tbl[2,1], 0)
-  c <- ifelse(nCols > 1, tbl[1,2], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
-
-  numerator <- a
-  denominator <- a+b
+  numerator <- quadrantValues$a
+  denominator <- quadrantValues$a+quadrantValues$b
   out <- zexact(numerator, denominator, .95)
 
   stat <- veupathUtils::Statistic('name'='posPredictiveValue', 
@@ -393,16 +404,10 @@ setMethod("negPredictiveValue", signature("TwoByTwoTable"), function(object) {
                      'pvalue'=NA_real_))
   }
   
-  nRows <- nrow(tbl)
-  nCols <- ncol(tbl)
+  quadrantValues <- getQuadrantValues(object)
 
-  a <- tbl[1,1]
-  b <- ifelse(nRows > 1, tbl[2,1], 0)
-  c <- ifelse(nCols > 1, tbl[1,2], 0)
-  d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], 0)
-
-  numerator <- d
-  denominator <- c+d
+  numerator <- quadrantValues$d
+  denominator <- quadrantValues$c+quadrantValues$d
   out <- zexact(numerator, denominator, .95)
 
   stat <- veupathUtils::Statistic('name'='negPredictiveValue', 
