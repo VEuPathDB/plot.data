@@ -1,6 +1,6 @@
 formatPValue <- function(pvalue) {
   if (pvalue < 0.0001) return("<0.0001")
-  return(signif(pvalue, 2))
+  return(as.character(signif(pvalue, 2)))
 }
 
 #' @importFrom stats qbeta

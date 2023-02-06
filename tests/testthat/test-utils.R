@@ -446,7 +446,7 @@ test_that("relativeRisk() returns the right columns", {
   .stat <- relativeRisk(tbl)
 
   expect_equal(inherits(.stat, 'Statistic'), TRUE)
-  expect_equal(.stat@pvalue, NA_real_)
+  expect_equal(.stat@pvalue, NA_character_)
   expect_equal(.stat@confidenceLevel, .95)
   expect_equal(.stat@confidenceInterval@minimum, 1)
   expect_equal(.stat@confidenceInterval@maximum, NaN)
@@ -460,7 +460,7 @@ test_that("oddsRatio() returns the right columns", {
   .stat <- oddsRatio(tbl)
 
   expect_equal(inherits(.stat, 'Statistic'), TRUE)
-  expect_equal(.stat@pvalue, NA_real_)
+  expect_equal(.stat@pvalue, NA_character_)
   expect_equal(.stat@confidenceLevel, .95)
   expect_equal(.stat@confidenceInterval@minimum, NaN)
   expect_equal(.stat@confidenceInterval@maximum, NaN)

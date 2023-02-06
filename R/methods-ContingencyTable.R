@@ -98,7 +98,7 @@ setMethod("chiSqResults", signature("TwoByTwoTable"), function(object) {
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
-                     'pvalue'=NA_real_))
+                     'pvalue'=NA_character_))
   }
   
   stat <- veupathUtils::Statistic('name'='chiSq', 
@@ -134,7 +134,7 @@ setMethod("fishersTest", signature("TwoByTwoTable"), function(object) {
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
-                     'pvalue'=NA_real_))
+                     'pvalue'=NA_character_))
   }
   
   stat <- veupathUtils::Statistic('name'='fisher', 
@@ -167,7 +167,7 @@ setMethod("prevalence", signature("TwoByTwoTable"), function(object) {
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
-                     'pvalue'=NA_real_))
+                     'pvalue'=NA_character_))
   }
   
   quadrantValues <- getQuadrantValues(object)
@@ -180,7 +180,7 @@ setMethod("prevalence", signature("TwoByTwoTable"), function(object) {
                      'value'=out$est,
                      'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
-                     'pvalue'=NA_real_)
+                     'pvalue'=NA_character_)
 
   return(stat)
 })
@@ -206,7 +206,7 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
-                     'pvalue'=NA_real_))
+                     'pvalue'=NA_character_))
   }
   
   quadrantValues <- getQuadrantValues(object)
@@ -219,7 +219,7 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
                     'value'=out$est, 
                     'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                     'confidenceLevel'=.95, 
-                    'pvalue'=NA_real_)
+                    'pvalue'=NA_character_)
 
   return(stat)  
 })
@@ -245,7 +245,7 @@ setMethod("oddsRatio", signature("TwoByTwoTable"), function(object) {
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
-                     'pvalue'=NA_real_))
+                     'pvalue'=NA_character_))
   }
 
   quadrantValues <- getQuadrantValues(object)
@@ -258,7 +258,7 @@ setMethod("oddsRatio", signature("TwoByTwoTable"), function(object) {
                     'value'=out$est, 
                     'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                     'confidenceLevel'=.95, 
-                    'pvalue'=NA_real_)
+                    'pvalue'=NA_character_)
 
   return(stat) 
 })
@@ -284,7 +284,7 @@ setMethod("sensitivity", signature("TwoByTwoTable"), function(object) {
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
-                     'pvalue'=NA_real_))
+                     'pvalue'=NA_character_))
   }
   
   quadrantValues <- getQuadrantValues(object)
@@ -297,7 +297,7 @@ setMethod("sensitivity", signature("TwoByTwoTable"), function(object) {
                      'value'=out$est,
                      'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
-                     'pvalue'=NA_real_)
+                     'pvalue'=NA_character_)
 
   return(stat) 
 })
@@ -323,7 +323,7 @@ setMethod("specificity", signature("TwoByTwoTable"), function(object) {
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
-                     'pvalue'=NA_real_))
+                     'pvalue'=NA_character_))
   }
   
   quadrantValues <- getQuadrantValues(object)
@@ -336,7 +336,7 @@ setMethod("specificity", signature("TwoByTwoTable"), function(object) {
                      'value'=out$est,
                      'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
-                     'pvalue'=NA_real_)
+                     'pvalue'=NA_character_)
 
   return(stat) 
 })
@@ -362,7 +362,7 @@ setMethod("posPredictiveValue", signature("TwoByTwoTable"), function(object) {
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
-                     'pvalue'=NA_real_))
+                     'pvalue'=NA_character_))
   }
   
   quadrantValues <- getQuadrantValues(object)
@@ -375,7 +375,7 @@ setMethod("posPredictiveValue", signature("TwoByTwoTable"), function(object) {
                      'value'=out$est,
                      'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
-                     'pvalue'=NA_real_)
+                     'pvalue'=NA_character_)
 
   return(stat)
 })
@@ -401,7 +401,7 @@ setMethod("negPredictiveValue", signature("TwoByTwoTable"), function(object) {
                      'value'=NA_real_,
                      'confidenceInterval'=veupathUtils::Range(),
                      'confidenceLevel'=NA_real_,
-                     'pvalue'=NA_real_))
+                     'pvalue'=NA_character_))
   }
   
   quadrantValues <- getQuadrantValues(object)
@@ -414,7 +414,7 @@ setMethod("negPredictiveValue", signature("TwoByTwoTable"), function(object) {
                      'value'=out$est,
                      'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                      'confidenceLevel'=.95,
-                     'pvalue'=NA_real_)
+                     'pvalue'=NA_character_)
 
   return(stat)
 })
