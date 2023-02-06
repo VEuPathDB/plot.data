@@ -36,7 +36,7 @@ findGeolocationViewport <- function(.dt, latitude, longitude) {
 }
 
 tableXY <- function(data) {
-  table(data$x, data$y)
+  table(data$y, data$x)
 }
 
 tableAsDT <- function(data, x, y) {
