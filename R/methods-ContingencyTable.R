@@ -69,7 +69,7 @@ setMethod("orderByReferenceValues", signature("TwoByTwoTable"), function(object)
       attr <- attributes(tbl)
       attr$dimnames[[2]] <- rev(attr$dimnames[[2]])
       quadrantValues <- getQuadrantValues(object, FALSE)
-      a <- quadrantValues$c; b <- quadrantValues$d; c <- quadrantValues$a; d <- quadrantValues$b
+      a <- quadrantValues$b; c <- quadrantValues$d; b <- quadrantValues$a; d <- quadrantValues$c
       object <- setQuadrantValues(object, list('a'=a,'b'=b,'c'=c,'d'=d))
       tbl <- object@data
       attributes(tbl) <- attr
@@ -81,7 +81,7 @@ setMethod("orderByReferenceValues", signature("TwoByTwoTable"), function(object)
       attr <- attributes(tbl)
       attr$dimnames[[1]] <- rev(attr$dimnames[[1]])
       quadrantValues <- getQuadrantValues(object, FALSE)
-      a <- quadrantValues$b; b <- quadrantValues$a; c <- quadrantValues$d; d <- quadrantValues$c
+      a <- quadrantValues$c; c <- quadrantValues$a; b <- quadrantValues$d; d <- quadrantValues$b
       object <- setQuadrantValues(object, list('a'=a,'b'=b,'c'=c,'d'=d))
       tbl <- object@data
       attributes(tbl) <- attr
