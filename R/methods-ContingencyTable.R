@@ -20,8 +20,8 @@ setMethod("getQuadrantValues", signature("TwoByTwoTable"), function(object, impu
   nCols <- ncol(tbl)
 
   a <- tbl[1,1]
-  b <- ifelse(nRows > 1, tbl[2,1], emptyQuadrantValue)
-  c <- ifelse(nCols > 1, tbl[1,2], emptyQuadrantValue)
+  b <- ifelse(nCols > 1, tbl[1,2], emptyQuadrantValue)
+  c <- ifelse(nRows > 1, tbl[2,1], emptyQuadrantValue)
   d <- ifelse(nRows > 1 && nCols > 1, tbl[2,2], emptyQuadrantValue)
 
   return(list('a'=a,'b'=b,'c'=c,'d'=d))
