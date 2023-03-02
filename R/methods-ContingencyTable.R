@@ -36,8 +36,8 @@ setMethod("setQuadrantValues", signature("TwoByTwoTable"), function(object, quad
   tbl <- object@data
 
   if (!is.na(quadrantValues$a)) tbl[1,1] <- quadrantValues$a
-  if (!is.na(quadrantValues$b)) tbl[2,1] <- quadrantValues$b
-  if (!is.na(quadrantValues$c)) tbl[1,2] <- quadrantValues$c
+  if (!is.na(quadrantValues$b)) tbl[1,2] <- quadrantValues$b
+  if (!is.na(quadrantValues$c)) tbl[2,1] <- quadrantValues$c
   if (!is.na(quadrantValues$d)) tbl[2,2] <- quadrantValues$d
 
   object@data <- tbl
