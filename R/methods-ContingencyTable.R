@@ -1,8 +1,16 @@
+#' Get TwoByTwoTable Named Quadrant Values
+#' 
+#' This function returns quadrant values for a 2x2 table named
+#' a, b, c and d
+#' @param object A TwoByTwoTable object
+#' @return A named list
+#' @export
 setGeneric("getQuadrantValues",
   function(object, imputeZero = c(TRUE, FALSE)) standardGeneric("getQuadrantValues"),
   signature = "object"
 )
 
+#' @export
 setMethod("getQuadrantValues", signature("TwoByTwoTable"), function(object, imputeZero = c(TRUE, FALSE)) {
   tbl <- object@data
   imputeZero <- veupathUtils::matchArg(imputeZero)
