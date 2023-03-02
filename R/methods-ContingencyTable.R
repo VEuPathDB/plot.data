@@ -37,11 +37,20 @@ setMethod("setQuadrantValues", signature("TwoByTwoTable"), function(object, quad
   return(object)
 })
 
+#' Re-organize Contingency Table by Reference Values
+#' 
+#' This function guarantees a ContingencyTable or TwoByTwoTable object is organized
+#' so that the accompanying statistics methods are calculated using the specified
+#' reference values.
+#' @param object A ContingencyTable or TwoByTwoTable object
+#' @return A ContingencyTable or TwoByTwoTable object
+#' @export
 setGeneric("orderByReferenceValues",
   function(object) standardGeneric("orderByReferenceValues"),
   signature = "object"
 )
 
+#' @export
 setMethod("orderByReferenceValues", signature("TwoByTwoTable"), function(object) {
   tbl <- object@data
   columnReferenceValue <- object@columnReferenceValue
@@ -74,7 +83,7 @@ setMethod("orderByReferenceValues", signature("TwoByTwoTable"), function(object)
   return(TwoByTwoTable('data' = tbl, 'columnReferenceValue' = columnReferenceValue, 'rowReferenceValue' = rowReferenceValue))
 })
 
-#' Chi-square Resultscheck for NA but ignore NaN
+#' Chi-square Results
 #' 
 #' This function calculates Chi Square Results for a contingency table.
 #' @param object A ContingencyTable or TwoByTwoTable object

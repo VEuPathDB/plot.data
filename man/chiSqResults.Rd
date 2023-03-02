@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods-ContingencyTable.R
 \name{chiSqResults}
 \alias{chiSqResults}
-\title{Chi-square Resultscheck for NA but ignore NaN}
+\title{Chi-square Results}
 \usage{
 chiSqResults(object)
 }
