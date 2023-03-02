@@ -1,6 +1,6 @@
 Package: plot.data
 Title: Create `data.table`s of Ready to Plot Data
-Version: 4.1.5
+Version: 4.1.6
 Authors@R: 
     c(person(given = "Danielle",
            family = "Callan",
