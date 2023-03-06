@@ -29,6 +29,11 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
   lat <- veupathUtils::findColNamesFromPlotRef(variables, 'latitude')
   lon <- veupathUtils::findColNamesFromPlotRef(variables, 'longitude')
 
+  # if no overlay values are provided, what do we do? find the top 7+ other based on the subset i guess..
+  # that means moving the xaxis binning above the viewport filter i guess?
+  # but that means changing how the eda map viz works too... 
+  # i guess we could change all the classes but this one, since sam will have its own java plugin for now..
+
   if (is.null(geolocationViewport)) {
     geolocationViewport <- findGeolocationViewport(.pd, lat, lon)
     veupathUtils::logWithTime('Determined default viewport.', verbose)

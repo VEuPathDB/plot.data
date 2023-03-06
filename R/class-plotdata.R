@@ -12,7 +12,8 @@
 newPlotdata <- function(.dt = data.table(),
                          #make sure lat, lon, geoAgg vars are valid plot References
                          variables = NULL,    
-                         useGradientColorscale = FALSE,                
+                         useGradientColorscale = FALSE,    
+                         overlayValues = NULL,            
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -40,6 +41,12 @@ newPlotdata <- function(.dt = data.table(),
   lon <- veupathUtils::findColNamesFromPlotRef(variables, 'longitude')
 
   isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
+
+  groupNeedsOverlayValues <- length(data.table::uniqueN(data[[group]])) > 8 || groupType %in% c('NUMBER', 'INTEGER', 'DATE')
+  if (!is.null(group) && is.null(overlayValues) && groupNeedsOverlayValues) {
+    stop("Must provide overlay values of interest for high cardinality or continuous overlay variables.")
+  }
+  .dt[[group]] <- recodeOverlayValues(.dt[[group]], overlayValues, variables)
   
   # Extract names of vars for which naToZero is TRUE
   # Note: if we want to change default behavior in the future, this predicate function is a good place to do it

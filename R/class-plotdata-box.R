@@ -3,6 +3,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                          points = character(),
                          mean = logical(),
                          computeStats = logical(),
+                         overlayValues = character(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -10,6 +11,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     overlayValues = overlayValues,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "boxplot")
@@ -136,6 +138,7 @@ validateBoxPD <- function(.box, verbose) {
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.
 #' @param verbose boolean indicating if timed logging is desired
@@ -179,6 +182,7 @@ box.dt <- function(data, variables,
                    points = c('outliers', 'all', 'none'), 
                    mean = c(FALSE, TRUE), 
                    computeStats = c(FALSE, TRUE), 
+                   overlayValues = NULL,
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
 
@@ -219,6 +223,7 @@ box.dt <- function(data, variables,
                     points = points,
                     mean = mean,
                     computeStats = computeStats,
+                    overlayValues = overlayValues,
                     evilMode = evilMode,
                     verbose = verbose)
 
@@ -252,6 +257,7 @@ box.dt <- function(data, variables,
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
@@ -293,6 +299,7 @@ box <- function(data, variables,
                 points = c('outliers', 'all', 'none'), 
                 mean = c(FALSE, TRUE), 
                 computeStats = c(FALSE, TRUE), 
+                overlayValues = NULL,
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                 verbose = c(TRUE, FALSE)) {
 
@@ -303,6 +310,7 @@ box <- function(data, variables,
                  points = points,
                  mean = mean,
                  computeStats = computeStats,
+                 overlayValues = overlayValues,
                  evilMode = evilMode,
                  verbose = verbose)
   outFileName <- writeJSON(.box, evilMode, 'boxplot', verbose)

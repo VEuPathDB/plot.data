@@ -2,6 +2,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                          variables = veupathUtils::VariableMetadataList(),
                          value = character(),
                          useGradientColorscale = FALSE,
+                         overlayValues = character(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -10,6 +11,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
                      useGradientColorscale = useGradientColorscale,
+                     overlayValues = overlayValues,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "scatterplot")
@@ -153,6 +155,7 @@ validateScatterPD <- function(.scatter, verbose) {
 #'  or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' 
 #' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous 
 #' overlay variable.
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
@@ -197,6 +200,7 @@ scattergl.dt <- function(data,
                                    'bestFitLineWithRaw', 
                                    'density', 
                                    'raw'),
+                         overlayValues = NULL,
                          evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                          collectionVariablePlotRef = NULL,
                          computedVariableMetadata = NULL,
@@ -254,6 +258,7 @@ scattergl.dt <- function(data,
                             variables = variables,
                             value = value,
                             useGradientColorscale = useGradientColorscale,
+                            overlayValues = overlayValues,
                             evilMode = evilMode,
                             verbose = verbose)
 
@@ -295,6 +300,7 @@ scattergl.dt <- function(data,
 #' @param value character indicating whether to calculate 'smoothedMean', 'bestFitLineWithRaw' or 
 #' 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw 
 #' data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
@@ -339,6 +345,7 @@ scattergl <- function(data,
                                 'bestFitLineWithRaw', 
                                 'density', 
                                 'raw'),
+                      overlayValues = NULL,
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       verbose = c(TRUE, FALSE)) {
 
@@ -347,6 +354,7 @@ scattergl <- function(data,
   .scatter <- scattergl.dt(data,
                            variables,
                            value = value,
+                           overlayValues = overlayValues,
                            evilMode = evilMode,
                            verbose = verbose)
                            

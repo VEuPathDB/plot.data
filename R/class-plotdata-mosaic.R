@@ -3,6 +3,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                          statistic = character(),
                          columnReferenceValue = character(),
                          rowReferenceValue = character(),
+                         overlayValues = character(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -10,6 +11,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     overlayValues = overlayValues,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "mosaic")
@@ -73,6 +75,7 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'all', the second of which will return odds ratios and relative risk.
 #' @param columnReferenceValue String representing a value present in the column names of the contingency table
 #' @param rowReferenceValue String representing a value present in the row names of the contingency table
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
@@ -106,6 +109,7 @@ mosaic.dt <- function(data, variables,
                       statistic = NULL, 
                       columnReferenceValue = NA_character_,
                       rowReferenceValue = NA_character_,
+                      overlayValues = NULL,
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       verbose = c(TRUE, FALSE)) {
 
@@ -155,6 +159,7 @@ mosaic.dt <- function(data, variables,
                             statistic = statistic,
                             columnReferenceValue = columnReferenceValue,
                             rowReferenceValue = rowReferenceValue,
+                            overlayValues = overlayValues,
                             evilMode = evilMode,
                             verbose = verbose)
 
@@ -185,6 +190,7 @@ mosaic.dt <- function(data, variables,
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'all', the second of which will return odds ratios and relative risk.
 #' @param columnReferenceValue String representing a value present in the column names of the contingency table
 #' @param rowReferenceValue String representing a value present in the row names of the contingency table
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
@@ -218,11 +224,12 @@ mosaic <- function(data, variables,
                    statistic = NULL,
                    columnReferenceValue = NA_character_,
                    rowReferenceValue = NA_character_,
+                   overlayValues = NULL,
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
   verbose <- veupathUtils::matchArg(verbose)
 
-  .mosaic <- mosaic.dt(data, variables, statistic, columnReferenceValue, rowReferenceValue, evilMode, verbose)
+  .mosaic <- mosaic.dt(data, variables, statistic, columnReferenceValue, rowReferenceValue, overlayValues, evilMode, verbose)
   outFileName <- writeJSON(.mosaic, evilMode, 'mosaic', verbose)
 
   return(outFileName)

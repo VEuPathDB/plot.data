@@ -7,6 +7,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          binReportValue = character(),
                          value = character(),
                          barmode = character(),
+                         overlayValues = character(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -14,6 +15,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     overlayValues = overlayValues,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "histogram")
@@ -192,6 +194,7 @@ validateHistogramPD <- function(.histo, verbose) {
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
@@ -232,6 +235,7 @@ histogram.dt <- function(data,
                          binReportValue = c('binWidth', 'numBins'),
                          barmode = c('stack', 'overlay'),
                          viewport = NULL,
+                         overlayValues = NULL,
                          evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                          verbose = c(TRUE, FALSE)) {
 
@@ -264,6 +268,7 @@ histogram.dt <- function(data,
                            binReportValue = binReportValue,
                            value = value,
                            barmode = barmode,
+                           overlayValues = overlayValues,
                            evilMode = evilMode,
                            verbose = verbose)
 
@@ -297,6 +302,7 @@ histogram.dt <- function(data,
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
@@ -336,12 +342,13 @@ histogram <- function(data,
                       binReportValue = c('binWidth', 'numBins'), 
                       barmode = c('stack', 'overlay'),
                       viewport = NULL,
+                      overlayValues = NULL,
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
 
-  .histo <- histogram.dt(data, variables, binWidth, value, binReportValue, barmode, viewport, evilMode, verbose)
+  .histo <- histogram.dt(data, variables, binWidth, value, binReportValue, barmode, viewport, overlayValues, evilMode, verbose)
   outFileName <- writeJSON(.histo, evilMode, 'histogram', verbose)
 
   return(outFileName)

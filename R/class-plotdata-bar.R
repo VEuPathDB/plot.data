@@ -2,6 +2,7 @@ newBarPD <- function(.dt = data.table::data.table(),
                          variables = veupathUtils::VariableMetadataList(),
                          value = character(),
                          barmode = character(),
+                         overlayValues = character(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -76,6 +77,7 @@ validateBarPD <- function(.bar, verbose) {
 #' @param variables veupathUtils VariableMetadataList
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
@@ -108,6 +110,7 @@ bar.dt <- function(data,
                    variables = variables, 
                    value = c('count', 'identity', 'proportion'), 
                    barmode = c('group', 'stack'), 
+                   overlayValues = NULL,
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
 
@@ -129,6 +132,7 @@ bar.dt <- function(data,
                     variables = variables,
                     value = value,
                     barmode = barmode,
+                    overlayValues = overlayValues,
                     evilMode = evilMode,
                     verbose = verbose)
 
@@ -162,6 +166,7 @@ bar.dt <- function(data,
 #' @param variables veupathUtils VariableMetadataList
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
@@ -195,12 +200,13 @@ bar <- function(data,
                 variables = variables, 
                 value = c('count', 'identity', 'proportion'), 
                 barmode = c('group', 'stack'), 
+                overlayValues = NULL,
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                 verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
 
-  .bar <- bar.dt(data, variables, value, barmode, evilMode, verbose)
+  .bar <- bar.dt(data, variables, value, barmode, overlayValues, evilMode, verbose)
   outFileName <- writeJSON(.bar, evilMode, 'barplot', verbose)
 
   return(outFileName)

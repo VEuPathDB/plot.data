@@ -5,6 +5,7 @@ newLinePD <- function(.dt = data.table::data.table(),
                          binWidth,
                          value = character(),
                          errorBars = logical(),
+                         overlayValues = character(),
                          evilMode = character(),
                          numeratorValues = character(),
                          denominatorValues = character(),
@@ -14,6 +15,7 @@ newLinePD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     overlayValues = overlayValues,
                      evilMode = evilMode,
                      collectionVariableDetails = collectionVariableDetails,
                      computedVariableMetadata = computedVariableMetadata,
@@ -184,6 +186,7 @@ validateLinePD <- function(.line, verbose) {
 #' @param viewport List of min and max values to consider as the range of data
 #' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
 #' @param denominatorValues character vector of values from the y-axis variable to consider the denominator
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
@@ -228,6 +231,7 @@ lineplot.dt <- function(data,
                          viewport = NULL,
                          numeratorValues = NULL,
                          denominatorValues = NULL,
+                         overlayValues = NULL,
                          evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                          verbose = c(TRUE, FALSE)) {
 
@@ -267,6 +271,7 @@ lineplot.dt <- function(data,
                             binWidth,
                             value = value,
                             errorBars = errorBars,
+                            overlayValues = overlayValues,
                             evilMode = evilMode,
                             verbose = verbose)
 
@@ -312,6 +317,7 @@ lineplot.dt <- function(data,
 #' @param viewport List of min and max values to consider as the range of data
 #' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
 #' @param denominatorValues character vector of values from the y-axis variable to consider the denominator
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables 
@@ -357,6 +363,7 @@ lineplot <- function(data,
                       viewport = NULL,
                       numeratorValues = NULL,
                       denominatorValues = NULL,
+                      overlayValues = NULL,
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       collectionVariablePlotRef = NULL,
                       computedVariableMetadata = NULL,
@@ -372,6 +379,7 @@ lineplot <- function(data,
                            viewport = viewport,
                            numeratorValues = numeratorValues,
                            denominatorValues = denominatorValues,
+                           overlayValues = overlayValues,
                            evilMode = evilMode,
                            verbose = verbose)
                            

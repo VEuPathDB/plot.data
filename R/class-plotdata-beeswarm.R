@@ -2,6 +2,7 @@ newBeeswarmPD <- function(.dt = data.table::data.table(),
                          variables = veupathUtils::VariableMetadataList(),
                          jitter = NULL,
                          median = logical(),
+                         overlayValues = character(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -9,6 +10,7 @@ newBeeswarmPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     overlayValues = overlayValues,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "beeswarm")
@@ -91,6 +93,7 @@ validateBeeswarmPD <- function(.beeswarm, verbose) {
 #' @param variables veupathUtils VariableMetadataList
 #' @param jitter numeric indicating the maximum width by which to randomly offset points.
 #' @param median boolean indicating whether to return median value per group (per panel)
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
@@ -131,6 +134,7 @@ validateBeeswarmPD <- function(.beeswarm, verbose) {
 beeswarm.dt <- function(data, variables,
                    jitter = NULL, 
                    median = c(FALSE, TRUE), 
+                   overlayValues = NULL,
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
 
@@ -159,7 +163,7 @@ beeswarm.dt <- function(data, variables,
   if (is.null(yVM) & is.null(collectionVM)) {
     stop("Must provide y-axis variable for plot type beeswarm.")
   }
-  
+
   # Handle collectionVars
   if (!is.null(collectionVM)) {
     if (!collectionVM@plotReference@value %in% c('xAxis', 'facet1', 'facet2')) stop('Collection variable PlotReference must be either xAxis, facet1 or facet2 for beeswarm.')
@@ -169,6 +173,7 @@ beeswarm.dt <- function(data, variables,
                     variables = variables,
                     jitter = jitter,
                     median = median,
+                    overlayValues = overlayValues,
                     evilMode = evilMode,
                     verbose = verbose)
 
@@ -200,6 +205,7 @@ beeswarm.dt <- function(data, variables,
 #' @param variables veupathUtils VariableMetadataList
 #' @param jitter numeric indicating the maximum width by which to randomly offset points.
 #' @param median boolean indicating whether to return median value per group (per panel)
+#' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
@@ -240,6 +246,7 @@ beeswarm.dt <- function(data, variables,
 beeswarm <- function(data, variables, 
                 jitter = NULL, 
                 median = c(FALSE, TRUE), 
+                overlayValues = NULL,
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                 verbose = c(TRUE, FALSE)) {
 
@@ -249,6 +256,7 @@ beeswarm <- function(data, variables,
                  variables = variables,
                  jitter = jitter,
                  median = median,
+                 overlayValues = overlayValues,
                  evilMode = evilMode,
                  verbose = verbose)
   outFileName <- writeJSON(.beeswarm, evilMode, 'beeswarm', verbose)
