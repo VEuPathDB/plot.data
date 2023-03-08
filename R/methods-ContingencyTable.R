@@ -228,20 +228,13 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
   
   quadrantValues <- getQuadrantValues(object)
 
-  RR <- (quadrantValues$a/(quadrantValues$a+quadrantValues$b)) / (quadrantValues$c/(quadrantValues$c+quadrantValues$d))
-  RR <- signif(RR, 2)
-  alpha <- 0.05
-  siglog <- sqrt((1/quadrantValues$a) + (1/quadrantValues$b) + (1/quadrantValues$c) + (1/quadrantValues$d))
-  zalph <- qnorm(1 - alpha/2)
-  logRR <- log(RR)
-  logloRR <- logRR - zalph * siglog
-  loghiRR <- logRR + zalph * siglog
-  RRlo <- signif(exp(logloRR), 2)
-  RRhi <- signif(exp(loghiRR), 2)
+  numerator <- (quadrantValues$a/(quadrantValues$a+quadrantValues$b))
+  denominator <- (quadrantValues$c/(quadrantValues$c+quadrantValues$d))
+  out <- zexact(numerator, denominator, .95)
 
   stat <- veupathUtils::Statistic('name'='relativeRisk',
-                    'value'=RR, 
-                    'confidenceInterval'=veupathUtils::Range('minimum'=RRlo, 'maximum'=RRhi),
+                    'value'=out$est, 
+                    'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                     'confidenceLevel'=.95, 
                     'pvalue'=NA_character_)
 
@@ -274,20 +267,13 @@ setMethod("oddsRatio", signature("TwoByTwoTable"), function(object) {
 
   quadrantValues <- getQuadrantValues(object)
 
-  OR <- (quadrantValues$a*quadrantValues$d)/(quadrantValues$b*quadrantValues$c)
-  OR <- signif(OR, 2)
-  alpha <- 0.05
-  siglog <- sqrt((1/quadrantValues$a) + (1/quadrantValues$b) + (1/quadrantValues$c) + (1/quadrantValues$d))
-  zalph <- qnorm(1 - alpha/2)
-  logOR <- log(OR)
-  logloOR <- logOR - zalph * siglog
-  loghiOR <- logOR + zalph * siglog
-  ORlo <- signif(exp(logloOR), 2)
-  ORhi <- signif(exp(loghiOR), 2)
+  numerator <- (quadrantValues$a*quadrantValues$d)
+  denominator <- (quadrantValues$b*quadrantValues$c)
+  out <- zexact(numerator, denominator, .95)
  
   stat <- veupathUtils::Statistic('name'='oddsRatio',
-                    'value'=OR, 
-                    'confidenceInterval'=veupathUtils::Range('minimum'=ORlo, 'maximum'=ORhi),
+                    'value'=out$est, 
+                    'confidenceInterval'=veupathUtils::Range('minimum'=out$low, 'maximum'=out$upp),
                     'confidenceLevel'=.95, 
                     'pvalue'=NA_character_)
 
