@@ -229,7 +229,6 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
   quadrantValues <- getQuadrantValues(object)
 
   RR <- (quadrantValues$a/(quadrantValues$a+quadrantValues$b)) / (quadrantValues$c/(quadrantValues$c+quadrantValues$d))
-  RR <- signif(RR, 2)
   alpha <- 0.05
   siglog <- sqrt((1/quadrantValues$a) + (1/quadrantValues$b) + (1/quadrantValues$c) + (1/quadrantValues$d))
   zalph <- qnorm(1 - alpha/2)
@@ -240,7 +239,7 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
   RRhi <- signif(exp(loghiRR), 2)
 
   stat <- veupathUtils::Statistic('name'='relativeRisk',
-                    'value'=RR, 
+                    'value'=signif(RR, 2), 
                     'confidenceInterval'=veupathUtils::Range('minimum'=RRlo, 'maximum'=RRhi),
                     'confidenceLevel'=.95, 
                     'pvalue'=NA_character_)
@@ -275,7 +274,6 @@ setMethod("oddsRatio", signature("TwoByTwoTable"), function(object) {
   quadrantValues <- getQuadrantValues(object)
 
   OR <- (quadrantValues$a*quadrantValues$d)/(quadrantValues$b*quadrantValues$c)
-  OR <- signif(OR, 2)
   alpha <- 0.05
   siglog <- sqrt((1/quadrantValues$a) + (1/quadrantValues$b) + (1/quadrantValues$c) + (1/quadrantValues$d))
   zalph <- qnorm(1 - alpha/2)
@@ -286,7 +284,7 @@ setMethod("oddsRatio", signature("TwoByTwoTable"), function(object) {
   ORhi <- signif(exp(loghiOR), 2)
  
   stat <- veupathUtils::Statistic('name'='oddsRatio',
-                    'value'=OR, 
+                    'value'=signif(OR, 2), 
                     'confidenceInterval'=veupathUtils::Range('minimum'=ORlo, 'maximum'=ORhi),
                     'confidenceLevel'=.95, 
                     'pvalue'=NA_character_)
