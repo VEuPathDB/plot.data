@@ -230,7 +230,7 @@ setMethod("relativeRisk", signature("TwoByTwoTable"), function(object) {
 
   RR <- (quadrantValues$a/(quadrantValues$a+quadrantValues$b)) / (quadrantValues$c/(quadrantValues$c+quadrantValues$d))
   alpha <- 0.05
-  siglog <- sqrt((1/quadrantValues$a) + (1/quadrantValues$b) + (1/quadrantValues$c) + (1/quadrantValues$d))
+  siglog <- sqrt((1/quadrantValues$a) + (1/quadrantValues$c) - (1/(quadrantValues$a+quadrantValues$b)) - (1/(quadrantValues$c+quadrantValues$d)))
   zalph <- qnorm(1 - alpha/2)
   logRR <- log(RR)
   logloRR <- logRR - zalph * siglog
