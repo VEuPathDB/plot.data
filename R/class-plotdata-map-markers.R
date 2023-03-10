@@ -49,13 +49,15 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
 
   if (!length(.pd[[x]])) {
     rankedValues <- c('')
-    binSlider <- list('min'=jsonlite::unbox(NA), 'max'=jsonlite::unbox(NA), 'step'=jsonlite::unbox(NA))
-    binSpec <- list('type'=jsonlite::unbox(binReportValue), 'value'=jsonlite::unbox(NA))
+    # these basically empty `binSlider` and `binSpec` attributes are causing problems for the client
+    # the raml and client specs says they are optional.  Let's leave them out.
+    # binSlider <- list('min'=jsonlite::unbox(NA), 'max'=jsonlite::unbox(NA), 'step'=jsonlite::unbox(NA))
+    # binSpec <- list('type'=jsonlite::unbox(binReportValue), 'value'=jsonlite::unbox(NA))
     veupathUtils::logWithTime('No complete cases found.', verbose)
     attr$rankedValues <- rankedValues
     attr$overlayValues <- rankedValues
-    attr$binSlider <- binSlider
-    attr$binSpec <- binSpec
+    # attr$binSlider <- binSlider
+    # attr$binSpec <- binSpec
   } else {
     if (xType == 'STRING') {
       ranked <- .pd[, .N, by=x]
