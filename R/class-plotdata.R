@@ -49,7 +49,7 @@ newPlotdata <- function(.dt = data.table(),
     if (is.null(overlayValues) && groupNeedsOverlayValues) {
       stop("Must provide overlay values of interest for high cardinality or continuous overlay variables.")
     }
-    .dt[[group]] <- recodeOverlayValues(.dt[[group]], overlayValues, variables)
+    .dt[[group]] <- recodeValues(.dt[[group]], overlayValues, groupType)
   }
   
   # Extract names of vars for which naToZero is TRUE

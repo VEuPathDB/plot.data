@@ -1,17 +1,16 @@
-recodeOverlayValues <- function(overlayData, desiredOverlayValues, variables) {
-  if (is.null(desiredOverlayValues)) return(overlayData)
-  dataType <- veupathUtils::findDataTypesFromPlotRef(variables, 'overlay')
+recodeValues <- function(values, desiredValues, dataType) {
+  if (is.null(desiredValues)) return(values)
   
   if (dataType %in% c('NUMBER', 'INTEGER', 'DATE')) {
     # figure this out when i get to the continuous overlay PR, just leaving a skeleton for now
-    # tbh desiredOverlayValues will probably stop being a simple character vector then as well. but one thing at a time.
+    # tbh desiredValues will probably stop being a simple character vector then as well. but one thing at a time.
     warning("Binned continuous overlays are not supported yet.")
   } else {
-    if (all(unique(overlayData) %in% desiredOverlayValues)) return(overlayData)
-    overlayData[!overlayData %in% desiredOverlayValues] <- '__UNSELECTED__'
+    if (all(unique(values) %in% desiredValues)) return(values)
+    values[!values %in% desiredValues] <- '__UNSELECTED__'
   }
 
-  return(overlayData)
+  return(values)
 }
 
 

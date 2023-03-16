@@ -10,7 +10,7 @@ newMapMarkersPD(
   value = character(),
   geolocationViewport = list(latitude = list(xMin = NULL, xMax = NULL), longitude =
     list(left = NULL, right = NULL)),
-  overlayValues = character(),
+  xValues = character(),
   evilMode = character(),
   verbose = logical(),
   ...,

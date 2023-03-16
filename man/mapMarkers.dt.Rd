@@ -9,7 +9,7 @@ mapMarkers.dt(
   variables,
   value = c("count", "proportion"),
   viewport = NULL,
-  overlayValues = NULL,
+  xValues = NULL,
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
@@ -23,7 +23,7 @@ mapMarkers.dt(
 
 \item{viewport}{List of values indicating the visible range of data}
 
-\item{overlayValues}{character vector providing overlay values of interest}
+\item{xValues}{character vector providing overlay values of interest}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

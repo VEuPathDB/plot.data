@@ -700,6 +700,48 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int6', 'int7', 'cat6'))
 
+  # maybe worth noting that currently we dont support choosing values for numbers should they have 12 values and we want 8
+  # all numbers go through the binning route
+  # With a high cardinality overlay
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int11', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
+  
+  dt <- bar.dt(df, variables, value='count', overlayValues=c(1,2,3,4,5,6,7))
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList), c('barplot','sampleSizeTable','completeCasesTable'))
+  expect_equal(names(jsonList$barplot), c('data','config'))
+  expect_equal(names(jsonList$barplot$data), c('overlayVariableDetails','facetVariableDetails','label','value'))
+  expect_equal(all(unique(unlist(jsonList$barplot$data$label)) %in% as.character(c(1,2,3,4,5,6,7))), TRUE)
+  expect_equal(names(jsonList$barplot$config), c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$barplot$config$variables$variableSpec), c('variableId','entityId'))
+  expect_equal(jsonList$barplot$config$variables$variableSpec$variableId, c('cat6','int6','int11'))
+  expect_equal(names(jsonList$sampleSizeTable), c('overlayVariableDetails','facetVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(jsonList$sampleSizeTable$overlayVariableDetails$variableId[[1]], 'int11')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int6', 'int11', 'cat6'))
 })
 
 

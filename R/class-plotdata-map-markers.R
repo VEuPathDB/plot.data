@@ -6,7 +6,7 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
                                                          'xMax'=NULL),
                                          'longitude'=list('left'=NULL,
                                                           'right'=NULL)),
-                         overlayValues = character(),
+                         xValues = character(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -14,7 +14,6 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
-                     overlayValues = overlayValues,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "mapMarkers")
@@ -27,6 +26,13 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
   geo <- veupathUtils::findColNamesFromPlotRef(variables, 'geo')
   lat <- veupathUtils::findColNamesFromPlotRef(variables, 'latitude')
   lon <- veupathUtils::findColNamesFromPlotRef(variables, 'longitude')
+
+  # for the others this happen in the parent class, but color is different here
+  xNeedsValues <- length(data.table::uniqueN(.pd[[x]])) > 8
+  if (is.null(xValues) && xNeedsValues) {
+    stop("Must provide values of interest for high cardinality or continuous map marker variables.")
+  }
+  .pd[[x]] <- recodeValues(.pd[[x]], xValues, xType)
 
   if (is.null(geolocationViewport)) {
     geolocationViewport <- findGeolocationViewport(.pd, lat, lon)
@@ -128,7 +134,7 @@ validateMapMarkersPD <- function(.map, verbose) {
 #' @param variables veupathUtils::VariableMetadataList
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
 #' @param viewport List of values indicating the visible range of data
-#' @param overlayValues character vector providing overlay values of interest
+#' @param xValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
@@ -161,7 +167,7 @@ mapMarkers.dt <- function(data,
                    variables,
                    value = c('count', 'proportion'),
                    viewport = NULL,  
-                   overlayValues = NULL,
+                   xValues = NULL,
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
 
@@ -196,7 +202,7 @@ mapMarkers.dt <- function(data,
                     variables = variables,
                     value = value,
                     geolocationViewport = viewport,
-                    overlayValues = overlayValues,
+                    xValues = xValues,
                     evilMode = evilMode,
                     verbose = verbose)
 
@@ -237,7 +243,7 @@ mapMarkers.dt <- function(data,
 #' @param variables veupathUtils::VariableMetadataList
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
 #' @param viewport List of values indicating the visible range of data
-#' @param overlayValues character vector providing overlay values of interest
+#' @param xValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
@@ -271,13 +277,13 @@ mapMarkers <- function(data,
                 variables,
                 value = c('count', 'proportion'),
                 viewport = NULL,
-                overlayValues = NULL,
+                xValues = NULL,
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                 verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
 
-  .map <- mapMarkers.dt(data, variables, value, viewport, overlayValues, evilMode, verbose)
+  .map <- mapMarkers.dt(data, variables, value, viewport, xValues, evilMode, verbose)
   outFileName <- writeJSON(.map, evilMode, 'mapMarkers', verbose)
 
   return(outFileName)
