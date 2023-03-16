@@ -41,12 +41,16 @@ newPlotdata <- function(.dt = data.table(),
   lon <- veupathUtils::findColNamesFromPlotRef(variables, 'longitude')
 
   isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
+  collectionVarMetadata <- veupathUtils::findCollectionVariableMetadata(variables)
+  isOverlayCollection <- ifelse(is.null(collectionVarMetadata), FALSE, ifelse(collectionVarMetadata@plotReference@value %in% c('overlay'), TRUE, FALSE))
 
-  groupNeedsOverlayValues <- length(data.table::uniqueN(data[[group]])) > 8 || groupType %in% c('NUMBER', 'INTEGER', 'DATE')
-  if (!is.null(group) && is.null(overlayValues) && groupNeedsOverlayValues) {
-    stop("Must provide overlay values of interest for high cardinality or continuous overlay variables.")
+  if (!is.null(group) && !isOverlayCollection) {
+    groupNeedsOverlayValues <- length(data.table::uniqueN(.dt[[group]])) > 8 && useGradientColorscale == FALSE
+    if (is.null(overlayValues) && groupNeedsOverlayValues) {
+      stop("Must provide overlay values of interest for high cardinality or continuous overlay variables.")
+    }
+    .dt[[group]] <- recodeOverlayValues(.dt[[group]], overlayValues, variables)
   }
-  .dt[[group]] <- recodeOverlayValues(.dt[[group]], overlayValues, variables)
   
   # Extract names of vars for which naToZero is TRUE
   # Note: if we want to change default behavior in the future, this predicate function is a good place to do it
@@ -67,9 +71,7 @@ newPlotdata <- function(.dt = data.table(),
   
   veupathUtils::logWithTime('Determined the number of complete cases per variable.', verbose)
   
-  collectionVarMetadata <- veupathUtils::findCollectionVariableMetadata(variables)
   isFacetCollection <- ifelse(is.null(collectionVarMetadata), FALSE, ifelse(collectionVarMetadata@plotReference@value %in% c('facet1', 'facet2'), TRUE, FALSE))
-
   if (!isFacetCollection) {
     panelData <- makePanels(.dt, facet1, facet2)
     .dt <- data.table::setDT(panelData[[1]])

@@ -404,7 +404,7 @@ nonparametricTest <- function(values, groups) {
 # Compute statistics for values in numericCol based on levelsCol, split by byCols
 nonparametricByGroup <- function(data, numericCol, levelsCol, byCols = NULL) {
   
-  setDT(data)
+  data.table::setDT(data)
   
   if (is.null(byCols)) {
     dt <- data.table::as.data.table(t(nonparametricTest(data[[numericCol]], data[[levelsCol]])))

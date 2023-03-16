@@ -620,14 +620,14 @@ test_that("breaks returns appropriate results", {
   
   df <- testDF[['entity.contA']]
   
-  dt <- breaks(df, 'numbers', nbins=20)
+  dt <- breaks(df, 'quantile', nbins=20)
   expect_equal(length(dt), 21)
   
-  dt <- breaks(df, 'numbers', binwidth=0.5)
+  dt <- breaks(df, 'quantile', binwidth=0.5)
   expect_equal(length(dt), 3)
   expect_equal(names(dt), c('0%','50%','100%'))
   
-  dt <- breaks(df, 'width', binwidth=0.5)
+  dt <- breaks(df, 'equalInterval', binwidth=0.5)
   expect_equal(length(dt), 59)
 })
 
