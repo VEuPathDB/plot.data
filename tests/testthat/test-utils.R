@@ -616,20 +616,7 @@ test_that("bin returns appropriate data with default binWidth", {
   expect_equal(length(df), length(dt))
 })
 
-test_that("breaks returns appropriate results", {
-  
-  df <- testDF[['entity.contA']]
-  
-  dt <- breaks(df, 'quantile', nbins=20)
-  expect_equal(length(dt), 21)
-  
-  dt <- breaks(df, 'quantile', binwidth=0.5)
-  expect_equal(length(dt), 3)
-  expect_equal(names(dt), c('0%','50%','100%'))
-  
-  dt <- breaks(df, 'equalInterval', binwidth=0.5)
-  expect_equal(length(dt), 59)
-})
+
 
 test_that("signifDigitEpsilon returns appropriate results", {
   expect_equal(signifDigitEpsilon(1.23, 3), 0.01)

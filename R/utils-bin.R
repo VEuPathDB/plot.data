@@ -29,11 +29,11 @@ bin.numeric <- function(x, binWidth = NULL, viewport, stringsAsFactors = c(FALSE
       bins <- xVP
       if (stringsAsFactors) bins <- as.factor(bins)
     } else {
-      bins <- cut_width(xVP, binWidth, boundary = min(xVP))
+      bins <- veupathUtils::cut_width(xVP, binWidth, boundary = min(xVP))
     }
   } else {
     numBins <- findNumBins(xVP)
-    bins <- cut_interval(xVP, numBins)
+    bins <- veupathUtils::cut_interval(xVP, numBins)
   }
 
   bins <- pruneViewportAdjustmentFromBins(bins, xVP, x, viewport)
