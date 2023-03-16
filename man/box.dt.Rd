@@ -10,6 +10,7 @@ box.dt(
   points = c("outliers", "all", "none"),
   mean = c(FALSE, TRUE),
   computeStats = c(FALSE, TRUE),
+  overlayValues = NULL,
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
@@ -24,6 +25,8 @@ box.dt(
 \item{mean}{boolean indicating whether to return mean value per group (per panel)}
 
 \item{computeStats}{boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)}
+
+\item{overlayValues}{character vector providing overlay values of interest}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 Metadata can include 'displayName', 'displayRangeMin', 'displayRangeMax', and 'collectionVariable'. Will be included as an attribute of the returned plot object.}

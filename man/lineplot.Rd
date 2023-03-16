@@ -13,6 +13,7 @@ lineplot(
   viewport = NULL,
   numeratorValues = NULL,
   denominatorValues = NULL,
+  overlayValues = NULL,
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   collectionVariablePlotRef = NULL,
   computedVariableMetadata = NULL,
@@ -37,6 +38,8 @@ and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yA
 \item{numeratorValues}{character vector of values from the y-axis variable to consider the numerator}
 
 \item{denominatorValues}{character vector of values from the y-axis variable to consider the denominator}
+
+\item{overlayValues}{character vector providing overlay values of interest}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

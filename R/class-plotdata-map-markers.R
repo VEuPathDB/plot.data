@@ -159,10 +159,7 @@ validateMapMarkersPD <- function(.map, verbose) {
 #' @export
 mapMarkers.dt <- function(data, 
                    variables,
-                   binWidth = NULL,
                    value = c('count', 'proportion'),
-                   binReportValue = c('binWidth', 'numBins'),
-                   binRange = NULL,
                    viewport = NULL,  
                    overlayValues = NULL,
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -171,7 +168,6 @@ mapMarkers.dt <- function(data,
   value <- veupathUtils::matchArg(value)
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
-  binReportValue <- veupathUtils::matchArg(binReportValue)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -181,17 +177,6 @@ mapMarkers.dt <- function(data,
   # if we didnt require this, itd just return counts unstratified and could replace the java map plugin?
   if (is.null(xVM)) {
     stop("Must provide xAxisVariable for plot type mapMarkers.")
-  }
-  if (is.null(binWidth) && xVM@dataType@value != 'STRING') {
-    x <- veupathUtils::getColName(xVM@variableSpec)
-
-    if (is.null(binRange)) {
-      binWidth <- numBinsToBinWidth(data[[x]], 8, na.rm = TRUE)
-    } else {
-      xVals <- data[[x]][complete.cases(data[[x]])]
-      xVP <- adjustToViewport(xVals, validateBinRange(xVals, binRange, xAxisVariable$dataType, FALSE))
-      binWidth <- numBinsToBinWidth(xVP, 8)
-    }
   }
 
   geoVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'geo')
@@ -251,9 +236,6 @@ mapMarkers.dt <- function(data,
 #' @param data data.frame to make plot-ready data for
 #' @param variables veupathUtils::VariableMetadataList
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
-#' @param binWidth numeric value indicating width of bins, character (ex: 'year') if xaxis is a date
-#' @param binReportValue String indicating if number of bins or bin width used should be returned
-#' @param binRange List of min and max values to bin the xAxisVariable over
 #' @param viewport List of values indicating the visible range of data
 #' @param overlayValues character vector providing overlay values of interest
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 

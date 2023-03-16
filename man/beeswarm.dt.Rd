@@ -9,6 +9,7 @@ beeswarm.dt(
   variables,
   jitter = NULL,
   median = c(FALSE, TRUE),
+  overlayValues = NULL,
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
@@ -21,6 +22,8 @@ beeswarm.dt(
 \item{jitter}{numeric indicating the maximum width by which to randomly offset points.}
 
 \item{median}{boolean indicating whether to return median value per group (per panel)}
+
+\item{overlayValues}{character vector providing overlay values of interest}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

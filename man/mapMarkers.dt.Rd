@@ -7,11 +7,9 @@
 mapMarkers.dt(
   data,
   variables,
-  binWidth = NULL,
   value = c("count", "proportion"),
-  binReportValue = c("binWidth", "numBins"),
-  binRange = NULL,
   viewport = NULL,
+  overlayValues = NULL,
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
@@ -21,15 +19,11 @@ mapMarkers.dt(
 
 \item{variables}{veupathUtils::VariableMetadataList}
 
-\item{binWidth}{numeric value indicating width of bins, character (ex: 'year') if xaxis is a date}
-
 \item{value}{String indicating how to calculate y-values ('count', 'proportion')}
 
-\item{binReportValue}{String indicating if number of bins or bin width used should be returned}
-
-\item{binRange}{List of min and max values to bin the xAxisVariable over}
-
 \item{viewport}{List of values indicating the visible range of data}
+
+\item{overlayValues}{character vector providing overlay values of interest}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

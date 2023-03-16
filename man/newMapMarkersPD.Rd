@@ -8,11 +8,9 @@ newMapMarkersPD(
   .dt = data.table::data.table(),
   variables = veupathUtils::VariableMetadataList(),
   value = character(),
-  binWidth,
-  binReportValue = character(),
-  binRange,
   geolocationViewport = list(latitude = list(xMin = NULL, xMax = NULL), longitude =
     list(left = NULL, right = NULL)),
+  overlayValues = character(),
   evilMode = character(),
   verbose = logical(),
   ...,

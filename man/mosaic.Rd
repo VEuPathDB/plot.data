@@ -10,6 +10,7 @@ mosaic(
   statistic = NULL,
   columnReferenceValue = NA_character_,
   rowReferenceValue = NA_character_,
+  overlayValues = NULL,
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
@@ -24,6 +25,8 @@ mosaic(
 \item{columnReferenceValue}{String representing a value present in the column names of the contingency table}
 
 \item{rowReferenceValue}{String representing a value present in the row names of the contingency table}
+
+\item{overlayValues}{character vector providing overlay values of interest}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

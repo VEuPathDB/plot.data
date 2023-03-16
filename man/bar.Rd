@@ -9,6 +9,7 @@ bar(
   variables = variables,
   value = c("count", "identity", "proportion"),
   barmode = c("group", "stack"),
+  overlayValues = NULL,
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
@@ -21,6 +22,8 @@ bar(
 \item{value}{String indicating how to calculate y-values ('identity', 'count', 'proportion')}
 
 \item{barmode}{String indicating if bars should be grouped or stacked ('group', 'stack')}
+
+\item{overlayValues}{character vector providing overlay values of interest}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 
