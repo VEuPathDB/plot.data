@@ -7,8 +7,8 @@ recodeOverlayValues <- function(overlayData, desiredOverlayValues, variables) {
     # tbh desiredOverlayValues will probably stop being a simple character vector then as well. but one thing at a time.
     warning("Binned continuous overlays are not supported yet.")
   } else {
-    if (unique(overlayData) == desiredOverlayValues) return(overlayData)
-    overlayData[!overlayData %in% desiredOverlayValues] <- 'All un-selected values'
+    if (all(unique(overlayData) %in% desiredOverlayValues)) return(overlayData)
+    overlayData[!overlayData %in% desiredOverlayValues] <- '__UNSELECTED__'
   }
 
   return(overlayData)
