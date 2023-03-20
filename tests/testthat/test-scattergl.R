@@ -217,6 +217,22 @@ test_that("scattergl.dt() returns plot data and config of the appropriate types"
   expect_equal(class(unlist(sampleSizes$entity.cat4)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
 
+
+  ## Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
+  dt <- scattergl.dt(df, variables, 'raw', sampleSizes = FALSE, completeCases = FALSE)
+  expect_equal(class(unlist(dt$entity.cat4)), 'character')
+  expect_equal(class(unlist(dt$entity.cat3)), 'character')
+  expect_equal(class(unlist(dt$seriesX)), 'character')
+  expect_equal(class(unlist(dt$seriesY)), 'character')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList), c('variables'))
+  # expect_equal(class(namedAttrList$completeCasesAllVars),NULL)
+  # expect_equal(class(namedAttrList$completeCasesAxesVars),NULL)
+  # completeCases <- completeCasesTable(dt)
+  # expect_equal(completeCases, NULL)
+  # sampleSizes <- sampleSizeTable(dt)
+  # expect_equal(sampleSizes, NULL)
+
 })
 
 test_that("scattergl.dt() returns an appropriately sized data.table", { 
