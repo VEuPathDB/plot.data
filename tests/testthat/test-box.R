@@ -173,6 +173,18 @@ test_that("box.dt() returns a valid plot.data box object", {
   expect_equal(dt$entity.cat3[[1]], 'cat3_a')
   expect_equal(dt$label[[1]], c('cat4_a','cat4_b','cat4_c','cat4_d'))
   expect_equal(unlist(lapply(dt$rawData[[1]], length)), c(42,42,29,51))
+
+
+  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
+    dt <- box.dt(df, variables, 'all', FALSE, computeStats = T, sampleSizes = FALSE, completeCases = FALSE)
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'boxplot')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('variables','statsTable'))
+  expect_equal(names(namedAttrList$statsTable), c('entity.cat4','statistic','pvalue','parameter','method','statsError'))
+  expect_equal(dt$entity.cat3[[1]], 'cat3_a')
+  expect_equal(dt$label[[1]], c('cat4_a','cat4_b','cat4_c','cat4_d'))
+  expect_equal(unlist(lapply(dt$rawData[[1]], length)), c(42,42,29,51))
 })
 
 test_that("box.dt() returns plot data and config of the appropriate types", {
@@ -246,23 +258,6 @@ test_that("box.dt() returns plot data and config of the appropriate types", {
   expect_equal(class(unlist(sampleSizes$entity.cat5)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
 
-  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
-  dt <- box.dt(df, variables, 'outliers', TRUE, sampleSizes = FALSE, completeCases = FALSE)
-  expect_equal(class(dt$label[[1]]), 'character')
-  expect_equal(class(dt$min[[1]]), 'numeric')
-  expect_equal(class(dt$q1[[1]]), 'numeric')
-  expect_equal(class(dt$median[[1]]), 'numeric')
-  expect_equal(class(dt$q3[[1]]), 'numeric')
-  expect_equal(class(dt$max[[1]]), 'numeric')
-  expect_equal(class(dt$lowerfence[[1]]), 'numeric')
-  expect_equal(class(dt$upperfence[[1]]), 'numeric')
-  expect_equal(class(dt$mean[[1]]), 'numeric')
-  #first group has no outliers, want json like [] rather than {}
-  expect_equal(class(dt$outliers[[1]][[1]]), 'list')
-  expect_equal(class(dt$outliers[[1]][[3]]), 'numeric')
-  namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList), c('variables'))
-  
 
   #single group
   variables <- new("VariableMetadataList", SimpleList(
@@ -970,7 +965,7 @@ test_that("box() returns appropriately formatted json", {
   expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
 
   # Ensure sampleSizeTable and completeCasesTable are not part of json if we do not ask for them.
-  # Make sure to also ask for the stats table to ensure all goes well with this special box-specific table
+  # Make sure to also ask for the stats table to check that all goes well with this special box-specific table
   dt <- box.dt(df, variables, 'none', FALSE, computeStats = T, sampleSizes = FALSE, completeCases = FALSE)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
@@ -1188,21 +1183,6 @@ test_that("box() returns appropriately formatted json", {
   dt <- box.dt(df, variables, 'none', FALSE, computeStats = T)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
-  expect_equal(names(jsonList$statsTable), c('statistic','pvalue','parameter','method','statsError'))
-  expect_equal(class(jsonList$statsTable$statistic), 'numeric')
-  expect_equal(length(jsonList$statsTable$statistic), 1)
-  expect_equal(class(jsonList$statsTable$statsError), 'character')
-
-  # Ensure sampleSizeTable and completeCasesTable are not part of json if we do not ask for them.
-  dt <- box.dt(df, variables, 'none', FALSE, computeStats = T, sampleSizes = FALSE, completeCases = FALSE)
-  outJson <- getJSON(dt, FALSE)
-  jsonList <- jsonlite::fromJSON(outJson)
-  expect_equal(names(jsonList), c('boxplot','statsTable'))
-  expect_equal(names(jsonList$boxplot), c('data','config'))
-  expect_equal(names(jsonList$boxplot$data), c('label','min','q1','median','q3','max','lowerfence','upperfence'))
-  expect_equal(class(jsonList$boxplot$data$label[[1]]), 'character')
-  expect_equal(names(jsonList$boxplot$config), c('variables'))
-  expect_equal(names(jsonList$boxplot$config$variables$variableSpec), c('variableId','entityId'))
   expect_equal(names(jsonList$statsTable), c('statistic','pvalue','parameter','method','statsError'))
   expect_equal(class(jsonList$statsTable$statistic), 'numeric')
   expect_equal(length(jsonList$statsTable$statistic), 1)

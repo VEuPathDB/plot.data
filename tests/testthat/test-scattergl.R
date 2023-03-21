@@ -121,6 +121,14 @@ test_that("scattergl.dt() returns a valid plot.data scatter object", {
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(names(sampleSizes), c('entity.cat3','entity.cat4','size'))
   expect_equal(nrow(sampleSizes), 12)
+
+  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
+  dt <- scattergl.dt(df, variables, 'raw', sampleSizes = FALSE, completeCases = FALSE)
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'scatterplot')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('variables'))
+
 })
 
 test_that("scattergl.dt() returns plot data and config of the appropriate types", {
@@ -216,16 +224,6 @@ test_that("scattergl.dt() returns plot data and config of the appropriate types"
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(class(unlist(sampleSizes$entity.cat4)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
-
-
-  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
-  dt <- scattergl.dt(df, variables, 'raw', sampleSizes = FALSE, completeCases = FALSE)
-  expect_equal(class(unlist(dt$entity.cat4)), 'character')
-  expect_equal(class(unlist(dt$entity.cat3)), 'character')
-  expect_equal(class(unlist(dt$seriesX)), 'character')
-  expect_equal(class(unlist(dt$seriesY)), 'character')
-  namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList), c('variables'))
 
 })
 

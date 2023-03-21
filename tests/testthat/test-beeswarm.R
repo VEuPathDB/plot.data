@@ -51,6 +51,17 @@ test_that("beeswarm.dt() returns a valid plot.data beeswarm object", {
   expect_equal(dt$entity.cat3[[1]], 'cat3_a')
   expect_equal(dt$label[[1]], c('cat4_a','cat4_b','cat4_c','cat4_d'))
   expect_equal(unlist(lapply(dt$rawData[[1]], length)), c(42,42,29,51))
+
+  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
+  dt <- beeswarm.dt(df, variables, 0.1, FALSE, sampleSizes = FALSE, completeCases = FALSE)
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'beeswarm')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('variables'))
+  expect_equal(dt$entity.cat3[[1]], 'cat3_a')
+  expect_equal(dt$label[[1]], c('cat4_a','cat4_b','cat4_c','cat4_d'))
+  expect_equal(unlist(lapply(dt$rawData[[1]], length)), c(42,42,29,51))
+  
 })
 
 test_that("beeswarm.dt() returns plot data and config of the appropriate types", {
@@ -90,13 +101,6 @@ test_that("beeswarm.dt() returns plot data and config of the appropriate types",
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(class(unlist(sampleSizes$entity.cat5)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
-
-
-  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
-  dt <- beeswarm.dt(df, variables, 0.2, TRUE, sampleSizes = FALSE, completeCases = FALSE)
-  expect_equal(class(dt$median[[1]]), 'numeric')
-  namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList), c('variables'))
 
 
   #single group

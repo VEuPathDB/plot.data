@@ -85,6 +85,14 @@ test_that("bar.dt() returns a valid plot.data barplot object", {
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(names(sampleSizes), c('panel','entity.cat6','size'))
   expect_equal(nrow(sampleSizes), 12)
+
+  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
+  dt <- bar.dt(df, variables, value='count', sampleSizes = FALSE, completeCases = FALSE)
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'barplot')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('variables'))
+
 })
 
 
@@ -127,15 +135,6 @@ test_that("bar.dt() returns plot data and config of the appropriate types", {
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(class(unlist(sampleSizes$panel)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
-
-  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
-  dt <- bar.dt(df, variables, value='count', sampleSizes = FALSE, completeCases = FALSE)
-  expect_is(dt$label, 'list')
-  expect_equal(class(unlist(dt$label)), 'character')
-  expect_is(dt$value, 'list')
-  expect_equal(class(unlist(dt$value)), 'integer')
-  namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList), c('variables'))
 
 
   # With numeric x

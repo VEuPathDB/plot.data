@@ -1006,7 +1006,7 @@ test_that("histogram() returns appropriately formatted json", {
 
 
   # Ensure sampleSizeTable and completeCasesTable are not part of json if we do not ask for them.
-    dt <- histogram.dt(df, variables, binWidth = NULL, value='count', barmode = 'stack', binReportValue, viewport, sampleSizes = FALSE, completeCases = FALSE)
+  dt <- histogram.dt(df, variables, binWidth = NULL, value='count', barmode = 'stack', binReportValue, viewport, sampleSizes = FALSE, completeCases = FALSE)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList),c('histogram'))
