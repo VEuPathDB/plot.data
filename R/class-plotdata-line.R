@@ -5,6 +5,8 @@ newLinePD <- function(.dt = data.table::data.table(),
                          binWidth,
                          value = character(),
                          errorBars = logical(),
+                         sampleSizes = logical(),
+                         completeCases = logical(),
                          evilMode = character(),
                          numeratorValues = character(),
                          denominatorValues = character(),
@@ -14,6 +16,8 @@ newLinePD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     sampleSizes = sampleSizes,
+                     completeCases = completeCases,
                      evilMode = evilMode,
                      collectionVariableDetails = collectionVariableDetails,
                      computedVariableMetadata = computedVariableMetadata,
@@ -184,6 +188,8 @@ validateLinePD <- function(.line, verbose) {
 #' @param viewport List of min and max values to consider as the range of data
 #' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
 #' @param denominatorValues character vector of values from the y-axis variable to consider the denominator
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of 
@@ -228,11 +234,15 @@ lineplot.dt <- function(data,
                          viewport = NULL,
                          numeratorValues = NULL,
                          denominatorValues = NULL,
+                         sampleSizes = c(TRUE, FALSE),
+                         completeCases = c(TRUE, FALSE),
                          evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                          verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
   errorBars <- veupathUtils::matchArg(errorBars)
+  sampleSizes <- veupathUtils::matchArg(sampleSizes)
+  completeCases <- veupathUtils::matchArg(completeCases)
   evilMode <- veupathUtils::matchArg(evilMode) 
   verbose <- veupathUtils::matchArg(verbose)  
 
@@ -267,6 +277,8 @@ lineplot.dt <- function(data,
                             binWidth,
                             value = value,
                             errorBars = errorBars,
+                            sampleSizes = sampleSizes,
+                            completeCases = completeCases,
                             evilMode = evilMode,
                             verbose = verbose)
 
@@ -278,6 +290,8 @@ lineplot.dt <- function(data,
                                                                              ', evilMode =', evilMode, 
                                                                              ', numeratorValues = ', numeratorValues, 
                                                                              ', denominatorValues = ', denominatorValues, 
+                                                                             ', sampleSizes = ', sampleSizes,
+                                                                             ', completeCases = ', completeCases,
                                                                              ', verbose = ', verbose), verbose)
 
   return(.line)
@@ -312,6 +326,8 @@ lineplot.dt <- function(data,
 #' @param viewport List of min and max values to consider as the range of data
 #' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
 #' @param denominatorValues character vector of values from the y-axis variable to consider the denominator
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param collectionVariablePlotRef string indicating the plotRef to be considered as a collectionVariable. 
 #' Accepted values are 'overlayVariable' and 'facetVariable1'. Required whenever a set of variables 
@@ -357,6 +373,8 @@ lineplot <- function(data,
                       viewport = NULL,
                       numeratorValues = NULL,
                       denominatorValues = NULL,
+                      sampleSizes = c(TRUE, FALSE),
+                      completeCases = c(TRUE, FALSE),
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       collectionVariablePlotRef = NULL,
                       computedVariableMetadata = NULL,
@@ -372,6 +390,8 @@ lineplot <- function(data,
                            viewport = viewport,
                            numeratorValues = numeratorValues,
                            denominatorValues = denominatorValues,
+                           sampleSizes = sampleSizes,
+                           completeCases = completeCases,
                            evilMode = evilMode,
                            verbose = verbose)
                            

@@ -2,6 +2,8 @@ newBarPD <- function(.dt = data.table::data.table(),
                          variables = veupathUtils::VariableMetadataList(),
                          value = character(),
                          barmode = character(),
+                         sampleSizes = logical(),
+                         completeCases = logical(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -9,6 +11,8 @@ newBarPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     sampleSizes = sampleSizes,
+                     completeCases = completeCases,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "barplot")
@@ -76,6 +80,8 @@ validateBarPD <- function(.bar, verbose) {
 #' @param variables veupathUtils VariableMetadataList
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
@@ -106,13 +112,17 @@ validateBarPD <- function(.bar, verbose) {
 #' @export
 bar.dt <- function(data, 
                    variables = variables, 
-                   value = c('count', 'identity', 'proportion'), 
-                   barmode = c('group', 'stack'), 
+                   value = c('count', 'identity', 'proportion'),
+                   barmode = c('group', 'stack'),
+                   sampleSizes = c(TRUE, FALSE),
+                   completeCases = c(TRUE, FALSE),
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
   barmode <- veupathUtils::matchArg(barmode)
+  sampleSizes <- veupathUtils::matchArg(sampleSizes)
+  completeCases <- veupathUtils::matchArg(completeCases)
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
 
@@ -129,11 +139,18 @@ bar.dt <- function(data,
                     variables = variables,
                     value = value,
                     barmode = barmode,
+                    sampleSizes = sampleSizes,
+                    completeCases = completeCases,
                     evilMode = evilMode,
                     verbose = verbose)
 
   .bar <- validateBarPD(.bar, verbose)
-  veupathUtils::logWithTime(paste('New barplot object created with parameters value =', value, ', barmode =', barmode, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New barplot object created with parameters value =', value,
+                                                                              ', barmode =', barmode,
+                                                                              ', sampleSizes = ', sampleSizes,
+                                                                              ', completeCases = ', completeCases,
+                                                                              ', evilMode =', evilMode,
+                                                                              ', verbose =', verbose), verbose)
 
   return(.bar)
 }
@@ -162,6 +179,8 @@ bar.dt <- function(data,
 #' @param variables veupathUtils VariableMetadataList
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
@@ -193,14 +212,24 @@ bar.dt <- function(data,
 #' @export
 bar <- function(data, 
                 variables = variables, 
-                value = c('count', 'identity', 'proportion'), 
-                barmode = c('group', 'stack'), 
+                value = c('count', 'identity', 'proportion'),
+                barmode = c('group', 'stack'),
+                sampleSizes = c(TRUE, FALSE),
+                completeCases = c(TRUE, FALSE),
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                 verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
 
-  .bar <- bar.dt(data, variables, value, barmode, evilMode, verbose)
+  .bar <- bar.dt(data = data,
+                 variables = variables,
+                 value = value,
+                 barmode = barmode,
+                 sampleSizes = sapleSizes,
+                 completeCases = completeCases,
+                 evilMode = evilMode,
+                 verbose = verbose)
+
   outFileName <- writeJSON(.bar, evilMode, 'barplot', verbose)
 
   return(outFileName)

@@ -270,7 +270,11 @@ scattergl.dt <- function(data,
                             verbose = verbose)
 
   .scatter <- validateScatterPD(.scatter, verbose)
-  veupathUtils::logWithTime(paste('New scatter plot object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New scatter plot object created with parameters value =', value,
+                                                                                ', sampleSizes = ', sampleSizes,
+                                                                                ', completeCases = ', completeCases,
+                                                                                ', evilMode =', evilMode,
+                                                                                ', verbose =', verbose), verbose)
 
   return(.scatter)
 }
