@@ -12,6 +12,9 @@ histogram(
   binReportValue = c("binWidth", "numBins"),
   barmode = c("stack", "overlay"),
   viewport = NULL,
+  overlayValues = NULL,
+  sampleSizes = c(TRUE, FALSE),
+  completeCases = c(TRUE, FALSE),
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
@@ -30,6 +33,12 @@ histogram(
 \item{barmode}{String indicating if bars should be stacked or overlaid ('stack', 'overlay')}
 
 \item{viewport}{List of min and max values to consider as the range of data}
+
+\item{overlayValues}{character vector providing overlay values of interest}
+
+\item{sampleSizes}{boolean indicating if sample sizes should be computed}
+
+\item{completeCases}{boolean indicating if complete cases should be computed}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

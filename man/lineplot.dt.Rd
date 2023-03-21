@@ -13,6 +13,9 @@ lineplot.dt(
   viewport = NULL,
   numeratorValues = NULL,
   denominatorValues = NULL,
+  overlayValues = NULL,
+  sampleSizes = c(TRUE, FALSE),
+  completeCases = c(TRUE, FALSE),
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
@@ -35,6 +38,12 @@ sourceId and its position in the plot. Recognized plotRef values are 'xAxisVaria
 \item{numeratorValues}{character vector of values from the y-axis variable to consider the numerator}
 
 \item{denominatorValues}{character vector of values from the y-axis variable to consider the denominator}
+
+\item{overlayValues}{character vector providing overlay values of interest}
+
+\item{sampleSizes}{boolean indicating if sample sizes should be computed}
+
+\item{completeCases}{boolean indicating if complete cases should be computed}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

@@ -2,6 +2,7 @@ newBarPD <- function(.dt = data.table::data.table(),
                          variables = veupathUtils::VariableMetadataList(),
                          value = character(),
                          barmode = character(),
+                         overlayValues = character(),
                          sampleSizes = logical(),
                          completeCases = logical(),
                          evilMode = character(),
@@ -11,6 +12,7 @@ newBarPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     overlayValues = overlayValues,
                      sampleSizes = sampleSizes,
                      completeCases = completeCases,
                      evilMode = evilMode,
@@ -80,6 +82,7 @@ validateBarPD <- function(.bar, verbose) {
 #' @param variables veupathUtils VariableMetadataList
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
+#' @param overlayValues character vector providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')
@@ -112,8 +115,9 @@ validateBarPD <- function(.bar, verbose) {
 #' @export
 bar.dt <- function(data, 
                    variables = variables, 
-                   value = c('count', 'identity', 'proportion'),
-                   barmode = c('group', 'stack'),
+                   value = c('count', 'identity', 'proportion'), 
+                   barmode = c('group', 'stack'), 
+                   overlayValues = NULL,
                    sampleSizes = c(TRUE, FALSE),
                    completeCases = c(TRUE, FALSE),
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -139,6 +143,7 @@ bar.dt <- function(data,
                     variables = variables,
                     value = value,
                     barmode = barmode,
+                    overlayValues = overlayValues,
                     sampleSizes = sampleSizes,
                     completeCases = completeCases,
                     evilMode = evilMode,
@@ -179,6 +184,7 @@ bar.dt <- function(data,
 #' @param variables veupathUtils VariableMetadataList
 #' @param value String indicating how to calculate y-values ('identity', 'count', 'proportion')
 #' @param barmode String indicating if bars should be grouped or stacked ('group', 'stack')
+#' @param overlayValues character vector providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -212,8 +218,9 @@ bar.dt <- function(data,
 #' @export
 bar <- function(data, 
                 variables = variables, 
-                value = c('count', 'identity', 'proportion'),
-                barmode = c('group', 'stack'),
+                value = c('count', 'identity', 'proportion'), 
+                barmode = c('group', 'stack'), 
+                overlayValues = NULL,
                 sampleSizes = c(TRUE, FALSE),
                 completeCases = c(TRUE, FALSE),
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -225,6 +232,7 @@ bar <- function(data,
                  variables = variables,
                  value = value,
                  barmode = barmode,
+		 overlayValues = overlayValues,
                  sampleSizes = sapleSizes,
                  completeCases = completeCases,
                  evilMode = evilMode,

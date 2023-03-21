@@ -5,6 +5,7 @@ newLinePD <- function(.dt = data.table::data.table(),
                          binWidth,
                          value = character(),
                          errorBars = logical(),
+                         overlayValues = character(),
                          sampleSizes = logical(),
                          completeCases = logical(),
                          evilMode = character(),
@@ -16,6 +17,7 @@ newLinePD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     overlayValues = overlayValues,
                      sampleSizes = sampleSizes,
                      completeCases = completeCases,
                      evilMode = evilMode,
@@ -188,6 +190,7 @@ validateLinePD <- function(.line, verbose) {
 #' @param viewport List of min and max values to consider as the range of data
 #' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
 #' @param denominatorValues character vector of values from the y-axis variable to consider the denominator
+#' @param overlayValues character vector providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -234,6 +237,7 @@ lineplot.dt <- function(data,
                          viewport = NULL,
                          numeratorValues = NULL,
                          denominatorValues = NULL,
+                         overlayValues = NULL,
                          sampleSizes = c(TRUE, FALSE),
                          completeCases = c(TRUE, FALSE),
                          evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -277,6 +281,7 @@ lineplot.dt <- function(data,
                             binWidth,
                             value = value,
                             errorBars = errorBars,
+                            overlayValues = overlayValues,
                             sampleSizes = sampleSizes,
                             completeCases = completeCases,
                             evilMode = evilMode,
@@ -326,6 +331,7 @@ lineplot.dt <- function(data,
 #' @param viewport List of min and max values to consider as the range of data
 #' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
 #' @param denominatorValues character vector of values from the y-axis variable to consider the denominator
+#' @param overlayValues character vector providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -373,6 +379,7 @@ lineplot <- function(data,
                       viewport = NULL,
                       numeratorValues = NULL,
                       denominatorValues = NULL,
+                      overlayValues = NULL,
                       sampleSizes = c(TRUE, FALSE),
                       completeCases = c(TRUE, FALSE),
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -390,6 +397,7 @@ lineplot <- function(data,
                            viewport = viewport,
                            numeratorValues = numeratorValues,
                            denominatorValues = denominatorValues,
+                           overlayValues = overlayValues,
                            sampleSizes = sampleSizes,
                            completeCases = completeCases,
                            evilMode = evilMode,

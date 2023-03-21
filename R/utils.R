@@ -1,3 +1,22 @@
+recodeValues <- function(values, desiredValues, dataType) {
+  if (is.null(desiredValues)) return(values)
+  
+  if (dataType %in% c('NUMBER', 'INTEGER', 'DATE')) {
+    # figure this out when i get to the continuous overlay PR, just leaving a skeleton for now
+    # tbh desiredValues will probably stop being a simple character vector then as well. but one thing at a time.
+    warning("Binned continuous overlays are not supported yet.")
+  } else {
+    if (all(unique(values) %in% desiredValues)) return(values)
+    values[!values %in% desiredValues] <- '__UNSELECTED__'
+  }
+
+  undetectedDesiredValues <- desiredValues[!(desiredValues %in% values)]
+  if (!!length(undetectedDesiredValues)) warning(paste("The following values were requested but not found in the data: ", undetectedDesiredValues))
+
+  return(values)
+}
+
+
 "%ni%" <- Negate("%in%")
 
 validateValues <- function(valuesOfInterest, valuesOfVariable) {

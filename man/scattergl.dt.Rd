@@ -9,6 +9,9 @@ scattergl.dt(
   variables,
   value = c("smoothedMean", "smoothedMeanWithRaw", "bestFitLineWithRaw", "density",
     "raw"),
+  overlayValues = NULL,
+  sampleSizes = c(TRUE, FALSE),
+  completeCases = c(TRUE, FALSE),
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   collectionVariablePlotRef = NULL,
   computedVariableMetadata = NULL,
@@ -26,6 +29,12 @@ sourceId and its position in the plot. Recognized plotRef values are 'xAxisVaria
  or 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' 
 to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous 
 overlay variable.}
+
+\item{overlayValues}{character vector providing overlay values of interest}
+
+\item{sampleSizes}{boolean indicating if sample sizes should be computed}
+
+\item{completeCases}{boolean indicating if complete cases should be computed}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

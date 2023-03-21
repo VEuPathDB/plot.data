@@ -2,6 +2,7 @@ newBeeswarmPD <- function(.dt = data.table::data.table(),
                          variables = veupathUtils::VariableMetadataList(),
                          jitter = NULL,
                          median = logical(),
+                         overlayValues = character(),
                          sampleSizes = logical(),
                          completeCases = logical(),
                          evilMode = character(),
@@ -11,6 +12,7 @@ newBeeswarmPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     overlayValues = overlayValues,
                      sampleSizes = sampleSizes,
                      completeCases = completeCases,
                      evilMode = evilMode,
@@ -95,6 +97,7 @@ validateBeeswarmPD <- function(.beeswarm, verbose) {
 #' @param variables veupathUtils VariableMetadataList
 #' @param jitter numeric indicating the maximum width by which to randomly offset points.
 #' @param median boolean indicating whether to return median value per group (per panel)
+#' @param overlayValues character vector providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -136,7 +139,8 @@ validateBeeswarmPD <- function(.beeswarm, verbose) {
 #' @export
 beeswarm.dt <- function(data, variables,
                    jitter = NULL, 
-                   median = c(FALSE, TRUE),
+                   median = c(FALSE, TRUE), 
+                   overlayValues = NULL,
                    sampleSizes = c(TRUE, FALSE),
                    completeCases = c(TRUE, FALSE),
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -169,7 +173,7 @@ beeswarm.dt <- function(data, variables,
   if (is.null(yVM) & is.null(collectionVM)) {
     stop("Must provide y-axis variable for plot type beeswarm.")
   }
-  
+
   # Handle collectionVars
   if (!is.null(collectionVM)) {
     if (!collectionVM@plotReference@value %in% c('xAxis', 'facet1', 'facet2')) stop('Collection variable PlotReference must be either xAxis, facet1 or facet2 for beeswarm.')
@@ -179,6 +183,7 @@ beeswarm.dt <- function(data, variables,
                     variables = variables,
                     jitter = jitter,
                     median = median,
+                    overlayValues = overlayValues,
                     sampleSizes = sampleSizes,
                     completeCases = completeCases,
                     evilMode = evilMode,
@@ -217,6 +222,7 @@ beeswarm.dt <- function(data, variables,
 #' @param variables veupathUtils VariableMetadataList
 #' @param jitter numeric indicating the maximum width by which to randomly offset points.
 #' @param median boolean indicating whether to return median value per group (per panel)
+#' @param overlayValues character vector providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')
@@ -258,7 +264,8 @@ beeswarm.dt <- function(data, variables,
 #' @export
 beeswarm <- function(data, variables, 
                 jitter = NULL, 
-                median = c(FALSE, TRUE),
+                median = c(FALSE, TRUE), 
+                overlayValues = NULL,
                 sampleSizes = c(TRUE, FALSE),
                 completeCases = c(TRUE, FALSE),
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -270,6 +277,7 @@ beeswarm <- function(data, variables,
                  variables = variables,
                  jitter = jitter,
                  median = median,
+                 overlayValues = overlayValues,
                  sampleSizes = sampleSizes,
                  completeCases = completeCases,
                  evilMode = evilMode,

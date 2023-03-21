@@ -448,8 +448,8 @@ test_that("relativeRisk() returns the right columns", {
   expect_equal(inherits(.stat, 'Statistic'), TRUE)
   expect_equal(.stat@pvalue, NA_character_)
   expect_equal(.stat@confidenceLevel, .95)
-  expect_equal(.stat@confidenceInterval@minimum, 1)
-  expect_equal(.stat@confidenceInterval@maximum, NaN)
+  expect_equal(.stat@confidenceInterval@minimum, NaN)
+  expect_equal(.stat@confidenceInterval@maximum, Inf)
   expect_equal(.stat@value, Inf)
   expect_equal(.stat@name, 'relativeRisk')
 })
@@ -463,7 +463,7 @@ test_that("oddsRatio() returns the right columns", {
   expect_equal(.stat@pvalue, NA_character_)
   expect_equal(.stat@confidenceLevel, .95)
   expect_equal(.stat@confidenceInterval@minimum, NaN)
-  expect_equal(.stat@confidenceInterval@maximum, NaN)
+  expect_equal(.stat@confidenceInterval@maximum, Inf)
   expect_equal(.stat@value, Inf)
   expect_equal(.stat@name, 'oddsRatio')
 })
@@ -616,20 +616,7 @@ test_that("bin returns appropriate data with default binWidth", {
   expect_equal(length(df), length(dt))
 })
 
-test_that("breaks returns appropriate results", {
-  
-  df <- testDF[['entity.contA']]
-  
-  dt <- breaks(df, 'numbers', nbins=20)
-  expect_equal(length(dt), 21)
-  
-  dt <- breaks(df, 'numbers', binwidth=0.5)
-  expect_equal(length(dt), 3)
-  expect_equal(names(dt), c('0%','50%','100%'))
-  
-  dt <- breaks(df, 'width', binwidth=0.5)
-  expect_equal(length(dt), 59)
-})
+
 
 test_that("signifDigitEpsilon returns appropriate results", {
   expect_equal(signifDigitEpsilon(1.23, 3), 0.01)

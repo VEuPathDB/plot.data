@@ -1080,7 +1080,7 @@ test_that("box() returns appropriately formatted json", {
       dataShape = new("DataShape", value = 'CATEGORICAL'))
   ))
   
-  dt <- box.dt(df, variables, 'none', FALSE, TRUE, evilMode = 'strataVariables')
+  dt <- box.dt(df, variables, 'none', FALSE, TRUE, NULL, evilMode = 'strataVariables')
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   # no stats table even if requested, when evilMode is 'strataVariables'

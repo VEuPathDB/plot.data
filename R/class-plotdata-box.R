@@ -3,6 +3,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                          points = character(),
                          mean = logical(),
                          computeStats = logical(),
+                         overlayValues = character(),
                          sampleSizes = logical(),
                          completeCases = logical(),
                          evilMode = character(),
@@ -12,6 +13,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     overlayValues = overlayValues,
                      sampleSizes = sampleSizes,
                      completeCases = completeCases,
                      evilMode = evilMode,
@@ -140,6 +142,7 @@ validateBoxPD <- function(.box, verbose) {
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
+#' @param overlayValues character vector providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -182,9 +185,10 @@ validateBoxPD <- function(.box, verbose) {
 #' @export
 
 box.dt <- function(data, variables, 
-                   points = c('outliers', 'all', 'none'),
-                   mean = c(FALSE, TRUE),
-                   computeStats = c(FALSE, TRUE),
+                   points = c('outliers', 'all', 'none'), 
+                   mean = c(FALSE, TRUE), 
+                   computeStats = c(FALSE, TRUE), 
+                   overlayValues = NULL,
                    sampleSizes = c(TRUE, FALSE),
                    completeCases = c(TRUE, FALSE),
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -229,6 +233,7 @@ box.dt <- function(data, variables,
                     points = points,
                     mean = mean,
                     computeStats = computeStats,
+                    overlayValues = overlayValues,
                     sampleSizes = sampleSizes,
                     completeCases = completeCases,
                     evilMode = evilMode,
@@ -270,6 +275,7 @@ box.dt <- function(data, variables,
 #' @param points character vector indicating which points to return 'outliers' or 'all'
 #' @param mean boolean indicating whether to return mean value per group (per panel)
 #' @param computeStats boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)
+#' @param overlayValues character vector providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -312,7 +318,8 @@ box.dt <- function(data, variables,
 box <- function(data, variables, 
                 points = c('outliers', 'all', 'none'), 
                 mean = c(FALSE, TRUE), 
-                computeStats = c(FALSE, TRUE),
+                computeStats = c(FALSE, TRUE), 
+                overlayValues = NULL,
                 sampleSizes = c(TRUE, FALSE),
                 completeCases = c(TRUE, FALSE),
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -325,6 +332,7 @@ box <- function(data, variables,
                  points = points,
                  mean = mean,
                  computeStats = computeStats,
+                 overlayValues = overlayValues,
                  sampleSizes = sampleSizes,
                  completeCases = completeCases,
                  evilMode = evilMode,

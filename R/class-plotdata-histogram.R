@@ -7,6 +7,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          binReportValue = character(),
                          value = character(),
                          barmode = character(),
+                         overlayValues = character(),
                          sampleSizes = logical(),
                          completeCases = logical(),
                          evilMode = character(),
@@ -16,6 +17,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     overlayValues = overlayValues,
                      sampleSizes = sampleSizes,
                      completeCases = completeCases,
                      evilMode = evilMode,
@@ -196,6 +198,7 @@ validateHistogramPD <- function(.histo, verbose) {
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
+#' @param overlayValues character vector providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -238,6 +241,7 @@ histogram.dt <- function(data,
                          binReportValue = c('binWidth', 'numBins'),
                          barmode = c('stack', 'overlay'),
                          viewport = NULL,
+                         overlayValues = NULL,
                          sampleSizes = c(TRUE, FALSE),
                          completeCases = c(TRUE, FALSE),
                          evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -274,6 +278,7 @@ histogram.dt <- function(data,
                            binReportValue = binReportValue,
                            value = value,
                            barmode = barmode,
+                           overlayValues = overlayValues,
                            sampleSizes = sampleSizes,
                            completeCases = completeCases,
                            evilMode = evilMode,
@@ -318,6 +323,7 @@ histogram.dt <- function(data,
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
+#' @param overlayValues character vector providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -359,6 +365,7 @@ histogram <- function(data,
                       binReportValue = c('binWidth', 'numBins'), 
                       barmode = c('stack', 'overlay'),
                       viewport = NULL,
+                      overlayValues = NULL,
                       sampleSizes = c(TRUE, FALSE),
                       completeCases = c(TRUE, FALSE),
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -373,6 +380,7 @@ histogram <- function(data,
                           binReportValue = binReportValue,
                           barmode = barmode,
                           viewport = viewport,
+			  overlayValues = overlayValues,
                           sampleSizes = sampleSizes,
                           completeCases = completeCases,
                           evilMode = evilMode,
