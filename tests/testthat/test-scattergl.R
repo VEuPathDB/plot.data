@@ -226,12 +226,6 @@ test_that("scattergl.dt() returns plot data and config of the appropriate types"
   expect_equal(class(unlist(dt$seriesY)), 'character')
   namedAttrList <- getPDAttributes(dt)
   expect_equal(names(namedAttrList), c('variables'))
-  # expect_equal(class(namedAttrList$completeCasesAllVars),NULL)
-  # expect_equal(class(namedAttrList$completeCasesAxesVars),NULL)
-  # completeCases <- completeCasesTable(dt)
-  # expect_equal(completeCases, NULL)
-  # sampleSizes <- sampleSizeTable(dt)
-  # expect_equal(sampleSizes, NULL)
 
 })
 
@@ -664,7 +658,17 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(dt$panel[1], 'cat3_a.||.contA')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'facet2')@variableId, 'collection')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
-  
+
+  dt <- scattergl.dt(df, variables, 'raw', sampleSizes = FALSE, completeCases = FALSE)
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt), 9)
+  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY'))
+  expect_equal(dt$panel[1], 'cat3_a.||.contA')
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'facet2')@variableId, 'collection')
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList), c('variables'))
+
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
       variableClass = new("VariableClass", value = 'computed'),
