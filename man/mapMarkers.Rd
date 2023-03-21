@@ -10,6 +10,8 @@ mapMarkers(
   value = c("count", "proportion"),
   viewport = NULL,
   xValues = NULL,
+  sampleSizes = c(TRUE, FALSE),
+  completeCases = c(TRUE, FALSE),
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
@@ -24,6 +26,10 @@ mapMarkers(
 \item{viewport}{List of values indicating the visible range of data}
 
 \item{xValues}{character vector providing overlay values of interest}
+
+\item{sampleSizes}{boolean indicating if sample sizes should be computed}
+
+\item{completeCases}{boolean indicating if complete cases should be computed}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

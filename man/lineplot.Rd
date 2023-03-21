@@ -14,6 +14,8 @@ lineplot(
   numeratorValues = NULL,
   denominatorValues = NULL,
   overlayValues = NULL,
+  sampleSizes = c(TRUE, FALSE),
+  completeCases = c(TRUE, FALSE),
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   collectionVariablePlotRef = NULL,
   computedVariableMetadata = NULL,
@@ -40,6 +42,10 @@ and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yA
 \item{denominatorValues}{character vector of values from the y-axis variable to consider the denominator}
 
 \item{overlayValues}{character vector providing overlay values of interest}
+
+\item{sampleSizes}{boolean indicating if sample sizes should be computed}
+
+\item{completeCases}{boolean indicating if complete cases should be computed}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

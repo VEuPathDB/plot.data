@@ -10,6 +10,8 @@ bar.dt(
   value = c("count", "identity", "proportion"),
   barmode = c("group", "stack"),
   overlayValues = NULL,
+  sampleSizes = c(TRUE, FALSE),
+  completeCases = c(TRUE, FALSE),
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   verbose = c(TRUE, FALSE)
 )
@@ -24,6 +26,10 @@ bar.dt(
 \item{barmode}{String indicating if bars should be grouped or stacked ('group', 'stack')}
 
 \item{overlayValues}{character vector providing overlay values of interest}
+
+\item{sampleSizes}{boolean indicating if sample sizes should be computed}
+
+\item{completeCases}{boolean indicating if complete cases should be computed}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

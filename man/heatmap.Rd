@@ -8,6 +8,8 @@ heatmap(
   data,
   variables,
   value = c("series", "collection"),
+  sampleSizes = c(TRUE, FALSE),
+  completeCases = c(TRUE, FALSE),
   evilMode = c("noVariables", "allVariables", "strataVariables")
 )
 }
@@ -17,6 +19,10 @@ heatmap(
 \item{variables}{veupathUtils VariableMetadataList}
 
 \item{value}{String indicating which of the three methods to use to calculate z-values ('collection', 'series')}
+
+\item{sampleSizes}{boolean indicating if sample sizes should be computed}
+
+\item{completeCases}{boolean indicating if complete cases should be computed}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
 

@@ -11,6 +11,8 @@ newMapMarkersPD(
   geolocationViewport = list(latitude = list(xMin = NULL, xMax = NULL), longitude =
     list(left = NULL, right = NULL)),
   xValues = character(),
+  sampleSizes = logical(),
+  completeCases = logical(),
   evilMode = character(),
   verbose = logical(),
   ...,
