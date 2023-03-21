@@ -7,6 +7,8 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
                                          'longitude'=list('left'=NULL,
                                                           'right'=NULL)),
                          xValues = character(),
+                         sampleSizes = logical(),
+                         completeCases = logical(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -14,6 +16,8 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     sampleSizes = sampleSizes,
+                     completeCases = completeCases,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "mapMarkers")
@@ -135,6 +139,8 @@ validateMapMarkersPD <- function(.map, verbose) {
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
 #' @param viewport List of values indicating the visible range of data
 #' @param xValues character vector providing overlay values of interest
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
@@ -168,10 +174,14 @@ mapMarkers.dt <- function(data,
                    value = c('count', 'proportion'),
                    viewport = NULL,  
                    xValues = NULL,
+                   sampleSizes = c(TRUE, FALSE),
+                   completeCases = c(TRUE, FALSE),
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
+  sampleSizes <- veupathUtils::matchArg(sampleSizes)
+  completeCases <- veupathUtils::matchArg(completeCases)
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
 
@@ -203,11 +213,18 @@ mapMarkers.dt <- function(data,
                     value = value,
                     geolocationViewport = viewport,
                     xValues = xValues,
+                    sampleSizes = sampleSizes,
+                    completeCases = completeCases,
                     evilMode = evilMode,
                     verbose = verbose)
 
   .map <- validateMapMarkersPD(.map, verbose)
-  veupathUtils::logWithTime(paste('New mapMarkers object created with parameters value =', value, ', viewport =', viewport, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New mapMarkers object created with parameters value =', value,
+                                                                              ',viewport =', viewport,
+                                                                              ', sampleSizes = ', sampleSizes,
+                                                                              ', completeCases = ', completeCases,
+                                                                              ', evilMode =', evilMode,
+                                                                              ', verbose =', verbose), verbose)
 
   return(.map)
 }
@@ -244,6 +261,8 @@ mapMarkers.dt <- function(data,
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
 #' @param viewport List of values indicating the visible range of data
 #' @param xValues character vector providing overlay values of interest
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
@@ -278,12 +297,22 @@ mapMarkers <- function(data,
                 value = c('count', 'proportion'),
                 viewport = NULL,
                 xValues = NULL,
+                sampleSizes = c(TRUE, FALSE),
+                completeCases = c(TRUE, FALSE),
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                 verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
 
-  .map <- mapMarkers.dt(data, variables, value, viewport, xValues, evilMode, verbose)
+  .map <- mapMarkers.dt(data = data,
+                        variables = variables,
+                        value = value,
+                        viewport = viewport,
+                        sampleSizes = sampleSizes,
+                        completeCases = completeCases,
+                        evilMode = evilMode,
+                        verbose = verbose)
+
   outFileName <- writeJSON(.map, evilMode, 'mapMarkers', verbose)
 
   return(outFileName)

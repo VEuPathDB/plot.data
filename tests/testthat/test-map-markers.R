@@ -63,6 +63,14 @@ test_that("mapMarkers.dt() returns a valid plot.data mapMarkers object", {
   expect_equal(names(sampleSizes), c('entity.cat4','entity.cat6','size'))
   expect_equal(nrow(sampleSizes), 4)
 
+
+  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
+  dt <- mapMarkers.dt(df, variables, value='count', sampleSizes = FALSE, completeCases = FALSE)
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'mapMarkers')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('variables','viewport','rankedValues','overlayValues'))
+
 })
 
 
@@ -304,6 +312,24 @@ test_that("mapMarkers() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int11', 'cat5'))
+
+
+  # Ensure sampleSizeTable and completeCasesTable are not part of json if we do not ask for them.
+  dt <- mapMarkers.dt(df, variables, value='count', sampleSizes = FALSE, completeCases = FALSE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList), c('mapMarkers'))
+  expect_equal(names(jsonList$mapMarkers), c('data','config'))
+  expect_equal(names(jsonList$mapMarkers$data), c('geoAggregateVariableDetails','label','value'))
+  expect_equal(names(jsonList$mapMarkers$config), c('variables','viewport','rankedValues','overlayValues'))
+  expect_equal(jsonList$mapMarkers$config$rankedValues, c('5','3','9','8','10','2','6','Other'))
+  expect_equal(class(jsonList$mapMarkers$config$rankedValues), 'character')
+  expect_equal(jsonList$mapMarkers$config$overlayValues, c('2','3','5','6','8','9','10','Other'))
+  expect_equal(class(jsonList$mapMarkers$config$overlayValues), 'character')
+  expect_equal(names(jsonList$mapMarkers$config$variables$variableSpec), c('variableId','entityId'))
+  expect_equal(class(unlist(jsonList$mapMarkers$config$viewport)), 'NULL')
+  expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('cat5','int11'))
+  
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",

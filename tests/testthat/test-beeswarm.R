@@ -51,6 +51,17 @@ test_that("beeswarm.dt() returns a valid plot.data beeswarm object", {
   expect_equal(dt$entity.cat3[[1]], 'cat3_a')
   expect_equal(dt$label[[1]], c('cat4_a','cat4_b','cat4_c','cat4_d'))
   expect_equal(unlist(lapply(dt$rawData[[1]], length)), c(42,42,29,51))
+
+  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
+  dt <- beeswarm.dt(df, variables, 0.1, FALSE, sampleSizes = FALSE, completeCases = FALSE)
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'beeswarm')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('variables'))
+  expect_equal(dt$entity.cat3[[1]], 'cat3_a')
+  expect_equal(dt$label[[1]], c('cat4_a','cat4_b','cat4_c','cat4_d'))
+  expect_equal(unlist(lapply(dt$rawData[[1]], length)), c(42,42,29,51))
+  
 })
 
 test_that("beeswarm.dt() returns plot data and config of the appropriate types", {
@@ -756,6 +767,19 @@ test_that("beeswarm() returns appropriately formatted json", {
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+
+
+  # Ensure sampleSizeTable and completeCasesTable are not part of json if we do not ask for them.
+  dt <- beeswarm.dt(df, variables, 0.2, FALSE, sampleSizes = FALSE, completeCases = FALSE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList), c('beeswarm'))
+  expect_equal(names(jsonList$beeswarm), c('data','config'))
+  expect_equal(names(jsonList$beeswarm$data), c('label','rawData', 'jitteredValues'))
+  expect_equal(class(jsonList$beeswarm$data$label[[1]]), 'character')
+  expect_equal(names(jsonList$beeswarm$config), c('variables'))
+  expect_equal(names(jsonList$beeswarm$config$variables$variableSpec), c('variableId','entityId'))
+
   
   # Multiple vars for x and computed variable metadata
   variables <- new("VariableMetadataList", SimpleList(

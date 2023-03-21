@@ -8,6 +8,8 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          value = character(),
                          barmode = character(),
                          overlayValues = character(),
+                         sampleSizes = logical(),
+                         completeCases = logical(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -16,6 +18,8 @@ newHistogramPD <- function(.dt = data.table::data.table(),
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
                      overlayValues = overlayValues,
+                     sampleSizes = sampleSizes,
+                     completeCases = completeCases,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "histogram")
@@ -195,6 +199,8 @@ validateHistogramPD <- function(.histo, verbose) {
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
 #' @param overlayValues character vector providing overlay values of interest
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
@@ -236,12 +242,16 @@ histogram.dt <- function(data,
                          barmode = c('stack', 'overlay'),
                          viewport = NULL,
                          overlayValues = NULL,
+                         sampleSizes = c(TRUE, FALSE),
+                         completeCases = c(TRUE, FALSE),
                          evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                          verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
   barmode <- veupathUtils::matchArg(barmode)
   binReportValue <- veupathUtils::matchArg(binReportValue)
+  sampleSizes <- veupathUtils::matchArg(sampleSizes)
+  completeCases <- veupathUtils::matchArg(completeCases)
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
 
@@ -269,11 +279,22 @@ histogram.dt <- function(data,
                            value = value,
                            barmode = barmode,
                            overlayValues = overlayValues,
+                           sampleSizes = sampleSizes,
+                           completeCases = completeCases,
                            evilMode = evilMode,
                            verbose = verbose)
 
   .histo <- validateHistogramPD(.histo, verbose)
-  veupathUtils::logWithTime(paste('New histogram object created with parameters viewport min =', viewport$xMin, ', viewport max =', viewport$xMax, ', binWidth =', binWidth, ', binReportValue =', binReportValue, ', value =', value, ', barmode =', barmode, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New histogram object created with parameters viewport min =', viewport$xMin,
+                                                                             ', viewport max =', viewport$xMax,
+                                                                             ', binWidth =', binWidth,
+                                                                             ', binReportValue =', binReportValue,
+                                                                             ', value =', value,
+                                                                             ', barmode =', barmode,
+                                                                             ', sampleSizes = ', sampleSizes,
+                                                                             ', completeCases = ', completeCases,
+                                                                             ', evilMode =', evilMode,
+                                                                             ', verbose =', verbose), verbose)
 
   return(.histo)
 }
@@ -303,6 +324,8 @@ histogram.dt <- function(data,
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
 #' @param overlayValues character vector providing overlay values of interest
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
@@ -343,12 +366,26 @@ histogram <- function(data,
                       barmode = c('stack', 'overlay'),
                       viewport = NULL,
                       overlayValues = NULL,
+                      sampleSizes = c(TRUE, FALSE),
+                      completeCases = c(TRUE, FALSE),
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
 
-  .histo <- histogram.dt(data, variables, binWidth, value, binReportValue, barmode, viewport, overlayValues, evilMode, verbose)
+  .histo <- histogram.dt(data = data, 
+                          variables = variables,
+                          binWidth = binWidth,
+                          value = value,
+                          binReportValue = binReportValue,
+                          barmode = barmode,
+                          viewport = viewport,
+			  overlayValues = overlayValues,
+                          sampleSizes = sampleSizes,
+                          completeCases = completeCases,
+                          evilMode = evilMode,
+                          verbose = verbose)
+
   outFileName <- writeJSON(.histo, evilMode, 'histogram', verbose)
 
   return(outFileName)

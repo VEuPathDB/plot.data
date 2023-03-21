@@ -14,6 +14,8 @@ newPlotdata <- function(.dt = data.table(),
                          variables = NULL,    
                          useGradientColorscale = FALSE,    
                          overlayValues = NULL,            
+                         sampleSizes = logical(),
+                         completeCases = logical(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -63,13 +65,16 @@ newPlotdata <- function(.dt = data.table(),
     veupathUtils::logWithTime(paste('Replaced NA with 0 in the following columns: ', impute0cols), verbose)
   }
 
-  #lat and lon must be used w a geohash, so they dont need to be part of completeCases*
-  varCols <- c(x, y, z, group, facet1, facet2, geo)
-  completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
-  completeCasesTable <- data.table::transpose(completeCasesTable, keep.names = 'variableDetails')
-  data.table::setnames(completeCasesTable, 'V1', 'completeCases')
-  
-  veupathUtils::logWithTime('Determined the number of complete cases per variable.', verbose)
+  ## Calculate complete cases table if desired
+  if (completeCases) {
+    #lat and lon must be used w a geohash, so they dont need to be part of completeCases*
+    varCols <- c(x, y, z, group, facet1, facet2, geo)
+    completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
+    completeCasesTable <- data.table::transpose(completeCasesTable, keep.names = 'variableDetails')
+    data.table::setnames(completeCasesTable, 'V1', 'completeCases')
+    
+    veupathUtils::logWithTime('Determined the number of complete cases per variable.', verbose)
+  }
   
   isFacetCollection <- ifelse(is.null(collectionVarMetadata), FALSE, ifelse(collectionVarMetadata@plotReference@value %in% c('facet1', 'facet2'), TRUE, FALSE))
   if (!isFacetCollection) {
@@ -131,28 +136,30 @@ newPlotdata <- function(.dt = data.table(),
     }
 
     # Calculate complete cases *before* reshaping the data
-    # only count rows where we have at least one value in one of the collection var member columns
-    completeCasesPerCollectionCol <- lapply(collectionVarMemberColNames, function(collectionVarMember) {return(complete.cases(.dt[, ..collectionVarMember]))})
-    collectionVarDataRows <- Reduce("+", completeCasesPerCollectionCol) > 0  # Any row with val=0 means that row was missing for all vars in the collection and should be removed from the count
-    # Columns not corresponding to a collection var are treated differently. Calculate their complete cases as normal
-    nonCollectionVarColNames <- setdiff(c(x,y,z,group, panel), collectionVarMemberColNames)
-    if (length(nonCollectionVarColNames) > 0) {
-      nonCollectionVarDataRows <- complete.cases(.dt[, ..nonCollectionVarColNames])
-      # Count the rows that we keep from the collection var complete cases *and* non-collection var complete cases
-      completeCasesAllVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows*nonCollectionVarDataRows,]))
-    } else {
-      # If nonCollectionVarColNames is empty, it will interfere with the multiplication above and return 0 for complete cases always.
-      # Instead, here we only use the collection vars to calculate the complete cases
-      completeCasesAllVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows]))
-    }
+    if (completeCases) {
+      # only count rows where we have at least one value in one of the collection var member columns
+      completeCasesPerCollectionCol <- lapply(collectionVarMemberColNames, function(collectionVarMember) {return(complete.cases(.dt[, ..collectionVarMember]))})
+      collectionVarDataRows <- Reduce("+", completeCasesPerCollectionCol) > 0  # Any row with val=0 means that row was missing for all vars in the collection and should be removed from the count
+      # Columns not corresponding to a collection var are treated differently. Calculate their complete cases as normal
+      nonCollectionVarColNames <- setdiff(c(x,y,z,group, panel), collectionVarMemberColNames)
+      if (length(nonCollectionVarColNames) > 0) {
+        nonCollectionVarDataRows <- complete.cases(.dt[, ..nonCollectionVarColNames])
+        # Count the rows that we keep from the collection var complete cases *and* non-collection var complete cases
+        completeCasesAllVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows*nonCollectionVarDataRows,]))
+      } else {
+        # If nonCollectionVarColNames is empty, it will interfere with the multiplication above and return 0 for complete cases always.
+        # Instead, here we only use the collection vars to calculate the complete cases
+        completeCasesAllVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows]))
+      }
 
-    if (collectionVarMetadata@plotReference@value == 'xAxis') {
-      # Since we force the collection value to be the y variable, the whole collection includes x and y.
-      completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows,]))
-    } else {
-      # Count rows with data for x and at least 1 collection variable (remember, collection values always map to y)
-      axisDataRows <- complete.cases(.dt[, ..x]) * collectionVarDataRows
-      completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[axisDataRows,]))
+      if (collectionVarMetadata@plotReference@value == 'xAxis') {
+        # Since we force the collection value to be the y variable, the whole collection includes x and y.
+        completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[collectionVarDataRows,]))
+      } else {
+        # Count rows with data for x and at least 1 collection variable (remember, collection values always map to y)
+        axisDataRows <- complete.cases(.dt[, ..x]) * collectionVarDataRows
+        completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[axisDataRows,]))
+      }
     }
 
     # Reshape data
@@ -205,12 +212,14 @@ newPlotdata <- function(.dt = data.table(),
   veupathUtils::logWithTime('Base data types updated for all columns as necessary.', verbose)
 
   # TODO review logic here around complete cases on the panel column
-  if (!exists('completeCasesAllVars')) {
+  if (!exists('completeCasesAllVars') && completeCases) {
     completeCasesAllVars <- complete.cases(.dt[, c(x,y,z,group,panel,geo), with=FALSE])
     completeCasesAllVars <- jsonlite::unbox(nrow(.dt[completeCasesAllVars,]))
   }
-  if (!exists('completeCasesAxesVars')) completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[complete.cases(.dt[, c(x,y), with=FALSE]),]))
-  veupathUtils::logWithTime('Determined total number of complete cases across axes and strata vars.', verbose)
+  if (!exists('completeCasesAxesVars') && completeCases) {
+    completeCasesAxesVars <- jsonlite::unbox(nrow(.dt[complete.cases(.dt[, c(x,y), with=FALSE]),]))
+    veupathUtils::logWithTime('Determined total number of complete cases across axes and strata vars.', verbose)
+  }
 
   if (isEvil) {
     # Assign NA strata values to 'No data', with the exception of continuous overlays which should stay numeric
@@ -235,15 +244,17 @@ newPlotdata <- function(.dt = data.table(),
   # If using a gradient colorscale, overlay var does not contribute to final groups
   overlayGroup <- if (useGradientColorscale) NULL else group
 
-  if (xShape != 'CONTINUOUS' || uniqueN(.dt[[x]]) < 9) {
-    .dt$dummy <- 1
-    sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, geo, collapse=F)
-    .dt$dummy <- NULL
-  } else {
-    sampleSizeTable <- groupSize(.dt, x=NULL, y=x, overlayGroup, panel, geo, collapse=F)
+  # Calculate sample sizes if requested
+  if (sampleSizes) {
+    if (xShape != 'CONTINUOUS' || uniqueN(.dt[[x]]) < 9) {
+      .dt$dummy <- 1
+      sampleSizeTable <- groupSize(.dt, x=x, y="dummy", overlayGroup, panel, geo, collapse=F)
+      .dt$dummy <- NULL
+    } else {
+      sampleSizeTable <- groupSize(.dt, x=NULL, y=x, overlayGroup, panel, geo, collapse=F)
+    }
+    veupathUtils::logWithTime('Calculated sample sizes per group.', verbose)
   }
-
-  veupathUtils::logWithTime('Calculated sample sizes per group.', verbose)
 
   if (is.null(xType)) {
     index <- findVariableIndexByPlotRef(variables, 'xAxis')
@@ -258,10 +269,12 @@ newPlotdata <- function(.dt = data.table(),
 
   attr <- attributes(.dt)
   attr$variables <- variables
-  attr$completeCasesAllVars <- completeCasesAllVars
-  attr$completeCasesAxesVars <- completeCasesAxesVars
-  attr$completeCasesTable <- completeCasesTable
-  attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, overlayGroup, panel, geo)
+  if (completeCases) {
+    attr$completeCasesAllVars <- completeCasesAllVars
+    attr$completeCasesAxesVars <- completeCasesAxesVars
+    attr$completeCasesTable <- completeCasesTable
+  }
+  if (sampleSizes) attr$sampleSizeTable <- collapseByGroup(sampleSizeTable, overlayGroup, panel, geo)
   attr$class = c(class, 'plot.data', attr$class)
 
   veupathUtils::setAttrFromList(.dt, attr)

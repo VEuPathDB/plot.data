@@ -247,6 +247,22 @@ test_that("histogram.dt() returns a valid plot.data histogram object", {
   # expect_true(all(grepl('T00:00:00', unlist(dt$binStart))))
   # expect_true(all(grepl('T00:00:00', unlist(dt$binEnd))))
   # expect_true(!any(grepl('T00:00:00', unlist(dt$binLabel))))
+
+
+  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
+  dt <- histogram.dt(df, variables, binWidth = 'month', value='count', barmode = 'overlay', binReportValue, viewport, sampleSizes = FALSE, completeCases = FALSE)
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'histogram')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('variables','summary', 'viewport', 'binSpec', 'binSlider'))
+  expect_equal(names(namedAttrList$summary), c('min','q1','median','mean','q3','max'))
+  expect_equal(names(viewport(dt)), c('xMin','xMax'))
+  expect_equal(names(binSlider(dt)), c('min','max','step'))
+  expect_equal(names(namedAttrList$binSpec), c('type','value','units'))
+  expect_equal(as.numeric(namedAttrList$binSpec$value),1)
+  expect_equal(as.character(namedAttrList$binSpec$type),'binWidth')
+  expect_equal(as.character(namedAttrList$binSpec$unit),'month')
+  
 })
 
 test_that("histogram.dt() returns plot data and config of the appropriate types", {
@@ -987,6 +1003,20 @@ test_that("histogram() returns appropriately formatted json", {
   expect_equal(names(jsonList$histogram$config$variables$variableSpec),c('variableId','entityId'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId', 'entityId', 'displayLabel'))
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+
+
+  # Ensure sampleSizeTable and completeCasesTable are not part of json if we do not ask for them.
+  dt <- histogram.dt(df, variables, binWidth = NULL, value='count', barmode = 'stack', binReportValue, viewport, sampleSizes = FALSE, completeCases = FALSE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList),c('histogram'))
+  expect_equal(names(jsonList$histogram),c('data','config'))
+  expect_equal(names(jsonList$histogram$data),c('facetVariableDetails','binLabel','value','binStart','binEnd'))
+  expect_equal(names(jsonList$histogram$config),c('variables','summary','viewport','binSpec','binSlider'))
+  expect_equal(names(jsonList$histogram$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(names(jsonList$histogram$config$viewport),c('xMin','xMax'))
+  expect_equal(names(jsonList$histogram$config$binSlider),c('min','max','step'))
+  expect_equal(names(jsonList$histogram$config$summary),c('min','q1','median','mean','q3','max'))
 
 
   # With continuous overlay (< 9 values)

@@ -4,6 +4,8 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                          columnReferenceValue = character(),
                          rowReferenceValue = character(),
                          overlayValues = character(),
+                         sampleSizes = logical(),
+                         completeCases = logical(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -12,6 +14,8 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
                      overlayValues = overlayValues,
+                     sampleSizes = sampleSizes,
+                     completeCases = completeCases,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "mosaic")
@@ -76,6 +80,8 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' @param columnReferenceValue String representing a value present in the column names of the contingency table
 #' @param rowReferenceValue String representing a value present in the row names of the contingency table
 #' @param overlayValues character vector providing overlay values of interest
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
@@ -110,9 +116,13 @@ mosaic.dt <- function(data, variables,
                       columnReferenceValue = NA_character_,
                       rowReferenceValue = NA_character_,
                       overlayValues = NULL,
+                      sampleSizes = c(TRUE, FALSE),
+                      completeCases = c(TRUE, FALSE),
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                       verbose = c(TRUE, FALSE)) {
 
+  sampleSizes <- veupathUtils::matchArg(sampleSizes)
+  completeCases <- veupathUtils::matchArg(completeCases)
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
 
@@ -160,11 +170,19 @@ mosaic.dt <- function(data, variables,
                             columnReferenceValue = columnReferenceValue,
                             rowReferenceValue = rowReferenceValue,
                             overlayValues = overlayValues,
+                            sampleSizes = sampleSizes,
+                            completeCases = completeCases,
                             evilMode = evilMode,
                             verbose = verbose)
 
   .mosaic <- validateMosaicPD(.mosaic, verbose)
-  veupathUtils::logWithTime(paste('New mosaic plot object created with parameters statistic =', statistic, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New mosaic plot object created with parameters statistic =', statistic,
+                                                                                ', columnReferenceValues = ', columnReferenceValue,
+                                                                                ', rowReferenceValue = ', rowReferenceValue,
+                                                                                ', sampleSizes = ', sampleSizes,
+                                                                                ', completeCases = ', completeCases,
+                                                                                ', evilMode =', evilMode,
+                                                                                ', verbose =', verbose), verbose)
 
   return(.mosaic)
 }
@@ -191,6 +209,8 @@ mosaic.dt <- function(data, variables,
 #' @param columnReferenceValue String representing a value present in the column names of the contingency table
 #' @param rowReferenceValue String representing a value present in the row names of the contingency table
 #' @param overlayValues character vector providing overlay values of interest
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
@@ -225,11 +245,22 @@ mosaic <- function(data, variables,
                    columnReferenceValue = NA_character_,
                    rowReferenceValue = NA_character_,
                    overlayValues = NULL,
+                   sampleSizes = c(TRUE, FALSE),
+                   completeCases = c(TRUE, FALSE),
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
   verbose <- veupathUtils::matchArg(verbose)
 
-  .mosaic <- mosaic.dt(data, variables, statistic, columnReferenceValue, rowReferenceValue, overlayValues, evilMode, verbose)
+  .mosaic <- mosaic.dt(data = data,
+                       variables = variables,
+                       statistic = statistic,
+                       columnReferenceValue = columnReferenceValue,
+                       rowReferenceValue = rowReferenceValue,
+		       overlayValues = overlayValues,
+                       sampleSizes = sampleSizes,
+                       completeCases = completeCases,
+                       evilMode = evilMode,
+                       verbose = verbose)
   outFileName <- writeJSON(.mosaic, evilMode, 'mosaic', verbose)
 
   return(outFileName)

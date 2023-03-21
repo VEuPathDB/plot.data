@@ -84,6 +84,19 @@ test_that("lineplot.dt() returns a valid plot.data lineplot object", {
   expect_equal(nrow(sampleSizes), 12)
   expect_equal(names(viewport(dt)), c('xMin','xMax'))
   expect_equal(names(binSlider(dt)), c('min','max','step'))
+
+
+  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
+  dt <- lineplot.dt(df, variables, binWidth = NULL, value = 'mean', viewport = NULL, sampleSizes = FALSE, completeCases = FALSE)
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'lineplot')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('variables',
+                                      'viewport',
+                                      'binSlider',
+                                      'binSpec'))
+  expect_equal(names(viewport(dt)), c('xMin','xMax'))
+  expect_equal(names(binSlider(dt)), c('min','max','step'))
 })
 
 test_that("lineplot.dt() returns plot data and config of the appropriate types", {
@@ -1341,6 +1354,27 @@ test_that("lineplot() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('repeatedDateA', 'contB', 'cat3', 'cat4'))
+
+
+  # Ensure sampleSizeTable and completeCasesTable are not part of json if we do not ask for them.
+  dt <- lineplot.dt(df, variables, value = 'mean', binWidth=0, sampleSizes = FALSE, completeCases = FALSE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+
+  expect_equal(names(jsonList),c('lineplot'))
+  expect_equal(names(jsonList$lineplot),c('data','config'))
+  expect_equal(names(jsonList$lineplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY', 'binSampleSize', 'errorBars'))
+  expect_equal(names(jsonList$lineplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
+  expect_equal(length(jsonList$lineplot$data$facetVariableDetails), 12)
+  expect_equal(jsonList$lineplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
+  expect_equal(names(jsonList$lineplot$data$binSampleSize[[1]]),"N")
+  expect_equal(names(jsonList$lineplot$data$errorBars[[1]]), c('lowerBound', 'upperBound', 'error'))
+  expect_equal(names(jsonList$lineplot$config),c('variables','viewport','binSlider','binSpec'))
+  expect_equal(names(jsonList$lineplot$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$lineplot$config$variables$variableSpec$variableId, c('cat4','cat3','contB','repeatedDateA'))
+  expect_equal(names(jsonList$lineplot$config$viewport),c('xMin','xMax'))
+  expect_equal(names(jsonList$lineplot$config$binSlider),c('min','max','step'))
+
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
