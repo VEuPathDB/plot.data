@@ -69,7 +69,7 @@ test_that("mapMarkers.dt() returns a valid plot.data mapMarkers object", {
   expect_is(dt, 'plot.data')
   expect_is(dt, 'mapMarkers')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('variables','viewport','rankedValues','overlayValues'))
+  expect_equal(names(namedAttrList),c('variables','viewport'))
 
 })
 
@@ -321,11 +321,7 @@ test_that("mapMarkers() returns appropriately formatted json", {
   expect_equal(names(jsonList), c('mapMarkers'))
   expect_equal(names(jsonList$mapMarkers), c('data','config'))
   expect_equal(names(jsonList$mapMarkers$data), c('geoAggregateVariableDetails','label','value'))
-  expect_equal(names(jsonList$mapMarkers$config), c('variables','viewport','rankedValues','overlayValues'))
-  expect_equal(jsonList$mapMarkers$config$rankedValues, c('5','3','9','8','10','2','6','Other'))
-  expect_equal(class(jsonList$mapMarkers$config$rankedValues), 'character')
-  expect_equal(jsonList$mapMarkers$config$overlayValues, c('2','3','5','6','8','9','10','Other'))
-  expect_equal(class(jsonList$mapMarkers$config$overlayValues), 'character')
+  expect_equal(names(jsonList$mapMarkers$config), c('variables','viewport'))
   expect_equal(names(jsonList$mapMarkers$config$variables$variableSpec), c('variableId','entityId'))
   expect_equal(class(unlist(jsonList$mapMarkers$config$viewport)), 'NULL')
   expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('cat5','int11'))
