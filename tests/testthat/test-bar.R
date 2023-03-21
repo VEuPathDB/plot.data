@@ -128,6 +128,16 @@ test_that("bar.dt() returns plot data and config of the appropriate types", {
   expect_equal(class(unlist(sampleSizes$panel)), 'character')
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
 
+  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
+  dt <- bar.dt(df, variables, value='count', sampleSizes = FALSE, completeCases = FALSE)
+  expect_is(dt$label, 'list')
+  expect_equal(class(unlist(dt$label)), 'character')
+  expect_is(dt$value, 'list')
+  expect_equal(class(unlist(dt$value)), 'integer')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList), c('variables'))
+
+
   # With numeric x
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -580,6 +590,19 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(class(jsonList$sampleSizeTable$overlayVariableDetails$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+
+  # Ensure sampleSizeTable and completeCasesTable are not part of json if we do not ask for them.
+  dt <- bar.dt(df, variables, value='count', sampleSizes = FALSE, completeCases = FALSE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList), c('barplot'))
+  expect_equal(names(jsonList$barplot$data$overlayVariableDetails), c('variableId','entityId','value','displayLabel'))
+  expect_equal(names(jsonList$barplot$data$facetVariableDetails[[1]]), c('variableId','entityId','value','displayLabel'))
+  expect_equal(jsonList$barplot$data$facetVariableDetails[[1]]$variableId, 'cat5')
+  expect_equal(names(jsonList$barplot$config), c('variables'))
+  expect_equal(names(jsonList$barplot$config$variables$variableSpec), c('variableId','entityId'))
+  expect_equal(jsonList$barplot$config$variables$variableSpec$variableId, c('cat4','cat6','cat5'))
+
   
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",

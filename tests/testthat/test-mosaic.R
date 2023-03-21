@@ -182,6 +182,15 @@ test_that("mosaic.dt() returns a valid plot.data mosaic object", {
   expect_equal(names(sampleSizes), c('entity.cat4','entity.cat7','size'))
   expect_equal(nrow(sampleSizes), 4)
   expect_equal(names(namedAttrList$statsTable), c('chisq','pvalue', 'degreesFreedom','entity.cat4'))
+
+
+  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
+  dt <- mosaic.dt(df, variables, sampleSizes = FALSE, completeCases = FALSE)
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'mosaic')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('variables','statsTable'))
+  expect_equal(names(namedAttrList$statsTable), c('chisq','pvalue', 'degreesFreedom','entity.cat4'))
 })
 
 test_that("mosaic.dt() returns plot data and config of the appropriate types", {
@@ -825,6 +834,20 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(names(jsonList$statsTable),c('chisq','pvalue','degreesFreedom'))
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+
+
+  # Ensure sampleSizeTable and completeCasesTable are not part of json if we do not ask for them.
+  dt <- mosaic.dt(df, variables, sampleSizes = FALSE, completeCases = FALSE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  
+  expect_equal(names(jsonList),c('mosaic','statsTable'))
+  expect_equal(names(jsonList$mosaic),c('data','config'))
+  expect_equal(names(jsonList$mosaic$data),c('xLabel','yLabel','value'))
+  expect_equal(names(jsonList$mosaic$config),c('variables'))
+  expect_equal(names(jsonList$mosaic$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$mosaic$config$variables$variableSpec$variableId, c('int6','int7'))
+  expect_equal(names(jsonList$statsTable),c('chisq','pvalue','degreesFreedom'))
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
