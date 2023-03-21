@@ -42,7 +42,7 @@ newPlotdata <- function(.dt = data.table(),
 
   isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
   collectionVarMetadata <- veupathUtils::findCollectionVariableMetadata(variables)
-  isOverlayCollection <- ifelse(is.null(collectionVarMetadata), FALSE, ifelse(collectionVarMetadata@plotReference@value %in% c('overlay'), TRUE, FALSE))
+  isOverlayCollection <- ifelse(is.null(collectionVarMetadata), FALSE, ifelse(collectionVarMetadata@plotReference@value == 'overlay', TRUE, FALSE))
 
   if (!is.null(group) && !isOverlayCollection) {
     groupNeedsOverlayValues <- length(data.table::uniqueN(.dt[[group]])) > 8 && useGradientColorscale == FALSE

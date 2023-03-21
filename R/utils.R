@@ -10,6 +10,9 @@ recodeValues <- function(values, desiredValues, dataType) {
     values[!values %in% desiredValues] <- '__UNSELECTED__'
   }
 
+  undetectedDesiredValues <- desiredValues[!(desiredValues %in% values)]
+  if (!!length(undetectedDesiredValues)) warning(paste("The following values were requested but not found in the data: ", undetectedDesiredValues))
+
   return(values)
 }
 

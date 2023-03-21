@@ -730,7 +730,7 @@ test_that("bar() returns appropriately formatted json", {
   expect_equal(names(jsonList), c('barplot','sampleSizeTable','completeCasesTable'))
   expect_equal(names(jsonList$barplot), c('data','config'))
   expect_equal(names(jsonList$barplot$data), c('overlayVariableDetails','facetVariableDetails','label','value'))
-  expect_equal(all(unique(unlist(jsonList$barplot$data$label)) %in% as.character(c(1,2,3,4,5,6,7))), TRUE)
+  expect_equal(all(unique(unlist(jsonList$barplot$data$overlayVariableDetails$value)) %in% as.character(c(1,2,3,4,5,6,7,'__UNSELECTED__'))), TRUE)
   expect_equal(names(jsonList$barplot$config), c('variables','completeCasesAllVars','completeCasesAxesVars'))
   expect_equal(names(jsonList$barplot$config$variables$variableSpec), c('variableId','entityId'))
   expect_equal(jsonList$barplot$config$variables$variableSpec$variableId, c('cat6','int6','int11'))
