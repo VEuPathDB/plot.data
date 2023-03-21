@@ -1,6 +1,8 @@
 newHeatmapPD <- function(.dt = data.table::data.table(),
                          variables = veupathUtils::VariableMetadataList(),
                          value = character(),
+                         sampleSizes = logical(),
+                         completeCases = logical(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -8,6 +10,8 @@ newHeatmapPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     sampleSizes = sampleSizes,
+                     completeCases = completeCases,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "heatmap")
@@ -75,16 +79,22 @@ validateHeatmapPD <- function(.heatmap) {
 #' @param data data.frame to make plot-ready data for
 #' @param variables veupathUtils::VariableMetadataList
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @export
 heatmap.dt <- function(data, variables, 
-                       value = c('series', 'collection'), 
+                       value = c('series', 'collection'),
+                       sampleSizes = c(TRUE, FALSE),
+                       completeCases = c(TRUE, FALSE),
                        evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                        verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
+  sampleSizes <- veupathUtils::matchArg(sampleSizes)
+  completeCases <- veupathUtils::matchArg(completeCases)
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
 
@@ -104,11 +114,17 @@ heatmap.dt <- function(data, variables,
   .heatmap <- newHeatmapPD(.dt = data,
                             variables = variables,
                             value = value,
+                            sampleSizes = sampleSizes,
+                            completeCases = completeCases,
                             evilMode = evilMode,
                             verbose = verbose)
 
   .heatmap <- validateHeatmapPD(.heatmap, verbose)
-  veupathUtils::logWithTime(paste('New heatmap object created with parameters value =', value, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New heatmap object created with parameters value =', value,
+                                                                            ', sampleSizes = ', sampleSizes,
+                                                                            ', completeCases = ', completeCases,
+                                                                            ', evilMode =', evilMode,
+                                                                            ', verbose =', verbose), verbose)
 
   return(.heatmap)
 
@@ -139,16 +155,28 @@ heatmap.dt <- function(data, variables,
 #' @param data data.frame to make plot-ready data for
 #' @param variables veupathUtils VariableMetadataList
 #' @param value String indicating which of the three methods to use to calculate z-values ('collection', 'series')
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @export
 heatmap <- function(data, variables, 
-                    value = c('series','collection'), 
+                    value = c('series','collection'),
+                    sampleSizes = c(TRUE, FALSE),
+                    completeCases = c(TRUE, FALSE),
                     evilMode = c('noVariables', 'allVariables', 'strataVariables')) {
+
   verbose <- veupathUtils::matchArg(verbose)
  
-  .heatmap <- heatmap.dt(data, variables, value, evilMode, verbose)
+  .heatmap <- heatmap.dt(data = data,
+                         variables = variables,
+                         value = value,
+                         sampleSizes = sampleSizes,
+                         completeCases = completeCases,
+                         evilMode = evilMode,
+                         verbose = verbose)
+
   outFileName <- writeJSON(.heatmap, evilMode, 'heatmap', verbose)
 
   return(outFileName)

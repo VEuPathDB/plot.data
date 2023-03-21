@@ -9,6 +9,8 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
                                                          'xMax'=NULL),
                                          'longitude'=list('left'=NULL,
                                                           'right'=NULL)),
+                         sampleSizes = logical(),
+                         completeCases = logical(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -16,6 +18,8 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     sampleSizes = sampleSizes,
+                     completeCases = completeCases,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "mapMarkers")
@@ -234,6 +238,8 @@ validateMapMarkersPD <- function(.map, verbose) {
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param binRange List of min and max values to bin the xAxisVariable over
 #' @param viewport List of values indicating the visible range of data
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
@@ -268,11 +274,15 @@ mapMarkers.dt <- function(data,
                    value = c('count', 'proportion'),
                    binReportValue = c('binWidth', 'numBins'),
                    binRange = NULL,
-                   viewport = NULL,  
+                   viewport = NULL,
+                   sampleSizes = c(TRUE, FALSE),
+                   completeCases = c(TRUE, FALSE),
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
 
   value <- veupathUtils::matchArg(value)
+  sampleSizes <- veupathUtils::matchArg(sampleSizes)
+  completeCases <- veupathUtils::matchArg(completeCases)
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
   binReportValue <- veupathUtils::matchArg(binReportValue)
@@ -318,11 +328,20 @@ mapMarkers.dt <- function(data,
                     binReportValue = binReportValue,
                     binRange = binRange,
                     geolocationViewport = viewport,
+                    sampleSizes = sampleSizes,
+                    completeCases = completeCases,
                     evilMode = evilMode,
                     verbose = verbose)
 
   .map <- validateMapMarkersPD(.map, verbose)
-  veupathUtils::logWithTime(paste('New mapMarkers object created with parameters value =', value, ', binWidth =', binWidth, ', binReportValue =', binReportValue, ', viewport =', viewport, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  veupathUtils::logWithTime(paste('New mapMarkers object created with parameters value =', value,
+                                                                              ', binWidth =', binWidth,
+                                                                              ', binReportValue =', binReportValue,
+                                                                              ',viewport =', viewport,
+                                                                              ', sampleSizes = ', sampleSizes,
+                                                                              ', completeCases = ', completeCases,
+                                                                              ', evilMode =', evilMode,
+                                                                              ', verbose =', verbose), verbose)
 
   return(.map)
 }
@@ -361,6 +380,8 @@ mapMarkers.dt <- function(data,
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param binRange List of min and max values to bin the xAxisVariable over
 #' @param viewport List of values indicating the visible range of data
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @examples
@@ -397,12 +418,25 @@ mapMarkers <- function(data,
                 binReportValue = c('binWidth', 'numBins'),
                 binRange = NULL,
                 viewport = NULL,
+                sampleSizes = c(TRUE, FALSE),
+                completeCases = c(TRUE, FALSE),
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                 verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
 
-  .map <- mapMarkers.dt(data, variables, binWidth, value, binReportValue, binRange, viewport, evilMode, verbose)
+  .map <- mapMarkers.dt(data = data,
+                        variables = variables,
+                        binWidth = binWidth,
+                        value = value,
+                        binReportValue = binReportValue,
+                        binRange = binRange,
+                        viewport = viewport,
+                        sampleSizes = sampleSizes,
+                        completeCases = completeCases,
+                        evilMode = evilMode,
+                        verbose = verbose)
+
   outFileName <- writeJSON(.map, evilMode, 'mapMarkers', verbose)
 
   return(outFileName)

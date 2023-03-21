@@ -2,6 +2,8 @@ newBeeswarmPD <- function(.dt = data.table::data.table(),
                          variables = veupathUtils::VariableMetadataList(),
                          jitter = NULL,
                          median = logical(),
+                         sampleSizes = logical(),
+                         completeCases = logical(),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
@@ -9,6 +11,8 @@ newBeeswarmPD <- function(.dt = data.table::data.table(),
 
   .pd <- newPlotdata(.dt = .dt,
                      variables = variables,
+                     sampleSizes = sampleSizes,
+                     completeCases = completeCases,
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "beeswarm")
@@ -91,6 +95,8 @@ validateBeeswarmPD <- function(.beeswarm, verbose) {
 #' @param variables veupathUtils VariableMetadataList
 #' @param jitter numeric indicating the maximum width by which to randomly offset points.
 #' @param median boolean indicating whether to return median value per group (per panel)
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
@@ -130,11 +136,15 @@ validateBeeswarmPD <- function(.beeswarm, verbose) {
 #' @export
 beeswarm.dt <- function(data, variables,
                    jitter = NULL, 
-                   median = c(FALSE, TRUE), 
+                   median = c(FALSE, TRUE),
+                   sampleSizes = c(TRUE, FALSE),
+                   completeCases = c(TRUE, FALSE),
                    evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                    verbose = c(TRUE, FALSE)) {
 
   median <- matchArg(median)
+  sampleSizes <- matchArg(sampleSizes)
+  completeCases <- matchArg(completeCases)
   evilMode <- matchArg(evilMode)
   verbose <- matchArg(verbose)
 
@@ -169,11 +179,18 @@ beeswarm.dt <- function(data, variables,
                     variables = variables,
                     jitter = jitter,
                     median = median,
+                    sampleSizes = sampleSizes,
+                    completeCases = completeCases,
                     evilMode = evilMode,
                     verbose = verbose)
 
   .beeswarm <- validateBeeswarmPD(.beeswarm, verbose)
-  logWithTime(paste('New beeswarm object created with parameters jitter=', jitter, ', median =', median, ', evilMode =', evilMode, ', verbose =', verbose), verbose)
+  logWithTime(paste('New beeswarm object created with parameters jitter=', jitter,
+                                                                ', median =', median,
+                                                                ', sampleSizes = ', sampleSizes,
+                                                                ', completeCases = ', completeCases,
+                                                                ', evilMode =', evilMode,
+                                                                ', verbose =', verbose), verbose)
 
   return(.beeswarm) 
 
@@ -200,6 +217,8 @@ beeswarm.dt <- function(data, variables,
 #' @param variables veupathUtils VariableMetadataList
 #' @param jitter numeric indicating the maximum width by which to randomly offset points.
 #' @param median boolean indicating whether to return median value per group (per panel)
+#' @param sampleSizes boolean indicating if sample sizes should be computed
+#' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
@@ -239,7 +258,9 @@ beeswarm.dt <- function(data, variables,
 #' @export
 beeswarm <- function(data, variables, 
                 jitter = NULL, 
-                median = c(FALSE, TRUE), 
+                median = c(FALSE, TRUE),
+                sampleSizes = c(TRUE, FALSE),
+                completeCases = c(TRUE, FALSE),
                 evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                 verbose = c(TRUE, FALSE)) {
 
@@ -249,8 +270,11 @@ beeswarm <- function(data, variables,
                  variables = variables,
                  jitter = jitter,
                  median = median,
+                 sampleSizes = sampleSizes,
+                 completeCases = completeCases,
                  evilMode = evilMode,
                  verbose = verbose)
+
   outFileName <- writeJSON(.beeswarm, evilMode, 'beeswarm', verbose)
 
   return(outFileName)

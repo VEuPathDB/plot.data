@@ -121,6 +121,14 @@ test_that("scattergl.dt() returns a valid plot.data scatter object", {
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(names(sampleSizes), c('entity.cat3','entity.cat4','size'))
   expect_equal(nrow(sampleSizes), 12)
+
+  # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
+  dt <- scattergl.dt(df, variables, 'raw', sampleSizes = FALSE, completeCases = FALSE)
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'scatterplot')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('variables'))
+
 })
 
 test_that("scattergl.dt() returns plot data and config of the appropriate types", {
@@ -648,7 +656,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(dt$panel[1], 'cat3_a.||.contA')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'facet2')@variableId, 'collection')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
-  
+
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
       variableClass = new("VariableClass", value = 'computed'),
@@ -1097,6 +1105,19 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(length(jsonList$completeCasesTable$variableDetails$variableId), 5)
   
+  # Ensure sampleSizeTable and completeCasesTable are not part of json if we do not ask for them.
+  dt <- scattergl.dt(df, variables, 'raw', sampleSizes = FALSE, completeCases = FALSE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  
+  expect_equal(names(jsonList),c('scatterplot'))
+  expect_equal(names(jsonList$scatterplot),c('data','config'))
+  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY'))
+  expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value','displayLabel'))
+  expect_equal(names(jsonList$scatterplot$config),c('variables'))
+  
+
+
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
       variableClass = new("VariableClass", value = 'native'),
