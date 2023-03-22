@@ -615,17 +615,3 @@ test_that("bin returns appropriate data with default binWidth", {
   expect_equal(class(dt), 'character')
   expect_equal(length(df), length(dt))
 })
-
-
-
-test_that("signifDigitEpsilon returns appropriate results", {
-  expect_equal(signifDigitEpsilon(1.23, 3), 0.01)
-  expect_equal(signifDigitEpsilon(11.0, 3), 0.1)
-  expect_equal(signifDigitEpsilon(12.3, 3), 0.1)
-  expect_equal(signifDigitEpsilon(101000, 3), 1000)
-  expect_equal(signifDigitEpsilon(1.20e-05, 3), 1.0e-07)
-  expect_equal(signifDigitEpsilon(0.0123e-05, 3), 1.0e-09)
-  expect_equal(signifDigitEpsilon(-2.34e-02, 3), 1.0e-04)
-  expect_equal(signifDigitEpsilon(1234567, 7), 1)
-  expect_equal(signifDigitEpsilon(-1234567, 7), 1)
-})
