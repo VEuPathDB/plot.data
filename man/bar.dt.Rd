@@ -25,7 +25,7 @@ bar.dt(
 
 \item{barmode}{String indicating if bars should be grouped or stacked ('group', 'stack')}
 
-\item{overlayValues}{character vector providing overlay values of interest}
+\item{overlayValues}{veupathUtils::BinList providing overlay values of interest}
 
 \item{sampleSizes}{boolean indicating if sample sizes should be computed}
 

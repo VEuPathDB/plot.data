@@ -28,7 +28,7 @@ box.dt(
 
 \item{computeStats}{boolean indicating whether to compute nonparametric statistical tests (across x values or group values per panel)}
 
-\item{overlayValues}{character vector providing overlay values of interest}
+\item{overlayValues}{veupathUtils::BinList providing overlay values of interest}
 
 \item{sampleSizes}{boolean indicating if sample sizes should be computed}
 

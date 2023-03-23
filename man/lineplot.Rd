@@ -41,7 +41,7 @@ and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yA
 
 \item{denominatorValues}{character vector of values from the y-axis variable to consider the denominator}
 
-\item{overlayValues}{character vector providing overlay values of interest}
+\item{overlayValues}{veupathUtils::BinList providing overlay values of interest}
 
 \item{sampleSizes}{boolean indicating if sample sizes should be computed}
 
