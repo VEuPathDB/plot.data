@@ -153,7 +153,7 @@ mosaic.dt <- function(data, variables,
     }
     #na.rm should be safe, since x and y axes will later have NA removed anyhow in the plot.data parent class
     if ((data.table::uniqueN(data[[x]], na.rm = TRUE) > 2 || data.table::uniqueN(data[[y]], na.rm = TRUE) > 2) && statistic == 'all') {
-      stop('Odds ratio and relative risk can only be calculated for 2x2 contingency tables. Please use statistic `chiSq` instead.')
+      warning('Odds ratio and relative risk can only be calculated for 2x2 contingency tables. Only the `chiSq` will be returned.')
     }
   } else {
     if (data.table::uniqueN(data[[x]], na.rm = TRUE) > 2 || data.table::uniqueN(data[[y]], na.rm = TRUE) > 2) {

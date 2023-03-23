@@ -184,6 +184,21 @@ test_that("mosaic.dt() returns a valid plot.data mosaic object", {
   expect_equal(names(namedAttrList$statsTable), c('chisq','pvalue', 'degreesFreedom','entity.cat4'))
 
 
+  # Testing an RxC with 'all' statistics
+  dt <- mosaic.dt(df, variables, statistic = 'all')
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'mosaic')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('variables', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','statsTable'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(names(completeCases), c('variableDetails','completeCases'))
+  expect_equal(nrow(completeCases), 3)
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizes), c('entity.cat4','entity.cat7','size'))
+  expect_equal(nrow(sampleSizes), 4)
+  expect_equal(names(namedAttrList$statsTable), c('chisq','pvalue', 'degreesFreedom','entity.cat4'))
+
+
   # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
   dt <- mosaic.dt(df, variables, sampleSizes = FALSE, completeCases = FALSE)
   expect_is(dt, 'plot.data')
@@ -295,6 +310,26 @@ test_that("mosaic.dt() returns plot data and config of the appropriate types", {
   ))
 
   dt <- mosaic.dt(df, variables)
+  expect_equal(class(unlist(dt$xLabel)), 'character')
+  expect_equal(class(unlist(dt$yLabel)), 'character')
+  expect_equal(class(unlist(dt$entity.cat4)), 'character')
+  expect_equal(class(unlist(dt$value)), 'integer')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(class(namedAttrList$completeCasesAllVars),c('scalar', 'integer'))
+  expect_equal(class(namedAttrList$completeCasesAxesVars),c('scalar', 'integer'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(class(unlist(completeCases$variableDetails)), 'character')
+  expect_equal(class(unlist(completeCases$completeCases)), 'integer')
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(class(unlist(sampleSizes$entity.cat4)), 'character')
+  expect_equal(class(unlist(sampleSizes$size)), 'integer')
+  expect_equal(class(unlist(namedAttrList$statsTable$chisq)), c('scalar', 'numeric'))
+  expect_equal(class(unlist(namedAttrList$statsTable$degreesFreedom)), c('scalar', 'numeric'))
+  expect_equal(class(unlist(namedAttrList$statsTable$pvalue)), c('scalar', 'numeric'))
+  expect_equal(class(unlist(namedAttrList$statsTable$entity.cat4)), 'character')
+
+  # RxC with 'all' statistics
+  dt <- mosaic.dt(df, variables, statistic = 'all')
   expect_equal(class(unlist(dt$xLabel)), 'character')
   expect_equal(class(unlist(dt$yLabel)), 'character')
   expect_equal(class(unlist(dt$entity.cat4)), 'character')
@@ -521,6 +556,24 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   sampleSizeTable <- sampleSizeTable(dt)
   expect_equal(names(sampleSizeTable),c('entity.cat7','size'))
   expect_equal(class(sampleSizeTable$entity.cat7[[1]]), 'character')
+
+  # With 'all' statistics for an RxC
+  dt <- mosaic.dt(df, variables, statistic = 'all')
+  expect_is(dt, 'data.table')
+  expect_is(dt$value, 'list')
+  expect_is(dt$value[[1]], 'list')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt),c('xLabel', 'yLabel', 'value'))
+  expect_equal(dt$xLabel[[1]],paste0("cat7_", letters[1:7]))
+  expect_equal(dt$yLabel[[1]][[1]],paste0("cat3_", letters[1:3]))
+  expect_equal(length(dt$value[[1]]),7)
+  expect_equal(length(dt$value[[1]][[1]]),3)
+  statsTable <- statsTable(dt)
+  expect_equal(names(statsTable), c(c('chisq', 'pvalue', 'degreesFreedom')))
+  sampleSizeTable <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizeTable),c('entity.cat7','size'))
+  expect_equal(class(sampleSizeTable$entity.cat7[[1]]), 'character')
+
 
   # With factors
   variables <- new("VariableMetadataList", SimpleList(
