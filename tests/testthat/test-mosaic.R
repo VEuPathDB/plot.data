@@ -184,6 +184,21 @@ test_that("mosaic.dt() returns a valid plot.data mosaic object", {
   expect_equal(names(namedAttrList$statsTable), c('chisq','pvalue', 'degreesFreedom','entity.cat4'))
 
 
+  # Testing an RxC with 'all' statistics
+  dt <- mosaic.dt(df, variables, statistic = 'all')
+  expect_is(dt, 'plot.data')
+  expect_is(dt, 'mosaic')
+  namedAttrList <- getPDAttributes(dt)
+  expect_equal(names(namedAttrList),c('variables', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','statsTable'))
+  completeCases <- completeCasesTable(dt)
+  expect_equal(names(completeCases), c('variableDetails','completeCases'))
+  expect_equal(nrow(completeCases), 3)
+  sampleSizes <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizes), c('entity.cat4','entity.cat7','size'))
+  expect_equal(nrow(sampleSizes), 4)
+  expect_equal(names(namedAttrList$statsTable), c('chiSq','entity.cat4'))
+
+
   # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
   dt <- mosaic.dt(df, variables, sampleSizes = FALSE, completeCases = FALSE)
   expect_is(dt, 'plot.data')
@@ -312,6 +327,7 @@ test_that("mosaic.dt() returns plot data and config of the appropriate types", {
   expect_equal(class(unlist(namedAttrList$statsTable$degreesFreedom)), c('scalar', 'numeric'))
   expect_equal(class(unlist(namedAttrList$statsTable$pvalue)), c('scalar', 'numeric'))
   expect_equal(class(unlist(namedAttrList$statsTable$entity.cat4)), 'character')
+
 })
 
 test_that("mosaic.dt() returns an appropriately sized data.table", {
@@ -521,6 +537,24 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   sampleSizeTable <- sampleSizeTable(dt)
   expect_equal(names(sampleSizeTable),c('entity.cat7','size'))
   expect_equal(class(sampleSizeTable$entity.cat7[[1]]), 'character')
+
+  # With 'all' statistics for an RxC
+  dt <- mosaic.dt(df, variables, statistic = 'all')
+  expect_is(dt, 'data.table')
+  expect_is(dt$value, 'list')
+  expect_is(dt$value[[1]], 'list')
+  expect_equal(nrow(dt),1)
+  expect_equal(names(dt),c('xLabel', 'yLabel', 'value'))
+  expect_equal(dt$xLabel[[1]],paste0("cat7_", letters[1:7]))
+  expect_equal(dt$yLabel[[1]][[1]],paste0("cat3_", letters[1:3]))
+  expect_equal(length(dt$value[[1]]),7)
+  expect_equal(length(dt$value[[1]][[1]]),3)
+  statsTable <- statsTable(dt)
+  expect_equal(names(statsTable), c(c('chiSq')))
+  sampleSizeTable <- sampleSizeTable(dt)
+  expect_equal(names(sampleSizeTable),c('entity.cat7','size'))
+  expect_equal(class(sampleSizeTable$entity.cat7[[1]]), 'character')
+
 
   # With factors
   variables <- new("VariableMetadataList", SimpleList(
@@ -878,6 +912,52 @@ test_that("mosaic() returns appropriately formatted json", {
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId')) 
+
+
+  # Check json structure of stats table when statistics = 'all' for rxc
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int6', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'int7', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
+
+  dt <- mosaic.dt(df, variables, statistic = 'all')
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+
+  expect_equal(names(jsonList),c('mosaic','sampleSizeTable','statsTable','completeCasesTable'))
+  expect_equal(names(jsonList$mosaic),c('data','config'))
+  expect_equal(names(jsonList$mosaic$data),c('xLabel','yLabel','value','facetVariableDetails'))
+  expect_equal(names(jsonList$mosaic$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
+  expect_equal(length(jsonList$mosaic$data$facetVariableDetails), 3)
+  expect_equal(jsonList$mosaic$data$facetVariableDetails[[1]]$variableId, 'cat3')
+  expect_equal(names(jsonList$mosaic$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$mosaic$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$mosaic$config$variables$variableSpec$variableId, c('int6','int7','cat3'))
+  expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','xVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$facetVariableDetails[[1]]$value), 'character')
+  expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
+  expect_equal(jsonList$sampleSizeTable$xVariableDetails$variableId[[1]], 'int7')
+  expect_equal(names(jsonList$statsTable),c('chiSq', 'facetVariableDetails'))
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails', 'completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int7', 'int6', 'cat3'))
+
 })
 
 test_that("mosaic.dt() returns correct information about missing data", {

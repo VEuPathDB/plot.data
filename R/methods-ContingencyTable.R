@@ -59,10 +59,14 @@ setGeneric("orderByReferenceValues",
 )
 
 #' @export
-setMethod("orderByReferenceValues", signature("TwoByTwoTable"), function(object) {
+setMethod("orderByReferenceValues", signature("ContingencyTable"), function(object) {
   tbl <- object@data
   columnReferenceValue <- object@columnReferenceValue
   rowReferenceValue <- object@rowReferenceValue
+
+  # If there are no ref values, just return. This prevents the need for more
+  # complicated handling of contingency tables that are not 2x2s.
+  if (is.na(columnReferenceValue) && is.na(rowReferenceValue)) return(object)
 
   if (!is.na(columnReferenceValue)) {
     if (attributes(tbl)$dimnames[[2]][1] != columnReferenceValue) {
@@ -104,8 +108,10 @@ setGeneric("chiSqResults",
 )
 
 #' @export
-setMethod("chiSqResults", signature("TwoByTwoTable"), function(object) {
+setMethod("chiSqResults", signature("ContingencyTable"), function(object) {
+
   object <- orderByReferenceValues(object)
+
   tbl <- object@data
 
   chisq <- try(suppressWarnings(stats::chisq.test(tbl)))
@@ -459,6 +465,16 @@ setGeneric("allStats",
   function(object) standardGeneric("allStats"),
   signature = "object"
 )
+
+#' @importFrom S4Vectors SimpleList
+#' @export
+setMethod("allStats", signature("ContingencyTable"), function(object) {
+   return(veupathUtils::StatisticList(S4Vectors::SimpleList(
+    chiSqResults(object)
+    # fishersTest(object)
+   ))) 
+})
+
 
 #' @importFrom S4Vectors SimpleList
 #' @export

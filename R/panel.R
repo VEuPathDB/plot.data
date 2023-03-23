@@ -7,31 +7,59 @@ panelAllStats <- function(data, x, y, panel = NULL, columnReferenceValue = NA_ch
   x <- 'x'
   y <- 'y'
 
-  if (is.null(panel)) {
-    tbl <- tableXY(data)
-    tbl <- TwoByTwoTable('data'=tbl, 'columnReferenceValue'=columnReferenceValue, 'rowReferenceValue'=rowReferenceValue)
-    statistics <- allStats(tbl)
-    dt <- veupathUtils::as.data.table(statistics)
-  } else {
-    buildTwoByTwo <- function(tbl) {
-      TwoByTwoTable('data' = tbl, 'columnReferenceValue' = columnReferenceValue, 'rowReferenceValue' = rowReferenceValue)
-    }
+  # If both x and y only have two unique values, then we have a 2x2 table, and we should compute
+  # a lot of stats. Otherwise, it's an RxC
+  if (uniqueN(data[[x]]) <= 2 && uniqueN(data[[y]]) <= 2) {
+    # 2x2 Stats
+    if (is.null(panel)) {
+      tbl <- tableXY(data)
+      tbl <- TwoByTwoTable('data'=tbl, 'columnReferenceValue'=columnReferenceValue, 'rowReferenceValue'=rowReferenceValue)
+      statistics <- allStats(tbl)
+      dt <- veupathUtils::as.data.table(statistics)
+    } else {
+      buildTwoByTwo <- function(tbl) {
+        TwoByTwoTable('data' = tbl, 'columnReferenceValue' = columnReferenceValue, 'rowReferenceValue' = rowReferenceValue)
+      }
 
-    dt.list <- split(data, list(data[[panel]]))
-    dt.list <- lapply(dt.list, tableXY)
-    dt.list <- lapply(dt.list, buildTwoByTwo)
-    dt.list <- lapply(dt.list, allStats)
-    dt.list <- lapply(dt.list, veupathUtils::as.data.table)
-    colNames <- names(dt.list[[1]])
-    dt <- data.table::as.data.table(lapply(as.list(colNames), function(name) { lapply( dt.list, function(x) {x[[name]]} ) } ))
-    data.table::setnames(dt, colNames)
-    #dt <- purrr::reduce(dt.list, rbind)
-    dt[[panel]] <- names(dt.list)
+      dt.list <- split(data, list(data[[panel]]))
+      dt.list <- lapply(dt.list, tableXY)
+      dt.list <- lapply(dt.list, buildTwoByTwo)
+      dt.list <- lapply(dt.list, allStats)
+      dt.list <- lapply(dt.list, veupathUtils::as.data.table)
+      colNames <- names(dt.list[[1]])
+      dt <- data.table::as.data.table(lapply(as.list(colNames), function(name) { lapply( dt.list, function(x) {x[[name]]} ) } ))
+      data.table::setnames(dt, colNames)
+      #dt <- purrr::reduce(dt.list, rbind)
+      dt[[panel]] <- names(dt.list)
+    }
+  } else {
+    # RxC Stats. For now just chi squared.
+    if (is.null(panel)) {
+      tbl <- tableXY(data)
+      tbl <- ContingencyTable('data'=tbl, 'columnReferenceValue'=columnReferenceValue, 'rowReferenceValue'=rowReferenceValue)
+      statistics <- allStats(tbl)
+      dt <- veupathUtils::as.data.table(statistics)
+    } else {
+      buildContingency <- function(tbl) {
+        ContingencyTable('data' = tbl, 'columnReferenceValue' = columnReferenceValue, 'rowReferenceValue' = rowReferenceValue)
+      }
+
+      dt.list <- split(data, list(data[[panel]]))
+      dt.list <- lapply(dt.list, tableXY)
+      dt.list <- lapply(dt.list, buildContingency)
+      dt.list <- lapply(dt.list, allStats)
+      dt.list <- lapply(dt.list, veupathUtils::as.data.table)
+      colNames <- names(dt.list[[1]])
+      dt <- data.table::as.data.table(lapply(as.list(colNames), function(name) { lapply( dt.list, function(x) {x[[name]]} ) } ))
+      data.table::setnames(dt, colNames)
+      dt[[panel]] <- names(dt.list)
+    }
   }
 
   return(dt) 
 }
 
+# No longer in use?
 panelBothRatios <- function(data, x, y, panel = NULL) {
   names(data)[names(data) == x] <- 'x'
   names(data)[names(data) == y] <- 'y'
