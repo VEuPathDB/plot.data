@@ -6,7 +6,7 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
                                                          'xMax'=NULL),
                                          'longitude'=list('left'=NULL,
                                                           'right'=NULL)),
-                         xValues = character(),
+                         xValues = veupathUtils::BinList(),
                          sampleSizes = logical(),
                          completeCases = logical(),
                          evilMode = character(),
@@ -26,17 +26,16 @@ newMapMarkersPD <- function(.dt = data.table::data.table(),
   variables <- attr$variables
 
   x <- veupathUtils::findColNamesFromPlotRef(variables, 'xAxis')
-  xType <- veupathUtils::findDataTypesFromPlotRef(variables, 'xAxis')
   geo <- veupathUtils::findColNamesFromPlotRef(variables, 'geo')
   lat <- veupathUtils::findColNamesFromPlotRef(variables, 'latitude')
   lon <- veupathUtils::findColNamesFromPlotRef(variables, 'longitude')
 
   # for the others this happen in the parent class, but color is different here
-  xNeedsValues <- length(data.table::uniqueN(.pd[[x]])) > 8
+  xNeedsValues <- data.table::uniqueN(.pd[[x]]) > 8
   if (is.null(xValues) && xNeedsValues) {
     stop("Must provide values of interest for high cardinality or continuous map marker variables.")
   }
-  .pd[[x]] <- recodeValues(.pd[[x]], xValues, xType)
+  .pd[[x]] <- recodeValues(.pd[[x]], xValues)
 
   if (is.null(geolocationViewport)) {
     geolocationViewport <- findGeolocationViewport(.pd, lat, lon)
@@ -138,7 +137,7 @@ validateMapMarkersPD <- function(.map, verbose) {
 #' @param variables veupathUtils::VariableMetadataList
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
 #' @param viewport List of values indicating the visible range of data
-#' @param xValues character vector providing overlay values of interest
+#' @param xValues veupathUtils::BinList providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -260,7 +259,7 @@ mapMarkers.dt <- function(data,
 #' @param variables veupathUtils::VariableMetadataList
 #' @param value String indicating how to calculate y-values ('count', 'proportion')
 #' @param viewport List of values indicating the visible range of data
-#' @param xValues character vector providing overlay values of interest
+#' @param xValues veupathUtils::BinList providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 

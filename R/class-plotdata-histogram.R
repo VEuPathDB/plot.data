@@ -7,7 +7,7 @@ newHistogramPD <- function(.dt = data.table::data.table(),
                          binReportValue = character(),
                          value = character(),
                          barmode = character(),
-                         overlayValues = character(),
+                         overlayValues = veupathUtils::BinList(),
                          sampleSizes = logical(),
                          completeCases = logical(),
                          evilMode = character(),
@@ -198,7 +198,7 @@ validateHistogramPD <- function(.histo, verbose) {
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
-#' @param overlayValues character vector providing overlay values of interest
+#' @param overlayValues veupathUtils::BinList providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -323,7 +323,7 @@ histogram.dt <- function(data,
 #' @param binReportValue String indicating if number of bins or bin width used should be returned
 #' @param barmode String indicating if bars should be stacked or overlaid ('stack', 'overlay')
 #' @param viewport List of min and max values to consider as the range of data
-#' @param overlayValues character vector providing overlay values of interest
+#' @param overlayValues veupathUtils::BinList providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 

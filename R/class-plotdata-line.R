@@ -5,7 +5,7 @@ newLinePD <- function(.dt = data.table::data.table(),
                          binWidth,
                          value = character(),
                          errorBars = logical(),
-                         overlayValues = character(),
+                         overlayValues = veupathUtils::BinList(),
                          sampleSizes = logical(),
                          completeCases = logical(),
                          evilMode = character(),
@@ -190,7 +190,7 @@ validateLinePD <- function(.line, verbose) {
 #' @param viewport List of min and max values to consider as the range of data
 #' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
 #' @param denominatorValues character vector of values from the y-axis variable to consider the denominator
-#' @param overlayValues character vector providing overlay values of interest
+#' @param overlayValues veupathUtils::BinList providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -331,7 +331,7 @@ lineplot.dt <- function(data,
 #' @param viewport List of min and max values to consider as the range of data
 #' @param numeratorValues character vector of values from the y-axis variable to consider the numerator
 #' @param denominatorValues character vector of values from the y-axis variable to consider the denominator
-#' @param overlayValues character vector providing overlay values of interest
+#' @param overlayValues veupathUtils::BinList providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 

@@ -1,17 +1,18 @@
-recodeValues <- function(values, desiredValues, dataType) {
-  if (is.null(desiredValues)) return(values)
+recodeValues <- function(values, desiredValues) {
+  if (!length(desiredValues)) return(values)
+  desiredLabels <- unlist(lapply(desiredValues, function(x) {x@binLabel}))
   
-  if (dataType %in% c('NUMBER', 'INTEGER', 'DATE')) {
-    # figure this out when i get to the continuous overlay PR, just leaving a skeleton for now
-    # tbh desiredValues will probably stop being a simple character vector then as well. but one thing at a time.
-    warning("Binned continuous overlays are not supported yet.")
+  # were assuming if we only have binLabels that we should treat the overlay as categorical, regardless of data type
+  breaks <- c(unlist(lapply(desiredValues, function(x) {x@binStart})), desiredValues[[length(desiredValues)]]@binEnd)
+  if (!any(is.na(breaks))) {
+    values <- as.character(cut(values, breaks, labels = desiredLabels, include.lowest = TRUE))
   } else {
-    if (all(unique(values) %in% desiredValues)) return(values)
-    values[!values %in% desiredValues] <- '__UNSELECTED__'
-  }
+    if (all(unique(values) %in% desiredLabels)) return(values)
+    values[!values %in% desiredLabels] <- '__UNSELECTED__'
 
-  undetectedDesiredValues <- desiredValues[!(desiredValues %in% values)]
-  if (!!length(undetectedDesiredValues)) warning(paste("The following values were requested but not found in the data: ", undetectedDesiredValues))
+    undetectedDesiredValues <- desiredLabels[!(desiredLabels %in% values)]
+    if (!!length(undetectedDesiredValues)) warning(paste("The following values were requested but not found in the data: ", undetectedDesiredValues))
+  }
 
   return(values)
 }
