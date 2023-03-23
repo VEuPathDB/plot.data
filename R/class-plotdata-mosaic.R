@@ -32,7 +32,6 @@ newMosaicPD <- function(.dt = data.table::data.table(),
   
   if (!isEvil) {
     if (statistic == 'all') {
-      # currently only valid for 2x2
       attr$statsTable <- panelAllStats(.pd, x, y, panel, columnReferenceValue, rowReferenceValue)
       veupathUtils::logWithTime('Calculated all relevant statistics.', verbose)
     } else if (statistic == 'chiSq') {

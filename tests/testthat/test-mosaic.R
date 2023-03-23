@@ -196,7 +196,7 @@ test_that("mosaic.dt() returns a valid plot.data mosaic object", {
   sampleSizes <- sampleSizeTable(dt)
   expect_equal(names(sampleSizes), c('entity.cat4','entity.cat7','size'))
   expect_equal(nrow(sampleSizes), 4)
-  expect_equal(names(namedAttrList$statsTable), c('chisq','pvalue', 'degreesFreedom','entity.cat4'))
+  expect_equal(names(namedAttrList$statsTable), c('chiSq','entity.cat4'))
 
 
   # Ensure sampleSizeTable and completeCasesTable do not get returned if we do not ask for them.
@@ -328,25 +328,6 @@ test_that("mosaic.dt() returns plot data and config of the appropriate types", {
   expect_equal(class(unlist(namedAttrList$statsTable$pvalue)), c('scalar', 'numeric'))
   expect_equal(class(unlist(namedAttrList$statsTable$entity.cat4)), 'character')
 
-  # RxC with 'all' statistics
-  dt <- mosaic.dt(df, variables, statistic = 'all')
-  expect_equal(class(unlist(dt$xLabel)), 'character')
-  expect_equal(class(unlist(dt$yLabel)), 'character')
-  expect_equal(class(unlist(dt$entity.cat4)), 'character')
-  expect_equal(class(unlist(dt$value)), 'integer')
-  namedAttrList <- getPDAttributes(dt)
-  expect_equal(class(namedAttrList$completeCasesAllVars),c('scalar', 'integer'))
-  expect_equal(class(namedAttrList$completeCasesAxesVars),c('scalar', 'integer'))
-  completeCases <- completeCasesTable(dt)
-  expect_equal(class(unlist(completeCases$variableDetails)), 'character')
-  expect_equal(class(unlist(completeCases$completeCases)), 'integer')
-  sampleSizes <- sampleSizeTable(dt)
-  expect_equal(class(unlist(sampleSizes$entity.cat4)), 'character')
-  expect_equal(class(unlist(sampleSizes$size)), 'integer')
-  expect_equal(class(unlist(namedAttrList$statsTable$chisq)), c('scalar', 'numeric'))
-  expect_equal(class(unlist(namedAttrList$statsTable$degreesFreedom)), c('scalar', 'numeric'))
-  expect_equal(class(unlist(namedAttrList$statsTable$pvalue)), c('scalar', 'numeric'))
-  expect_equal(class(unlist(namedAttrList$statsTable$entity.cat4)), 'character')
 })
 
 test_that("mosaic.dt() returns an appropriately sized data.table", {
@@ -569,7 +550,7 @@ test_that("mosaic.dt() returns an appropriately sized data.table", {
   expect_equal(length(dt$value[[1]]),7)
   expect_equal(length(dt$value[[1]][[1]]),3)
   statsTable <- statsTable(dt)
-  expect_equal(names(statsTable), c(c('chisq', 'pvalue', 'degreesFreedom')))
+  expect_equal(names(statsTable), c(c('chiSq')))
   sampleSizeTable <- sampleSizeTable(dt)
   expect_equal(names(sampleSizeTable),c('entity.cat7','size'))
   expect_equal(class(sampleSizeTable$entity.cat7[[1]]), 'character')

@@ -39,16 +39,30 @@ panelAllStats <- function(data, x, y, panel = NULL, columnReferenceValue = NA_ch
     # RxC Stats. For now just chi squared.
     if (is.null(panel)) {
       tbl <- tableXY(data)
-      dt <- suppressWarnings(chiSq(tbl))
+      tbl <- ContingencyTable('data'=tbl, 'columnReferenceValue'=columnReferenceValue, 'rowReferenceValue'=rowReferenceValue)
+      statistics <- allStats(tbl)
+      dt <- veupathUtils::as.data.table(statistics)
     } else {
+      buildContingency <- function(tbl) {
+        ContingencyTable('data' = tbl, 'columnReferenceValue' = columnReferenceValue, 'rowReferenceValue' = rowReferenceValue)
+      }
+
       dt.list <- split(data, list(data[[panel]]))
       dt.list <- lapply(dt.list, tableXY)
-      dt.list <- lapply(dt.list, function(x) {suppressWarnings(chiSq(x))})
-      dt <- purrr::reduce(dt.list, rbind)
+      dt.list <- lapply(dt.list, buildContingency)
+      dt.list <- lapply(dt.list, allStats)
+      dt.list <- lapply(dt.list, veupathUtils::as.data.table)
+      colNames <- names(dt.list[[1]])
+      dt <- data.table::as.data.table(lapply(as.list(colNames), function(name) { lapply( dt.list, function(x) {x[[name]]} ) } ))
+      data.table::setnames(dt, colNames)
       dt[[panel]] <- names(dt.list)
+      # dt.list <- split(data, list(data[[panel]]))
+      # dt.list <- lapply(dt.list, tableXY)
+      # dt.list <- lapply(dt.list, function(x) {suppressWarnings(chiSq(x))})
+      # dt <- purrr::reduce(dt.list, rbind)
+      # dt[[panel]] <- names(dt.list)
     }
   }
-
 
   return(dt) 
 }

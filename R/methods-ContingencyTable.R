@@ -104,8 +104,13 @@ setGeneric("chiSqResults",
 )
 
 #' @export
-setMethod("chiSqResults", signature("TwoByTwoTable"), function(object) {
-  object <- orderByReferenceValues(object)
+setMethod("chiSqResults", signature("ContingencyTable"), function(object) {
+
+  # If we have reference values, reorder the data based on these values.
+  if (!is.na(object@rowReferenceValue) || !is.na(object@columnReferenceValue)) {
+    object <- orderByReferenceValues(object)
+  }
+
   tbl <- object@data
 
   chisq <- try(suppressWarnings(stats::chisq.test(tbl)))
@@ -141,7 +146,10 @@ setGeneric("fishersTest",
 
 #' @export
 setMethod("fishersTest", signature("TwoByTwoTable"), function(object) {
-  object <- orderByReferenceValues(object)
+  # If we have reference values, reorder the data based on these values.
+  if (!is.na(object@rowReferenceValue) || !is.na(object@columnReferenceValue)) {
+    object <- orderByReferenceValues(object)
+  }
   tbl <- object@data
 
   fisher <- try(suppressWarnings(stats::fisher.test(tbl)))
@@ -459,6 +467,16 @@ setGeneric("allStats",
   function(object) standardGeneric("allStats"),
   signature = "object"
 )
+
+#' @importFrom S4Vectors SimpleList
+#' @export
+setMethod("allStats", signature("ContingencyTable"), function(object) {
+   return(veupathUtils::StatisticList(S4Vectors::SimpleList(
+    chiSqResults(object)
+    # fishersTest(object)
+   ))) 
+})
+
 
 #' @importFrom S4Vectors SimpleList
 #' @export
