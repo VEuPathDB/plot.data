@@ -146,10 +146,7 @@ setGeneric("fishersTest",
 
 #' @export
 setMethod("fishersTest", signature("TwoByTwoTable"), function(object) {
-  # If we have reference values, reorder the data based on these values.
-  if (!is.na(object@rowReferenceValue) || !is.na(object@columnReferenceValue)) {
-    object <- orderByReferenceValues(object)
-  }
+  object <- orderByReferenceValues(object)
   tbl <- object@data
 
   fisher <- try(suppressWarnings(stats::fisher.test(tbl)))

@@ -7,12 +7,9 @@ panelAllStats <- function(data, x, y, panel = NULL, columnReferenceValue = NA_ch
   x <- 'x'
   y <- 'y'
 
-  nUniqueX <- uniqueN(data[[x]])
-  nUniqueY <- uniqueN(data[[y]])
-
   # If both x and y only have two unique values, then we have a 2x2 table, and we should compute
   # a lot of stats. Otherwise, it's an RxC
-  if (nUniqueX <= 2 && nUniqueY <= 2) {
+  if (uniqueN(data[[x]]) <= 2 && uniqueN(data[[y]]) <= 2) {
     # 2x2 Stats
     if (is.null(panel)) {
       tbl <- tableXY(data)
@@ -56,11 +53,6 @@ panelAllStats <- function(data, x, y, panel = NULL, columnReferenceValue = NA_ch
       dt <- data.table::as.data.table(lapply(as.list(colNames), function(name) { lapply( dt.list, function(x) {x[[name]]} ) } ))
       data.table::setnames(dt, colNames)
       dt[[panel]] <- names(dt.list)
-      # dt.list <- split(data, list(data[[panel]]))
-      # dt.list <- lapply(dt.list, tableXY)
-      # dt.list <- lapply(dt.list, function(x) {suppressWarnings(chiSq(x))})
-      # dt <- purrr::reduce(dt.list, rbind)
-      # dt[[panel]] <- names(dt.list)
     }
   }
 
