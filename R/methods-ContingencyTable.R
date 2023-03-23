@@ -59,10 +59,14 @@ setGeneric("orderByReferenceValues",
 )
 
 #' @export
-setMethod("orderByReferenceValues", signature("TwoByTwoTable"), function(object) {
+setMethod("orderByReferenceValues", signature("ContingencyTable"), function(object) {
   tbl <- object@data
   columnReferenceValue <- object@columnReferenceValue
   rowReferenceValue <- object@rowReferenceValue
+
+  # If there are no ref values, just return. This prevents the need for more
+  # complicated handling of contingency tables that are not 2x2s.
+  if (is.na(columnReferenceValue) && is.na(rowReferenceValue)) return(object)
 
   if (!is.na(columnReferenceValue)) {
     if (attributes(tbl)$dimnames[[2]][1] != columnReferenceValue) {
@@ -106,10 +110,7 @@ setGeneric("chiSqResults",
 #' @export
 setMethod("chiSqResults", signature("ContingencyTable"), function(object) {
 
-  # If we have reference values, reorder the data based on these values.
-  if (!is.na(object@rowReferenceValue) || !is.na(object@columnReferenceValue)) {
-    object <- orderByReferenceValues(object)
-  }
+  object <- orderByReferenceValues(object)
 
   tbl <- object@data
 
