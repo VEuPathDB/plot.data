@@ -25,7 +25,7 @@ beeswarm(
 
 \item{median}{boolean indicating whether to return median value per group (per panel)}
 
-\item{overlayValues}{character vector providing overlay values of interest}
+\item{overlayValues}{veupathUtils::BinList providing overlay values of interest}
 
 \item{sampleSizes}{boolean indicating if sample sizes should be computed}
 

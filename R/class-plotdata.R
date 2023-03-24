@@ -13,7 +13,7 @@ newPlotdata <- function(.dt = data.table(),
                          #make sure lat, lon, geoAgg vars are valid plot References
                          variables = NULL,    
                          useGradientColorscale = FALSE,    
-                         overlayValues = NULL,            
+                         overlayValues = veupathUtils::BinList(),            
                          sampleSizes = logical(),
                          completeCases = logical(),
                          evilMode = character(),
@@ -44,15 +44,7 @@ newPlotdata <- function(.dt = data.table(),
 
   isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
   collectionVarMetadata <- veupathUtils::findCollectionVariableMetadata(variables)
-  isOverlayCollection <- ifelse(is.null(collectionVarMetadata), FALSE, ifelse(collectionVarMetadata@plotReference@value == 'overlay', TRUE, FALSE))
-
-  if (!is.null(group) && !isOverlayCollection) {
-    groupNeedsOverlayValues <- length(data.table::uniqueN(.dt[[group]])) > 8 && useGradientColorscale == FALSE
-    if (is.null(overlayValues) && groupNeedsOverlayValues) {
-      stop("Must provide overlay values of interest for high cardinality or continuous overlay variables.")
-    }
-    .dt[[group]] <- recodeValues(.dt[[group]], overlayValues, groupType)
-  }
+  isOverlayCollection <- ifelse(is.null(collectionVarMetadata), FALSE, ifelse(collectionVarMetadata@plotReference@value == 'overlay', TRUE, FALSE)) 
   
   # Extract names of vars for which naToZero is TRUE
   # Note: if we want to change default behavior in the future, this predicate function is a good place to do it
@@ -210,6 +202,14 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
   if (!is.null(panel)) { .dt[[panel]] <- updateType(.dt[[panel]], 'STRING') }
   veupathUtils::logWithTime('Base data types updated for all columns as necessary.', verbose)
+
+  if (!is.null(group) && !isOverlayCollection) {
+    groupNeedsOverlayValues <- data.table::uniqueN(.dt[[group]]) > 8 && useGradientColorscale == FALSE
+    if (is.null(overlayValues) && groupNeedsOverlayValues) {
+      stop("Must provide overlay values of interest for high cardinality or continuous overlay variables.")
+    }
+    .dt[[group]] <- recodeValues(.dt[[group]], overlayValues)
+  }
 
   # TODO review logic here around complete cases on the panel column
   if (!exists('completeCasesAllVars') && completeCases) {

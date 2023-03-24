@@ -10,7 +10,7 @@ newMapMarkersPD(
   value = character(),
   geolocationViewport = list(latitude = list(xMin = NULL, xMax = NULL), longitude =
     list(left = NULL, right = NULL)),
-  xValues = character(),
+  xValues = veupathUtils::BinList(),
   sampleSizes = logical(),
   completeCases = logical(),
   evilMode = character(),

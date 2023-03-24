@@ -2,7 +2,7 @@ newBeeswarmPD <- function(.dt = data.table::data.table(),
                          variables = veupathUtils::VariableMetadataList(),
                          jitter = NULL,
                          median = logical(),
-                         overlayValues = character(),
+                         overlayValues = veupathUtils::BinList(),
                          sampleSizes = logical(),
                          completeCases = logical(),
                          evilMode = character(),
@@ -97,7 +97,7 @@ validateBeeswarmPD <- function(.beeswarm, verbose) {
 #' @param variables veupathUtils VariableMetadataList
 #' @param jitter numeric indicating the maximum width by which to randomly offset points.
 #' @param median boolean indicating whether to return median value per group (per panel)
-#' @param overlayValues character vector providing overlay values of interest
+#' @param overlayValues veupathUtils::BinList providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -222,7 +222,7 @@ beeswarm.dt <- function(data, variables,
 #' @param variables veupathUtils VariableMetadataList
 #' @param jitter numeric indicating the maximum width by which to randomly offset points.
 #' @param median boolean indicating whether to return median value per group (per panel)
-#' @param overlayValues character vector providing overlay values of interest
+#' @param overlayValues veupathUtils::BinList providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')

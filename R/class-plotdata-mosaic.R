@@ -3,7 +3,7 @@ newMosaicPD <- function(.dt = data.table::data.table(),
                          statistic = character(),
                          columnReferenceValue = character(),
                          rowReferenceValue = character(),
-                         overlayValues = character(),
+                         overlayValues = veupathUtils::BinList(),
                          sampleSizes = logical(),
                          completeCases = logical(),
                          evilMode = character(),
@@ -78,7 +78,7 @@ validateMosaicPD <- function(.mosaic, verbose) {
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'all', the second of which will return odds ratios and relative risk.
 #' @param columnReferenceValue String representing a value present in the column names of the contingency table
 #' @param rowReferenceValue String representing a value present in the row names of the contingency table
-#' @param overlayValues character vector providing overlay values of interest
+#' @param overlayValues veupathUtils::BinList providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -207,7 +207,7 @@ mosaic.dt <- function(data, variables,
 #' @param statistic String indicating which statistic to calculate. Vaid options are 'chiSq' and 'all', the second of which will return odds ratios and relative risk.
 #' @param columnReferenceValue String representing a value present in the column names of the contingency table
 #' @param rowReferenceValue String representing a value present in the row names of the contingency table
-#' @param overlayValues character vector providing overlay values of interest
+#' @param overlayValues veupathUtils::BinList providing overlay values of interest
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 

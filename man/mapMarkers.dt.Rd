@@ -25,7 +25,7 @@ mapMarkers.dt(
 
 \item{viewport}{List of values indicating the visible range of data}
 
-\item{xValues}{character vector providing overlay values of interest}
+\item{xValues}{veupathUtils::BinList providing overlay values of interest}
 
 \item{sampleSizes}{boolean indicating if sample sizes should be computed}
 

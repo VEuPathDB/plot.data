@@ -34,7 +34,7 @@ histogram(
 
 \item{viewport}{List of min and max values to consider as the range of data}
 
-\item{overlayValues}{character vector providing overlay values of interest}
+\item{overlayValues}{veupathUtils::BinList providing overlay values of interest}
 
 \item{sampleSizes}{boolean indicating if sample sizes should be computed}
 

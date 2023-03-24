@@ -30,7 +30,7 @@ sourceId and its position in the plot. Recognized plotRef values are 'xAxisVaria
 to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous 
 overlay variable.}
 
-\item{overlayValues}{character vector providing overlay values of interest}
+\item{overlayValues}{veupathUtils::BinList providing overlay values of interest}
 
 \item{sampleSizes}{boolean indicating if sample sizes should be computed}
 

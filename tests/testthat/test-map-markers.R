@@ -245,14 +245,14 @@ test_that("mapMarkers() returns appropriately formatted json", {
       dataShape = new("DataShape", value = 'CATEGORICAL')),
     new("VariableMetadata",
       variableClass = new("VariableClass", value = 'native'),
-      variableSpec = new("VariableSpec", variableId = 'int11', entityId = 'entity'),
+      variableSpec = new("VariableSpec", variableId = 'int7', entityId = 'entity'),
       plotReference = new("PlotReference", value = 'xAxis'),
       dataType = new("DataType", value = 'STRING'),
       dataShape = new("DataShape", value = 'CATEGORICAL'))
   ))
 
   df <- as.data.frame(testDF)
-  df$entity.int11 <- as.character(df$entity.int11)
+  df$entity.int7 <- as.character(df$entity.int7)
   viewport <- list('latitude'=list('xMin'=-.5,
                                    'xMax'=.5),
                    'longitude'=list('left'=-.5,
@@ -267,14 +267,14 @@ test_that("mapMarkers() returns appropriately formatted json", {
   expect_equal(names(jsonList$mapMarkers$config), c('variables','completeCasesAllVars','completeCasesAxesVars','viewport'))
   expect_equal(names(jsonList$mapMarkers$config$variables$variableSpec), c('variableId','entityId'))
   expect_equal(class(unlist(jsonList$mapMarkers$config$viewport)), 'numeric')
-  expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('cont6','cont5','cat5','int11'))
+  expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('cont6','cont5','cat5','int7'))
   expect_equal(names(jsonList$sampleSizeTable), c('geoAggregateVariableDetails','xVariableDetails','size'))
   expect_equal(class(jsonList$sampleSizeTable$geoAggregateVariableDetails$value[[1]]), 'character')
   expect_equal(class(jsonList$sampleSizeTable$xVariableDetails$value[[1]]), 'character')
-  expect_equal(jsonList$sampleSizeTable$xVariableDetails$variableId[1], 'int11')
+  expect_equal(jsonList$sampleSizeTable$xVariableDetails$variableId[1], 'int7')
   expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
-  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int11', 'cat5'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int7', 'cat5'))
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -294,7 +294,10 @@ test_that("mapMarkers() returns appropriately formatted json", {
   df <- as.data.frame(testDF)
   df$entity.int11 <- as.character(df$entity.int11)
 
-  dt <- mapMarkers.dt(df, variables, value='count', xValues = c(1,2,3,4,5,6,7))
+  makeCategoricalBin <- function(value) {veupathUtils::Bin('binLabel'=value)}
+  overlayBins <- veupathUtils::BinList(S4Vectors::SimpleList(lapply(as.character(c(1,2,3,4,5,6,7)), makeCategoricalBin)))
+
+  dt <- mapMarkers.dt(df, variables, value='count', xValues = overlayBins)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('mapMarkers','sampleSizeTable','completeCasesTable'))
@@ -313,9 +316,45 @@ test_that("mapMarkers() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('int11', 'cat5'))
 
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat5', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'geo'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'))
+  ))
+
+  df <- as.data.frame(testDF)
+  overlayBins <- veupathUtils::getDiscretizedBins(df$entity.contA)
+
+  dt <- mapMarkers.dt(df, variables, value='count', xValues = overlayBins)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  expect_equal(names(jsonList), c('mapMarkers','sampleSizeTable','completeCasesTable'))
+  expect_equal(names(jsonList$mapMarkers), c('data','config'))
+  expect_equal(names(jsonList$mapMarkers$data), c('geoAggregateVariableDetails','label','value'))
+  expect_equal(all(jsonList$mapMarkers$data$label[[5]] %in% unlist(lapply(overlayBins, function(x) {x@binLabel}))), TRUE)
+  expect_equal(names(jsonList$mapMarkers$config), c('variables','completeCasesAllVars','completeCasesAxesVars','viewport'))
+  expect_equal(names(jsonList$mapMarkers$config$variables$variableSpec), c('variableId','entityId'))
+  expect_equal(class(unlist(jsonList$mapMarkers$config$viewport)), 'NULL')
+  expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('cat5','contA'))
+  # dont have sample sizes for x bc it was cont for the parent class :(
+  # map doesnt care so im not going to change it yet but stil...
+  expect_equal(names(jsonList$sampleSizeTable), c('geoAggregateVariableDetails','size'))
+  expect_equal(class(jsonList$sampleSizeTable$geoAggregateVariableDetails$value[[1]]), 'character')
+  expect_equal(names(jsonList$completeCasesTable), c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA', 'cat5'))
 
   # Ensure sampleSizeTable and completeCasesTable are not part of json if we do not ask for them.
-  dt <- mapMarkers.dt(df, variables, value='count', sampleSizes = FALSE, completeCases = FALSE)
+  dt <- mapMarkers.dt(df, variables, value='count', xValues = overlayBins, sampleSizes = FALSE, completeCases = FALSE)
   outJson <- getJSON(dt, FALSE)
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(names(jsonList), c('mapMarkers'))
@@ -324,7 +363,7 @@ test_that("mapMarkers() returns appropriately formatted json", {
   expect_equal(names(jsonList$mapMarkers$config), c('variables','viewport'))
   expect_equal(names(jsonList$mapMarkers$config$variables$variableSpec), c('variableId','entityId'))
   expect_equal(class(unlist(jsonList$mapMarkers$config$viewport)), 'NULL')
-  expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('cat5','int11'))
+  expect_equal(jsonList$mapMarkers$config$variables$variableSpec$variableId, c('cat5','contA'))
   
 
   variables <- new("VariableMetadataList", SimpleList(
@@ -506,7 +545,7 @@ test_that("mapMarkers.dt() returns correct information about missing data", {
       dataShape = new("DataShape", value = 'CATEGORICAL')),
     new("VariableMetadata",
       variableClass = new("VariableClass", value = 'native'),
-      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      variableSpec = new("VariableSpec", variableId = 'int7', entityId = 'entity'),
       plotReference = new("PlotReference", value = 'xAxis'),
       dataType = new("DataType", value = 'STRING'),
       dataShape = new("DataShape", value = 'CATEGORICAL'))
@@ -549,15 +588,16 @@ test_that("mapMarkers.dt() returns correct information about missing data", {
   # Add nMissing missing values to each column
   nMissing <- 10
   df <- as.data.frame(lapply(testDF, function(x) {x[sample(1:length(x), nMissing, replace=F)] <- NA; x}))
+  overlayBins <- veupathUtils::getDiscretizedBins(df$entity.contA[complete.cases(df$entity.contA)])
 
-  dt <- mapMarkers.dt(df, variables, value='count')
+  dt <- mapMarkers.dt(df, variables, value='count', xValues = overlayBins)
   completecasestable <- completeCasesTable(dt)
   # Each entry should equal NROW(df) - nMissing
   expect_equal(all(completecasestable$completeCases == nrow(df)-nMissing), TRUE)
   # number of completeCases should be <= complete cases for each var
   expect_equal(all(attr(dt, 'completeCasesAllVars')[1] <= completecasestable$completeCases), TRUE)
   expect_equal(attr(dt, 'completeCasesAxesVars')[1] >= attr(dt, 'completeCasesAllVars')[1], TRUE)
-  dt <- mapMarkers.dt(df, variables, value='count', evilMode = 'strataVariables')
+  dt <- mapMarkers.dt(df, variables, value='count', xValues = overlayBins, evilMode = 'strataVariables')
   expect_equal(attr(dt, 'completeCasesAxesVars')[1], sum(!is.na(df$entity.contA)))
   # TODO box cant have evilMode = 'allVariables' bc we cant calculate bins with NA
   # dt <- mapMarkers.dt(df, variables, value='count', evilMode = 'allVariables')

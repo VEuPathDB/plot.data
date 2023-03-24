@@ -28,7 +28,7 @@ mosaic.dt(
 
 \item{rowReferenceValue}{String representing a value present in the row names of the contingency table}
 
-\item{overlayValues}{character vector providing overlay values of interest}
+\item{overlayValues}{veupathUtils::BinList providing overlay values of interest}
 
 \item{sampleSizes}{boolean indicating if sample sizes should be computed}
 
