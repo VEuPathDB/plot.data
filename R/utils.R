@@ -8,7 +8,7 @@ recodeValues <- function(values, desiredValues) {
     values <- as.character(cut(values, breaks, labels = desiredLabels, include.lowest = TRUE))
   } else {
     if (all(unique(values) %in% desiredLabels)) return(values)
-    values[!values %in% desiredLabels] <- '__UNSELECTED__'
+    values[!(values %in% desiredLabels)] <- '__UNSELECTED__'
 
     undetectedDesiredValues <- desiredLabels[!(desiredLabels %in% values)]
     if (!!length(undetectedDesiredValues)) warning(paste("The following values were requested but not found in the data: ", undetectedDesiredValues))

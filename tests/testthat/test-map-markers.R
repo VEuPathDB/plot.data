@@ -252,7 +252,7 @@ test_that("mapMarkers() returns appropriately formatted json", {
   ))
 
   df <- as.data.frame(testDF)
-  df$entity.int11 <- as.character(df$entity.int7)
+  df$entity.int7 <- as.character(df$entity.int7)
   viewport <- list('latitude'=list('xMin'=-.5,
                                    'xMax'=.5),
                    'longitude'=list('left'=-.5,
