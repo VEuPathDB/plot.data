@@ -233,7 +233,7 @@ bar <- function(data,
                  value = value,
                  barmode = barmode,
 		 overlayValues = overlayValues,
-                 sampleSizes = sapleSizes,
+                 sampleSizes = sampleSizes,
                  completeCases = completeCases,
                  evilMode = evilMode,
                  verbose = verbose)
