@@ -49,7 +49,7 @@ newPlotdata <- function(.dt = data.table(),
   collectionVarMetadata <- veupathUtils::findCollectionVariableMetadata(variables)
   isOverlayCollection <- ifelse(is.null(collectionVarMetadata), FALSE, ifelse(collectionVarMetadata@plotReference@value == 'overlay', TRUE, FALSE)) 
   prefixMap <- list('x' = 'xAxis',
-                      'y' = 'yAXis',
+                      'y' = 'yAxis',
                       'group' = 'overlay',
                       'facet1' = 'facet1',
                       'facet2' = 'facet2')
@@ -94,11 +94,11 @@ newPlotdata <- function(.dt = data.table(),
 
   # Reshape data and remap variables if collectionVar is specified
   if (!is.null(collectionVarMetadata)) {    
-    #is this the only thing we support? if so can we make inferredVarMetadata here based on the collectionVarMetadata?
+    
     inferredVarMetadata <- veupathUtils::VariableMetadata(
                                 variableClass = collectionVarMetadata@variableClass,
                                 variableSpec = veupathUtils::VariableSpec(variableId = 'collectionVarValues', entityId = collectionVarMetadata@variableSpec@entityId),
-                                plotReference = veupathUtils::PlotReference(value = prefixMap[names(prefixMap) == inferredVarAxis]),
+                                plotReference = veupathUtils::PlotReference(value = prefixMap[names(prefixMap) == inferredVarAxis][[1]]),
                                 displayName = paste(collectionVarMetadata@displayName, 'values'),
                                 displayRangeMin = collectionVarMetadata@displayRangeMin,
                                 displayRangeMax = collectionVarMetadata@displayRangeMax,
@@ -186,8 +186,8 @@ newPlotdata <- function(.dt = data.table(),
       if (uniqueN(.dt[[panel]]) > 25) stop("Maximum number of panels allowed is 25.")
     }
 
-    y <- veupathUtils::getColName(inferredVarMetadata@variableSpec)
-    yType <- veupathUtils::toStringOrNull(inferredVarMetadata@dataType@value)
+    assign(inferredVarAxis, veupathUtils::getColName(inferredVarMetadata@variableSpec))
+    assign(paste0(inferredVarAxis, 'Type'), veupathUtils::toStringOrNull(inferredVarMetadata@dataType@value))
 
     data.table::setcolorder(.dt, c(x, y, z, group, panel))
 
@@ -206,7 +206,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(panel)) { .dt[[panel]] <- updateType(.dt[[panel]], 'STRING') }
   veupathUtils::logWithTime('Base data types updated for all columns as necessary.', verbose)
 
-  if (!is.null(group) {
+  if (!is.null(group)) {
     if (!isOverlayCollection) {
       groupNeedsOverlayValues <- data.table::uniqueN(.dt[[group]]) > 8 && useGradientColorscale == FALSE
       if (is.null(overlayValues) && groupNeedsOverlayValues) {
@@ -214,11 +214,11 @@ newPlotdata <- function(.dt = data.table(),
       }
       .dt[[group]] <- recodeValues(.dt[[group]], overlayValues)
     } else {
-      groupNeedsOverlayValues <- data.table::uniqueN(.dt[[group]]) > 10
+      groupNeedsOverlayValues <- data.table::uniqueN(.dt[[get(inferredVarAxis)]]) > 10 && yType == "STRING"
       if (is.null(overlayValues) && groupNeedsOverlayValues) {
         stop("Must provide axis values of interest for high cardinality overlay variable collections.")
       }
-      .dt[[inferredVarAxis]] <- recodeValues(.dt[[y]], overlayValues)
+      .dt[[get(inferredVarAxis)]] <- recodeValues(.dt[[y]], overlayValues)
     }
   }
 
