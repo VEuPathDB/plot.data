@@ -203,12 +203,20 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(panel)) { .dt[[panel]] <- updateType(.dt[[panel]], 'STRING') }
   veupathUtils::logWithTime('Base data types updated for all columns as necessary.', verbose)
 
-  if (!is.null(group) && !isOverlayCollection) {
-    groupNeedsOverlayValues <- data.table::uniqueN(.dt[[group]]) > 8 && useGradientColorscale == FALSE
-    if (is.null(overlayValues) && groupNeedsOverlayValues) {
-      stop("Must provide overlay values of interest for high cardinality or continuous overlay variables.")
+  if (!is.null(group) {
+    if (!isOverlayCollection) {
+      groupNeedsOverlayValues <- data.table::uniqueN(.dt[[group]]) > 8 && useGradientColorscale == FALSE 
+    } else {
+      groupNeedsOverlayValues <- data.table::uniqueN(.dt[[group]]) > 10
     }
-    .dt[[group]] <- recodeValues(.dt[[group]], overlayValues)
+
+    if (groupNeedsOverlayValues) {
+      if (is.null(overlayValues)) {
+        stop("Must provide overlay values of interest for high cardinality or continuous overlay variables.")
+      } else {
+        .dt[[group]] <- recodeValues(.dt[[group]], overlayValues)
+      }
+    } 
   }
 
   # TODO review logic here around complete cases on the panel column
