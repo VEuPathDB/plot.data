@@ -16,6 +16,7 @@ newBoxPD <- function(.dt = data.table::data.table(),
                      overlayValues = overlayValues,
                      sampleSizes = sampleSizes,
                      completeCases = completeCases,
+                     inferredVarAxis = 'y',
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "boxplot")

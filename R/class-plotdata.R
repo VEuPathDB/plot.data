@@ -16,10 +16,13 @@ newPlotdata <- function(.dt = data.table(),
                          overlayValues = veupathUtils::BinList(),            
                          sampleSizes = logical(),
                          completeCases = logical(),
+                         inferredVarAxis = c('y', 'x'),
                          evilMode = character(),
                          verbose = logical(),
                          ...,
                          class = character()) {
+
+  inferredVarAxis <- veupathUtils::matchArg(inferredVarAxis)
 
   x <- veupathUtils::findColNamesFromPlotRef(variables, 'xAxis')
   xType <- veupathUtils::findDataTypesFromPlotRef(variables, 'xAxis')
@@ -45,6 +48,11 @@ newPlotdata <- function(.dt = data.table(),
   isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
   collectionVarMetadata <- veupathUtils::findCollectionVariableMetadata(variables)
   isOverlayCollection <- ifelse(is.null(collectionVarMetadata), FALSE, ifelse(collectionVarMetadata@plotReference@value == 'overlay', TRUE, FALSE)) 
+  prefixMap <- list('x' = 'xAxis',
+                      'y' = 'yAXis',
+                      'group' = 'overlay',
+                      'facet1' = 'facet1',
+                      'facet2' = 'facet2')
   
   # Extract names of vars for which naToZero is TRUE
   # Note: if we want to change default behavior in the future, this predicate function is a good place to do it
@@ -90,7 +98,7 @@ newPlotdata <- function(.dt = data.table(),
     inferredVarMetadata <- veupathUtils::VariableMetadata(
                                 variableClass = collectionVarMetadata@variableClass,
                                 variableSpec = veupathUtils::VariableSpec(variableId = 'collectionVarValues', entityId = collectionVarMetadata@variableSpec@entityId),
-                                plotReference = veupathUtils::PlotReference(value = 'yAxis'),
+                                plotReference = veupathUtils::PlotReference(value = prefixMap[names(prefixMap) == inferredVarAxis]),
                                 displayName = paste(collectionVarMetadata@displayName, 'values'),
                                 displayRangeMin = collectionVarMetadata@displayRangeMin,
                                 displayRangeMax = collectionVarMetadata@displayRangeMax,
@@ -166,11 +174,6 @@ newPlotdata <- function(.dt = data.table(),
     .dt[[variable.name]] <- gsub(paste0(inferredVarMetadata@variableSpec@entityId, '.'), '', .dt[[variable.name]])
 
     .dt[[variable.name]] <- updateType(.dt[[variable.name]], collectionVarMetadata@dataType@value)
-    prefixMap <- list('x' = 'xAxis',
-                      'y' = 'yAXis',
-                      'group' = 'overlay',
-                      'facet1' = 'facet1',
-                      'facet2' = 'facet2')
     prefix <- names(prefixMap)[prefixMap == collectionVarMetadata@plotReference@value]
     assign(prefix, veupathUtils::getColName(collectionVarMetadata@variableSpec))
     assign(paste0(prefix, 'Type'), collectionVarMetadata@dataType@value)
@@ -215,7 +218,7 @@ newPlotdata <- function(.dt = data.table(),
       if (is.null(overlayValues) && groupNeedsOverlayValues) {
         stop("Must provide axis values of interest for high cardinality overlay variable collections.")
       }
-      .dt[[y]] <- recodeValues(.dt[[y]], overlayValues)
+      .dt[[inferredVarAxis]] <- recodeValues(.dt[[y]], overlayValues)
     }
   }
 
