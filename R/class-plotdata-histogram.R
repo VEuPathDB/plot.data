@@ -261,16 +261,26 @@ histogram.dt <- function(data,
   }
 
   xVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'xAxis')
-  if (is.null(xVM)) {
+  collectionVM <- veupathUtils::findCollectionVariableMetadata(variables)
+  if (is.null(xVM) & is.null(collectionVM)) {
     stop("Must provide x-axis variable for plot type histogram.")
+  } else if (is.null(collectionVM)) {
+    dataType <- xVM@dataType@value
   } else {
-    if (xVM@dataType@value %in% c('NUMBER', 'INTEGER') & !is.null(binWidth)) {
-      binWidth <- suppressWarnings(as.numeric(binWidth))
-      if (is.na(binWidth)) {
-        stop("binWidth must be numeric for histograms of numeric values.")
-      }
+    dataType <- collectionVM@dataType@value
+  }
+
+  if (dataType %in% c('NUMBER', 'INTEGER') & !is.null(binWidth)) {
+    binWidth <- suppressWarnings(as.numeric(binWidth))
+    if (is.na(binWidth)) {
+      stop("binWidth must be numeric for histograms of numeric values.")
     }
   }
+
+  # Handle collectionVars
+  if (!is.null(collectionVM)) {
+    if (!collectionVM@plotReference@value %in% c('overlay', 'facet1', 'facet2')) stop('Collection variable PlotReference must be either overlay, facet1, or facet2 for histogram.')
+  }  
 
   .histo <- newHistogramPD(.dt = data,
                            variables = variables,

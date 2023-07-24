@@ -135,14 +135,22 @@ mosaic.dt <- function(data, variables,
     data.table::setDT(data)
   }
 
-  xVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'xAxis')
-  if (is.null(xVM)) {
-    stop("Must provide x-axis variable for plot type mosaic.")
+  collectionVM <- veupathUtils::findCollectionVariableMetadata(variables)
+  if (is.null(collectionVM)) {
+    xVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'xAxis')
+    if (is.null(xVM)) {
+      stop("Must provide x-axis variable for plot type mosaic.")
+    }
+    yVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'yAxis')
+    if (is.null(yVM)) {
+      stop("Must provide y-axis variable for plot type mosaic.")
+    }
   }
-  yVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'yAxis')
-  if (is.null(yVM)) {
-    stop("Must provide y-axis variable for plot type mosaic.")
-  }
+  
+  # Handle collectionVars
+  if (!is.null(collectionVM)) {
+    if (!collectionVM@plotReference@value %in% c('xAxis')) stop('Collection variable PlotReference must be xAxis for mosaic.')
+  } 
 
   x <- veupathUtils::getColName(xVM@variableSpec)
   y <- veupathUtils::getColName(yVM@variableSpec)
