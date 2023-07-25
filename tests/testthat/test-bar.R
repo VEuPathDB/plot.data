@@ -31,8 +31,8 @@ test_that("bar.dt does sensible things for collections.", {
   dt <- bar.dt(catCollDT, variables, value = 'count')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 6)
-  expect_equal(names(dt), c('entity.collection', 'entity.cat3', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
-  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
+  expect_equal(names(dt), c('entity.collection', 'entity.cat3', 'label', 'value'))
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'xAxis')@variableId, 'collectionVarValues')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'overlay')@variableId, 'collection')
   
 })
