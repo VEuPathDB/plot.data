@@ -15,6 +15,7 @@ newBarPD <- function(.dt = data.table::data.table(),
                      overlayValues = overlayValues,
                      sampleSizes = sampleSizes,
                      completeCases = completeCases,
+                     inferredVarAxis = 'x',
                      evilMode = evilMode,
                      verbose = verbose,
                      class = "barplot")
@@ -135,8 +136,14 @@ bar.dt <- function(data,
   }
 
   xVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'xAxis')
-  if (is.null(xVM)) {
-    stop("Must provide xAxisVariable for plot type bar.")
+  collectionVM <- veupathUtils::findCollectionVariableMetadata(variables)
+  if (is.null(xVM) & is.null(collectionVM)) {
+    stop("Must provide x-axis variable for plot type bar.")
+  }
+  
+  # Handle collectionVars
+  if (!is.null(collectionVM)) {
+    if (!collectionVM@plotReference@value %in% c('overlay', 'facet1', 'facet2')) stop('Collection variable PlotReference must be either overlay, facet1, or facet2 for barplot.')
   }
 
   .bar <- newBarPD(.dt = data,
@@ -232,7 +239,7 @@ bar <- function(data,
                  variables = variables,
                  value = value,
                  barmode = barmode,
-		 overlayValues = overlayValues,
+		             overlayValues = overlayValues,
                  sampleSizes = sampleSizes,
                  completeCases = completeCases,
                  evilMode = evilMode,

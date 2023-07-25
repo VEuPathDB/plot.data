@@ -20,9 +20,8 @@ newLinePD <- function(.dt = data.table::data.table(),
                      overlayValues = overlayValues,
                      sampleSizes = sampleSizes,
                      completeCases = completeCases,
+                     inferredVarAxis = 'y',
                      evilMode = evilMode,
-                     collectionVariableDetails = collectionVariableDetails,
-                     computedVariableMetadata = computedVariableMetadata,
                      verbose = verbose,
                      class = "lineplot")
 

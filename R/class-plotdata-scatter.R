@@ -271,6 +271,7 @@ scattergl.dt <- function(data,
                             overlayValues = overlayValues,
                             sampleSizes = sampleSizes,
                             completeCases = completeCases,
+                            inferredVarAxis = 'y',
                             evilMode = evilMode,
                             verbose = verbose)
 

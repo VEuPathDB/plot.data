@@ -876,6 +876,46 @@ test_that("lineplot.dt() returns an appropriately sized data.table", {
   expect_equal(dt$panel[1], 'cat3_a.||.contB')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'facet2')@variableId, 'collection')
+
+  # cat collection
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'collection', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'),
+      vocabulary = c("A","B"),
+      isCollection = TRUE,
+      members = new("VariableSpecList", SimpleList(
+        new("VariableSpec", variableId = "binB", entityId = "entity"),
+        new("VariableSpec", variableId = "binA", entityId = "entity")
+      ))
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'repeatedContA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'))
+  ))
+
+  catCollDT <- testDF
+  catCollDT$entity.binA <- gsub("binA_b", "B", gsub("binA_a", "A", catCollDT$entity.binA))
+  catCollDT$entity.binB <- gsub("binB_b", "B", gsub("binB_a", "A", catCollDT$entity.binB))
+
+  dt <- lineplot.dt(catCollDT, variables, value = 'proportion', numeratorValues = "A", denominatorValues = c("A", "B"))
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt), 6)
+  expect_equal(names(dt), c('entity.collection', 'entity.cat3', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'overlay')@variableId, 'collection')
   
   # With computed var
   variables <- new("VariableMetadataList", SimpleList(
