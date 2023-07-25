@@ -1,5 +1,42 @@
 context('bar')
 
+test_that("bar.dt does sensible things for collections.", {
+  # cat collection
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'collection', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'),
+      vocabulary = c("A","B"),
+      isCollection = TRUE,
+      members = new("VariableSpecList", SimpleList(
+        new("VariableSpec", variableId = "binB", entityId = "entity"),
+        new("VariableSpec", variableId = "binA", entityId = "entity")
+      ))
+    )
+  ))
+
+  catCollDT <- testDF
+  catCollDT$entity.binA <- gsub("binA_b", "B", gsub("binA_a", "A", catCollDT$entity.binA))
+  catCollDT$entity.binB <- gsub("binB_b", "B", gsub("binB_a", "A", catCollDT$entity.binB))
+
+  dt <- bar.dt(catCollDT, variables, value = 'count')
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt), 6)
+  expect_equal(names(dt), c('entity.collection', 'entity.cat3', 'seriesX', 'seriesY', 'binSampleSize', 'errorBars', 'binStart', 'binEnd'))
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
+  expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'overlay')@variableId, 'collection')
+  
+})
+
 test_that("bar.dt does not fail when there are no complete cases.", {
   
   variables <- new("VariableMetadataList", SimpleList(
