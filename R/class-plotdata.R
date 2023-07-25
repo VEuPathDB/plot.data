@@ -218,7 +218,7 @@ newPlotdata <- function(.dt = data.table(),
       if (is.null(overlayValues) && groupNeedsOverlayValues) {
         stop("Must provide axis values of interest for high cardinality overlay variable collections.")
       }
-      .dt[[get(inferredVarAxis)]] <- recodeValues(.dt[[y]], overlayValues)
+      .dt[[get(inferredVarAxis)]] <- recodeValues(.dt[[get(inferredVarAxis)]], overlayValues)
     }
   }
 
