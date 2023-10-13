@@ -19,7 +19,7 @@ test_that("Network objects have the correct attributes", {
 
   ## Network with edge weights and colors
   networkData[, edgeData := rnorm(nLinks)]
-  network <- newNetwork(dt = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', linkColorScheme = 'posneg', verbose = 'TRUE')
+  network <- newNetwork(dt = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', linkWeightColumn = 'edgeData', linkColorScheme = 'posneg', verbose = 'TRUE')
   attributes <- attributes(network)
   expect_equal(attributes$class, c('network', 'data.table', 'data.frame'))
   expect_equal(attributes$nodes, sort(unique(nodeIDs)))

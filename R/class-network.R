@@ -6,7 +6,7 @@ newNetwork <- function(dt = data.table(),
                        nodeIDs = NULL,
                        linkColorScheme = c('none', 'posneg'),
                        nodeColorScheme = c('none', 'degree'),
-                       directed = c('FALSE', 'TRUE'),
+                       directed = c(FALSE, TRUE),
                        verbose = logical(),
                        class = character()
 ) {
@@ -42,30 +42,34 @@ newNetwork <- function(dt = data.table(),
   attr$linkColorScheme <- linkColorScheme
 
   veupathUtils::setAttrFromList(dt, attr)
-  # .pd <- validatePlotdata(.dt)
-  net <- dt
-  veupathUtils::logWithTime('Network object created.', verbose)
+  net <- validateNetwork(dt, verbose)
+  veupathUtils::logWithTime('Network object successfully created.', verbose)
 
   return(net)
 }
 
-validatePlotdata <- function(net) {
-  .dt <- unclass(.pd)
-  variables <- attr(.pd, 'variables')
+validateNetwork <- function(net, verbose) {
 
-  # also check there is only one collection in variables
-  # collectionsCount <- sum(unlist(lapply(as.list(variables), function(x) {x@isCollection})))
-  # if (collectionsCount > 1) stop("More than one collection variable was specified.")
+  # Could check that all source and target are still in nodeIDs
 
-  class <- attr(.pd, 'class')
+  class <- attr(net, 'class')
   stopifnot(is.character(class))
 
-  return(.pd)
+  veupathUtils::logWithTime("Network object validated.", verbose)
+
+  return(net)
 }
 
-# # Additional accessor functions
-# sampleSizeTable <- function(.pd) { attr(.pd, 'sampleSizeTable') }
-# completeCasesTable <- function(.pd) { attr(.pd, 'completeCasesTable') }
-# #these helpers need either validation or to be a dedicated method
-# statsTable <- function(.pd) { attr(.pd, 'statsTable') }
-# variablesList <- function(.pd) { as.list(attr(.pd, 'variables')) }
+
+#' Write json to local tmp file
+#'
+#' This function returns the name of a json file which it has
+#' written a data.table object out to.
+#' @param .pd a data.table to convert to json and write to a tmp file
+#' @param pattern optional tmp file prefix
+#' @return character name of a tmp file w ext *.json
+#' @importFrom jsonlite toJSON
+#' @importFrom jsonlite prettify
+writeNetworkToJSON <- function(net, pattern=NULL, verbose = c(TRUE, FALSE) ) {
+  print("hi ann :)")
+}
