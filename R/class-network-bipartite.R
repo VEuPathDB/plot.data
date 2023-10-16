@@ -1,4 +1,3 @@
-#' @param dt data table with one row per link. Columns represent source node, target node, edge weight, and other edge data
 newBipartiteNetwork <- function(df = data.frame(),
                                 sourceNodeColumn = character(),
                                 targetNodeColumn = character(),
@@ -53,7 +52,13 @@ validateBipartiteNetwork <- function(bpnet, verbose) {
   return(net)
 }
 
-
+#' Create bipartite network
+#'
+#' This function returns the name of a json file which it has
+#' written a data.table object out to.
+#' @param .pd a data.table to convert to json and write to a tmp file
+#' @param pattern optional tmp file prefix
+#' @return bipartite network
 #' @export
 bipartiteNetwork <- function(df = data.frame(),
                             sourceNodeColumn = character(),

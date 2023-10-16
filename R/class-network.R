@@ -1,4 +1,3 @@
-#' @param dt data table with one row per link. Columns represent source node, target node, edge weight, and other edge data
 newNetwork <- function(dt = data.table(),
                        sourceNodeColumn = character(),
                        targetNodeColumn = character(),
