@@ -13,8 +13,8 @@ test_that("Bipartite network objects have the correct attributes", {
   ))
 
   ## The simplest case - a binary network with no colors or isolated nodes
-  network <- bipartiteNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', verbose = 'TRUE')
-  attributes <- attributes(network)
+  bpnet <- bipartiteNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', verbose = 'TRUE')
+  attributes <- attributes(bpnet)
   expect_equal(attributes$class, c('bipartite', 'network', 'data.table', 'data.frame'))
   expect_equal(attributes$nodes, sort(unique(c(column1NodeIDs, column2NodeIDs))))
   expect_equal(attributes$linkColorScheme, 'none')
@@ -23,8 +23,8 @@ test_that("Bipartite network objects have the correct attributes", {
 
   ## Network with edge weights and colors
   networkData$edgeData <- rnorm(nLinks)
-  network <- bipartiteNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', linkWeightColumn = 'edgeData', linkColorScheme = 'posneg', verbose = 'TRUE')
-  attributes <- attributes(network)
+  bpnet <- bipartiteNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', linkWeightColumn = 'edgeData', linkColorScheme = 'posneg', verbose = 'TRUE')
+  attributes <- attributes(bpnet)
   expect_equal(attributes$class, c('bipartite', 'network', 'data.table', 'data.frame'))
   expect_equal(attributes$nodes, sort(unique(c(column1NodeIDs, column2NodeIDs))))
   expect_equal(attributes$linkColorScheme, 'posneg')
@@ -48,18 +48,60 @@ test_that("Bipartite network objects contain the correct link data", {
   ))
 
   ## The simplest case - a binary network with no colors or isolated nodes
-  network <- bipartiteNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', verbose = 'TRUE')
-  expect_equal(names(network), c('source', 'target'))
-  expect_equal(nrow(network), nLinks)
-  expect_equal(unname(unlist(lapply(network, class))), c('character', 'character'))
+  bpnet <- bipartiteNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', verbose = 'TRUE')
+  expect_equal(names(bpnet), c('source', 'target'))
+  expect_equal(nrow(bpnet), nLinks)
+  expect_equal(unname(unlist(lapply(bpnet, class))), c('character', 'character'))
 
   ## Network with weighted, colored links
   networkData$edgeData <- rnorm(nLinks)
-  network <- bipartiteNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', linkWeightColumn = 'edgeData', linkColorScheme = 'posneg', verbose = 'TRUE')
-  expect_equal(names(network), c('source', 'target', 'linkWeight', 'linkColor'))
-  expect_equal(nrow(network), nLinks)
-  expect_equal(unname(unlist(lapply(network, class))), c('character', 'character', 'numeric', 'numeric'))
-  expect_true(all(unique(network$linkColor) %in% c(-1, 0, 1)))
+  bpnet <- bipartiteNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', linkWeightColumn = 'edgeData', linkColorScheme = 'posneg', verbose = 'TRUE')
+  expect_equal(names(bpnet), c('source', 'target', 'linkWeight', 'linkColor'))
+  expect_equal(nrow(bpnet), nLinks)
+  expect_equal(unname(unlist(lapply(bpnet, class))), c('character', 'character', 'numeric', 'numeric'))
+  expect_true(all(unique(bpnet$linkColor) %in% c(-1, 0, 1)))
 
+})
 
+test_that("Writing a bipartite network to json works as expected", {
+
+  nNodesColumn1 <- 30
+  nNodesColumn2 <- 50
+  nLinks <- 500
+
+  column1NodeIDs <- stringi::stri_rand_strings(nNodesColumn1, 5, '[A-Z]')
+  column2NodeIDs <- stringi::stri_rand_strings(nNodesColumn2, 5, '[A-Z]')
+
+  networkData <- data.frame(list(
+    source1 = sample(column1NodeIDs, nLinks, replace=T),
+    target1 = sample(column2NodeIDs, nLinks, replace=T)
+  ))
+  
+  ## The simple case with no edge weights
+  bpnet <- bipartiteNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', verbose = 'TRUE')
+
+  outJSON <- getNetworkJSON(bpnet, verbose=FALSE)
+  jsonList <- jsonlite::fromJSON(outJSON)
+  expect_equal(names(jsonList), c('nodes', 'links', 'column1NodeIDs', 'column2NodeIDs'))
+  expect_equal(jsonList$nodes$id, sort(unique(c(column1NodeIDs, column2NodeIDs))))
+  expect_equal(names(jsonList$links), c('source', 'target'))
+  expect_equal(nrow(jsonList$links), nLinks)
+  expect_equal(unname(unlist(lapply(jsonList$links, class))), c('character', 'character'))
+  expect_equal(jsonList$column1NodeIDs, sort(column1NodeIDs))
+  expect_equal(jsonList$column2NodeIDs, sort(column2NodeIDs))
+  
+
+  ## With link weights and colors
+  networkData$edgeData <- rnorm(nLinks)
+  bpnet <- bipartiteNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', linkWeightColumn = 'edgeData', linkColorScheme = 'posneg', verbose = 'TRUE')
+
+  outJSON <- getNetworkJSON(bpnet, verbose=FALSE)
+  jsonList <- jsonlite::fromJSON(outJSON)
+  expect_equal(names(jsonList), c('nodes', 'links', 'column1NodeIDs', 'column2NodeIDs'))
+  expect_equal(jsonList$nodes$id, sort(unique(c(column1NodeIDs, column2NodeIDs))))
+  expect_equal(names(jsonList$links), c('source', 'target', 'linkWeight', 'linkColor'))
+  expect_equal(nrow(jsonList$links), nLinks)
+  expect_equal(unname(unlist(lapply(jsonList$links, class))), c('character', 'character', 'character', 'character'))
+  expect_equal(jsonList$column1NodeIDs, sort(column1NodeIDs))
+  expect_equal(jsonList$column2NodeIDs, sort(column2NodeIDs))
 })

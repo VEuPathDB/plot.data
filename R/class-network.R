@@ -70,6 +70,36 @@ validateNetwork <- function(net, verbose) {
 #' @return character name of a tmp file w ext *.json
 #' @importFrom jsonlite toJSON
 #' @importFrom jsonlite prettify
+#' @export
 writeNetworkToJSON <- function(net, pattern=NULL, verbose = c(TRUE, FALSE) ) {
   print("hi ann :)")
+}
+
+# Just write the json part
+getNetworkJSON <- function(net, verbose = c(TRUE, FALSE)) {
+
+  networkAttributes <- attributes(net)
+  # Network json object should have nodes = Node[], links = Link[]
+
+  # Covert all columns to character
+  netChar <- data.frame(lapply(net, as.character))
+
+  # Extract the list of node ids
+  nodeList <- data.frame(id = networkAttributes$nodes)
+
+  obj <- list(
+    nodes = nodeList,
+    links = netChar
+  )
+
+  # Optional additional props if exist are column1NodeIDs and 2
+  if ('column1NodeIDs' %in% names(networkAttributes)) obj$column1NodeIDs <- networkAttributes$column1NodeIDs
+  if ('column2NodeIDs' %in% names(networkAttributes)) obj$column2NodeIDs <- networkAttributes$column2NodeIDs
+
+
+  # Covert to json string
+  json <- jsonlite::toJSON(obj, na=NULL)
+
+
+  return(json)
 }
