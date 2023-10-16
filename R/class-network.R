@@ -72,7 +72,20 @@ validateNetwork <- function(net, verbose) {
 #' @importFrom jsonlite prettify
 #' @export
 writeNetworkToJSON <- function(net, pattern=NULL, verbose = c(TRUE, FALSE) ) {
-  print("hi ann :)")
+  verbose <- veupathUtils::matchArg(verbose)
+
+  outJson <- getNetworkJSON(net, verbose)
+  if (is.null(pattern)) { 
+    pattern <- attr(net, 'class')[1]
+    if (is.null(pattern)) {
+      pattern <- 'file'
+    } 
+  }
+  outFileName <- basename(tempfile(pattern = pattern, tmpdir = tempdir(), fileext = ".json"))
+  write(outJson, outFileName)
+  veupathUtils::logWithTime(paste('New output file written:', outFileName), verbose)
+
+  return(outFileName)
 }
 
 # Just write the json part
