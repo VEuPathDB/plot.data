@@ -96,8 +96,13 @@ getNetworkJSON <- function(net, verbose = c(TRUE, FALSE)) {
   # Covert all columns to character
   netChar <- data.frame(lapply(net, as.character))
 
+  # Each source and target needs to be {id: string}!!!
+
   # Extract the list of node ids
   nodeList <- data.frame(id = networkAttributes$nodes)
+  netChar$source <- lapply(netChar$source, function(node) { return(list(id=jsonlite::unbox(node)))})
+  netChar$target <- lapply(netChar$target, function(node) { return(list(id=jsonlite::unbox(node)))})
+  print(head(netChar))
 
   obj <- list(
     nodes = nodeList,

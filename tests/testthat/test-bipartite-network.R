@@ -65,17 +65,18 @@ test_that("Bipartite network objects contain the correct link data", {
 
 test_that("Writing a bipartite network to json works as expected", {
 
-  nNodesColumn1 <- 30
-  nNodesColumn2 <- 50
-  nLinks <- 500
+  nNodesColumn1 <- length(letters)
+  nNodesColumn2 <- length(LETTERS)
 
-  column1NodeIDs <- stringi::stri_rand_strings(nNodesColumn1, 5, '[A-Z]')
-  column2NodeIDs <- stringi::stri_rand_strings(nNodesColumn2, 5, '[A-Z]')
+  column1NodeIDs <- letters
+  column2NodeIDs <- LETTERS
 
+  # Make terribly boring network
   networkData <- data.frame(list(
-    source1 = sample(column1NodeIDs, nLinks, replace=T),
-    target1 = sample(column2NodeIDs, nLinks, replace=T)
+    source1 = column1NodeIDs,
+    target1 = column2NodeIDs
   ))
+  nLinks <- nrow(networkData)
   
   ## The simple case with no edge weights
   bpnet <- bipartiteNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', verbose = 'TRUE')
@@ -85,8 +86,10 @@ test_that("Writing a bipartite network to json works as expected", {
   expect_equal(names(jsonList), c('nodes', 'links', 'column1NodeIDs', 'column2NodeIDs'))
   expect_equal(jsonList$nodes$id, sort(unique(c(column1NodeIDs, column2NodeIDs))))
   expect_equal(names(jsonList$links), c('source', 'target'))
+  expect_equal(names(jsonList$links$source), c('id'))
+  expect_equal(names(jsonList$links$target), c('id'))
   expect_equal(nrow(jsonList$links), nLinks)
-  expect_equal(unname(unlist(lapply(jsonList$links, class))), c('character', 'character'))
+  expect_equal(unname(unlist(lapply(jsonList$links, class))), c('data.frame', 'data.frame'))
   expect_equal(jsonList$column1NodeIDs, sort(column1NodeIDs))
   expect_equal(jsonList$column2NodeIDs, sort(column2NodeIDs))
   
@@ -100,8 +103,10 @@ test_that("Writing a bipartite network to json works as expected", {
   expect_equal(names(jsonList), c('nodes', 'links', 'column1NodeIDs', 'column2NodeIDs'))
   expect_equal(jsonList$nodes$id, sort(unique(c(column1NodeIDs, column2NodeIDs))))
   expect_equal(names(jsonList$links), c('source', 'target', 'linkWeight', 'linkColor'))
+  expect_equal(names(jsonList$links$source), c('id'))
+  expect_equal(names(jsonList$links$target), c('id'))
   expect_equal(nrow(jsonList$links), nLinks)
-  expect_equal(unname(unlist(lapply(jsonList$links, class))), c('character', 'character', 'character', 'character'))
+  expect_equal(unname(unlist(lapply(jsonList$links, class))), c('data.frame', 'data.frame', 'character', 'character'))
   expect_equal(jsonList$column1NodeIDs, sort(column1NodeIDs))
   expect_equal(jsonList$column2NodeIDs, sort(column2NodeIDs))
 })
