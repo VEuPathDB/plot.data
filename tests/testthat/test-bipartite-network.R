@@ -56,10 +56,10 @@ test_that("Bipartite network objects contain the correct link data", {
   ## Network with weighted, colored links
   networkData$edgeData <- rnorm(nLinks)
   bpnet <- bipartiteNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', linkWeightColumn = 'edgeData', linkColorScheme = 'posneg', verbose = 'TRUE')
-  expect_equal(names(bpnet), c('source', 'target', 'linkWeight', 'linkColor'))
+  expect_equal(names(bpnet), c('source', 'target', 'weight', 'color'))
   expect_equal(nrow(bpnet), nLinks)
   expect_equal(unname(unlist(lapply(bpnet, class))), c('character', 'character', 'numeric', 'numeric'))
-  expect_true(all(unique(bpnet$linkColor) %in% c(-1, 0, 1)))
+  expect_true(all(unique(bpnet$color) %in% c(-1, 0, 1)))
 
 })
 
@@ -102,7 +102,7 @@ test_that("Writing a bipartite network to json works as expected", {
   jsonList <- jsonlite::fromJSON(outJSON)
   expect_equal(names(jsonList), c('nodes', 'links', 'column1NodeIDs', 'column2NodeIDs'))
   expect_equal(jsonList$nodes$id, sort(unique(c(column1NodeIDs, column2NodeIDs))))
-  expect_equal(names(jsonList$links), c('source', 'target', 'linkWeight', 'linkColor'))
+  expect_equal(names(jsonList$links), c('source', 'target', 'weight', 'color'))
   expect_equal(names(jsonList$links$source), c('id'))
   expect_equal(names(jsonList$links$target), c('id'))
   expect_equal(nrow(jsonList$links), nLinks)

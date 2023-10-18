@@ -4,29 +4,23 @@ newBipartiteNetwork <- function(df = data.frame(),
                                 linkWeightColumn = NULL,
                                 nodeIDs = NULL,
                                 linkColorScheme = c('none', 'posneg'),
-                                nodeColorScheme = c('none', 'degree'),
                                 verbose = logical()
 ) {
 
-  # Create a data table from df
-  dt <- data.table::as.data.table(df)
-
   # Assume the source nodes are column 1, and the target are all in column 2.
-  column1NodeIDs <- sort(unique(dt[[sourceNodeColumn]]))
-  column2NodeIDs <- sort(unique(dt[[targetNodeColumn]]))
+  column1NodeIDs <- sort(unique(df[[sourceNodeColumn]]))
+  column2NodeIDs <- sort(unique(df[[targetNodeColumn]]))
 
   # TODO check that no nodes are in both cols
 
   # Create a basic network. We'll threshold the edges in here so we want to know about all the nodes 
   # before that happens. (add boolean removeIsolatedNodes and linkWeightThreshold fn i guess...)
-  net <- newNetwork(dt = dt,
+  net <- newNetwork(df = df,
                     sourceNodeColumn = sourceNodeColumn,
                     targetNodeColumn = targetNodeColumn,
                     linkWeightColumn = linkWeightColumn,
                     nodeIDs = nodeIDs,
                     linkColorScheme = linkColorScheme,
-                    nodeColorScheme = nodeColorScheme,
-                    directed = FALSE,
                     verbose = verbose,
                     class = 'bipartite'
   )
@@ -66,7 +60,6 @@ bipartiteNetwork <- function(df = data.frame(),
                             linkWeightColumn = NULL,
                             nodeIDs = NULL,
                             linkColorScheme = c('none', 'posneg'),
-                            nodeColorScheme = c('none', 'degree'),
                             verbose = logical()
 ) {
 
@@ -76,7 +69,6 @@ bipartiteNetwork <- function(df = data.frame(),
                               linkWeightColumn = linkWeightColumn,
                               nodeIDs = nodeIDs,
                               linkColorScheme = linkColorScheme,
-                              nodeColorScheme = nodeColorScheme,
                               verbose = verbose
   )
 
