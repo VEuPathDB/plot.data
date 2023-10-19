@@ -11,19 +11,34 @@ bipartiteNetwork(
   linkWeightColumn = NULL,
   nodeIDs = NULL,
   linkColorScheme = c("none", "posneg"),
-  nodeColorScheme = c("none", "degree"),
   verbose = logical()
 )
 }
 \arguments{
-\item{.pd}{a data.table to convert to json and write to a tmp file}
+\item{df}{a data.frame of links, with one row per link. One column should contain the link source node, and one
+column should contain the link target node. It will be assumed that all nodes in the source column are in one group, 
+and that all nodes in the target column are in the second group.}
 
-\item{pattern}{optional tmp file prefix}
+\item{sourceNodeColumn}{string defining the name of the column in df that corresponds to the source nodes}
+
+\item{targetNodeColumn}{string defining the name of the column in df that corresponds to the target nodes}
+
+\item{linkWeightColumn}{optional string defining the name of the column in df that corresponds to the weight of the link}
+
+\item{nodeIDs}{optional string array. Should contain at least all nodes in the sourceNodeColumn and targetNodeColumn of df.
+May also include nodes that do not have any links (isolated nodes). If not specified, the complete list of network nodes
+will be the union of those in the sourceNodeColumn and targetNodeColumn.}
+
+\item{linkColorScheme}{string denoting the type of coloring scheme to apply to edges. Options are 'none' (default) which
+which does not attempt to assign a color to links. The 'posneg' option assigns the link color to the sign of the linkWeightColumn.
+If linkColorSheme is not 'none', a linkWeightColumn must be specified.}
+
+\item{verbose}{boolean to determine if time-stamped logging is desired.}
 }
 \value{
 bipartite network
 }
 \description{
-This function returns the name of a json file which it has
-written a data.table object out to.
+This function creates an object that represents a bipartite network. A bipartite network is a network
+in which there are two groups (columns) of nodes, and links only connect nodes in separate groups (columns).
 }

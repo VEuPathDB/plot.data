@@ -7,14 +7,16 @@
 writeNetworkToJSON(net, pattern = NULL, verbose = c(TRUE, FALSE))
 }
 \arguments{
+\item{net}{a data.table to convert to json and write to a tmp file}
+
 \item{pattern}{optional tmp file prefix}
 
-\item{.pd}{a data.table to convert to json and write to a tmp file}
+\item{verbose}{boolean that declares if logging is desired}
 }
 \value{
 character name of a tmp file w ext *.json
 }
 \description{
 This function returns the name of a json file which it has
-written a data.table object out to.
+written a network object out to.
 }
