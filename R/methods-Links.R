@@ -11,13 +11,13 @@ setGeneric("color", function(object) standardGeneric("color"))
 setGeneric("color<-", function(object, value) standardGeneric("color<-"))
 
 setMethod("source", "Link", function(object) object@source)
-setMethod("source<-", "Link", function(object, value) {object@source <- value; object})
+setMethod("source<-", "Link", function(object, value) {object@source <- value; validObject(object); object})
 setMethod("target", "Link", function(object) object@target)
-setMethod("target<-", "Link", function(object, value) {object@target <- value; object})
+setMethod("target<-", "Link", function(object, value) {object@target <- value; validObject(object); object})
 setMethod("weight", "Link", function(object) object@weight)
-setMethod("weight<-", "Link", function(object, value) {object@weight <- value; object})
+setMethod("weight<-", "Link", function(object, value) {object@weight <- value; validObject(object); object})
 setMethod("color", "Link", function(object) object@color)
-setMethod("color<-", "Link", function(object, value) {object@color <- value; object})
+setMethod("color<-", "Link", function(object, value) {object@color <- value; validObject(object); object})
 
 
 # For LinkLists, let's return vectors of data from the nodes
@@ -29,8 +29,4 @@ setGeneric("getWeights", function(object) standardGeneric("getWeights"))
 setMethod("getWeights", "LinkList", function(object) unlist(lapply(object, function(x) weight(x))))
 setGeneric("getColors", function(object) standardGeneric("getColors"))
 setMethod("getColors", "LinkList", function(object) unlist(lapply(object, function(x) color(x))))
-
-
-
-# Remove redundant links?
 

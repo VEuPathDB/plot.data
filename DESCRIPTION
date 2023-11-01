@@ -60,6 +60,7 @@ Collate:
     'group.R'
     'methods-ContingencyTable.R'
     'methods-Links.R'
+    'methods-Nodes.R'
     'panel.R'
     'plot.data-package.R'
     'utils-bin.R'

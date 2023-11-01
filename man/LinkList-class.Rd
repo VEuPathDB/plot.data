@@ -4,19 +4,7 @@
 \name{LinkList-class}
 \alias{LinkList-class}
 \alias{LinkList}
-\title{Link Data}
+\title{Link List}
 \description{
 A class for representing links in a network
 }
-\section{Slots}{
-
-\describe{
-\item{\code{data}}{data.frame}
-
-\item{\code{sourceNodeColumn}}{character defining the name of the column in data that corresponds to the source node}
-
-\item{\code{targetNodeColumn}}{character defining the name of the column in data that corresponds to the target node}
-
-\item{\code{weightColumn}}{optional character defining the name of the column in data that corresponds to the weight of the link}
-}}
-
