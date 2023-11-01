@@ -37,15 +37,19 @@ Link <- setClass("Link",
 )
 
 
+check_link_list <- function(object) {
 
-#' Link Data
+  errors <- character()
+  
+  # If one link has a color, all must have colors
+
+  return(if (length(errors) == 0) TRUE else errors) 
+
+}
+
+#' Link List
 #' 
 #' A class for representing links in a network
-#' 
-#' @slot data data.frame
-#' @slot sourceNodeColumn character defining the name of the column in data that corresponds to the source node
-#' @slot targetNodeColumn character defining the name of the column in data that corresponds to the target node
-#' @slot weightColumn optional character defining the name of the column in data that corresponds to the weight of the link
 #' 
 #' @name LinkList-class
 #' @rdname LinkList-class
@@ -55,7 +59,8 @@ LinkList <- setClass("LinkList",
   contains = "SimpleList",
   prototype = prototype(
     elementType = "Link"
-  )
+  ),
+  validity = check_link_list
 )
 
 

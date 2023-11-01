@@ -21,7 +21,16 @@ setMethod("color<-", "Link", function(object, value) {object@color <- value; obj
 
 
 # For LinkLists, let's return vectors of data from the nodes
-setMethod("source", "LinkList", function(object) lapply(object, function(x) source(x)))
-setMethod("target", "LinkList", function(object) lapply(object, function(x) target(x)))
-setMethod("weight", "LinkList", function(object) lapply(object, function(x) weight(x)))
-setMethod("color", "LinkList", function(object) lapply(object, function(x) color(x)))
+setGeneric("getSourceNodes", function(object) standardGeneric("getSourceNodes"))
+setMethod("getSourceNodes", "LinkList", function(object) lapply(object, function(x) source(x)))
+setGeneric("getTargetNodes", function(object) standardGeneric("getTargetNodes"))
+setMethod("getTargetNodes", "LinkList", function(object) lapply(object, function(x) target(x)))
+setGeneric("getWeights", function(object) standardGeneric("getWeights"))
+setMethod("getWeights", "LinkList", function(object) unlist(lapply(object, function(x) weight(x))))
+setGeneric("getColors", function(object) standardGeneric("getColors"))
+setMethod("getColors", "LinkList", function(object) unlist(lapply(object, function(x) color(x))))
+
+
+
+# Remove redundant links?
+

@@ -32,3 +32,42 @@ test_that("Link methods work", {
   expect_equal(weight(link), 10)
 
 })
+
+test_that("LinkList methods work", {
+
+  # Create some nodes
+  nodeA <- Node(
+    id = 'A'
+  )
+  nodeB <- Node(
+    id = 'B'
+  )
+  nodeC <- Node(
+    id = 'C'
+  )
+
+  # Create some links
+  link1 <- Link(source = nodeA, target = nodeB)
+  link2 <- Link(source = nodeB, target = nodeC)
+  link3 <- Link(source = nodeC, target = nodeA)
+
+  linkList <- LinkList(S4Vectors::SimpleList(c(link1, link2, link3)))
+  expect_equal(length(linkList), 3)
+  expect_equal(getSourceNodes(linkList), list(nodeA, nodeB, nodeC))
+  expect_equal(getTargetNodes(linkList), list(nodeB, nodeC, nodeA))
+  expect_equal(getWeights(linkList), c(1, 1, 1))
+  expect_equal(getColors(linkList), c(NULL, NULL, NULL))
+
+
+  # Create some more links
+  link1 <- Link(source = nodeA, target = nodeB, weight = 2, color = 'red')
+  link2 <- Link(source = nodeB, target = nodeC, weight = 0.1, color = 'blue')
+  link3 <- Link(source = nodeC, target = nodeA, weight = 3, color = 'green')
+
+  linkList <- LinkList(S4Vectors::SimpleList(c(link1, link2, link3)))
+  expect_equal(length(linkList), 3)
+  expect_equal(getSourceNodes(linkList), list(nodeA, nodeB, nodeC))
+  expect_equal(getTargetNodes(linkList), list(nodeB, nodeC, nodeA))
+  expect_equal(getWeights(linkList), c(2, 0.1, 3))
+  expect_equal(getColors(linkList), c('red', 'blue', 'green'))
+})
