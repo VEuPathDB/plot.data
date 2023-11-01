@@ -7,9 +7,8 @@
 \title{Network}
 \description{
 A class for representing networks. A network is composed of nodes and links (edges, connections, etc.). A link is represented
-as a pair of nodes, with optional attributes such as weight. To represent a network, we need the list of links in the network, and we need
-to know if there are any nodes that do not have any links (since that means will not show up in the list of links). Additionally,
-the network can have other properties such as direction, multiple levels, colored nodes, and more (all coming soon!)
+as a pair of nodes, with optional attributes such as weight (see Link). To represent a network, we need both the list of links in the network and a list of nodes
+in case some nodes have no links. A network can also have properties such as directedness, levels, colors, etc. (coming soon).
 }
 \section{Slots}{
 

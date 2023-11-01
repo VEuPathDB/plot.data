@@ -1,58 +1,52 @@
-test_that("Network objects have the correct attributes", {
+test_that("Networks can be created and their properties accessed", {
 
-  nNodes <- 50
-  nLinks <- 500
-
-  nodeIDs <- unique(stringi::stri_rand_strings(nNodes, 5, '[A-Z]'))
-  nNodes <- length(nodeIDs)
-
-  networkData <- data.frame(
-    source1 = sample(nodeIDs, nLinks, replace=T),
-    target1 = sample(nodeIDs, nLinks, replace=T)
+  # Create some nodes
+  nodeA <- Node(
+    id = 'A'
+  )
+  nodeB <- Node(
+    id = 'B'
+  )
+  nodeC <- Node(
+    id = 'C'
   )
 
-  ## The simplest case - a binary network with no colors or isolated nodes
-  network <- newNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', verbose = 'TRUE')
-  attributes <- attributes(network)
-  expect_equal(attributes$class, c('network', 'data.table', 'data.frame'))
-  expect_equal(attributes$nodes, sort(unique(nodeIDs)))
-  expect_equal(attributes$linkColorScheme, 'none')
+  # Create some edges
+  link1 <- Link(source = nodeA, target = nodeB, color = 1, weight = 10)
+  link2 <- Link(source = nodeB, target = nodeC, color = 2, weight = 20)
+  link3 <- Link(source = nodeC, target = nodeA, color = 3, weight = 30)
 
-  ## Network with edge weights and colors
-  networkData$edgeData <- rnorm(nLinks)
-  network <- newNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', linkWeightColumn = 'edgeData', linkColorScheme = 'posneg', verbose = 'TRUE')
-  attributes <- attributes(network)
-  expect_equal(attributes$class, c('network', 'data.table', 'data.frame'))
-  expect_equal(attributes$nodes, sort(unique(nodeIDs)))
-  expect_equal(attributes$linkColorScheme, 'posneg')
+  # Create a network
+  net <- Network(links = LinkList(c(link1, link2, link3)), nodes = NodeList(c(nodeA, nodeB, nodeC)))
+
+  expect_equal(getNodes(net), NodeList(c(nodeA, nodeB, nodeC)))
+  expect_equal(getLinks(net), LinkList(c(link1, link2, link3)))
+  expect_equal(getLinkColorScheme(net), 'none')
+
 
 })
 
-test_that("Networks objects contain the correct link data", {
+test_that("We cannot make inappropriate networks", {
 
-  nNodes <- 50
-  nLinks <- 500
-
-  nodeIDs <- stringi::stri_rand_strings(nNodes, 5, '[A-Z]')
-
-  networkData <- data.frame(
-    source1 = sample(nodeIDs, nLinks, replace=T),
-    target1 = sample(nodeIDs, nLinks, replace=T)
+  # Create some nodes
+  nodeA <- Node(
+    id = 'A'
+  )
+  nodeB <- Node(
+    id = 'B'
+  )
+  nodeC <- Node(
+    id = 'C'
   )
 
-  ## The simplest case - a binary network with no colors or isolated nodes
-  network <- newNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', verbose = 'TRUE')
-  expect_equal(names(network), c('source', 'target'))
-  expect_equal(nrow(network), nLinks)
-  expect_equal(unname(unlist(lapply(network, class))), c('character', 'character'))
+  # Create links
+  link1 <- Link(source = nodeA, target = nodeB, color = 1, weight = 10)
+  link2 <- Link(source = nodeB, target = nodeC, color = 2, weight = 20)
 
-  ## Network with weighted, colored links
-  networkData$edgeData <- rnorm(nLinks)
-  network <- newNetwork(df = networkData, sourceNodeColumn = 'source1', targetNodeColumn = 'target1', linkWeightColumn = 'edgeData', linkColorScheme = 'posneg', verbose = 'TRUE')
-  expect_equal(names(network), c('source', 'target', 'weight', 'color'))
-  expect_equal(nrow(network), nLinks)
-  expect_equal(unname(unlist(lapply(network, class))), c('character', 'character', 'numeric', 'numeric'))
-  expect_true(all(unique(network$color) %in% c(-1, 0, 1)))
+  # Create a network with a node in links that isn't in nodes
+  expect_error(Network(links = LinkList(c(link1, link2)), nodes = NodeList(c(nodeB, nodeC))))
 
-
+  # Create a network with an invalid linkColorScheme
+  expect_error(Network(links = LinkList(c(link1, link2)), nodes = NodeList(c(nodeA, nodeB)), linkColorScheme = 'nope'))
+  
 })
