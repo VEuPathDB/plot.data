@@ -3,11 +3,7 @@
 
 # Accessors for fanciness
 setGeneric("id", function(object) standardGeneric("id"))
-setGeneric("color", function(object) standardGeneric("color"))
-setGeneric("weight", function(object) standardGeneric("weight"))
 setGeneric("id<-", function(object, value) standardGeneric("id<-"))
-setGeneric("color<-", function(object, value) standardGeneric("color<-"))
-setGeneric("weight<-", function(object, value) standardGeneric("weight<-"))
 
 setMethod("id", "Node", function(object) object@id)
 setMethod("color", "Node", function(object) object@color)

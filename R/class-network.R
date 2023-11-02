@@ -32,6 +32,7 @@ check_network <- function(object) {
 #' 
 #' @name Network-class
 #' @rdname Network-class
+#' @include class-Link.R
 #' @export
 Network <- setClass("Network", 
   representation(

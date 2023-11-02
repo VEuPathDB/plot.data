@@ -71,3 +71,46 @@ test_that("LinkList methods work", {
   expect_equal(getWeights(linkList), c(2, 0.1, 3))
   expect_equal(getColors(linkList), c('red', 'blue', 'green'))
 })
+
+test_that("Links cannot be created from nonsensical inputs", {
+
+  # Create nodes
+  nodeA <- Node(
+    id = 'A'
+  )
+  nodeB <- Node(
+    id = 'B'
+  )
+
+  expect_error(Link(source = nodeA, target = nodeB, color = false, weight = 10))
+})
+
+test_that("LinkLists cannot be created from nonsensical inputs", {
+
+  # Create nodes
+  nodeA <- Node(
+    id = 'A'
+  )
+  nodeB <- Node(
+    id = 'B'
+  )
+  nodeC <- Node(
+    id = 'C'
+  )
+  
+  # Create links
+  link1 <- Link(source = nodeA, target = nodeB)
+  link2 <- Link(source = nodeB, target = nodeC)
+  link3 <- Link(source = nodeC, target = nodeA, color='red')
+
+  # If one link has a color, all must have colors
+  expect_error(LinkList(S4Vectors::SimpleList(c(link1, link2, link3))))
+
+  # Link colors must be of the same class
+  color(link2) <- 2
+  expect_error(LinkList(S4Vectors::SimpleList(c(link1, link2, link3))))
+
+  # If one link has a weight, all must have weights
+  weight(link3) <- 100
+  expect_error(LinkList(S4Vectors::SimpleList(c(link1, link2, link3))))
+})

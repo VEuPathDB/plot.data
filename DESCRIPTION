@@ -42,11 +42,11 @@ Depends:
     R (>= 2.10)
 Collate: 
     'bin.R'
-    'class-ContingencyTable.R'
     'class-Node.R'
     'class-Link.R'
     'class-network.R'
-    'class-network-bipartite.R'
+    'class-BipartiteNetwork.R'
+    'class-ContingencyTable.R'
     'class-plotdata-bar.R'
     'class-plotdata-beeswarm.R'
     'class-plotdata-box.R'

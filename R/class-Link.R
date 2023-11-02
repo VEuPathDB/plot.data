@@ -4,11 +4,15 @@ check_link <- function(object) {
 
   errors <- character()
 
+  # Link color must be a string or number
+  if (!is.null(object@color) & !is.character(object@color) & !is.numeric(object@color)) {
+    errors <- c(errors, "Link color must be a string or number")
+  }
+
   return(if (length(errors) == 0) TRUE else errors) 
 }
 
 
-# i hate this
 #' Link
 #' 
 #' Represent one singular link. A link has a source, and a target. It may be directed or undirected.
@@ -42,6 +46,24 @@ check_link_list <- function(object) {
   errors <- character()
   
   # If one link has a color, all must have colors
+  if (any(unlist(lapply(object, function(x) {!is.null(color(x))})))) {
+    if (all(unlist(lapply(object, function(x) {!is.null(color(x))})))) {
+      errors <- c(errors, "If one link has a color, all links must have a color")
+    }
+  }
+
+  # Link colors must be all the same class
+  if (unique(unlist(lapply(ll, function(x) {class(color(x))})) > 1)) {
+    errors <- c(errors, "Link colors must be all the same class")
+  }
+
+  # If one link has a weight, all must have weights
+  if (any(unlist(lapply(object, function(x) {!is.null(weight(x))})))) {
+    if (all(unlist(lapply(object, function(x) {!is.null(weight(x))})))) {
+      errors <- c(errors, "If one link has a weight, all links must have a weight")
+    }
+  }
+
 
   return(if (length(errors) == 0) TRUE else errors) 
 
@@ -62,10 +84,3 @@ LinkList <- setClass("LinkList",
   ),
   validity = check_link_list
 )
-
-
-### To Do:
-## - LinkList needs a method assignLinkColors() to assign colors to links. Could take LinkList or Network i guess
-## - i think all the coloring should go in the Network. Coloring edges or nodes could depend on edges or nodes, so ...
-## - validation
-

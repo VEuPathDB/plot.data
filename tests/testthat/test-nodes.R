@@ -65,3 +65,35 @@ test_that("NodeList methods work", {
 
 
 })
+
+test_that("We cannot make nonsensical nodes", {
+
+  expect_error(Node(id = FALSE))
+  expect_error(Node(id = 10))
+  expect_error(Node(id = 'A', color = FALSE))
+  expect_error(Node(id = 'A', weight = '10'))
+})
+
+
+test_that("We cannot make nonsensical NodeLists", {
+
+ # Create some nodes
+  nodeA <- Node(
+    id = 'A'
+  ) 
+  nodeB <- Node(
+    id = 'B',
+    color = 'red'
+  )
+
+  # If one node has a color, all must have colors
+  expect_error(NodeList(S4Vectors::SimpleList(c(nodeA, nodeB))))
+
+  # Nodes must have the same class of colors
+  color(nodeA) <- 1
+  expect_error(NodeList(S4Vectors::SimpleList(c(nodeA, nodeB))))
+
+  # If one node has a weight, all much have weights
+  weight(nodeA) <- 100
+  expect_error(NodeList(S4Vectors::SimpleList(c(nodeA, nodeB))))
+})
