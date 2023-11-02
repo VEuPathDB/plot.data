@@ -10,8 +10,42 @@ setGeneric("getLinkColorScheme", function(object) standardGeneric("getLinkColorS
 setMethod("getLinkColorScheme", "Network", function(object) object@linkColorScheme)
 # No setters! Once created, a network should only be updated via network methods
 
-# Remove isolated nodes
+
+## General network methods
+
 # Get isolated nodes
+setGeneric("getIsolatedNodes", function(net) standardGeneric("getIsolatedNodes"))
+setMethod("getIsolatedNodes", "Network", function(net) {
+  nodes <- getNodes(net)
+  links <- getLinks(net)
+
+  nodesWithLinks <- NodeList(union(getSourceNodes(links), getTargetNodes(links)))
+  isolatedNodeIds <- setdiff(getNodeIds(nodes), getNodeIds(nodesWithLinks))
+  isolatedNodes <- NodeList(nodes[which(getNodeIds(nodes) %in% isolatedNodeIds)])
+
+  return(isolatedNodes)
+})
+
+
+# Remove isolated nodes
+setGeneric("pruneIsolatedNodes", function(net, verbose = c(TRUE, FALSE)) standardGeneric("pruneIsolatedNodes"))
+setMethod("pruneIsolatedNodes", "Network", function(net, verbose = c(TRUE, FALSE)) {
+  verbose <- veupathUtils::matchArg(verbose)
+  nodes <- getNodes(net)
+  isolatedNodeIds <- getNodeIds(getIsolatedNodes(net))
+
+  if (length(isolatedNodeIds) > 0) {
+    net@nodes <- nodes[which(!getNodeIds(nodes) %in% isolatedNodeIds)]
+    veupathUtils::logWithTime(paste('Found and removed', length(isolatedNodeIds), 'isolated nodes.'), verbose)
+  } else {
+    veupathUtils::logWithTime('No isolated nodes found.', verbose)
+  }
+
+  validObject(net)
+  return(net)
+})
+
+
 # Remove redundant links
 # Remove redundant nodes
 # Get Degree list

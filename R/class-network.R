@@ -14,6 +14,11 @@ check_network <- function(object) {
     errors <- c(errors, 'linkColorScheme must be one of "none" or "posneg"')
   }
 
+  # Check that there are no duplicate nodes
+  if (length(unique(getNodeIds(object@nodes))) != length(getNodeIds(object@nodes))) {
+    errors <- c(errors, 'Duplicate node ids found. Node ids must be unique.')
+  }
+
 
   return(if (length(errors) == 0) TRUE else errors)
 }
