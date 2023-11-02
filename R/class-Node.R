@@ -45,24 +45,25 @@ check_node_list <- function(object) {
 
   errors <- character()
 
-  # If one node has a color, all must have colors
   if (any(unlist(lapply(object, function(x) {!is.null(color(x))})))) {
-    if (all(unlist(lapply(object, function(x) {!is.null(color(x))})))) {
+    # If one node has a color, all must have colors
+    if (!all(unlist(lapply(object, function(x) {!is.null(color(x))})))) {
       errors <- c(errors, "If one node has a color, all nodes must have a color")
+    }
+
+    # Node colors must be all the same class
+    if (length(unique(unlist(lapply(object, function(x) {class(color(x))})))) > 1) {
+      errors <- c(errors, "Node colors must be all the same class")
     }
   }
 
   # If one node has a weight, all must have weights
   if (any(unlist(lapply(object, function(x) {!is.null(weight(x))})))) {
-    if (all(unlist(lapply(object, function(x) {!is.null(weight(x))})))) {
+    if (!all(unlist(lapply(object, function(x) {!is.null(weight(x))})))) {
       errors <- c(errors, "If one node has a weight, all nodes must have a weight")
     }
   }
 
-  # Node colors must be all the same class
-  if (unique(unlist(lapply(object, function(x) {class(color(x))})) > 1)) {
-    errors <- c(errors, "Node colors must be all the same class")
-  }
 
   return(if (length(errors) == 0) TRUE else errors)
 }

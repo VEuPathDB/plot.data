@@ -5,8 +5,8 @@ test_that("Node methods work", {
     id = 'A'
   )
   expect_equal(id(nodeA), 'A')
-  expect_equal(color(nodeA), character())
-  expect_equal(weight(nodeA), numeric())
+  expect_equal(color(nodeA), NULL)
+  expect_equal(weight(nodeA), NULL)
 
   nodeB <- Node(
     id = 'B',
@@ -35,8 +35,8 @@ test_that("NodeList methods work", {
   nodeList <- NodeList(S4Vectors::SimpleList(c(nodeA, nodeB, nodeC)))
   expect_equal(length(nodeList), 3)
   expect_equal(getNodeIds(nodeList), c('A', 'B', 'C'))
-  expect_equal(getWeights(nodeList), c(numeric(), numeric(), numeric()))
-  expect_equal(getColors(nodeList), c(character(), character(), character()))
+  expect_equal(getWeights(nodeList), c(NULL, NULL, NULL))
+  expect_equal(getColors(nodeList), c(NULL, NULL, NULL))
 
 
   # Create more interesting nodes
