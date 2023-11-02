@@ -25,7 +25,7 @@ check_network <- function(object) {
 #' as a pair of nodes, with optional attributes such as weight (see Link). To represent a network, we need both the list of links in the network and a list of nodes
 #' in case some nodes have no links. A network can also have properties such as directedness, levels, colors, etc. (coming soon).
 #' 
-#' @slot links LinkList object
+#' @slot links LinkList object defining the links in the network.
 #' @slot nodes NodeList object defining the nodes in the network. Some nodes may not have any links.
 #' @slot linkColorScheme string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.
 #' Use a method assignLinkColors() to assign colors to links and set this slot's value.

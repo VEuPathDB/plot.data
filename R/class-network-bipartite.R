@@ -1,98 +1,50 @@
-newBipartiteNetwork <- function(df = data.frame(),
-                                sourceNodeColumn = character(),
-                                targetNodeColumn = character(),
-                                linkWeightColumn = NULL,
-                                nodeIDs = NULL,
-                                linkColorScheme = c('none', 'posneg'),
-                                verbose = logical()
-) {
+check_bipartite_network <- function(object) {
 
-  # Assume the source nodes are column 1, and the target are column 2.
-  column1NodeIDs <- sort(unique(df[[sourceNodeColumn]]))
-  column2NodeIDs <- sort(unique(df[[targetNodeColumn]]))
+  errors <- character()
 
-  # Create a network
-  net <- newNetwork(df = df,
-                    sourceNodeColumn = sourceNodeColumn,
-                    targetNodeColumn = targetNodeColumn,
-                    linkWeightColumn = linkWeightColumn,
-                    nodeIDs = nodeIDs,
-                    linkColorScheme = linkColorScheme,
-                    verbose = verbose,
-                    class = 'bipartite'
-  )
-
-  # Add bipartite network attributes
-  attr <- attributes(net)
-  attr$column1NodeIDs <- column1NodeIDs
-  attr$column2NodeIDs <- column2NodeIDs
-
-  veupathUtils::setAttrFromList(net, attr)
-  net <- validateNetwork(net, verbose)
-  veupathUtils::logWithTime('Network object successfully created.', verbose)
-
-  return(net)
-}
-
-validateBipartiteNetwork <- function(bpnet, verbose) {
-
-  networkAttributes <- attributes(bpnet)
-  
-  # Ensure no node is in both columns
-  if (any(networkAttributes$column1NodeIDs %in% networkAttributes$column2NodeIDs)) {
-    stop('Nodes cannot reside in both columns of a bipartite network')
+  # Ensure that no node is in both columns
+  if (length(intersect(object@column1NodeIDs, object@column2NodeIDs)) > 0) {
+    errors <- c(errors, 'Bipartite networks cannot have nodes in both columns.')
   }
 
-  class <- attr(bpnet, 'class')
-  stopifnot(is.character(class))
+  # Check that all nodes are in at least one of the columns
+  if (!all(getNodeIds(object@nodes) %in% c(object@column1NodeIDs, object@column2NodeIDs))) {
+    errors <- c(errors, 'Found a node with a link that does not belong to either column. All nodes must exist in exactly one of the two columns in a bipartite network.')
+  }
 
-  veupathUtils::logWithTime("Bipartite network object validated.", verbose)
-
-  return(net)
+  return(if (length(errors) == 0) TRUE else errors)
 }
 
-
-
-#' Create bipartite network
-#'
-#' This function creates an object that represents a bipartite network. A bipartite network is a network
-#' in which there are two groups (columns) of nodes, and links only connect nodes in separate groups (columns).
-#' @param df a data.frame of links, with one row per link. One column should contain the link source node, and one
-#' column should contain the link target node. It will be assumed that all nodes in the source column are in one group, 
-#' and that all nodes in the target column are in the second group.
-#' @param sourceNodeColumn string defining the name of the column in df that corresponds to the source nodes
-#' @param targetNodeColumn string defining the name of the column in df that corresponds to the target nodes
-#' @param linkWeightColumn optional string defining the name of the column in df that corresponds to the weight of the link
-#' @param nodeIDs optional string array. Should contain at least all nodes in the sourceNodeColumn and targetNodeColumn of df.
-#' May also include nodes that do not have any links (isolated nodes). If not specified, the complete list of network nodes
-#' will be the union of those in the sourceNodeColumn and targetNodeColumn.
-#' @param linkColorScheme string denoting the type of coloring scheme to apply to edges. Options are 'none' (default) which
-#' which does not attempt to assign a color to links. The 'posneg' option assigns the link color to the sign of the linkWeightColumn.
-#' If linkColorSheme is not 'none', a linkWeightColumn must be specified.
-#' @param verbose boolean to determine if time-stamped logging is desired.
-#' @return bipartite network
-#' @export
-bipartiteNetwork <- function(df = data.frame(),
-                            sourceNodeColumn = character(),
-                            targetNodeColumn = character(),
-                            linkWeightColumn = NULL,
-                            nodeIDs = NULL,
-                            linkColorScheme = c('none', 'posneg'),
-                            verbose = logical()
-) {
-
-  bpnet <- newBipartiteNetwork(df = df,
-                              sourceNodeColumn = sourceNodeColumn,
-                              targetNodeColumn = targetNodeColumn,
-                              linkWeightColumn = linkWeightColumn,
-                              nodeIDs = nodeIDs,
-                              linkColorScheme = linkColorScheme,
-                              verbose = verbose
-  )
-
-  return(bpnet)
-
-}
-
-
-
+#' Bipartite Network 
+#' 
+#' The bipartite network class represents data in the form of a network with two distinct groups of nodes
+#' in which nodes connect only with nodes from the other group. In other words, there are only inter-group
+#' links, no intra-group links. The two groups of nodes are commonly displayed as two columns of nodes.
+#' Bipartite networks can have any property of a regular network, but they also designate the node ids
+#' that belong to each column (group).
+#' 
+#' @slot links LinkList object defining the links in the network.
+#' @slot nodes NodeList object defining the nodes in the network. Some nodes may not have any links.
+#' @slot linkColorScheme string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.
+#' Use a method assignLinkColors() to assign colors to links and set this slot's value.
+#' @slot column1NodeIDs character vector listing the IDs of the nodes in the first column
+#' @slot column2NodeIDs character vector listing the IDs of the nodes in the second column
+#' 
+#' @name BipartiteNetwork-class
+#' @rdname BipartiteNetwork-class
+#' @include class-network.R
+#' @export 
+BipartiteNetwork <- setClass("BipartiteNetwork", 
+  contains = "Network",
+  representation(
+    column1NodeIDs = "character",
+    column2NodeIDs = "character"
+  ), prototype = prototype(
+    links = LinkList(),
+    nodes = NodeList(),
+    linkColorScheme = 'none',
+    column1NodeIDs = character(),
+    column2NodeIDs = character()
+  ),
+  validity = check_bipartite_network
+)

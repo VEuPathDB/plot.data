@@ -13,7 +13,7 @@ in case some nodes have no links. A network can also have properties such as dir
 \section{Slots}{
 
 \describe{
-\item{\code{links}}{LinkList object}
+\item{\code{links}}{LinkList object defining the links in the network.}
 
 \item{\code{nodes}}{NodeList object defining the nodes in the network. Some nodes may not have any links.}
 
