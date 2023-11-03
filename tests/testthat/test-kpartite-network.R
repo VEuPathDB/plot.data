@@ -1,4 +1,4 @@
-test_that("Bipartite networks can be created", {
+test_that("k-partite networks can be created", {
   # Create nodes
   nodeA <- Node(
     id = 'A'
@@ -15,16 +15,15 @@ test_that("Bipartite networks can be created", {
   link2 <- Link(source = nodeB, target = nodeC, color = 2, weight = 20)
   link3 <- Link(source = nodeC, target = nodeA, color = 3, weight = 30)
 
-  # Create columns
-  col1IDs <- c('A', 'B')
-  col2IDs <- c('C')
+  # Create partitions
+  partition1IDs <- c('A', 'B')
+  partition2IDs <- c('C')
 
-  # Create bipartite network
-  bpnet <- BipartiteNetwork(
+  # Create k-partite network
+  bpnet <- KPartiteNetwork(
     links = LinkList(c(link1, link2, link3)),
     nodes = NodeList(c(nodeA, nodeB, nodeC)),
-    column1NodeIDs = col1IDs,
-    column2NodeIDs = col2IDs
+    partitions = list(partition1IDs, partition2IDs)
   )
 
   expect_equal(getNodes(bpnet), NodeList(c(nodeA, nodeB, nodeC)))
@@ -33,7 +32,7 @@ test_that("Bipartite networks can be created", {
 
 })
 
-test_that("Bipartite networks cannot be created from nonsensical inputs", {
+test_that("k-partite networks cannot be created from nonsensical inputs", {
 
   # Create nodes
   nodeA <- Node(
@@ -52,25 +51,23 @@ test_that("Bipartite networks cannot be created from nonsensical inputs", {
   link3 <- Link(source = nodeC, target = nodeA, color = 3, weight = 30) 
 
   # Create columns
-  col1IDs <- c('A', 'B', 'C')
-  col2IDs <- c('C') 
+  partition1IDs <- c('A', 'B', 'C')
+  partition2IDs <- c('C') 
 
   # Nodes can't be in both columns
-  expect_error(BipartiteNetwork(
+  expect_error(KPartiteNetwork(
     links = LinkList(c(link1, link2, link3)),
     nodes = NodeList(c(nodeA, nodeB, nodeC)),
-    column1NodeIDs = col1IDs,
-    column2NodeIDs = col2IDs
+    partitons = list(partition1IDs, partition2IDs)
   ))
 
   # All nodes must be in one of the columns
-  col1IDs <- c('A')
-  col2IDs <- c('C')
-  expect_error(BipartiteNetwork(
+  partition1IDs <- c('A')
+  partition2IDs <- c('C')
+  expect_error(KPartiteNetwork(
     links = LinkList(c(link1, link2, link3)),
     nodes = NodeList(c(nodeA, nodeB, nodeC)),
-    column1NodeIDs = col1IDs,
-    column2NodeIDs = col2IDs
+    partitons = list(partition1IDs, partition2IDs)
   ))
 
 })
