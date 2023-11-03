@@ -20,7 +20,9 @@ setMethod("color", "Link", function(object) object@color)
 setMethod("color<-", "Link", function(object, value) {object@color <- value; validObject(object); object})
 
 
-# For LinkLists, let's return vectors of data from the nodes
+# Additional methods
+# Link properties such as color are returned as vectors, while grabbing particular nodes from the
+# LinkList returns lists of nodes.
 setGeneric("getSourceNodes", function(object) standardGeneric("getSourceNodes"))
 setMethod("getSourceNodes", "LinkList", function(object) lapply(object, function(x) source(x)))
 setGeneric("getTargetNodes", function(object) standardGeneric("getTargetNodes"))

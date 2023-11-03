@@ -6,7 +6,7 @@ check_link <- function(object) {
 
   # Link color must be a string or number
   if (!is.null(object@color) & !is.character(object@color) & !is.numeric(object@color)) {
-    errors <- c(errors, "Link color must be a string or number")
+    errors <- c(errors, "Link color must be a string or number that represents a color or can be mapped to a color.")
   }
 
   return(if (length(errors) == 0) TRUE else errors) 
