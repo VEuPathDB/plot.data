@@ -306,6 +306,7 @@ validatePlotdata <- function(.pd) {
   
   #unique plot refs
   plotRefs <- unlist(lapply(as.list(variables), function(x) {x@plotReference@value}))
+  plotRefs <- plotRefs[!is.na(plotRefs)]
   if (length(plotRefs) != data.table::uniqueN(plotRefs)) stop("All PlotReferences must be unique in the provided VariableMetadataList.")
 
   # also check there is only one collection in variables
