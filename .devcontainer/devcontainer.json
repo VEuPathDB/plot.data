@@ -2,8 +2,9 @@
     "image": "ghcr.io/rocker-org/devcontainer/r-ver:4",
     "features": {
         "ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
-            "packages": "data.table,jsonlite,lubridate,magrittr,mgcv,moments,purrr,stats,stringi,zoo,veupathdb/veupathutils",
+            "packages": "data.table,jsonlite,lubridate,magrittr,mgcv,moments,purrr,stats,stringi,zoo,veupathdb/veupathutils,dotenv",
             "installSystemRequirements": true
         }
-    }
+    },
+    "postCreateCommand": "R -q -e 'dotenv::load_dot_env(file=\".dev/.env\")'"
 }
