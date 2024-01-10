@@ -1931,3 +1931,58 @@ test_that("box.dt() returns same shaped outputs for string cats and num cats.", 
   expect_equal(lapply(dt_string, function(x) {length(x[[1]])}), lapply(dt_num, function(x) {length(x[[1]])}))
   
 })
+
+
+
+test_that("empty plotReferences are ignored", {
+
+  df <- as.data.frame(testDF)
+
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'binA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat5', entityId = 'entity'),
+      # empty plotReference should be ignored
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL'))
+  ))
+
+  dt <- box.dt(df, variables, 'none', FALSE, computeStats = T)
+  # dt is the right shape, *doesnt* include cat5 in col names
+  expect_is(dt, 'data.table')
+  expect_equal(nrow(dt),12)
+  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'label', 'min', 'q1', 'median', 'q3', 'max', 'lowerfence', 'upperfence'))
+  statsTable <- statsTable(dt)
+  # statsTable is the right shape
+  expect_equal(nrow(statsTable), uniqueN(df$entity.binA)*uniqueN(df$entity.cat4))
+  expect_equal(ncol(statsTable), 7)
+  expect_equal(names(statsTable), c('entity.binA', 'entity.cat4', 'statistic', 'pvalue', 'parameter', 'method', 'statsError'))
+  expect_equal(class(statsTable$statistic), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$pvalue), c('scalar', 'numeric'))
+  expect_equal(class(statsTable$method), c('scalar', 'character'))
+  expect_equal(class(statsTable$statsError), c('scalar', 'character'))
+})
