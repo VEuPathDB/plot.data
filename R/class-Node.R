@@ -7,6 +7,13 @@ check_node <- function(object) {
     errors <- c(errors, "Node color must be a string or number")
   }
 
+  # If Node has x it must have y and vice versa
+  if (!is.null(object@x) & is.null(object@y)) {
+    errors <- c(errors, "If Node has x it must have y and vice versa")
+  } else if (is.null(object@x) & !is.null(object@y)) {
+    errors <- c(errors, "If Node has y it must have x and vice versa")
+  }
+
   # Node weight must be a number
   if (!is.null(object@weight) & !is.numeric(object@weight)) {
     errors <- c(errors, "Node weight must be a number")
@@ -21,6 +28,8 @@ check_node <- function(object) {
 #' A class for representing nodes in a network
 #' 
 #' @slot id string a unique identifier for the node
+#' @slot x numeric value indicating the x coordinate of the node. Optional.
+#' @slot y numeric value indicating the y coordinate of the node. Optional.
 #' @slot color string or numeric that determines the color of the node. Optional.
 #' @slot weight numeric value associated with the node, such as timestamp or other node-associated data. Optional.
 #' 
@@ -30,6 +39,8 @@ check_node <- function(object) {
 Node <- setClass("Node", 
   representation(
     id = "character",
+    x = "numeric",
+    y = "numeric",
     color = "ANY",
     weight = "ANY"
   ),
