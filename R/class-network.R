@@ -38,7 +38,8 @@ Network <- setClass("Network",
   representation(
     links = "LinkList",
     nodes = "NodeList",
-    linkColorScheme = "character"
+    linkColorScheme = "character",
+    variableMetadata = "VariableMetadataList"
   ), prototype = prototype(
     links = LinkList(),
     nodes = NodeList(),
