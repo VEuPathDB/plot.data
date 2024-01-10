@@ -5,4 +5,5 @@
             "packages": "data.table,jsonlite,lubridate,magrittr,mgcv,moments,purrr,stats,stringi,zoo,veupathdb/veupathutils",
             "installSystemRequirements": true
         }
+    }
 }
