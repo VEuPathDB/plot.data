@@ -28,6 +28,7 @@ check_network <- function(object) {
 #' @slot links LinkList object defining the links in the network.
 #' @slot nodes NodeList object defining the nodes in the network. Some nodes may not have any links.
 #' @slot linkColorScheme string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.
+#' @slot variableMapping veupathUtils::VariableMetadataList object defining the variable mappings in the network.
 #' Use a method assignLinkColors() to assign colors to links and set this slot's value.
 #' 
 #' @name Network-class
@@ -39,7 +40,7 @@ Network <- setClass("Network",
     links = "LinkList",
     nodes = "NodeList",
     linkColorScheme = "character",
-    variableMetadata = "VariableMetadataList"
+    variableMapping = "VariableMetadataList"
   ), prototype = prototype(
     links = LinkList(),
     nodes = NodeList(),
