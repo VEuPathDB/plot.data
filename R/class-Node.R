@@ -38,7 +38,7 @@ check_node <- function(object) {
 #' @export
 Node <- setClass("Node", 
   representation(
-    id = "character",
+    id = NodeId,
     x = "numeric",
     y = "numeric",
     color = "ANY",
@@ -50,6 +50,60 @@ Node <- setClass("Node",
   validity = check_node
 )
 
+check_node_id <- function(object) {
+  errors <- character()
+
+  # node id must not be empty
+  if (length(object@id) == 0) {
+    errors <- c(errors, "Node id must not be empty")
+  }
+
+  return(if (length(errors) == 0) TRUE else errors)
+}
+
+#' A Node Id
+#' 
+#' A class for representing node ids
+#' 
+#' @name NodeId-class
+#' @rdname NodeId-class
+#' @export
+NodeId <- setClass("NodeId", 
+  representation(
+    id = "character"
+  ),
+  prototype = prototype(
+    id = character()
+  ),
+  validity = check_node_id
+)
+
+check_node_id_list <- function(object) {
+  errors <- character()
+
+   # make sure all ids are unique
+  if (length(unique(unlist(lapply(object, id)))) != length(unlist(lapply(object, id)))) {
+    errors <- c(errors, "Node ids must be unique")
+  }
+
+  return(if (length(errors) == 0) TRUE else errors)
+}
+
+
+#' A Node Id List
+#' 
+#' A class for representing node id lists
+#' 
+#' @name NodeIdList-class
+#' @rdname NodeIdList-class
+#' @export
+NodeIdList <- setClass("NodeIdList", 
+  contains = "SimpleList",
+  prototype = prototype(
+    elementType = "NodeId"
+  ),
+  validity = check_node_id_list
+)
 
 
 check_node_list <- function(object) {

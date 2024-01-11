@@ -2,14 +2,9 @@ check_kpartite_network <- function(object) {
 
   errors <- character()
 
-  # Ensure that no node is in multiple partitions
-  if (length(unique(unlist(object@partitions))) < length(unlist(object@partitions))) {
-    errors <- c(errors, 'Found a node in multiple partitions. Nodes can only exist in one partition.')
-  }
-
-  # Check that all nodes are in at least one of the columns
-  if (!all(getNodeIds(object@nodes) %in% unlist(object@partitions))) {
-    errors <- c(errors, 'Found a node that is not in any partition. All nodes must be assigned to a partition.')
+  # Check that linkColorScheme is one of the accepted values
+  if (!object@linkColorScheme %in% c('none', 'posneg')) {
+    errors <- c(errors, 'linkColorScheme must be one of "none" or "posneg"')
   }
 
   return(if (length(errors) == 0) TRUE else errors)
@@ -36,12 +31,39 @@ check_kpartite_network <- function(object) {
 KPartiteNetwork <- setClass("KPartiteNetwork", 
   contains = "Network",
   representation(
-    partitions = "list"
+    partitions = Partitions
   ), prototype = prototype(
     links = LinkList(),
     nodes = NodeList(),
     linkColorScheme = 'none',
-    partitions = list()
+    partitions = Partitions()
   ),
   validity = check_kpartite_network
+)
+
+check_partitions <- function(object) {
+  errors <- character()
+  
+  # Ensure that no node is in multiple partitions
+  if (length(unique(unlist(object@partitions))) < length(unlist(object@partitions))) {
+    errors <- c(errors, 'Found a node in multiple partitions. Nodes can only exist in one partition.')
+  }
+
+  # Check that all nodes are in at least one of the columns
+  if (!all(getNodeIds(object@nodes) %in% unlist(object@partitions))) {
+    errors <- c(errors, 'Found a node that is not in any partition. All nodes must be assigned to a partition.')
+  }
+  if (!all(unlist(object@partitions) %in% getNodeIds(object@nodes))) {
+    errors <- c(errors, 'Found an id in a partition that is not in the nodes list. All partitions must must include ids in the nodes list.')
+  }
+
+  return(if (length(errors) == 0) TRUE else errors)
+}
+
+Partitions <- setClass("Partitions", 
+  contains = "SimpleList",
+  prototype = prototype(
+    elementType = "NodeIdList"
+  ),
+  validity = check_partitions
 )
