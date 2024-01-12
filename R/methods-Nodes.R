@@ -34,9 +34,13 @@ setGeneric("getNodeIds", function(object) standardGeneric("getNodeIds"))
 setGeneric("getWeights", function(object) standardGeneric("getWeights"))
 setGeneric("getColors", function(object) standardGeneric("getColors"))
 
-setMethod("getNodeIds", "NodeList", function(object) unlist(lapply(object, function(x) id(x))))
-setMethod("getWeights", "NodeList", function(object) unlist(lapply(object, function(x) weight(x))))
-setMethod("getColors", "NodeList", function(object) unlist(lapply(object, function(x) color(x))))
+setMethod("getNodeIds", "NodeList", function(object) unlist(lapply(as.list(object), function(x) id(x))))
+setMethod("getWeights", "NodeList", function(object) unlist(lapply(as.list(object), function(x) weight(x))))
+setMethod("getColors", "NodeList", function(object) unlist(lapply(as.list(object), function(x) color(x))))
 
 ## Methods for NodeIdList
-setMethod("getNodeIds", "NodeIdList", function(object) unlist(lapply(object, function(x) id(x))))
+setMethod("getNodeIds", "NodeIdList", function(object) unlist(lapply(as.list(object), function(x) id(x))))
+
+## Methods for Partitions
+setGeneric("getAllNodeIds", function(object) standardGeneric("getAllNodeIds"))
+setMethod("getAllNodeIds", "Partitions", function(object) unlist(lapply(as.list(object), function(x) getNodeIds(x))))
