@@ -141,8 +141,25 @@ linkAboveWeightThreshold <- function(link, threshold) {
 #' @param threshold The threshold
 #' @param verbose If TRUE, will print messages
 #' @export
-pruneLinksByWeight <- function(net, threshold, verbose = c(TRUE, FALSE)) {
+pruneLinksAboveWeight <- function(net, threshold, verbose = c(TRUE, FALSE)) {
   return(pruneLinksByPredicate(net = net, predicate = linkAboveWeightThreshold, threshold = threshold, verbose = verbose))
+}
+
+linkBelowWeightThreshold <- function(link, threshold) {
+  return(weight(link) < threshold)
+}
+
+
+#' Prune Links by Weight
+#' 
+#' Removes links that have a weight below a threshold. This is a convenience
+#' function that calls pruneLinksByPredicate.
+#' @param net A Network object
+#' @param threshold The threshold
+#' @param verbose If TRUE, will print messages
+#' @export
+pruneLinksBelowWeight <- function(net, threshold, verbose = c(TRUE, FALSE)) {
+  return(pruneLinksByPredicate(net = net, predicate = linkBelowWeightThreshold, threshold = threshold, verbose = verbose))
 }
 
 
