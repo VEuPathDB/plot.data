@@ -57,16 +57,16 @@ test_that("We cannot make inappropriate networks", {
 test_that("We can remove isolated nodes", {
   # Create some nodes
   nodeA <- Node(
-    id = 'A'
+    id = NodeId('A')
   )
   nodeB <- Node(
-    id = 'B'
+    id = NodeId('B')
   )
   nodeC <- Node(
-    id = 'C'
+    id = NodeId('C')
   )
   nodeD <- Node(
-    id = 'D'
+    id = NodeId('D')
   )
 
   # Create some links
