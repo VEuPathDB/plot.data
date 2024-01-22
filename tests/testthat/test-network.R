@@ -111,3 +111,35 @@ test_that("we can remove duplicate links", {
   expect_equal(getLinks(netNoDups), LinkList(c(link1, link2, link3)))
   expect_equal(getLinkColorScheme(netNoDups), 'none')
 })
+
+test_that("We can remove links by weight", {
+  # Create some nodes
+  nodeA <- Node(
+    id = NodeId('A')
+  )
+  nodeB <- Node(
+    id = NodeId('B')
+  )
+  nodeC <- Node(
+    id = NodeId('C')
+  )
+
+  # Create some links
+  link1 <- Link(source = nodeA, target = nodeB, weight = 10)
+  link2 <- Link(source = nodeB, target = nodeC, weight = 20)
+  link3 <- Link(source = nodeC, target = nodeA, weight = 30)
+
+  # Create the network
+  net <- Network(links = LinkList(c(link1, link2, link3)), nodes = NodeList(c(nodeA, nodeB, nodeC)))
+
+  netNoSmallLinks <- pruneLinksBelowWeight(net, threshold = 20)
+  expect_equal(getNodes(netNoSmallLinks), NodeList(c(nodeA, nodeB, nodeC)))
+  expect_equal(getLinks(netNoSmallLinks), LinkList(c(link2, link3)))
+  expect_equal(getLinkColorScheme(netNoSmallLinks), 'none')
+
+  netNoLargeLinks <- pruneLinksAboveWeight(net, threshold = 10)
+  expect_equal(getNodes(netNoLargeLinks), NodeList(c(nodeA, nodeB, nodeC)))
+  expect_equal(getLinks(netNoLargeLinks), LinkList(c(link1)))
+  expect_equal(getLinkColorScheme(netNoLargeLinks), 'none')
+
+})
