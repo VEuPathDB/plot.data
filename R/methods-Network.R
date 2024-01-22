@@ -49,6 +49,7 @@ setMethod("pruneIsolatedNodes", "Network", function(net, verbose = c(TRUE, FALSE
 
   if (length(isolatedNodeIds) > 0) {
     net@nodes <- nodes[which(!getNodeIds(nodes) %in% isolatedNodeIds)]
+    validObject(net)
     veupathUtils::logWithTime(paste('Found and removed', length(isolatedNodeIds), 'isolated nodes.'), verbose)
   } else {
     veupathUtils::logWithTime('No isolated nodes found.', verbose)
@@ -95,7 +96,9 @@ setMethod("pruneDuplicateLinks", "Network", function(net, verbose = c(TRUE, FALS
 
   dupLinks <- getDuplicateLinks(net)
   if (length(dupLinks) > 0) {
-    net@links <- links[which(!getLinkIds(links) %in% dupLinks)]
+    linkUniqueStrings <- sapply(links, getLinkUniqueString)
+    net@links <- links[which(!duplicated(linkUniqueStrings))]
+    validObject(net)
     veupathUtils::logWithTime(paste('Found and removed', length(dupLinks), 'duplicate links.'), verbose)
   } else {
     veupathUtils::logWithTime('No duplicate links found.', verbose)
