@@ -142,6 +142,8 @@ linkAboveWeightThreshold <- function(link, threshold) {
 #' @param verbose If TRUE, will print messages
 #' @export
 pruneLinksAboveWeight <- function(net, threshold, verbose = c(TRUE, FALSE)) {
+  verbose <- veupathUtils::matchArg(verbose)
+  
   return(pruneLinksByPredicate(net = net, predicate = linkAboveWeightThreshold, threshold = threshold, verbose = verbose))
 }
 
@@ -159,6 +161,8 @@ linkBelowWeightThreshold <- function(link, threshold) {
 #' @param verbose If TRUE, will print messages
 #' @export
 pruneLinksBelowWeight <- function(net, threshold, verbose = c(TRUE, FALSE)) {
+  verbose <- veupathUtils::matchArg(verbose)
+
   return(pruneLinksByPredicate(net = net, predicate = linkBelowWeightThreshold, threshold = threshold, verbose = verbose))
 }
 
@@ -166,68 +170,80 @@ pruneLinksBelowWeight <- function(net, threshold, verbose = c(TRUE, FALSE)) {
 ## these look like things that should be made into github issues..
 # Get Degree list
 # Get Weighted Degree list
-# etc.
-# Threshold network by edge weight
 # Assign color scheme
 
 
-## this looks like it should be in a different pr..
+toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 
-# #' Write json to local tmp file
-# #'
-# #' This function returns the name of a json file which it has
-# #' written a network object out to.
-# #' @param net a data.table to convert to json and write to a tmp file
-# #' @param pattern optional tmp file prefix
-# #' @param verbose boolean that declares if logging is desired
-# #' @return character name of a tmp file w ext *.json
-# #' @importFrom jsonlite toJSON
-# #' @export
-# writeNetworkToJSON <- function(net, pattern=NULL, verbose = c(TRUE, FALSE) ) {
-#   verbose <- veupathUtils::matchArg(verbose)
+#' Convert Network object to JSON
+#' 
+#' Converts a Network object to JSON
+#' @param x A Network object
+#' @param ... additional arguments passed to jsonlite::toJSON
+#' @export
+setMethod(toJSONGeneric, "Network", function(x, ...) {
+  networkAttributes <- attributes(net)
 
-#   outJson <- getNetworkJSON(net, verbose)
-#   if (is.null(pattern)) { 
-#     pattern <- attr(net, 'class')[1]
-#     if (is.null(pattern)) {
-#       pattern <- 'file'
-#     } 
-#   }
-#   outFileName <- basename(tempfile(pattern = pattern, tmpdir = tempdir(), fileext = ".json"))
-#   write(outJson, outFileName)
-#   veupathUtils::logWithTime(paste('New output file written:', outFileName), verbose)
+  # Covert all columns to character
+  netChar <- data.frame(lapply(net, as.character))
 
-#   return(outFileName)
-# }
+  # Whenever a node is referenced, it should be in the form {id: nodeid}. Update this
+  # for both the list of nodes, and the source + target columns
+  nodeList <- data.frame(id = networkAttributes$nodes)
+  netChar$source <- lapply(netChar$source, function(node) { return(list(id=jsonlite::unbox(node)))})
+  netChar$target <- lapply(netChar$target, function(node) { return(list(id=jsonlite::unbox(node)))})
 
-# # Write a network to a json string
-# getNetworkJSON <- function(net, verbose = c(TRUE, FALSE)) {
+  obj <- list(
+    nodes = nodeList,
+    links = netChar
+  )
 
-#   networkAttributes <- attributes(net)
-
-#   # Covert all columns to character
-#   netChar <- data.frame(lapply(net, as.character))
-
-#   # Whenever a node is referenced, it should be in the form {id: nodeid}. Update this
-#   # for both the list of nodes, and the source + target columns
-#   nodeList <- data.frame(id = networkAttributes$nodes)
-#   netChar$source <- lapply(netChar$source, function(node) { return(list(id=jsonlite::unbox(node)))})
-#   netChar$target <- lapply(netChar$target, function(node) { return(list(id=jsonlite::unbox(node)))})
-
-#   obj <- list(
-#     nodes = nodeList,
-#     links = netChar
-#   )
-
-#   # Add additional properties for other network classes
-#   if ('column1NodeIDs' %in% names(networkAttributes)) obj$column1NodeIDs <- networkAttributes$column1NodeIDs
-#   if ('column2NodeIDs' %in% names(networkAttributes)) obj$column2NodeIDs <- networkAttributes$column2NodeIDs
+  # Add additional properties for other network classes
+  if ('column1NodeIDs' %in% names(networkAttributes)) obj$column1NodeIDs <- networkAttributes$column1NodeIDs
+  if ('column2NodeIDs' %in% names(networkAttributes)) obj$column2NodeIDs <- networkAttributes$column2NodeIDs
 
 
-#   # Covert to json string
-#   json <- jsonlite::toJSON(obj, na=NULL)
+  # Covert to json string
+  json <- jsonlite::toJSON(obj, na=NULL, ...)
 
 
-#   return(json)
-# }
+  return(json)
+})
 
+#' Write json to tmp file
+#' 
+#' This function returns the name of a json file which it has
+#' written an object out to.
+#' @param x an object to convert to json and write to a tmp file
+#' @param verbose boolean that declares if logging is desired
+#' @return character name of a tmp file w ext *.json
+#' @export
+writeJSON <- setGeneric("writeJSON", function(x, verbose = c(TRUE, FALSE)) standardGeneric("writeJSON"))
+
+#' Write json to local tmp file
+#'
+#' This function returns the name of a json file which it has
+#' written a Network object out to.
+#' @param x a data.table to convert to json and write to a tmp file
+#' @param pattern optional tmp file prefix
+#' @param verbose boolean that declares if logging is desired
+#' @return character name of a tmp file w ext *.json
+#' @importFrom jsonlite toJSON
+#' @export
+writeJSON <- function(x, pattern=NULL, verbose = c(TRUE, FALSE) ) {
+  net <- x
+  verbose <- veupathUtils::matchArg(verbose)
+
+  outJson <- toJSON(net, verbose)
+  if (is.null(pattern)) { 
+    pattern <- attr(net, 'class')[1]
+    if (is.null(pattern)) {
+      pattern <- 'file'
+    } 
+  }
+  outFileName <- basename(tempfile(pattern = pattern, tmpdir = tempdir(), fileext = ".json"))
+  write(outJson, outFileName)
+  veupathUtils::logWithTime(paste('New output file written:', outFileName), verbose)
+
+  return(outFileName)
+}
