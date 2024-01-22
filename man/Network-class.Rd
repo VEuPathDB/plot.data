@@ -17,7 +17,9 @@ in case some nodes have no links. A network can also have properties such as dir
 
 \item{\code{nodes}}{NodeList object defining the nodes in the network. Some nodes may not have any links.}
 
-\item{\code{linkColorScheme}}{string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.
+\item{\code{linkColorScheme}}{string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.}
+
+\item{\code{variableMapping}}{veupathUtils::VariableMetadataList object defining the variable mappings in the network.
 Use a method assignLinkColors() to assign colors to links and set this slot's value.}
 }}
 
