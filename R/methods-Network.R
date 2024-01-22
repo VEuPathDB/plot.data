@@ -108,6 +108,45 @@ setMethod("pruneDuplicateLinks", "Network", function(net, verbose = c(TRUE, FALS
   return(net)
 })
 
+#' Prune Links by Predicate
+#' 
+#' Removes links that satisfy a predicate
+#' @param net A Network object
+#' @param predicate A function that takes a link and returns a boolean
+#' @param verbose If TRUE, will print messages
+#' @param ... additional arguments passed to the predicate
+#' @export
+setGeneric("pruneLinksByPredicate", function(net, predicate, verbose = c(TRUE, FALSE), ...) standardGeneric("pruneLinksByPredicate"))
+
+#' @export
+setMethod("pruneLinksByPredicate", "Network", function(net, predicate, verbose = c(TRUE, FALSE), ...) {
+  verbose <- veupathUtils::matchArg(verbose)
+  links <- getLinks(net)
+  net@links <- links[which(!sapply(links, predicate, ...))]
+  validObject(net)
+  veupathUtils::logWithTime(paste('Found and removed', length(links) - length(net@links), 'links.'), verbose)
+  validObject(net)
+  return(net)
+})
+
+linkAboveWeightThreshold <- function(link, threshold) {
+  return(weight(link) > threshold)
+}
+
+#' Prune Links by Weight
+#' 
+#' Removes links that have a weight above a threshold. This is a convenience
+#' function that calls pruneLinksByPredicate.
+#' @param net A Network object
+#' @param threshold The threshold
+#' @param verbose If TRUE, will print messages
+#' @export
+pruneLinksByWeight <- function(net, threshold, verbose = c(TRUE, FALSE)) {
+  return(pruneLinksByPredicate(net = net, predicate = linkAboveWeightThreshold, threshold = threshold, verbose = verbose))
+}
+
+
+## these look like things that should be made into github issues..
 # Get Degree list
 # Get Weighted Degree list
 # etc.
@@ -115,6 +154,7 @@ setMethod("pruneDuplicateLinks", "Network", function(net, verbose = c(TRUE, FALS
 # Assign color scheme
 
 
+## this looks like it should be in a different pr..
 
 # #' Write json to local tmp file
 # #'
