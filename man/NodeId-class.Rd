@@ -3,7 +3,6 @@
 \docType{class}
 \name{NodeId-class}
 \alias{NodeId-class}
-\alias{NodeId}
 \title{A Node Id}
 \description{
 A class for representing node ids

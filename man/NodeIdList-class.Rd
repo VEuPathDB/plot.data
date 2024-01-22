@@ -3,7 +3,6 @@
 \docType{class}
 \name{NodeIdList-class}
 \alias{NodeIdList-class}
-\alias{NodeIdList}
 \title{A Node Id List}
 \description{
 A class for representing node id lists

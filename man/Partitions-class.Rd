@@ -3,7 +3,6 @@
 \docType{class}
 \name{Partitions-class}
 \alias{Partitions-class}
-\alias{Partitions}
 \title{Partitions}
 \description{
 A class for representing partitions in a k-partite network
