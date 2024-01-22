@@ -47,7 +47,6 @@ setMethod("pruneIsolatedNodes", "Network", function(net, verbose = c(TRUE, FALSE
 
 
 # Remove redundant links
-# Remove redundant nodes
 # Get Degree list
 # Get Weighted Degree list
 # etc.

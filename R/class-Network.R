@@ -15,7 +15,7 @@ check_network <- function(object) {
   }
 
   # Check that there are no duplicate nodes
-  if (length(unique(getNodeIds(object@nodes))) != length(getNodeIds(object@nodes))) {
+  if (data.table::uniqueN(getNodeIds(object@nodes)) < length(getNodeIds(object@nodes))) {
     errors <- c(errors, 'Duplicate node ids found. Node ids must be unique.')
   }
 

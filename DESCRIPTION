@@ -61,7 +61,7 @@ Collate:
     'class-plotdata.R'
     'group.R'
     'methods-ContingencyTable.R'
-    'methods-network.R'
+    'methods-Network.R'
     'panel.R'
     'plot.data-package.R'
     'utils-bin.R'
