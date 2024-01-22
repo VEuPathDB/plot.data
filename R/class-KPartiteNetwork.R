@@ -1,3 +1,29 @@
+check_partitions <- function(object) {
+  errors <- character()
+  
+  # Ensure that no node is in multiple partitions
+  if (getAllNodeIds(object) > unique(getAllNodeIds(object))) {
+    errors <- c(errors, 'Found a node in multiple partitions. Nodes can only exist in one partition.')
+  }
+
+  return(if (length(errors) == 0) TRUE else errors)
+}
+
+#' Partitions
+#' 
+#' A class for representing partitions in a k-partite network
+#' 
+#' @name Partitions-class
+#' @rdname Partitions-class
+#' @export
+Partitions <- setClass("Partitions", 
+  contains = "SimpleList",
+  prototype = prototype(
+    elementType = "NodeIdList"
+  ),
+  validity = check_partitions
+)
+
 check_kpartite_network <- function(object) {
 
   errors <- character()
@@ -38,32 +64,11 @@ check_kpartite_network <- function(object) {
 #' @export 
 KPartiteNetwork <- setClass("KPartiteNetwork", 
   contains = "Network",
-  representation(
-    partitions = Partitions
-  ), prototype = prototype(
+  prototype = prototype(
     links = LinkList(),
     nodes = NodeList(),
     linkColorScheme = 'none',
     partitions = Partitions()
   ),
   validity = check_kpartite_network
-)
-
-check_partitions <- function(object) {
-  errors <- character()
-  
-  # Ensure that no node is in multiple partitions
-  if (getAllNodeIds(object) > unique(getAllNodeIds(object))) {
-    errors <- c(errors, 'Found a node in multiple partitions. Nodes can only exist in one partition.')
-  }
-
-  return(if (length(errors) == 0) TRUE else errors)
-}
-
-Partitions <- setClass("Partitions", 
-  contains = "SimpleList",
-  prototype = prototype(
-    elementType = "NodeIdList"
-  ),
-  validity = check_partitions
 )

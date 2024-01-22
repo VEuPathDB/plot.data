@@ -38,14 +38,11 @@ check_node <- function(object) {
 #' @export
 Node <- setClass("Node", 
   representation(
-    id = NodeId,
+    id = "NodeId",
     x = "numeric",
     y = "numeric",
     color = "ANY",
     weight = "ANY"
-  ),
-  prototype = prototype(
-    id = character()
   ),
   validity = check_node
 )
