@@ -143,7 +143,7 @@ linkAboveWeightThreshold <- function(link, threshold) {
 #' @export
 pruneLinksAboveWeight <- function(net, threshold, verbose = c(TRUE, FALSE)) {
   verbose <- veupathUtils::matchArg(verbose)
-  
+
   return(pruneLinksByPredicate(net = net, predicate = linkAboveWeightThreshold, threshold = threshold, verbose = verbose))
 }
 
@@ -181,7 +181,8 @@ toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 #' @param x A Network object
 #' @param ... additional arguments passed to jsonlite::toJSON
 #' @export
-setMethod(toJSONGeneric, "Network", function(x, ...) {
+setMethod(toJSONGeneric, "Network", function(object, named = c(TRUE, FALSE)) {
+  net <- object
   networkAttributes <- attributes(net)
 
   # Covert all columns to character
@@ -204,7 +205,7 @@ setMethod(toJSONGeneric, "Network", function(x, ...) {
 
 
   # Covert to json string
-  json <- jsonlite::toJSON(obj, na=NULL, ...)
+  json <- jsonlite::toJSON(obj, na=NULL)
 
 
   return(json)
