@@ -2,13 +2,13 @@ test_that("Networks can be created and their properties accessed", {
 
   # Create some nodes
   nodeA <- Node(
-    id = 'A'
+    id = NodeId('A')
   )
   nodeB <- Node(
-    id = 'B'
+    id = NodeId('B')
   )
   nodeC <- Node(
-    id = 'C'
+    id = NodeId('C')
   )
 
   # Create some edges
@@ -30,13 +30,13 @@ test_that("We cannot make inappropriate networks", {
 
   # Create some nodes
   nodeA <- Node(
-    id = 'A'
+    id = NodeId('A')
   )
   nodeB <- Node(
-    id = 'B'
+    id = NodeId('B')
   )
   nodeC <- Node(
-    id = 'C'
+    id = NodeId('C')
   )
 
   # Create links

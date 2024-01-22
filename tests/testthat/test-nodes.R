@@ -2,14 +2,14 @@ test_that("Node methods work", {
 
   # Create a node
   nodeA <- Node(
-    id = 'A'
+    id = NodeId('A')
   )
   expect_equal(id(nodeA), 'A')
   expect_equal(color(nodeA), NULL)
   expect_equal(weight(nodeA), NULL)
 
   nodeB <- Node(
-    id = 'B',
+    id = NodeId('B'),
     color = 'red',
     weight = 10
   )
@@ -23,14 +23,14 @@ test_that("NodeList methods work", {
 
   # Create some nodes
   nodeA <- Node(
-    id = 'A'
+    id = NodeId('A')
   )
   nodeB <- Node(
-    id = 'B'
+    id = NodeId('B')
   )
   nodeC <- Node(
-    id = 'C'
-  ) 
+    id = NodeId('C')
+  )
 
   nodeList <- NodeList(S4Vectors::SimpleList(c(nodeA, nodeB, nodeC)))
   expect_equal(length(nodeList), 3)
@@ -41,17 +41,17 @@ test_that("NodeList methods work", {
 
   # Create more interesting nodes
   nodeA <- Node(
-    id = 'A',
+    id = NodeId('A'),
     color = 'red',
     weight = 10
   )
   nodeB <- Node(
-    id = 'B',
+    id = NodeId('B'),
     color = 'blue',
     weight = 20
   )
   nodeC <- Node(
-    id = 'C',
+    id = NodeId('C'),
     color = 'green',
     weight = 30
   )
@@ -79,10 +79,10 @@ test_that("We cannot make nonsensical NodeLists", {
 
  # Create some nodes
   nodeA <- Node(
-    id = 'A'
+    id = NodeId('A')
   ) 
   nodeB <- Node(
-    id = 'B',
+    id = NodeId('B'),
     color = 'red'
   )
 

@@ -1,10 +1,10 @@
 test_that("Links work", {
   # Make a link
   nodeA <- Node(
-    id = 'A'
+    id = NodeId('A')
   )
   nodeB <- Node(
-    id = 'B'
+    id = NodeId('B')
   )
   link <- Link(source = nodeA, target = nodeB)
   expect_equal(class(link)[1], 'Link')
@@ -13,10 +13,10 @@ test_that("Links work", {
 test_that("Link methods work", {
 
   nodeA <- Node(
-    id = 'A'
+    id = NodeId('A')
   )
   nodeB <- Node(
-    id = 'B'
+    id = NodeId('B')
   )
 
   link <- Link(source = nodeA, target = nodeB)
@@ -37,13 +37,13 @@ test_that("LinkList methods work", {
 
   # Create some nodes
   nodeA <- Node(
-    id = 'A'
+    id = NodeId('A')
   )
   nodeB <- Node(
-    id = 'B'
+    id = NodeId('B')
   )
   nodeC <- Node(
-    id = 'C'
+    id = NodeId('C')
   )
 
   # Create some links
@@ -76,10 +76,10 @@ test_that("Links cannot be created from nonsensical inputs", {
 
   # Create nodes
   nodeA <- Node(
-    id = 'A'
+    id = NodeId('A')
   )
   nodeB <- Node(
-    id = 'B'
+    id = NodeId('B')
   )
 
   expect_error(Link(source = nodeA, target = nodeB, color = false, weight = 10))
@@ -89,13 +89,13 @@ test_that("LinkLists cannot be created from nonsensical inputs", {
 
   # Create nodes
   nodeA <- Node(
-    id = 'A'
+    id = NodeId('A')
   )
   nodeB <- Node(
-    id = 'B'
+    id = NodeId('B')
   )
   nodeC <- Node(
-    id = 'C'
+    id = NodeId('C')
   )
   
   # Create links
