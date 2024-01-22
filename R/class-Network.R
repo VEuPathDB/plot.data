@@ -44,7 +44,8 @@ Network <- setClass("Network",
   ), prototype = prototype(
     links = LinkList(),
     nodes = NodeList(),
-    linkColorScheme = 'none'
+    linkColorScheme = 'none',
+    variableMapping = VariableMetadataList()
   ),
   validity = check_network
 )

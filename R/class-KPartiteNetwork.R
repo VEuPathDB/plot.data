@@ -1,9 +1,12 @@
+#' @include methods-Nodes.R
 check_partitions <- function(object) {
   errors <- character()
   
-  # Ensure that no node is in multiple partitions
-  if (getAllNodeIds(object) > unique(getAllNodeIds(object))) {
-    errors <- c(errors, 'Found a node in multiple partitions. Nodes can only exist in one partition.')
+  if (!!length(getAllNodeIds(object))) {
+    # Ensure that no node is in multiple partitions
+    if (length(getAllNodeIds(object)) > data.table::uniqueN(getAllNodeIds(object))) {
+      errors <- c(errors, 'Found a node in multiple partitions. Nodes can only exist in one partition.')
+    }
   }
 
   return(if (length(errors) == 0) TRUE else errors)
@@ -16,13 +19,49 @@ check_partitions <- function(object) {
 #' @name Partitions-class
 #' @rdname Partitions-class
 #' @export
-Partitions <- setClass("Partitions", 
+setClass("Partitions", 
   contains = "SimpleList",
   prototype = prototype(
     elementType = "NodeIdList"
   ),
   validity = check_partitions
 )
+
+#' Create a Partition
+#' 
+#' An alias to NodeIdList
+#' 
+#' @name Partition-class
+#' @rdname Partition-class
+#' @export
+Partition <- NodeIdList
+
+#' Create Partitions
+#' 
+#' A list of Partition objects
+#' 
+#' @export 
+#' @rdname Partitions
+Partitions <- function(partitions = list()) {
+  if (length(partitions) == 0) {
+    return(new("Partitions", S4Vectors:::SimpleList(list())))
+  }
+
+  if (length(partitions) == 1 && !is.list(partitions)) {
+    ## an edge case i suppose where we had a single partition w  a single node
+    partitions <- list(Partition(partitions))
+  }
+
+  if (!is.list(partitions)) {
+    stop('Partitions must be a list')
+  }
+
+  if (!all(unlist(lapply(partitions, inherits, "NodeIdList")))) {
+    stop('Partitions must be a list of NodeIdList objects')
+  }
+
+  return(new("Partitions", S4Vectors:::SimpleList(partitions)))
+}
 
 check_kpartite_network <- function(object) {
 
@@ -60,14 +99,18 @@ check_kpartite_network <- function(object) {
 #' 
 #' @name KPartiteNetwork-class
 #' @rdname KPartiteNetwork-class
-#' @include class-network.R
+#' @include class-Network.R
 #' @export 
 KPartiteNetwork <- setClass("KPartiteNetwork", 
   contains = "Network",
+  slots = c(
+    partitions = "Partitions"
+  ),
   prototype = prototype(
     links = LinkList(),
     nodes = NodeList(),
     linkColorScheme = 'none',
+    variableMapping = VariableMetadataList(),
     partitions = Partitions()
   ),
   validity = check_kpartite_network

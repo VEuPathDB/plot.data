@@ -1,3 +1,110 @@
+check_node_id <- function(object) {
+  errors <- character()
+
+  # node id must not be empty
+  if (length(object@value) == 0) {
+    errors <- c(errors, "Node id must not be empty")
+  }
+
+  # must not be NA
+  if (is.na(object@value)) {
+    errors <- c(errors, "Node id must not be NA")
+  }
+
+  # must not be ''
+  if (object@value == "") {
+    errors <- c(errors, "Node id must not be an empty string")
+  }
+
+  return(if (length(errors) == 0) TRUE else errors)
+}
+
+#' A Node Id
+#' 
+#' A class for representing node ids
+#' 
+#' @name NodeId-class
+#' @rdname NodeId-class
+#' @export
+setClass("NodeId", 
+  representation(
+    value = "character"
+  ),
+  prototype = prototype(
+    value = character()
+  ),
+  validity = check_node_id
+)
+
+
+#' Create a Node Id
+#' 
+#' Because typing `NodeId(id = 'foo')` is annoying, this function is provided
+#' to make things easier. Now you can do `NodeId('foo')`
+#' 
+#' @param value string a unique identifier for the node
+#' @export 
+NodeId <- function(value) {
+  new("NodeId", value = value)
+}
+
+check_node_id_list <- function(object) {
+  errors <- character()
+
+   # make sure all ids are unique
+  if (length(unique(unlist(lapply(object, id)))) != length(unlist(lapply(object, id)))) {
+    errors <- c(errors, "Node ids must be unique")
+  }
+
+  return(if (length(errors) == 0) TRUE else errors)
+}
+
+
+#' A Node Id List
+#' 
+#' A class for representing node id lists
+#' 
+#' @name NodeIdList-class
+#' @rdname NodeIdList-class
+#' @export
+setClass("NodeIdList", 
+  contains = "SimpleList",
+  prototype = prototype(
+    elementType = "NodeId"
+  ),
+  validity = check_node_id_list
+)
+
+#' Create a NodeIdList
+#' 
+#' @param nodeIds list of node ids
+#' @export 
+NodeIdList <- function(nodeIds) {
+
+  if (length(nodeIds) == 0) {
+    stop("nodeIds must not be empty")
+  }
+
+  if (length(nodeIds) == 1 && !is.list(nodeIds)) {
+    nodeIds <- list(nodeIds) 
+  }
+
+  if (!is.list(nodeIds)) {
+    stop("nodeIds must be a list")
+  }
+
+  if (all(unlist(lapply(nodeIds, inherits, 'Node')))) {
+    nodeIds <- lapply(nodeIds, id)
+    nodeIds <- lapply(nodeIds, NodeId)
+  } else if (all(unlist(lapply(nodeIds, inherits, 'character')))) {
+    nodeIds <- lapply(nodeIds, NodeId)
+  } else if (!all(unlist(lapply(nodeIds, inherits, 'NodeId')))) {
+    stop("nodeIds must be a list of Node, NodeId or character objects")
+  }
+
+  return(new("NodeIdList", S4Vectors::SimpleList(nodeIds)))
+}
+
 check_node <- function(object) {
 
   errors <- character()
@@ -22,6 +129,12 @@ check_node <- function(object) {
   return(if (length(errors) == 0) TRUE else errors)
 }
 
+# this could be made into a generic helper in veupathUtils
+# it just generates random alpha-numeric strings
+generate_node_id <- function(n = 5000) {
+  a <- do.call(paste0, replicate(5, sample(LETTERS, n, TRUE), FALSE))
+  paste0(a, sprintf("%04d", sample(9999, n, TRUE)), sample(LETTERS, n, TRUE))
+}
 
 #' Node
 #' 
@@ -37,7 +150,7 @@ check_node <- function(object) {
 #' @rdname Node-class
 #' @export
 Node <- setClass("Node", 
-  representation(
+  slots = c(
     id = "NodeId",
     x = "numeric",
     y = "numeric",
@@ -46,62 +159,6 @@ Node <- setClass("Node",
   ),
   validity = check_node
 )
-
-check_node_id <- function(object) {
-  errors <- character()
-
-  # node id must not be empty
-  if (length(object@id) == 0) {
-    errors <- c(errors, "Node id must not be empty")
-  }
-
-  return(if (length(errors) == 0) TRUE else errors)
-}
-
-#' A Node Id
-#' 
-#' A class for representing node ids
-#' 
-#' @name NodeId-class
-#' @rdname NodeId-class
-#' @export
-NodeId <- setClass("NodeId", 
-  representation(
-    id = "character"
-  ),
-  prototype = prototype(
-    id = character()
-  ),
-  validity = check_node_id
-)
-
-check_node_id_list <- function(object) {
-  errors <- character()
-
-   # make sure all ids are unique
-  if (length(unique(unlist(lapply(object, id)))) != length(unlist(lapply(object, id)))) {
-    errors <- c(errors, "Node ids must be unique")
-  }
-
-  return(if (length(errors) == 0) TRUE else errors)
-}
-
-
-#' A Node Id List
-#' 
-#' A class for representing node id lists
-#' 
-#' @name NodeIdList-class
-#' @rdname NodeIdList-class
-#' @export
-NodeIdList <- setClass("NodeIdList", 
-  contains = "SimpleList",
-  prototype = prototype(
-    elementType = "NodeId"
-  ),
-  validity = check_node_id_list
-)
-
 
 check_node_list <- function(object) {
 

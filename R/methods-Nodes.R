@@ -8,13 +8,10 @@ setGeneric("x", function(object) standardGeneric("x"))
 setGeneric("x<-", function(object, value) standardGeneric("x<-"))
 setGeneric("y", function(object) standardGeneric("y"))
 setGeneric("y<-", function(object, value) standardGeneric("y<-"))
-setGeneric("color", function(object) standardGeneric("color"))
-setGeneric("color<-", function(object, value) standardGeneric("color<-"))
-setGeneric("weight", function(object) standardGeneric("weight"))
-setGeneric("weight<-", function(object, value) standardGeneric("weight<-"))
 
+#' @include methods-Links.R
 ## Methods for Nodes
-setMethod("id", "Node", function(object) object@NodeId@id)
+setMethod("id", "Node", function(object) id(object@id))
 setMethod("x", "Node", function(object) object@x)
 setMethod("y", "Node", function(object) object@y)
 setMethod("color", "Node", function(object) object@color)
@@ -26,21 +23,18 @@ setMethod("color<-", "Node", function(object, value) {object@color <- value; val
 setMethod("weight<-", "Node", function(object, value) {object@weight <- value; validObject(object); object})
 
 ## Methods for NodeId
-setMethod("id", "NodeId", function(object) object@id)
+setMethod("id", "NodeId", function(object) object@value)
 setMethod("id<-", "NodeId", function(object, value) {object@id <- value; validObject(object); object})
 
 ## Methods for NodeLists
 setGeneric("getNodeIds", function(object) standardGeneric("getNodeIds"))
-setGeneric("getWeights", function(object) standardGeneric("getWeights"))
-setGeneric("getColors", function(object) standardGeneric("getColors"))
-
-setMethod("getNodeIds", "NodeList", function(object) unlist(lapply(as.list(object), function(x) id(x))))
-setMethod("getWeights", "NodeList", function(object) unlist(lapply(as.list(object), function(x) weight(x))))
-setMethod("getColors", "NodeList", function(object) unlist(lapply(as.list(object), function(x) color(x))))
+setMethod("getNodeIds", "NodeList", function(object) unlist(lapply(as.list(object), id)))
+setMethod("getWeights", "NodeList", function(object) unlist(lapply(as.list(object), weight)))
+setMethod("getColors", "NodeList", function(object) unlist(lapply(as.list(object), color)))
 
 ## Methods for NodeIdList
-setMethod("getNodeIds", "NodeIdList", function(object) unlist(lapply(as.list(object), function(x) id(x))))
+setMethod("getNodeIds", "NodeIdList", function(object) unlist(lapply(as.list(object), id)))
 
 ## Methods for Partitions
 setGeneric("getAllNodeIds", function(object) standardGeneric("getAllNodeIds"))
-setMethod("getAllNodeIds", "Partitions", function(object) unlist(lapply(as.list(object), function(x) getNodeIds(x))))
+setMethod("getAllNodeIds", "Partitions", function(object) unlist(lapply(as.list(object), getNodeIds)))
