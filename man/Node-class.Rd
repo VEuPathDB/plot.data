@@ -13,6 +13,10 @@ A class for representing nodes in a network
 \describe{
 \item{\code{id}}{string a unique identifier for the node}
 
+\item{\code{x}}{numeric value indicating the x coordinate of the node. Optional.}
+
+\item{\code{y}}{numeric value indicating the y coordinate of the node. Optional.}
+
 \item{\code{color}}{string or numeric that determines the color of the node. Optional.}
 
 \item{\code{weight}}{numeric value associated with the node, such as timestamp or other node-associated data. Optional.}
