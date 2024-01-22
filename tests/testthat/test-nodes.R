@@ -1,3 +1,18 @@
+test_that("NodeId works", {
+  expect_equal(class(NodeId('A'))[1], 'NodeId')
+})
+
+test_that("NodeIdList works", {
+  expect_equal(class(NodeIdList(list(NodeId('A'), NodeId('B'))))[1], 'NodeIdList')
+  expect_equal(class(NodeIdList(list('A', 'B')))[1], 'NodeIdList')
+  expect_equal(class(NodeIdList(list(Node(id=NodeId('A')))))[1], 'NodeIdList')
+  expect_equal(class(NodeIdList(Node(id=NodeId('A'))))[1], 'NodeIdList')
+  expect_equal(class(NodeIdList(list(Node(id=NodeId('A')), Node(id=NodeId('B')))))[1], 'NodeIdList')
+
+  expect_error(NodeIdList(S4Vectors::SimpleList(c(NodeId('A'), 'B'))))
+  expect_error(NodeIdList(S4Vectors::SimpleList(c('A', 'B'))))
+})
+
 test_that("Node methods work", {
 
   # Create a node
