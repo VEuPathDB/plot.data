@@ -172,43 +172,29 @@ pruneLinksBelowWeight <- function(net, threshold, verbose = c(TRUE, FALSE)) {
 # Get Weighted Degree list
 # Assign color scheme
 
-
 toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 
 #' Convert Network object to JSON
 #' 
 #' Converts a Network object to JSON
-#' @param x A Network object
-#' @param ... additional arguments passed to jsonlite::toJSON
+#' @param object A Network object
+#' @param named boolean that declares if names should be included
 #' @export
 setMethod(toJSONGeneric, "Network", function(object, named = c(TRUE, FALSE)) {
-  net <- object
-  networkAttributes <- attributes(net)
+  
+  named <- veupathUtils::matchArg(named)    
+  tmp <- character()
 
-  # Covert all columns to character
-  netChar <- data.frame(lapply(net, as.character))
+  nodes_json <- veupathUtils::toJSON(object@nodes, named = FALSE)
+  links_json <- veupathUtils::toJSON(object@links, named = FALSE)
 
-  # Whenever a node is referenced, it should be in the form {id: nodeid}. Update this
-  # for both the list of nodes, and the source + target columns
-  nodeList <- data.frame(id = networkAttributes$nodes)
-  netChar$source <- lapply(netChar$source, function(node) { return(list(id=jsonlite::unbox(node)))})
-  netChar$target <- lapply(netChar$target, function(node) { return(list(id=jsonlite::unbox(node)))})
+  tmp <- paste0('"nodes":', nodes_json, ',"links":', links_json)
 
-  obj <- list(
-    nodes = nodeList,
-    links = netChar
-  )
+  tmp <- paste0("{", tmp, "}")
+  # TODO add variableMapping under config, nodes and links under data
+if (named) tmp <- paste0('{"network":', tmp, '}')
 
-  # Add additional properties for other network classes
-  if ('column1NodeIDs' %in% names(networkAttributes)) obj$column1NodeIDs <- networkAttributes$column1NodeIDs
-  if ('column2NodeIDs' %in% names(networkAttributes)) obj$column2NodeIDs <- networkAttributes$column2NodeIDs
-
-
-  # Covert to json string
-  json <- jsonlite::toJSON(obj, na=NULL)
-
-
-  return(json)
+  return(tmp)
 })
 
 #' Write json to tmp file
@@ -235,7 +221,7 @@ writeJSON <- function(x, pattern=NULL, verbose = c(TRUE, FALSE) ) {
   net <- x
   verbose <- veupathUtils::matchArg(verbose)
 
-  outJson <- toJSON(net, verbose)
+  outJson <- veupathUtils::toJSON(net, verbose)
   if (is.null(pattern)) { 
     pattern <- attr(net, 'class')[1]
     if (is.null(pattern)) {
