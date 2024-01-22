@@ -13,8 +13,14 @@ setMethod("getLinkColorScheme", "Network", function(object) object@linkColorSche
 
 ## General network methods
 
-# Get isolated nodes
+#' Get isolated nodes
+#' 
+#' Returns a list of nodes that have no links
+#' @param net A Network object
+#' @export
 setGeneric("getIsolatedNodes", function(net) standardGeneric("getIsolatedNodes"))
+
+#' @export
 setMethod("getIsolatedNodes", "Network", function(net) {
   nodes <- getNodes(net)
   links <- getLinks(net)
@@ -27,8 +33,15 @@ setMethod("getIsolatedNodes", "Network", function(net) {
 })
 
 
-# Remove isolated nodes
+#' Remove isolated nodes
+#' 
+#' Removes nodes that have no links
+#' @param net A Network object
+#' @param verbose If TRUE, will print messages
+#' @export
 setGeneric("pruneIsolatedNodes", function(net, verbose = c(TRUE, FALSE)) standardGeneric("pruneIsolatedNodes"))
+
+#' @export
 setMethod("pruneIsolatedNodes", "Network", function(net, verbose = c(TRUE, FALSE)) {
   verbose <- veupathUtils::matchArg(verbose)
   nodes <- getNodes(net)
@@ -45,8 +58,53 @@ setMethod("pruneIsolatedNodes", "Network", function(net, verbose = c(TRUE, FALSE
   return(net)
 })
 
+getLinkUniqueString <- function(link) {
+  paste0(id(source(link)), id(target(link)))
+}
 
-# Remove redundant links
+#' Find duplicate links
+#' 
+#' Returns a list of links that are redundant
+#' @param net A Network object
+#' @export
+setGeneric("getDuplicateLinks", function(net) standardGeneric("getDuplicateLinks"))
+
+#' @export
+setMethod("getDuplicateLinks", "Network", function(net) {
+  links <- getLinks(net)
+
+  # check for links that have the same source and target node as another link
+  linkUniqueStrings <- sapply(links, getLinkUniqueString)
+  dupLinks <- links[which(duplicated(linkUniqueStrings))]
+  
+  return(dupLinks)
+})
+
+#' Remove Duplicate links
+#' 
+#' Removes links that are redundant
+#' @param net A Network object
+#' @param verbose If TRUE, will print messages
+#' @export
+setGeneric("pruneDuplicateLinks", function(net, verbose = c(TRUE, FALSE)) standardGeneric("pruneDuplicateLinks"))
+
+#' @export
+setMethod("pruneDuplicateLinks", "Network", function(net, verbose = c(TRUE, FALSE)) {
+  verbose <- veupathUtils::matchArg(verbose)
+  links <- getLinks(net)
+
+  dupLinks <- getDuplicateLinks(net)
+  if (length(dupLinks) > 0) {
+    net@links <- links[which(!getLinkIds(links) %in% dupLinks)]
+    veupathUtils::logWithTime(paste('Found and removed', length(dupLinks), 'duplicate links.'), verbose)
+  } else {
+    veupathUtils::logWithTime('No duplicate links found.', verbose)
+  }
+
+  validObject(net)
+  return(net)
+})
+
 # Get Degree list
 # Get Weighted Degree list
 # etc.
