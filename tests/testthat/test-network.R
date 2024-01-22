@@ -143,3 +143,31 @@ test_that("We can remove links by weight", {
   expect_equal(getLinkColorScheme(netNoLargeLinks), 'none')
 
 })
+
+test_that("toJSON works for networks", {
+  # Create some nodes
+  nodeA <- Node(
+    id = NodeId('A')
+  )
+  nodeB <- Node(
+    id = NodeId('B')
+  )
+  nodeC <- Node(
+    id = NodeId('C')
+  )
+  
+  # Create some links
+  link1 <- Link(source = nodeA, target = nodeB, weight = 10)
+  link2 <- Link(source = nodeB, target = nodeC, weight = 20)
+  link3 <- Link(source = nodeC, target = nodeA, weight = 30)
+  
+  # Create the network
+  net <- Network(links = LinkList(c(link1, link2, link3)), nodes = NodeList(c(nodeA, nodeB, nodeC)))
+  json <- veupathUtils::toJSON(net)
+  jsonList <- jsonlite::fromJSON(json)
+  expect_equal(jsonList$network$links$source, c('A','B','C'))
+  expect_equal(jsonList$network$links$target, c('B','C','A'))
+  expect_equal(jsonList$network$links$weight, c(10,20,30))
+  expect_equal(jsonList$network$nodes$id, c('A','B','C'))
+
+})
