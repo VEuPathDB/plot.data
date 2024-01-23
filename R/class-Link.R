@@ -31,6 +31,13 @@ setClass("Link",
     isDirected = "logical"
     # label = "character" # coming soon
   ),
+  prototype = prototype(
+    source = Node(),
+    target = Node(),
+    weight = 1,
+    color = NULL,
+    isDirected = FALSE
+  ),
   validity = check_link
 )
 
@@ -60,8 +67,13 @@ setMethod("Link", c("numeric", "numeric"), function(source, target, weight = 1, 
 })
 
 #' @export
-setMethod("Link", c("NodeId", "NodeId"), function(source, target, weight, color, isDirected) {
+setMethod("Link", c("NodeId", "NodeId"), function(source, target, weight = 1, color = NULL, isDirected = FALSE) {
   Link(source = Node(source), target = Node(target), weight = weight, color = color, isDirected = isDirected)
+})
+
+#' @export
+setMethod("Link", c("missing", "missing"), function(source, target, weight = 1, color = NULL, isDirected = FALSE) {
+  new("Link")
 })
 
 check_link_list <- function(object) {
@@ -129,7 +141,7 @@ setMethod("LinkList", "data.frame", function(object = data.frame(source=characte
     new("LinkList")
   }
 
-  edgeList <- apply(edgeList, 1, function(x) {Link(x['source'], x['target'], NA, NA, NA)})
+  edgeList <- apply(edgeList, 1, function(x) {Link(unname(x['source']), unname(x['target']))})
   new("LinkList", edgeList)
 })
 

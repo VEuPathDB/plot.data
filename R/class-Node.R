@@ -185,6 +185,11 @@ setMethod("Node", "NodeId", function(id, x = numeric(), y = numeric(), color = N
   new("Node", id = id, x = x, y = y, color = color, weight = weight)
 })
 
+#' @export 
+setMethod("Node", "missing", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL) {
+  new("Node", id = NodeId(generate_node_id(1)), x = x, y = y, color = color, weight = weight)
+})
+
 
 check_node_list <- function(object) {
 
