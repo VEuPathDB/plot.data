@@ -189,10 +189,10 @@ setMethod(toJSONGeneric, "Network", function(object, named = c(TRUE, FALSE)) {
   links_json <- veupathUtils::toJSON(object@links, named = FALSE)
 
   tmp <- paste0('"nodes":', nodes_json, ',"links":', links_json)
-
-  tmp <- paste0("{", tmp, "}")
-  # TODO add variableMapping under config, nodes and links under data
-if (named) tmp <- paste0('{"network":', tmp, '}')
+  tmp <- paste0('"data":{', tmp, '}')
+  tmp <- paste0('{', tmp, ',"config":{"variables":{', veupathUtils::toJSON(object@variableMapping, named = FALSE), '}}}')
+  
+  if (named) tmp <- paste0('{"network":', tmp, '}')
 
   return(tmp)
 })
