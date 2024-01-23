@@ -59,10 +59,15 @@ setClass("Network",
   validity = check_network
 )
 
+## TODO 
+## i think I need a custom initializer method here, to parse variables slot to inform how to color and weight links and nodes
+
 #' @include utils.R
 #' Generate a Network 
 #' 
-#' Generate a Network from an edgeList
+#' Generate a Network from a LinkList and NodeList, or from a data.frame
+#' @param links LinkList
+#' @param nodes NodeList
 #' @param object Object containing data to be converted to a Network
 #' @return Network
 #' @export
@@ -72,19 +77,19 @@ setGeneric("Network",
   function(
     links,
     nodes,
-    edgeList, 
+    object, 
     linkColorScheme = 'none', 
     variables = VariableMetadataList(), 
     ...
   ) standardGeneric("Network"),
-  signature = c("links", "nodes", "edgeList")
+  signature = c("links", "nodes", "object")
 )
 
 #' @export
 setMethod("Network", signature("LinkList", "NodeList", "missing"), function(
   links, 
   nodes,
-  edgeList,
+  object,
   linkColorScheme = 'none', 
   variables = VariableMetadataList(), 
   ...
@@ -96,19 +101,19 @@ setMethod("Network", signature("LinkList", "NodeList", "missing"), function(
 setMethod("Network", signature("missing", "missing", "data.frame"), function(
   links, 
   nodes,
-  edgeList = data.frame(source=character(),target=character()), 
+  object = data.frame(source=character(),target=character()), 
   linkColorScheme = 'none', 
   variables = VariableMetadataList(), 
   ...
 ) {
-  new("Network", links=LinkList(edgeList), nodes=NodeList(edgeList), linkColorScheme=linkColorScheme, variableMapping=variables)
+  new("Network", links=LinkList(object), nodes=NodeList(object), linkColorScheme=linkColorScheme, variableMapping=variables)
 })
 
 #' @export 
 setMethod("Network", signature("missing", "missing", "missing"), function(
   links, 
   nodes,
-  edgeList,
+  object,
   linkColorScheme = 'none', 
   variables = VariableMetadataList(), 
   ...

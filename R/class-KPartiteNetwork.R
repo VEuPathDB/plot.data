@@ -115,3 +115,69 @@ KPartiteNetwork <- setClass("KPartiteNetwork",
   ),
   validity = check_kpartite_network
 )
+
+#TODO toJSON methods here
+# Im also wondering if theres a better way to do this.. call the Network method and add the partitions to the result?
+
+#' @include utils.R
+#' Generate a K-Partite Network 
+#' 
+#' Generate a K-Partite Network from a LinkList and NodeList, or from a data.frame
+#' @param links LinkList
+#' @param nodes NodeList
+#' @param object Object containing data to be converted to a Network
+#' @return KPartiteNetwork
+#' @export
+#' @examples
+#' KPartiteNetwork(data.frame(source='a',target='b'))
+setGeneric("KPartiteNetwork", 
+  function(
+    links,
+    nodes,
+    object, 
+    partitions = Partitions(),
+    linkColorScheme = 'none', 
+    variables = VariableMetadataList(), 
+    ...
+  ) standardGeneric("KPartiteNetwork"),
+  signature = c("links", "nodes", "object")
+)
+
+#' @export
+setMethod("KPartiteNetwork", signature("LinkList", "NodeList", "missing"), function(
+  links, 
+  nodes,
+  object,
+  partitions = Partitions(),
+  linkColorScheme = 'none', 
+  variables = VariableMetadataList(), 
+  ...
+) {
+  new("KPartiteNetwork", links=links, nodes=nodes, partitions=partitions, linkColorScheme=linkColorScheme, variableMapping=variables)
+})
+
+#' @export  
+setMethod("Network", signature("missing", "missing", "data.frame"), function(
+  links, 
+  nodes,
+  object = data.frame(source=character(),target=character()), 
+  partitions = Partitions(),
+  linkColorScheme = 'none', 
+  variables = VariableMetadataList(), 
+  ...
+) {
+  new("Network", links=LinkList(object), nodes=NodeList(object), partitions=partitions, linkColorScheme=linkColorScheme, variableMapping=variables)
+})
+
+#' @export 
+setMethod("Network", signature("missing", "missing", "missing"), function(
+  links, 
+  nodes,
+  object,
+  partitions = Partitions(),
+  linkColorScheme = 'none', 
+  variables = VariableMetadataList(), 
+  ...
+) {
+  new("Network")
+})
