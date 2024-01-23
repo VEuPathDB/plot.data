@@ -157,7 +157,7 @@ setMethod("KPartiteNetwork", signature("LinkList", "NodeList", "missing"), funct
 })
 
 #' @export  
-setMethod("Network", signature("missing", "missing", "data.frame"), function(
+setMethod("KPartiteNetwork", signature("missing", "missing", "data.frame"), function(
   links, 
   nodes,
   object = data.frame(source=character(),target=character()), 
@@ -166,11 +166,11 @@ setMethod("Network", signature("missing", "missing", "data.frame"), function(
   variables = VariableMetadataList(), 
   ...
 ) {
-  new("Network", links=LinkList(object), nodes=NodeList(object), partitions=partitions, linkColorScheme=linkColorScheme, variableMapping=variables)
+  new("KPartiteNetwork", links=LinkList(object), nodes=NodeList(object), partitions=partitions, linkColorScheme=linkColorScheme, variableMapping=variables)
 })
 
 #' @export 
-setMethod("Network", signature("missing", "missing", "missing"), function(
+setMethod("KPartiteNetwork", signature("missing", "missing", "missing"), function(
   links, 
   nodes,
   object,
@@ -179,5 +179,5 @@ setMethod("Network", signature("missing", "missing", "missing"), function(
   variables = VariableMetadataList(), 
   ...
 ) {
-  new("Network")
+  new("KPartiteNetwork")
 })
