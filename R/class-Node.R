@@ -160,16 +160,31 @@ setClass("Node",
   validity = check_node
 )
 
-setMethod("initialize", "Node", function(
-  .Object, 
-  id = character(), 
-  ...
-) { 
-  .Object <- callNextMethod(.Object, ...)
-  .Object@id <- NodeId(id)  
-              
-  .Object
+#' Create a Node
+#' 
+#' @param id string a unique identifier for the node
+#' @param x numeric value indicating the x coordinate of the node. Optional.
+#' @param y numeric value indicating the y coordinate of the node. Optional.
+#' @param color string or numeric that determines the color of the node. Optional.
+#' @param weight numeric value associated with the node, such as timestamp or other node-associated data. Optional.
+#' @export
+setGeneric("Node", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL) standardGeneric("Node"), signature = c("id"))
+
+#' @export
+setMethod("Node", "numeric", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL) {
+  new("Node", id = NodeId(as.character(id)), x = x, y = y, color = color, weight = weight)
 })
+
+#' @export
+setMethod("Node", "character", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL) {
+  new("Node", id = NodeId(id), x = x, y = y, color = color, weight = weight)
+})
+
+#' @export
+setMethod("Node", "NodeId", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL) {
+  new("Node", id = id, x = x, y = y, color = color, weight = weight)
+})
+
 
 check_node_list <- function(object) {
 
@@ -207,7 +222,7 @@ check_node_list <- function(object) {
 #' @rdname NodeList-class
 #' @importFrom S4Vectors SimpleList
 #' @export
-NodeList <- setClass("NodeList", 
+setClass("NodeList", 
   contains = "SimpleList",
   prototype = prototype(
     elementType = "Node"
@@ -215,18 +230,39 @@ NodeList <- setClass("NodeList",
   validity = check_node_list
 )
 
-setMethod("initialize", "NodeList", function(
-  .Object, 
-  edgeList = data.frame(), 
-  ...
-) {
-  if (!isValidEdgeList(edgeList)) {
+#' @include utils.R
+#' Generate a NodeList
+#' 
+#' Generate a NodeList from an edgeList
+#' @param object Object containing data to be converted to a NodeList
+#' @return NodeList
+#' @export
+#' @examples
+#' NodeList(data.frame(source='a',target='b'))
+setGeneric("NodeList", function(object) standardGeneric("NodeList"))
+
+#' @export
+setMethod("NodeList", "data.frame", function(object = data.frame(source=character(),target=character())) {
+  if (!isValidEdgeList(object)) {
     stop(paste(errors, collapse = '\n'))
   }
-        
-  .Object <- callNextMethod(.Object, ...)
+  
   allNodeIds <- unique(c(edgeList$source, edgeList$target))
-  .Object <- S4Vectors::SimpleList(lapply(allNodeIds, Node))
-              
-  .Object
+  nodesList <- lapply(allNodeIds, Node)
+  new("NodeList", nodesList)
+})
+
+#' @export
+setMethod("NodeList", "missing", function(object) {
+  new("NodeList")
+})
+
+#' @export 
+setMethod("NodeList", "SimpleList", function(object) {
+  new("NodeList", object)
+})
+
+#' @export 
+setMethod("NodeList", "list", function(object) {
+  new("NodeList", object)
 })

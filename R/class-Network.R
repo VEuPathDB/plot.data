@@ -23,6 +23,9 @@ check_network <- function(object) {
   return(if (length(errors) == 0) TRUE else errors)
 }
 
+## TODO
+## i wonder if i can do something like `Network <- setClass("Network", slots = c(links = "LinkList", nodes = "NodeList"))`
+## and then grab a generic from that generator fxn and build custom methods on top of it. thatd be cleaner.
 
 #' Network
 #' 
@@ -46,7 +49,8 @@ setClass("Network",
     nodes = "NodeList",
     linkColorScheme = "character",
     variableMapping = "VariableMetadataList"
-  ), prototype = prototype(
+  ),
+  prototype = prototype(
     links = LinkList(),
     nodes = NodeList(),
     linkColorScheme = 'none',
@@ -55,36 +59,59 @@ setClass("Network",
   validity = check_network
 )
 
-isValidEdgeList <- function(edgeList) {
-  errors <- character()
+#' @include utils.R
+#' Generate a Network 
+#' 
+#' Generate a Network from an edgeList
+#' @param object Object containing data to be converted to a Network
+#' @return Network
+#' @export
+#' @examples
+#' Network(data.frame(source='a',target='b'))
+setGeneric("Network", 
+  function(
+    links,
+    nodes,
+    edgeList, 
+    linkColorScheme = 'none', 
+    variables = VariableMetadataList(), 
+    ...
+  ) standardGeneric("Network"),
+  signature = c("links", "nodes", "edgeList")
+)
 
-  if (!is.data.frame(edgeList)) {
-    errors <- c(errors, 'edgeList must be a data.frame')
-  }
-  if (!all(c('source', 'target') %in% colnames(edgeList))) {
-    errors <- c(errors, 'edgeList must contain columns named "source" and "target"')
-  }
-
-  return(if (length(errors) == 0) TRUE else errors)
-}
-
-setMethod("initialize", "Network", function(
-  .Object, 
-  edgeList = data.frame(), 
+#' @export
+setMethod("Network", signature("LinkList", "NodeList", "missing"), function(
+  links, 
+  nodes,
+  edgeList,
   linkColorScheme = 'none', 
   variables = VariableMetadataList(), 
   ...
 ) {
-  if (!isValidEdgeList(edgeList)) {
-    stop(paste(errors, collapse = '\n'))
-  }
-        
-  .Object <- callNextMethod(.Object, ...)
-  # TODO initialize methods for these as well
-  .Object@links <- LinkList(edgeList)
-  .Object@nodes <- NodeList(edgeList)
-  .Object@linkColorScheme <- linkColorScheme
-  .Object@variableMapping <- variables
-              
-  .Object
+  new("Network", links=links, nodes=nodes, linkColorScheme=linkColorScheme, variableMapping=variables)
+})
+
+#' @export  
+setMethod("Network", signature("missing", "missing", "data.frame"), function(
+  links, 
+  nodes,
+  edgeList = data.frame(source=character(),target=character()), 
+  linkColorScheme = 'none', 
+  variables = VariableMetadataList(), 
+  ...
+) {
+  new("Network", links=LinkList(edgeList), nodes=NodeList(edgeList), linkColorScheme=linkColorScheme, variableMapping=variables)
+})
+
+#' @export 
+setMethod("Network", signature("missing", "missing", "missing"), function(
+  links, 
+  nodes,
+  edgeList,
+  linkColorScheme = 'none', 
+  variables = VariableMetadataList(), 
+  ...
+) {
+  new("Network")
 })

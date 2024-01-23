@@ -43,6 +43,7 @@ Depends:
 Collate: 
     'bin.R'
     'class-ContingencyTable.R'
+    'utils.R'
     'class-Node.R'
     'class-Link.R'
     'class-Network.R'
@@ -68,4 +69,3 @@ Collate:
     'utils-json.R'
     'utils-pipe.R'
     'utils-stats.R'
-    'utils.R'

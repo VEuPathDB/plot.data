@@ -31,52 +31,37 @@ setClass("Link",
     isDirected = "logical"
     # label = "character" # coming soon
   ),
-  prototype = prototype(
-    source = new("Node"),
-    target = new("Node"),
-    weight = 1,
-    isDirected = FALSE
-  ),
   validity = check_link
 )
 
-setMethod("initialize", "Link", function(
-  .Object, 
-  source = character(), 
-  target = character(), 
-  weight = 1, 
-  color = NULL, 
-  isDirected = FALSE,
-  ...
-) { 
-  .Object <- callNextMethod(.Object, ...)
-  .Object@source <- Node(source)
-  .Object@target <- Node(target)
-  .Object@weight <- weight
-  .Object@color <- color
-  .Object@isDirected <- isDirected
-              
-  .Object
+#' Link constructor
+#' 
+#' @param source The source node
+#' @param target The target node
+#' @param weight The weight of the link
+#' @param color The color of the link
+#' @param isDirected Whether the link is directed
+#' @export
+setGeneric("Link", function(source, target, weight = 1, color = NULL, isDirected = FALSE) standardGeneric("Link"), signature = c("source", "target"))
+
+#' @export
+setMethod("Link", c("Node", "Node"), function(source, target, weight = 1, color = NULL, isDirected = FALSE) {
+  new("Link", source = source, target = target, weight = weight, color = color, isDirected = isDirected)
 })
 
-setMethod("initialize", "Link", function(
-  .Object, 
-  source = Node(), 
-  target = Node(), 
-  weight = 1, 
-  color = NULL, 
-  isDirected = FALSE, 
-  ...
-) {
+#' @export
+setMethod("Link", c("character", "character"), function(source, target, weight = 1, color = NULL, isDirected = FALSE) {
+  Link(source = Node(source), target = Node(target), weight = weight, color = color, isDirected = isDirected)
+})
 
-  .Object <- callNextMethod(.Object, ...)
-  .Object@source <- source
-  .Object@target <- target
-  .Object@weight <- weight
-  .Object@color <- color
-  .Object@isDirected <- isDirected
-              
-  .Object
+#' @export
+setMethod("Link", c("numeric", "numeric"), function(source, target, weight = 1, color = NULL, isDirected = FALSE) {
+  Link(source = Node(source), target = Node(target), weight = weight, color = color, isDirected = isDirected)
+})
+
+#' @export
+setMethod("Link", c("NodeId", "NodeId"), function(source, target, weight, color, isDirected) {
+  Link(source = Node(source), target = Node(target), weight = weight, color = color, isDirected = isDirected)
 })
 
 check_link_list <- function(object) {
@@ -124,17 +109,41 @@ setClass("LinkList",
   validity = check_link_list
 )
 
-setMethod("initialize", "LinkList", function(
-  .Object, 
-  edgeList = data.frame(), 
-  ...
-) {
+#' Generate a LinkList
+#' 
+#' Generate a LinkList from an edgeList
+#' @param object Object containing data to be converted to a LinkList
+#' @return LinkList
+#' @export
+#' @examples
+#' LinkList(data.frame(source='a',target='b'))
+setGeneric("LinkList", function(object) standardGeneric("LinkList"))
+
+#' @export
+setMethod("LinkList", "data.frame", function(object = data.frame(source=character(),target=character())) {
   if (!isValidEdgeList(edgeList)) {
     stop(paste(errors, collapse = '\n'))
   }
-        
-  .Object <- callNextMethod(.Object, ...)  
-  .Object <- S4Vectors::SimpleList(lapply(edgeList, Link))
-              
-  .Object
+
+  if (nrow(edgeList) == 0) {
+    new("LinkList")
+  }
+
+  edgeList <- apply(edgeList, 1, function(x) {Link(x['source'], x['target'], NA, NA, NA)})
+  new("LinkList", edgeList)
+})
+
+#' @export
+setMethod("LinkList", "missing", function(object) {
+  new("LinkList")
+})
+
+#' @export 
+setMethod("LinkList", "SimpleList", function(object) {
+  new("LinkList", object)
+})
+
+#' @export 
+setMethod("LinkList", "list", function(object) {
+  new("LinkList", object)
 })
