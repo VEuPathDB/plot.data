@@ -149,7 +149,7 @@ generate_node_id <- function(n = 5000) {
 #' @name Node-class
 #' @rdname Node-class
 #' @export
-Node <- setClass("Node", 
+setClass("Node", 
   slots = c(
     id = "NodeId",
     x = "numeric",
@@ -159,6 +159,17 @@ Node <- setClass("Node",
   ),
   validity = check_node
 )
+
+setMethod("initialize", "Node", function(
+  .Object, 
+  id = character(), 
+  ...
+) { 
+  .Object <- callNextMethod(.Object, ...)
+  .Object@id <- NodeId(id)  
+              
+  .Object
+})
 
 check_node_list <- function(object) {
 
@@ -204,4 +215,18 @@ NodeList <- setClass("NodeList",
   validity = check_node_list
 )
 
-
+setMethod("initialize", "NodeList", function(
+  .Object, 
+  edgeList = data.frame(), 
+  ...
+) {
+  if (!isValidEdgeList(edgeList)) {
+    stop(paste(errors, collapse = '\n'))
+  }
+        
+  .Object <- callNextMethod(.Object, ...)
+  allNodeIds <- unique(c(edgeList$source, edgeList$target))
+  .Object <- S4Vectors::SimpleList(lapply(allNodeIds, Node))
+              
+  .Object
+})

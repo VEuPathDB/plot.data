@@ -40,7 +40,7 @@ check_network <- function(object) {
 #' @rdname Network-class
 #' @include class-Link.R
 #' @export
-Network <- setClass("Network", 
+setClass("Network", 
   representation(
     links = "LinkList",
     nodes = "NodeList",
@@ -54,3 +54,37 @@ Network <- setClass("Network",
   ),
   validity = check_network
 )
+
+isValidEdgeList <- function(edgeList) {
+  errors <- character()
+
+  if (!is.data.frame(edgeList)) {
+    errors <- c(errors, 'edgeList must be a data.frame')
+  }
+  if (!all(c('source', 'target') %in% colnames(edgeList))) {
+    errors <- c(errors, 'edgeList must contain columns named "source" and "target"')
+  }
+
+  return(if (length(errors) == 0) TRUE else errors)
+}
+
+setMethod("initialize", "Network", function(
+  .Object, 
+  edgeList = data.frame(), 
+  linkColorScheme = 'none', 
+  variables = VariableMetadataList(), 
+  ...
+) {
+  if (!isValidEdgeList(edgeList)) {
+    stop(paste(errors, collapse = '\n'))
+  }
+        
+  .Object <- callNextMethod(.Object, ...)
+  # TODO initialize methods for these as well
+  .Object@links <- LinkList(edgeList)
+  .Object@nodes <- NodeList(edgeList)
+  .Object@linkColorScheme <- linkColorScheme
+  .Object@variableMapping <- variables
+              
+  .Object
+})

@@ -22,7 +22,7 @@ check_link <- function(object) {
 #' @rdname Link-class
 #' @include class-Node.R
 #' @export
-Link <- setClass("Link", 
+setClass("Link", 
   representation(
     source = "Node",
     target = "Node",
@@ -40,6 +40,44 @@ Link <- setClass("Link",
   validity = check_link
 )
 
+setMethod("initialize", "Link", function(
+  .Object, 
+  source = character(), 
+  target = character(), 
+  weight = 1, 
+  color = NULL, 
+  isDirected = FALSE,
+  ...
+) { 
+  .Object <- callNextMethod(.Object, ...)
+  .Object@source <- Node(source)
+  .Object@target <- Node(target)
+  .Object@weight <- weight
+  .Object@color <- color
+  .Object@isDirected <- isDirected
+              
+  .Object
+})
+
+setMethod("initialize", "Link", function(
+  .Object, 
+  source = Node(), 
+  target = Node(), 
+  weight = 1, 
+  color = NULL, 
+  isDirected = FALSE, 
+  ...
+) {
+
+  .Object <- callNextMethod(.Object, ...)
+  .Object@source <- source
+  .Object@target <- target
+  .Object@weight <- weight
+  .Object@color <- color
+  .Object@isDirected <- isDirected
+              
+  .Object
+})
 
 check_link_list <- function(object) {
 
@@ -78,10 +116,25 @@ check_link_list <- function(object) {
 #' @rdname LinkList-class
 #' @importFrom S4Vectors SimpleList
 #' @export
-LinkList <- setClass("LinkList", 
+setClass("LinkList", 
   contains = "SimpleList",
   prototype = prototype(
     elementType = "Link"
   ),
   validity = check_link_list
 )
+
+setMethod("initialize", "LinkList", function(
+  .Object, 
+  edgeList = data.frame(), 
+  ...
+) {
+  if (!isValidEdgeList(edgeList)) {
+    stop(paste(errors, collapse = '\n'))
+  }
+        
+  .Object <- callNextMethod(.Object, ...)  
+  .Object <- S4Vectors::SimpleList(lapply(edgeList, Link))
+              
+  .Object
+})
