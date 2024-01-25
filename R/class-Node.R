@@ -77,16 +77,17 @@ setClass("NodeIdList",
 
 #' Create a NodeIdList
 #' 
-#' @param nodeIds list of node ids
+#' @param object Object containing list of node ids
 #' @export 
-NodeIdList <- function(nodeIds) {
+setGeneric("NodeIdList", function(object, uniqueOnly = c(TRUE, FALSE)) standardGeneric("NodeIdList")) 
+
+#' @export
+setMethod("NodeIdList", "list", function(object, uniqueOnly = c(TRUE, FALSE)) {
+  uniqueOnly <- veupathUtils::matchArg(uniqueOnly)
+  nodeIds <- object
 
   if (length(nodeIds) == 0) {
     stop("nodeIds must not be empty")
-  }
-
-  if (length(nodeIds) == 1 && !is.list(nodeIds)) {
-    nodeIds <- list(nodeIds) 
   }
 
   if (!is.list(nodeIds)) {
@@ -95,15 +96,60 @@ NodeIdList <- function(nodeIds) {
 
   if (all(unlist(lapply(nodeIds, inherits, 'Node')))) {
     nodeIds <- lapply(nodeIds, id)
+    if (uniqueOnly) {
+      nodeIds <- unique(nodeIds)
+    }
     nodeIds <- lapply(nodeIds, NodeId)
   } else if (all(unlist(lapply(nodeIds, inherits, 'character')))) {
+    if (uniqueOnly) {
+      nodeIds <- unique(nodeIds)
+    }
     nodeIds <- lapply(nodeIds, NodeId)
   } else if (!all(unlist(lapply(nodeIds, inherits, 'NodeId')))) {
     stop("nodeIds must be a list of Node, NodeId or character objects")
   }
 
   return(new("NodeIdList", S4Vectors::SimpleList(nodeIds)))
-}
+})
+
+#' @export 
+setMethod("NodeIdList", "NodeList", function(object, uniqueOnly = c(TRUE, FALSE)) {
+  return(NodeIdList(getNodeIds(object, uniqueOnly = uniqueOnly)))
+})
+
+#' @export
+setMethod("NodeIdList", "character", function(object, uniqueOnly = c(TRUE, FALSE)) {
+  uniqueOnly <- veupathUtils::matchArg(uniqueOnly)
+
+  if (length(object) == 0) {
+    stop("nodeIds must not be empty")
+  }
+
+  if (uniqueOnly) {
+    object <- unique(object)
+  }
+
+  return(new("NodeIdList", S4Vectors::SimpleList(lapply(object, NodeId))))
+}) 
+
+#' @export 
+setMethod("NodeIdList", "data.frame", function(object, uniqueOnly = c(TRUE, FALSE)) {  
+  if (!isValidEdgeList(object)) {
+    stop(paste(errors, collapse = '\n'))
+  }
+
+  return(NodeIdList(c(object$source, object$target), uniqueOnly = uniqueOnly))
+})
+
+#' @export 
+setMethod("NodeIdList", "missing", function(object) {
+  return(new("NodeIdList"))
+})
+
+#' @export 
+setMethod("NodeIdList", "Node", function(object) {
+  return(NodeIdList(list(object)))
+})
 
 check_node <- function(object) {
 
