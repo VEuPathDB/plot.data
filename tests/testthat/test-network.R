@@ -178,7 +178,7 @@ test_that("we can build a Network from an edgeList data.frame", {
     source = c('a', 'b', 'c'),
     target = c('b', 'c', 'a')
   )
-  net <- Network(edgeList = edgeList)
+  net <- Network(object = edgeList)
   expect_equal(getNodes(net), NodeList(c(Node('a'), Node('b'), Node('c'))))
   expect_equal(getLinks(net), LinkList(c(Link(source = Node('a'), target = Node('b')), Link(source = Node('b'), target = Node('c')), Link(source = Node('c'), target = Node('a')))))
   expect_equal(getLinkColorScheme(net), 'none')

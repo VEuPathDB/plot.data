@@ -62,6 +62,7 @@ setClass("Network",
 ## TODO 
 ## i think I need a custom initializer method here, to parse variables slot to inform how to color and weight links and nodes
 
+## TODO i wonder if i can have two Network generics? one w nodes and links, the other edgeList?
 #' @include utils.R
 #' Generate a Network 
 #' 

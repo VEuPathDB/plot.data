@@ -153,6 +153,10 @@ setMethod("KPartiteNetwork", signature("LinkList", "NodeList", "missing"), funct
   variables = VariableMetadataList(), 
   ...
 ) {
+  # default to a single partition if none provided
+  if (length(partitions) == 0) {
+    partitions <- Partitions(list(NodeIdList(as.list(getNodeIds(nodes)))))
+  }
   new("KPartiteNetwork", links=links, nodes=nodes, partitions=partitions, linkColorScheme=linkColorScheme, variableMapping=variables)
 })
 
@@ -166,6 +170,11 @@ setMethod("KPartiteNetwork", signature("missing", "missing", "data.frame"), func
   variables = VariableMetadataList(), 
   ...
 ) {
+  # default to a single partition if none provided
+  if (length(partitions) == 0) {
+    # TODO this is ridiculous. clean up NodeIdList constructor
+    partitions <- Partitions(list(NodeIdList(as.list(getNodeIds(NodeList(object))))))
+  }
   new("KPartiteNetwork", links=LinkList(object), nodes=NodeList(object), partitions=partitions, linkColorScheme=linkColorScheme, variableMapping=variables)
 })
 

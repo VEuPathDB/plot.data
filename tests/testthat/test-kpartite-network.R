@@ -79,7 +79,7 @@ test_that("we can build a KPartiteNetwork from an edgeList data.frame", {
     source = c('a', 'b', 'c'),
     target = c('b', 'c', 'a')
   )
-  net <- KPartiteNetwork(edgeList = edgeList)
+  net <- KPartiteNetwork(object = edgeList)
   #TODO should this make a single partition by default?
   expect_equal(getNodes(net), NodeList(c(Node('a'), Node('b'), Node('c'))))
   expect_equal(getLinks(net), LinkList(c(Link(source = Node('a'), target = Node('b')), Link(source = Node('b'), target = Node('c')), Link(source = Node('c'), target = Node('a')))))

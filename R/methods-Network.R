@@ -166,12 +166,6 @@ pruneLinksBelowWeight <- function(net, threshold, verbose = c(TRUE, FALSE)) {
   return(pruneLinksByPredicate(net = net, predicate = linkBelowWeightThreshold, threshold = threshold, verbose = verbose))
 }
 
-
-## these look like things that should be made into github issues..
-# Get Degree list
-# Get Weighted Degree list
-# Assign color scheme
-
 toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 
 #' Convert Network object to JSON
