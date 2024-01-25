@@ -199,7 +199,7 @@ setMethod(toJSONGeneric, "Network", function(object, named = c(TRUE, FALSE)) {
 #' @param verbose boolean that declares if logging is desired
 #' @return character name of a tmp file w ext *.json
 #' @export
-writeJSON <- setGeneric("writeJSON", function(x, verbose = c(TRUE, FALSE)) standardGeneric("writeJSON"))
+setGeneric("writeJSON", function(x, pattern = NULL, verbose = c(TRUE, FALSE)) standardGeneric("writeJSON"))
 
 #' Write json to local tmp file
 #'
@@ -211,7 +211,7 @@ writeJSON <- setGeneric("writeJSON", function(x, verbose = c(TRUE, FALSE)) stand
 #' @return character name of a tmp file w ext *.json
 #' @importFrom jsonlite toJSON
 #' @export
-writeJSON <- function(x, pattern=NULL, verbose = c(TRUE, FALSE) ) {
+setMethod("writeJSON", "Network", function(x, pattern=NULL, verbose = c(TRUE, FALSE)) {
   net <- x
   verbose <- veupathUtils::matchArg(verbose)
 
@@ -227,4 +227,4 @@ writeJSON <- function(x, pattern=NULL, verbose = c(TRUE, FALSE) ) {
   veupathUtils::logWithTime(paste('New output file written:', outFileName), verbose)
 
   return(outFileName)
-}
+})

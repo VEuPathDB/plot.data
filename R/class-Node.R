@@ -114,7 +114,7 @@ setMethod("NodeIdList", "list", function(object, uniqueOnly = c(TRUE, FALSE)) {
 
 #' @export 
 setMethod("NodeIdList", "NodeList", function(object, uniqueOnly = c(TRUE, FALSE)) {
-  return(NodeIdList(getNodeIds(object, uniqueOnly = uniqueOnly)))
+  return(NodeIdList(getNodeIds(object), uniqueOnly = uniqueOnly))
 })
 
 #' @export
@@ -142,12 +142,12 @@ setMethod("NodeIdList", "data.frame", function(object, uniqueOnly = c(TRUE, FALS
 })
 
 #' @export 
-setMethod("NodeIdList", "missing", function(object) {
+setMethod("NodeIdList", "missing", function(object, uniqueOnly = c(TRUE, FALSE)) {
   return(new("NodeIdList"))
 })
 
 #' @export 
-setMethod("NodeIdList", "Node", function(object) {
+setMethod("NodeIdList", "Node", function(object, uniqueOnly = c(TRUE, FALSE)) {
   return(NodeIdList(list(object)))
 })
 

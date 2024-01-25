@@ -116,9 +116,6 @@ KPartiteNetwork <- setClass("KPartiteNetwork",
   validity = check_kpartite_network
 )
 
-#TODO toJSON methods here
-# Im also wondering if theres a better way to do this.. call the Network method and add the partitions to the result?
-
 #' @include utils.R
 #' Generate a K-Partite Network 
 #' 

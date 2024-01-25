@@ -75,3 +75,25 @@ setMethod(toJSONGeneric, signature("NodeList"), function(object, named = c(TRUE,
 
     return(tmp)
 })
+
+#' @export
+setMethod(toJSONGeneric, signature("NodeId"), function(object, named = c(FALSE, TRUE)) {
+    named <- veupathUtils::matchArg(named)
+    tmp <- character()
+
+    tmp <- jsonlite::toJSON(jsonlite::unbox(id(object)))
+    
+    if (named) tmp <- paste0('"nodeId":', tmp)
+
+    return(tmp)
+})
+
+#' @export
+setMethod(toJSONGeneric, signature("NodeIdList"), function(object, named = c(TRUE, FALSE)) {
+    named <- veupathUtils::matchArg(named) 
+    tmp <- veupathUtils::S4SimpleListToJSON(object, FALSE)
+
+    if (named) tmp <- paste0('{"nodeIds":', tmp, "}")
+
+    return(tmp)
+}) 
