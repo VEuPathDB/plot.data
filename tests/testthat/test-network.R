@@ -180,6 +180,52 @@ test_that("we can build a Network from an edgeList data.frame", {
   )
   net <- Network(object = edgeList)
   expect_equal(getNodes(net), NodeList(c(Node('a'), Node('b'), Node('c'))))
-  expect_equal(getLinks(net), LinkList(c(Link(source = Node('a'), target = Node('b')), Link(source = Node('b'), target = Node('c')), Link(source = Node('c'), target = Node('a')))))
+  expect_equal(getLinks(net)[[1]]@source, Node('a'))
+  expect_equal(getLinks(net)[[1]]@target, Node('b'))
+  expect_equal(getLinks(net)[[2]]@source, Node('b'))
+  expect_equal(getLinks(net)[[2]]@target, Node('c'))
+  expect_equal(getLinks(net)[[3]]@source, Node('c'))
+  expect_equal(getLinks(net)[[3]]@target, Node('a'))
   expect_equal(getLinkColorScheme(net), 'none')
+
+  #w a weight column
+  edgeList <- data.frame(
+    source = c('a', 'b', 'c'),
+    target = c('b', 'c', 'a'),
+    weight = c(1,2,3)
+  )
+  net <- Network(object = edgeList)
+  expect_equal(getNodes(net), NodeList(c(Node('a'), Node('b'), Node('c'))))
+  expect_equal(getLinks(net)[[2]]@weight, 2)
+  expect_equal(getLinks(net)[[3]]@weight, 3)
+  expect_equal(getLinkColorScheme(net), 'none')
+
+  #w a color column
+  edgeList <- data.frame(
+    source = c('a', 'b', 'c'),
+    target = c('b', 'c', 'a'),
+    color = c("red", "green", "blue")
+  )
+  net <- Network(object = edgeList)
+  expect_equal(getNodes(net), NodeList(c(Node('a'), Node('b'), Node('c'))))
+  expect_equal(getLinks(net)[[1]]@color, "red")
+  expect_equal(getLinks(net)[[2]]@color, "green")
+  expect_equal(getLinks(net)[[3]]@color, "blue")
+  expect_equal(getLinkColorScheme(net), 'none')
+
+  #w a color scheme
+  edgeList <- data.frame(
+    source = c('a', 'b', 'c'),
+    target = c('b', 'c', 'a'),
+    weight = c(-10,0,10)
+  )
+  net <- Network(object = edgeList, linkColorScheme = 'posneg')
+  expect_equal(getNodes(net), NodeList(c(Node('a'), Node('b'), Node('c'))))
+  expect_equal(getLinks(net)[[1]]@weight, -10)
+  expect_equal(getLinks(net)[[2]]@weight, 0)
+  expect_equal(getLinks(net)[[3]]@weight, 10)
+  expect_equal(getLinks(net)[[1]]@color, -1)
+  expect_equal(getLinks(net)[[2]]@color, 0)
+  expect_equal(getLinks(net)[[3]]@color, 1)
+  expect_equal(getLinkColorScheme(net), 'posneg')
 })

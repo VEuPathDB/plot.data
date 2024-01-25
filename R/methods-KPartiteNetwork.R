@@ -1,3 +1,9 @@
+setGeneric("partitions", function(object) standardGeneric("partitions"))
+setGeneric("partitions<-", function(object, value) standardGeneric("partitions<-"))
+
+setMethod("partitions", "KPartiteNetwork", function(object) object@partitions)
+setMethod("partitions<-", "KPartiteNetwork", function(object, value) {object@partitions <- value; validObject(object); object})
+
 toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 
 #' Convert Partitions object to JSON

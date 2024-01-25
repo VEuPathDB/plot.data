@@ -298,7 +298,7 @@ setMethod("NodeList", "data.frame", function(object = data.frame(source=characte
     stop(paste(errors, collapse = '\n'))
   }
   
-  allNodeIds <- unique(c(edgeList$source, edgeList$target))
+  allNodeIds <- unique(c(object$source, object$target))
   nodesList <- lapply(allNodeIds, Node)
   new("NodeList", nodesList)
 })

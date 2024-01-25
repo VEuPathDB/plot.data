@@ -25,7 +25,7 @@ check_network <- function(object) {
 
 ## TODO
 ## i wonder if i can do something like `Network <- setClass("Network", slots = c(links = "LinkList", nodes = "NodeList"))`
-## and then grab a generic from that generator fxn and build custom methods on top of it. thatd be cleaner.
+## and then grab a generic from that generator fxn and build custom methods on top of it. thatd be cleaner. not urgent.
 
 #' Network
 #' 
@@ -36,6 +36,7 @@ check_network <- function(object) {
 #' @slot links LinkList object defining the links in the network.
 #' @slot nodes NodeList object defining the nodes in the network. Some nodes may not have any links.
 #' @slot linkColorScheme string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.
+#'  In the case of 'posneg', the links color slot will be set to 1 if the link is positive, and -1 if the link is negative.
 #' @slot variableMapping veupathUtils::VariableMetadataList object defining the variable mappings in the network.
 #' Use a method assignLinkColors() to assign colors to links and set this slot's value.
 #' 
@@ -62,7 +63,6 @@ setClass("Network",
 ## TODO 
 ## i think I need a custom initializer method here, to parse variables slot to inform how to color and weight links and nodes
 
-## TODO i wonder if i can have two Network generics? one w nodes and links, the other edgeList?
 #' @include utils.R
 #' Generate a Network 
 #' 
@@ -107,7 +107,7 @@ setMethod("Network", signature("missing", "missing", "data.frame"), function(
   variables = VariableMetadataList(), 
   ...
 ) {
-  new("Network", links=LinkList(object), nodes=NodeList(object), linkColorScheme=linkColorScheme, variableMapping=variables)
+  new("Network", links=LinkList(object, linkColorScheme), nodes=NodeList(object), linkColorScheme=linkColorScheme, variableMapping=variables)
 })
 
 #' @export 

@@ -125,24 +125,55 @@ setClass("LinkList",
 #' 
 #' Generate a LinkList from an edgeList
 #' @param object Object containing data to be converted to a LinkList
+#' @param linkColorScheme Either 'none' or 'posneg'. If 'posneg', the link color will be based on the sign of the weight.
 #' @return LinkList
 #' @export
 #' @examples
 #' LinkList(data.frame(source='a',target='b'))
-setGeneric("LinkList", function(object) standardGeneric("LinkList"))
+setGeneric("LinkList", function(object, linkColorScheme = c('none', 'posneg')) standardGeneric("LinkList"), signature = c("object"))
 
 #' @export
-setMethod("LinkList", "data.frame", function(object = data.frame(source=character(),target=character())) {
-  if (!isValidEdgeList(edgeList)) {
+setMethod("LinkList", "data.frame", function(object = data.frame(source=character(),target=character()), linkColorScheme = c('none', 'posneg')) {
+  if (!isValidEdgeList(object)) {
     stop(paste(errors, collapse = '\n'))
   }
 
-  if (nrow(edgeList) == 0) {
+  if (nrow(object) == 0) {
     new("LinkList")
   }
 
-  edgeList <- apply(edgeList, 1, function(x) {Link(unname(x['source']), unname(x['target']))})
-  new("LinkList", edgeList)
+  # TODO this is probably not the right place for defaults...
+  makeLink <- function(x, linkColorScheme) {
+    source <- unname(x['source'])
+    target <- unname(x['target'])
+    weight <- as.numeric(unname(x['weight']))
+    weight <- ifelse(is.na(weight), 1, weight)
+    isDirected <- unname(x['isDirected'])
+    isDirected <- ifelse(is.na(isDirected), FALSE, isDirected)
+    color <- unname(x['color'])
+
+    # dont override color if present, but if not present look to linkColorScheme
+    if (is.na(color) && linkColorScheme == 'posneg') {
+      if (weight < 0) {
+        color <- -1
+      } else if (weight > 0) {
+        color <- 1
+      } else {
+        color <- 0
+      }
+    }
+    
+    if (is.na(color)) {
+      link <- Link(source, target, weight, NULL, isDirected)
+    } else {
+      link <- Link(source, target, weight, color, isDirected)
+    }
+
+    return(link)
+  }
+
+  linkList <- apply(object, 1, makeLink, linkColorScheme)
+  new("LinkList", linkList)
 })
 
 #' @export
