@@ -26,6 +26,7 @@ check_link <- function(object) {
 #' @name Link-class
 #' @rdname Link-class
 #' @include class-Node.R
+#' @include constructors-Node.R
 #' @export
 setClass("Link", 
   representation(

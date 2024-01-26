@@ -1,10 +1,10 @@
-#' @include methods-KPartiteNetwork.R
+#' @include methods-Nodes.R
 check_partitions <- function(object) {
   errors <- character()
   
-  if (!!length(getAllNodeIds(object))) {
+  if (!!length(unlist(lapply(as.list(object), getNodeIds)))) {
     # Ensure that no node is in multiple partitions
-    if (length(getAllNodeIds(object)) > data.table::uniqueN(getAllNodeIds(object))) {
+    if (length(unlist(lapply(as.list(object), getNodeIds))) > data.table::uniqueN(getAllNodeIds(object))) {
       errors <- c(errors, 'Found a node in multiple partitions. Nodes can only exist in one partition.')
     }
   }

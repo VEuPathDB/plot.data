@@ -1,8 +1,14 @@
+## Methods for Partitions
+#' @include class-KPartiteNetwork.R
 setGeneric("partitions", function(object) standardGeneric("partitions"))
 setGeneric("partitions<-", function(object, value) standardGeneric("partitions<-"))
 
 setMethod("partitions", "KPartiteNetwork", function(object) object@partitions)
 setMethod("partitions<-", "KPartiteNetwork", function(object, value) {object@partitions <- value; validObject(object); object})
+
+#' @include methods-Nodes.R
+setGeneric("getAllNodeIds", function(object) standardGeneric("getAllNodeIds"))
+setMethod("getAllNodeIds", "Partitions", function(object) unlist(lapply(as.list(object), getNodeIds)))
 
 toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 
@@ -46,8 +52,3 @@ setMethod(toJSONGeneric, "KPartiteNetwork", function(object, named = c(TRUE, FAL
 
     return(tmp)  
 })
-
-#' @include methods-Nodes.R
-## Methods for Partitions
-setGeneric("getAllNodeIds", function(object) standardGeneric("getAllNodeIds"))
-setMethod("getAllNodeIds", "Partitions", function(object) unlist(lapply(as.list(object), getNodeIds)))
