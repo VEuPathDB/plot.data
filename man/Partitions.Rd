@@ -6,6 +6,10 @@
 \usage{
 Partitions(partitions = list())
 }
+\arguments{
+\item{partitions}{list of Partition (or NodeIdList) objects}
+}
 \description{
-A list of Partition objects
+A list of Partition objects, each containing a list of node 
+ids that belong to a single partition
 }

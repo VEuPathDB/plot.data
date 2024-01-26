@@ -25,6 +25,11 @@ setMethod("weight<-", "Node", function(object, value) {object@weight <- value; v
 ## Methods for NodeId
 setMethod("id", "NodeId", function(object) object@value)
 setMethod("id<-", "NodeId", function(object, value) {object@id <- value; validObject(object); object})
+#alias for the id methods for NodeId
+setGeneric("value", function(object) standardGeneric("value"))
+setGeneric("value<-", function(object, value) standardGeneric("value<-"))
+setMethod("value", "NodeId", function(object) id(object))
+setMethod("value<-", "NodeId", function(object, value) {id(object) <- value; validObject(object); object})
 
 ## Methods for NodeLists
 setGeneric("getNodeIds", function(object) standardGeneric("getNodeIds"))
@@ -34,10 +39,6 @@ setMethod("getColors", "NodeList", function(object) unlist(lapply(as.list(object
 
 ## Methods for NodeIdList
 setMethod("getNodeIds", "NodeIdList", function(object) unlist(lapply(as.list(object), id)))
-
-## Methods for Partitions
-setGeneric("getAllNodeIds", function(object) standardGeneric("getAllNodeIds"))
-setMethod("getAllNodeIds", "Partitions", function(object) unlist(lapply(as.list(object), getNodeIds)))
 
 
 toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")

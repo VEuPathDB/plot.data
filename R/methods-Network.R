@@ -1,9 +1,10 @@
 # Methods for the Network class
 
-
+#' @include methods-Nodes.R
 # Fancy accessors
 setGeneric("getNodes", function(object) standardGeneric("getNodes"))
 setMethod("getNodes", "Network", function(object) object@nodes)
+setMethod("getNodeIds", "Network", function(object) getNodeIds(object@nodes))
 setGeneric("getLinks", function(object) standardGeneric("getLinks"))
 setMethod("getLinks", "Network", function(object) object@links)
 setGeneric("getLinkColorScheme", function(object) standardGeneric("getLinkColorScheme"))

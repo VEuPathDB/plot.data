@@ -186,7 +186,7 @@ generate_node_id <- function(n = 5000) {
 #' 
 #' A class for representing nodes in a network
 #' 
-#' @slot id string a unique identifier for the node
+#' @slot id NodeId a unique identifier for the node
 #' @slot x numeric value indicating the x coordinate of the node. Optional.
 #' @slot y numeric value indicating the y coordinate of the node. Optional.
 #' @slot color string or numeric that determines the color of the node. Optional.
