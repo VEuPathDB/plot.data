@@ -10,7 +10,7 @@ check_link <- function(object) {
   }
 
   #dont allow self-links for now
-  if (object@source@id == object@target@id) {
+  if (id(object@source) == id(object@target)) {
     errors <- c(errors, "Links cannot be self-links. They must have a different source and target.")
   }
 
