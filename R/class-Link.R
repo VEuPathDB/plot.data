@@ -9,6 +9,11 @@ check_link <- function(object) {
     errors <- c(errors, "Link color must be a string or number that represents a color or can be mapped to a color.")
   }
 
+  #dont allow self-links for now
+  if (object@source@id == object@target@id) {
+    errors <- c(errors, "Links cannot be self-links. They must have a different source and target.")
+  }
+
   return(if (length(errors) == 0) TRUE else errors) 
 }
 

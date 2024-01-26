@@ -1,4 +1,4 @@
-#' @include methods-Nodes.R
+#' @include methods-KPartiteNetwork.R
 check_partitions <- function(object) {
   errors <- character()
   
@@ -38,8 +38,10 @@ Partition <- NodeIdList
 
 #' Create Partitions
 #' 
-#' A list of Partition objects
+#' A list of Partition objects, each containing a list of node 
+#' ids that belong to a single partition
 #' 
+#' @param partitions list of Partition (or NodeIdList) objects
 #' @export 
 #' @rdname Partitions
 Partitions <- function(partitions = list()) {
@@ -67,7 +69,7 @@ check_kpartite_network <- function(object) {
 
   errors <- character()
 
-  # Check that all nodes are in at least one of the columns
+  # Check that all nodes are in at least one of the partitions
   if (!all(getNodeIds(object@nodes) %in% getAllNodeIds(object@partitions))) {
     errors <- c(errors, 'Found a node that is not in any partition. All nodes must be assigned to a partition.')
   }

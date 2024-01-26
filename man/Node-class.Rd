@@ -11,7 +11,7 @@ A class for representing nodes in a network
 \section{Slots}{
 
 \describe{
-\item{\code{id}}{string a unique identifier for the node}
+\item{\code{id}}{NodeId a unique identifier for the node}
 
 \item{\code{x}}{numeric value indicating the x coordinate of the node. Optional.}
 
