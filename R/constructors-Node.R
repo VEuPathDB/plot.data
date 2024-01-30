@@ -71,8 +71,8 @@ setMethod("NodeIdList", "character", function(object, uniquifyIds = c(TRUE, FALS
 
 #' @export 
 setMethod("NodeIdList", "data.frame", function(object, uniquifyIds = c(TRUE, FALSE)) {  
-  if (!isValidEdgeList(object)) {
-    stop(paste(errors, collapse = '\n'))
+  if (!inherits(isValidEdgeList(object), "logical")) {
+    stop(paste("Invalid edgeList:", isValidEdgeList(object), collapse = '\n'))
   }
 
   return(NodeIdList(c(object$source, object$target), uniquifyIds = uniquifyIds))
