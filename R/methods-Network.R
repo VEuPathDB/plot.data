@@ -61,7 +61,7 @@ setMethod("pruneIsolatedNodes", "Network", function(net, verbose = c(TRUE, FALSE
 })
 
 getLinkUniqueString <- function(link) {
-  paste0(id(source(link)), ":||:" id(target(link)))
+  paste0(id(source(link)), ":||:", id(target(link)))
 }
 
 #' Find duplicate links
