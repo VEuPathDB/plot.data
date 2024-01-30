@@ -171,7 +171,7 @@ newPlotdata <- function(.dt = data.table(),
     veupathUtils::logWithTime('Data reshaped according to collection variable.', verbose)
 
     # strip entityId from value
-    .dt[[variable.name]] <- gsub(paste0(inferredVarMetadata@variableSpec@entityId, '.'), '', .dt[[variable.name]])
+    .dt[[variable.name]] <- gsub(paste0(inferredVarMetadata@variableSpec@entityId, '.'), '', .dt[[variable.name]], fixed=TRUE)
 
     .dt[[variable.name]] <- updateType(.dt[[variable.name]], collectionVarMetadata@dataType@value)
     prefix <- names(prefixMap)[prefixMap == collectionVarMetadata@plotReference@value]
