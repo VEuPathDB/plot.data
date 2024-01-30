@@ -26,6 +26,11 @@ check_kpartite_network <- function(object) {
 
   errors <- character()
 
+  # Check we have at least two partitions
+  if (length(object@partitions) < 2) {
+    errors <- c(errors, 'k-partite networks must have at least two partitions.')
+  }
+
   # Check that all nodes are in at least one of the partitions
   if (!all(getNodeIds(object@nodes) %in% getAllNodeIds(object@partitions))) {
     errors <- c(errors, 'Found a node that is not in any partition. All nodes must be assigned to a partition.')
@@ -119,10 +124,6 @@ setMethod("KPartiteNetwork", signature("missing", "LinkList", "NodeList"), funct
   variables = VariableMetadataList(), 
   ...
 ) {
-  # default to a single partition if none provided
-  if (length(partitions) == 0) {
-    partitions <- Partitions(list(NodeIdList(nodes)))
-  }
   new("KPartiteNetwork", links=links, nodes=nodes, partitions=partitions, linkColorScheme=linkColorScheme, variableMapping=variables)
 })
 
@@ -136,10 +137,6 @@ setMethod("KPartiteNetwork", signature("data.frame", "missing", "missing"), func
   variables = VariableMetadataList(), 
   ...
 ) {
-  # default to a single partition if none provided
-  if (length(partitions) == 0) {
-    partitions <- Partitions(list(NodeIdList(object)))
-  }
   new("KPartiteNetwork", links=LinkList(object), nodes=NodeList(object), partitions=partitions, linkColorScheme=linkColorScheme, variableMapping=variables)
 })
 
@@ -156,10 +153,6 @@ setMethod("KPartiteNetwork", signature("Network", "missing", "missing"), functio
   nodes <- object@nodes
   links <- object@links
 
-  # default to a single partition if none provided
-  if (length(partitions) == 0) {
-    partitions <- Partitions(list(nodes))
-  }
   new("KPartiteNetwork", links=links, nodes=nodes, partitions=partitions, linkColorScheme=linkColorScheme, variableMapping=variables)
 })
 
