@@ -122,12 +122,12 @@ test_that("toJSON works for k-partite networks", {
   )
   json <- veupathUtils::toJSON(net)
   jsonList <- jsonlite::fromJSON(json)
-  expect_equal(jsonList$network$data$links$source, c('A','B','C'))
-  expect_equal(jsonList$network$data$links$target, c('B','A','D'))
-  expect_equal(jsonList$network$data$links$weight, c(10,20,30))
-  expect_equal(jsonList$network$data$nodes$id, c('A','B','C','D'))
-  expect_equal(list(jsonList$network$data$partitions[1,],jsonList$network$data$partitions[2,]), list(c('A','C'), c('B','D')))
-  expect_equal(length(jsonList$network$config$variables), 0)
+  expect_equal(jsonList$bipartitenetwork$data$links$source, c('A','B','C'))
+  expect_equal(jsonList$bipartitenetwork$data$links$target, c('B','A','D'))
+  expect_equal(jsonList$bipartitenetwork$data$links$weight, c(10,20,30))
+  expect_equal(jsonList$bipartitenetwork$data$nodes$id, c('A','B','C','D'))
+  expect_equal(jsonList$bipartitenetwork$data$partitions$nodeIds, list(c('A','C'), c('B','D')))
+  expect_equal(length(jsonList$bipartitenetwork$config$variables), 0)
 })
 
 test_that("we can build a KPartiteNetwork from an edgeList data.frame", {

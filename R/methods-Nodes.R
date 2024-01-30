@@ -97,4 +97,4 @@ setMethod(toJSONGeneric, signature("NodeIdList"), function(object, named = c(TRU
     if (named) tmp <- paste0('{"nodeIds":', tmp, "}")
 
     return(tmp)
-}) 
+})

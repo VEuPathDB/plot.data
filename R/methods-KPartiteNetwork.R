@@ -20,7 +20,7 @@ toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 #' @export
 setMethod(toJSONGeneric, "Partitions", function(object, named = c(TRUE, FALSE)) {
     named <- veupathUtils::matchArg(named)
-    tmp <- veupathUtils::S4SimpleListToJSON(object, FALSE)
+    tmp <- veupathUtils::S4SimpleListToJSON(object, TRUE)
 
     if (named) tmp <- paste0('{"partitions":', tmp, "}")
 
@@ -39,7 +39,7 @@ setMethod(toJSONGeneric, "KPartiteNetwork", function(object, named = c(TRUE, FAL
 
     nodes_json <- veupathUtils::toJSON(object@nodes, named = FALSE)
     links_json <- veupathUtils::toJSON(object@links, named = FALSE)
-    partitions_json <- veupathUtils::toJSON(object@partitions, named = TRUE)
+    partitions_json <- veupathUtils::toJSON(object@partitions, named = FALSE)
     
     # TODO this doesnt conform to the api in the data service, bc there we explicitly have a bipartite network and not a kpartite
     # we have `columns1NodeIds` and `columns2NodeIds` instead of `partitions`. i think this is better though.
