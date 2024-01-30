@@ -151,7 +151,6 @@ setMethod("LinkList", "data.frame", function(object = data.frame(source=characte
     new("LinkList")
   }
 
-  # TODO this is probably not the right place for defaults...
   makeLink <- function(x, linkColorScheme) {
     source <- unname(x['source'])
     target <- unname(x['target'])

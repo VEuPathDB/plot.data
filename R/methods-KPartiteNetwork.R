@@ -27,7 +27,6 @@ setMethod(toJSONGeneric, "Partitions", function(object, named = c(TRUE, FALSE)) 
     return(tmp)
 })
 
-## TODO reduce repeated code, maybe call the Network method and figure how to add partitions? or a refactor? not urgent.
 #' Convert KPartiteNetwork object to JSON
 #' 
 #' Converts a KPartiteNetwork object to JSON
@@ -40,7 +39,7 @@ setMethod(toJSONGeneric, "KPartiteNetwork", function(object, named = c(TRUE, FAL
 
     nodes_json <- veupathUtils::toJSON(object@nodes, named = FALSE)
     links_json <- veupathUtils::toJSON(object@links, named = FALSE)
-    partitions_json <- veupathUtils::toJSON(object@partitions, named = FALSE)
+    partitions_json <- veupathUtils::toJSON(object@partitions, named = TRUE)
     
     # TODO this doesnt conform to the api in the data service, bc there we explicitly have a bipartite network and not a kpartite
     # we have `columns1NodeIds` and `columns2NodeIds` instead of `partitions`. i think this is better though.
@@ -48,7 +47,11 @@ setMethod(toJSONGeneric, "KPartiteNetwork", function(object, named = c(TRUE, FAL
     tmp <- paste0('"data":{', tmp, '}')
     tmp <- paste0('{', tmp, ',"config":{"variables":{', veupathUtils::toJSON(object@variableMapping, named = FALSE), '}}}')
 
-    if (named) tmp <- paste0('{"network":', tmp, '}')
+    if (named) {
+        name <- "kpartitenetwork"
+        if (length(object@partitions) == 2) name <- "bipartitenetwork"
+        tmp <- paste0('{"', name, '":', tmp, '}')
+    }
 
     return(tmp)  
 })
