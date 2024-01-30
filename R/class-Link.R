@@ -141,6 +141,8 @@ setGeneric("LinkList", function(object, linkColorScheme = c('none', 'posneg')) s
 
 #' @export
 setMethod("LinkList", "data.frame", function(object = data.frame(source=character(),target=character()), linkColorScheme = c('none', 'posneg')) {
+  linkColorScheme <- veupathUtils::matchArg(linkColorScheme)
+  
   if (!inherits(isValidEdgeList(object), "logical")) {
     stop(paste("Invalid edgeList:", isValidEdgeList(object), collapse = '\n'))
   }

@@ -1,9 +1,9 @@
-  isLinkWithinPartition <- function(link) {
-    if (is.null(link)) {
-      return(FALSE)
-    }
+  isLinkWithinPartition <- function(link, partitions) {
     if (!inherits(link, "Link")) {
       stop('link must be a Link object')
+    }
+    if (!inherits(partitions, "Partitions")) {
+      stop('partitions must be a Partitions object')
     }
     
     source <- source(link)
@@ -14,7 +14,7 @@
     }
 
     internalLink <- FALSE
-    if (getPartitionIndex(source) == getPartitionIndex(target)) {
+    if (getPartitionIndex(partitions, source) == getPartitionIndex(partitions, target)) {
       internalLink <- TRUE
     }
 
@@ -29,15 +29,16 @@ check_kpartite_network <- function(object) {
   # Check that all nodes are in at least one of the partitions
   if (!all(getNodeIds(object@nodes) %in% getAllNodeIds(object@partitions))) {
     errors <- c(errors, 'Found a node that is not in any partition. All nodes must be assigned to a partition.')
+  } else if (any(sapply(getLinks(object), isLinkWithinPartition, object@partitions))) {
+    # Check that there are no links connecting nodes within a partition, only across the different partitions
+    # this check wont work if a node is missing from a partition
+    errors <- c(errors, 'Found a link between nodes in the same partition. Links between nodes in the same partition are not allowed.')
   }
   if (!all(getAllNodeIds(object@partitions) %in% getNodeIds(object@nodes))) {
     errors <- c(errors, 'Found an node id in a partition that is not in the nodes list. Node IDs must be consistent between partitions and nodes slots.')
   }
 
-  # Check that there are no links connecting nodes within a partition, only across the different partitions
-  if (any(sapply(getLinks(object), isLinkWithinPartition))) {
-    errors <- c(errors, 'Found a link between nodes in the same partition. Links between nodes in the same partition are not allowed.')
-  }
+  
   
 
   # Check that linkColorScheme is one of the accepted values

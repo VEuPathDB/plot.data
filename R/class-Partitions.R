@@ -70,9 +70,15 @@ Partitions <- function(partitions = list()) {
 #' Given a list of partitions and a node id, return the index
 #' of the partition that the node belongs to.
 #' @param partitions Partitions
-#' @param nodeId NodeId
+#' @param node character, NodeId or Node object
 #' @export
-setGeneric("getPartitionIndex", function(partitions, nodeId) standardGeneric("getPartitionIndex"))
-setMethod("getPartitionIndex", signature("Partitions", "NodeId"), function(partitions, nodeId) {
-  return(which(unlist(lapply(partitions, function(x) id(nodeId) %in% getNodeIds(x)))))
+setGeneric("getPartitionIndex", function(partitions, node) standardGeneric("getPartitionIndex"))
+setMethod("getPartitionIndex", signature("Partitions", "NodeId"), function(partitions, node) {
+  return(which(unlist(lapply(partitions, function(x) id(node) %in% getNodeIds(x)))))
+})
+setMethod("getPartitionIndex", signature("Partitions", "Node"), function(partitions, node) {
+  return(getPartitionIndex(partitions, id(node)))
+})
+setMethod("getPartitionIndex", signature("Partitions", "character"), function(partitions, node) {
+  return(getPartitionIndex(partitions, NodeId(node)))
 })
