@@ -130,7 +130,8 @@ setClass("LinkList",
 #' Generate a LinkList
 #' 
 #' Generate a LinkList from an edgeList
-#' @param object Object containing data to be converted to a LinkList
+#' @param object Object containing data to be converted to a LinkList. Could be a SimpleList of Links or a data.frame
+#' with columns source, target, and optionally weight and color.
 #' @param linkColorScheme Either 'none' or 'posneg'. If 'posneg', the link color will be based on the sign of the weight.
 #' @return LinkList
 #' @export
@@ -140,8 +141,8 @@ setGeneric("LinkList", function(object, linkColorScheme = c('none', 'posneg')) s
 
 #' @export
 setMethod("LinkList", "data.frame", function(object = data.frame(source=character(),target=character()), linkColorScheme = c('none', 'posneg')) {
-  if (!isValidEdgeList(object)) {
-    stop(paste(errors, collapse = '\n'))
+  if (!inherits(isValidEdgeList(object), "logical")) {
+    stop(paste("Invalid edgeList:", isValidEdgeList(object), collapse = '\n'))
   }
 
   if (nrow(object) == 0) {
@@ -156,10 +157,8 @@ setMethod("LinkList", "data.frame", function(object = data.frame(source=characte
     weight <- ifelse(is.na(weight), 1, weight)
     isDirected <- unname(x['isDirected'])
     isDirected <- ifelse(is.na(isDirected), FALSE, isDirected)
-    color <- unname(x['color'])
 
-    # dont override color if present, but if not present look to linkColorScheme
-    if (is.na(color) && linkColorScheme == 'posneg') {
+    if (linkColorScheme == 'posneg') {
       if (weight < 0) {
         color <- -1
       } else if (weight > 0) {
@@ -167,6 +166,8 @@ setMethod("LinkList", "data.frame", function(object = data.frame(source=characte
       } else {
         color <- 0
       }
+    } else {
+      color <- NA_character_
     }
     
     if (is.na(color)) {

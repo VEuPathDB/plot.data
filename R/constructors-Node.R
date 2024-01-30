@@ -14,12 +14,13 @@ NodeId <- function(value) {
 #' Create a NodeIdList
 #' 
 #' @param object Object containing list of node ids
+#' @param uniquifyIds Logical indicating whether to uniquify the node ids
 #' @export 
-setGeneric("NodeIdList", function(object, uniqueOnly = c(TRUE, FALSE)) standardGeneric("NodeIdList")) 
+setGeneric("NodeIdList", function(object, uniquifyIds = c(TRUE, FALSE)) standardGeneric("NodeIdList")) 
 
 #' @export
-setMethod("NodeIdList", "list", function(object, uniqueOnly = c(TRUE, FALSE)) {
-  uniqueOnly <- veupathUtils::matchArg(uniqueOnly)
+setMethod("NodeIdList", "list", function(object, uniquifyIds = c(TRUE, FALSE)) {
+  uniquifyIds <- veupathUtils::matchArg(uniquifyIds)
   nodeIds <- object
 
   if (length(nodeIds) == 0) {
@@ -32,12 +33,12 @@ setMethod("NodeIdList", "list", function(object, uniqueOnly = c(TRUE, FALSE)) {
 
   if (all(unlist(lapply(nodeIds, inherits, 'Node')))) {
     nodeIds <- lapply(nodeIds, id)
-    if (uniqueOnly) {
+    if (uniquifyIds) {
       nodeIds <- unique(nodeIds)
     }
     nodeIds <- lapply(nodeIds, NodeId)
   } else if (all(unlist(lapply(nodeIds, inherits, 'character')))) {
-    if (uniqueOnly) {
+    if (uniquifyIds) {
       nodeIds <- unique(nodeIds)
     }
     nodeIds <- lapply(nodeIds, NodeId)
@@ -49,19 +50,19 @@ setMethod("NodeIdList", "list", function(object, uniqueOnly = c(TRUE, FALSE)) {
 })
 
 #' @export 
-setMethod("NodeIdList", "NodeList", function(object, uniqueOnly = c(TRUE, FALSE)) {
-  return(NodeIdList(getNodeIds(object), uniqueOnly = uniqueOnly))
+setMethod("NodeIdList", "NodeList", function(object, uniquifyIds = c(TRUE, FALSE)) {
+  return(NodeIdList(getNodeIds(object), uniquifyIds = uniquifyIds))
 })
 
 #' @export
-setMethod("NodeIdList", "character", function(object, uniqueOnly = c(TRUE, FALSE)) {
-  uniqueOnly <- veupathUtils::matchArg(uniqueOnly)
+setMethod("NodeIdList", "character", function(object, uniquifyIds = c(TRUE, FALSE)) {
+  uniquifyIds <- veupathUtils::matchArg(uniquifyIds)
 
   if (length(object) == 0) {
     stop("nodeIds must not be empty")
   }
 
-  if (uniqueOnly) {
+  if (uniquifyIds) {
     object <- unique(object)
   }
 
@@ -69,28 +70,29 @@ setMethod("NodeIdList", "character", function(object, uniqueOnly = c(TRUE, FALSE
 }) 
 
 #' @export 
-setMethod("NodeIdList", "data.frame", function(object, uniqueOnly = c(TRUE, FALSE)) {  
+setMethod("NodeIdList", "data.frame", function(object, uniquifyIds = c(TRUE, FALSE)) {  
   if (!isValidEdgeList(object)) {
     stop(paste(errors, collapse = '\n'))
   }
 
-  return(NodeIdList(c(object$source, object$target), uniqueOnly = uniqueOnly))
+  return(NodeIdList(c(object$source, object$target), uniquifyIds = uniquifyIds))
 })
 
 #' @export 
-setMethod("NodeIdList", "missing", function(object, uniqueOnly = c(TRUE, FALSE)) {
+setMethod("NodeIdList", "missing", function(object, uniquifyIds = c(TRUE, FALSE)) {
   return(new("NodeIdList"))
 })
 
 #' @export 
-setMethod("NodeIdList", "Node", function(object, uniqueOnly = c(TRUE, FALSE)) {
+setMethod("NodeIdList", "Node", function(object, uniquifyIds = c(TRUE, FALSE)) {
   return(NodeIdList(list(object)))
 })
 
 
 #' Create a Node
 #' 
-#' @param id string a unique identifier for the node
+#' Create a Node given a unique identifier as either string, NodeId or numeric.
+#' @param id string, NodeId or numeric: a unique identifier for the node
 #' @param x numeric value indicating the x coordinate of the node. Optional.
 #' @param y numeric value indicating the y coordinate of the node. Optional.
 #' @param color string or numeric that determines the color of the node. Optional.
@@ -132,8 +134,8 @@ setGeneric("NodeList", function(object) standardGeneric("NodeList"))
 
 #' @export
 setMethod("NodeList", "data.frame", function(object = data.frame(source=character(),target=character())) {
-  if (!isValidEdgeList(object)) {
-    stop(paste(errors, collapse = '\n'))
+  if (!inherits(isValidEdgeList(object), "logical")) {
+    stop(paste("Invalid edgeList:", isValidEdgeList(object), collapse = '\n'))
   }
   
   allNodeIds <- unique(c(object$source, object$target))

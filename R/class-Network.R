@@ -23,10 +23,6 @@ check_network <- function(object) {
   return(if (length(errors) == 0) TRUE else errors)
 }
 
-## TODO
-## i wonder if i can do something like `Network <- setClass("Network", slots = c(links = "LinkList", nodes = "NodeList"))`
-## and then grab a generic from that generator fxn and build custom methods on top of it. thatd be cleaner. not urgent.
-
 #' Network
 #' 
 #' A class for representing networks. A network is composed of nodes and links (edges, connections, etc.). A link is represented
@@ -36,9 +32,9 @@ check_network <- function(object) {
 #' @slot links LinkList object defining the links in the network.
 #' @slot nodes NodeList object defining the nodes in the network. Some nodes may not have any links.
 #' @slot linkColorScheme string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.
-#'  In the case of 'posneg', the links color slot will be set to 1 if the link is positive, and -1 if the link is negative.
-#' @slot variableMapping veupathUtils::VariableMetadataList object defining the variable mappings in the network.
+#' In the case of 'posneg', the links color slot will be set to 1 if the link is positive, and -1 if the link is negative.
 #' Use a method assignLinkColors() to assign colors to links and set this slot's value.
+#' @slot variableMapping veupathUtils::VariableMetadataList object defining the variable mappings in the network.
 #' 
 #' @name Network-class
 #' @rdname Network-class
@@ -63,10 +59,13 @@ setClass("Network",
 #' @include utils.R
 #' Generate a Network 
 #' 
-#' Generate a Network from a LinkList and NodeList, or from a data.frame
+#' Generate a Network from a LinkList and NodeList, or from a 
+#' data.frame with columns 'source' and 'target', and optionally 'weight' and 'color'.
 #' @param links LinkList
 #' @param nodes NodeList
 #' @param object Object containing data to be converted to a Network
+#' @param linkColorScheme string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.
+#' @param variables VariableMetadataList
 #' @return Network
 #' @export
 #' @examples

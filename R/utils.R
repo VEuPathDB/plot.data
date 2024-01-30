@@ -401,5 +401,9 @@ isValidEdgeList <- function(edgeList = data.frame(source=character(),target=char
     errors <- c(errors, 'edgeList must contain columns named "source" and "target"')
   }
 
+  if ('color' %in% colnames(edgeList)) {
+    errors <- c(errors, 'edgeList cannot contain a column named "color". Not yet supported.')
+  }
+
   return(if (length(errors) == 0) TRUE else errors)
 }
