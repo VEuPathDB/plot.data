@@ -50,6 +50,7 @@ Collate:
     'class-Network.R'
     'methods-Links.R'
     'methods-Nodes.R'
+    'class-Partitions.R'
     'class-KPartiteNetwork.R'
     'class-plotdata-bar.R'
     'class-plotdata-beeswarm.R'
