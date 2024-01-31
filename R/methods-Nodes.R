@@ -39,4 +39,62 @@ setMethod("getColors", "NodeList", function(object) unlist(lapply(as.list(object
 
 ## Methods for NodeIdList
 setMethod("getNodeIds", "NodeIdList", function(object) unlist(lapply(as.list(object), id)))
-setMethod("getNodeIds", "Network", function(object) getNodeIds(object@nodes))
+
+
+toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
+
+#' Convert Node object to JSON
+#' 
+#' Converts a Node object to JSON
+#' @param object A Node object
+#' @param named boolean that declares if names should be included
+#' @export
+setMethod(toJSONGeneric, "Node", function(object, named = c(FALSE, TRUE)) {
+    named <- veupathUtils::matchArg(named)
+    tmp <- character()
+
+    tmp <- paste0('"id":', jsonlite::toJSON(jsonlite::unbox(id(object))))
+    if (!!length(x(object))) tmp <- paste0(tmp, ',"x":', jsonlite::toJSON(jsonlite::unbox(x(object))))
+    if (!!length(y(object))) tmp <- paste0(tmp, ',"y":', jsonlite::toJSON(jsonlite::unbox(y(object))))
+    if (!!length(color(object))) tmp <- paste0(tmp, ',"color":', jsonlite::toJSON(jsonlite::unbox(color(object))))
+    if (!!length(weight(object))) tmp <- paste0(tmp, ',"weight":', jsonlite::toJSON(jsonlite::unbox(weight(object))))
+
+    tmp <- paste0('{', tmp, '}')
+    if (named) {
+        tmp <- paste0('{"node":', tmp, '}')
+    }
+
+    return(tmp)
+})
+
+#' @export
+setMethod(toJSONGeneric, signature("NodeList"), function(object, named = c(TRUE, FALSE)) {
+    named <- veupathUtils::matchArg(named) 
+    tmp <- veupathUtils::S4SimpleListToJSON(object, FALSE)
+
+    if (named) tmp <- paste0('{"nodes":', tmp, "}")
+
+    return(tmp)
+})
+
+#' @export
+setMethod(toJSONGeneric, signature("NodeId"), function(object, named = c(FALSE, TRUE)) {
+    named <- veupathUtils::matchArg(named)
+    tmp <- character()
+
+    tmp <- jsonlite::toJSON(jsonlite::unbox(id(object)))
+    
+    if (named) tmp <- paste0('"nodeId":', tmp)
+
+    return(tmp)
+})
+
+#' @export
+setMethod(toJSONGeneric, signature("NodeIdList"), function(object, named = c(TRUE, FALSE)) {
+    named <- veupathUtils::matchArg(named) 
+    tmp <- veupathUtils::S4SimpleListToJSON(object, FALSE)
+
+    if (named) tmp <- paste0('{"nodeIds":', tmp, "}")
+
+    return(tmp)
+})

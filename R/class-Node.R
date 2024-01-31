@@ -36,18 +36,6 @@ setClass("NodeId",
   validity = check_node_id
 )
 
-
-#' Create a Node Id
-#' 
-#' Because typing `NodeId(id = 'foo')` is annoying, this function is provided
-#' to make things easier. Now you can do `NodeId('foo')`
-#' 
-#' @param value string a unique identifier for the node
-#' @export 
-NodeId <- function(value) {
-  new("NodeId", value = value)
-}
-
 check_node_id_list <- function(object) {
   errors <- character()
 
@@ -58,7 +46,6 @@ check_node_id_list <- function(object) {
 
   return(if (length(errors) == 0) TRUE else errors)
 }
-
 
 #' A Node Id List
 #' 
@@ -75,35 +62,6 @@ setClass("NodeIdList",
   validity = check_node_id_list
 )
 
-#' Create a NodeIdList
-#' 
-#' @param nodeIds list of node ids
-#' @export 
-NodeIdList <- function(nodeIds) {
-
-  if (length(nodeIds) == 0) {
-    stop("nodeIds must not be empty")
-  }
-
-  if (length(nodeIds) == 1 && !is.list(nodeIds)) {
-    nodeIds <- list(nodeIds) 
-  }
-
-  if (!is.list(nodeIds)) {
-    stop("nodeIds must be a list")
-  }
-
-  if (all(unlist(lapply(nodeIds, inherits, 'Node')))) {
-    nodeIds <- lapply(nodeIds, id)
-    nodeIds <- lapply(nodeIds, NodeId)
-  } else if (all(unlist(lapply(nodeIds, inherits, 'character')))) {
-    nodeIds <- lapply(nodeIds, NodeId)
-  } else if (!all(unlist(lapply(nodeIds, inherits, 'NodeId')))) {
-    stop("nodeIds must be a list of Node, NodeId or character objects")
-  }
-
-  return(new("NodeIdList", S4Vectors::SimpleList(nodeIds)))
-}
 
 check_node <- function(object) {
 
@@ -149,7 +107,7 @@ generate_node_id <- function(n = 5000) {
 #' @name Node-class
 #' @rdname Node-class
 #' @export
-Node <- setClass("Node", 
+setClass("Node", 
   slots = c(
     id = "NodeId",
     x = "numeric",
@@ -159,6 +117,7 @@ Node <- setClass("Node",
   ),
   validity = check_node
 )
+
 
 check_node_list <- function(object) {
 
@@ -196,12 +155,10 @@ check_node_list <- function(object) {
 #' @rdname NodeList-class
 #' @importFrom S4Vectors SimpleList
 #' @export
-NodeList <- setClass("NodeList", 
+setClass("NodeList", 
   contains = "SimpleList",
   prototype = prototype(
     elementType = "Node"
   ),
   validity = check_node_list
 )
-
-

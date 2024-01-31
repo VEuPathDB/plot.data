@@ -390,3 +390,20 @@ validateMap <- function(map) {
 avgDigits <- function(x) {
   floor(mean(stringi::stri_count_regex(as.character(x), "[[:digit:]]")))
 }
+
+isValidEdgeList <- function(edgeList = data.frame(source=character(),target=character())) {
+  errors <- character()
+
+  if (!is.data.frame(edgeList)) {
+    errors <- c(errors, 'edgeList must be a data.frame')
+  }
+  if (!all(c('source', 'target') %in% colnames(edgeList))) {
+    errors <- c(errors, 'edgeList must contain columns named "source" and "target"')
+  }
+
+  if ('color' %in% colnames(edgeList)) {
+    errors <- c(errors, 'edgeList cannot contain a column named "color". Not yet supported.')
+  }
+
+  return(if (length(errors) == 0) TRUE else errors)
+}

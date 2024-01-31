@@ -14,10 +14,14 @@ check_network <- function(object) {
     errors <- c(errors, 'linkColorScheme must be one of "none" or "posneg"')
   }
 
+  # Check that there are no duplicate nodes
+  if (data.table::uniqueN(getNodeIds(object@nodes)) < length(getNodeIds(object@nodes))) {
+    errors <- c(errors, 'Duplicate node ids found. Node ids must be unique.')
+  }
+
 
   return(if (length(errors) == 0) TRUE else errors)
 }
-
 
 #' Network
 #' 
@@ -28,20 +32,22 @@ check_network <- function(object) {
 #' @slot links LinkList object defining the links in the network.
 #' @slot nodes NodeList object defining the nodes in the network. Some nodes may not have any links.
 #' @slot linkColorScheme string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.
-#' @slot variableMapping veupathUtils::VariableMetadataList object defining the variable mappings in the network.
+#' In the case of 'posneg', the links color slot will be set to 1 if the link is positive, and -1 if the link is negative.
 #' Use a method assignLinkColors() to assign colors to links and set this slot's value.
+#' @slot variableMapping veupathUtils::VariableMetadataList object defining the variable mappings in the network.
 #' 
 #' @name Network-class
 #' @rdname Network-class
 #' @include class-Link.R
 #' @export
-Network <- setClass("Network", 
+setClass("Network", 
   representation(
     links = "LinkList",
     nodes = "NodeList",
     linkColorScheme = "character",
     variableMapping = "VariableMetadataList"
-  ), prototype = prototype(
+  ),
+  prototype = prototype(
     links = LinkList(),
     nodes = NodeList(),
     linkColorScheme = 'none',
@@ -49,3 +55,65 @@ Network <- setClass("Network",
   ),
   validity = check_network
 )
+
+#' @include utils.R
+#' Generate a Network 
+#' 
+#' Generate a Network from a LinkList and NodeList, or from a 
+#' data.frame with columns 'source' and 'target', and optionally 'weight' and 'color'.
+#' @param links LinkList
+#' @param nodes NodeList
+#' @param object Object containing data to be converted to a Network
+#' @param linkColorScheme string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.
+#' @param variables VariableMetadataList
+#' @return Network
+#' @export
+#' @examples
+#' Network(data.frame(source='a',target='b'))
+setGeneric("Network", 
+  function(
+    object,
+    links,
+    nodes, 
+    linkColorScheme = 'none', 
+    variables = VariableMetadataList(), 
+    ...
+  ) standardGeneric("Network"),
+  signature = c("object", "links", "nodes")
+)
+
+#' @export
+setMethod("Network", signature("missing", "LinkList", "NodeList"), function(
+  object,
+  links, 
+  nodes,
+  linkColorScheme = 'none', 
+  variables = VariableMetadataList(), 
+  ...
+) {
+  new("Network", links=links, nodes=nodes, linkColorScheme=linkColorScheme, variableMapping=variables)
+})
+
+#' @export  
+setMethod("Network", signature("data.frame", "missing", "missing"), function(
+  object = data.frame(source=character(),target=character()), 
+  links, 
+  nodes,
+  linkColorScheme = 'none', 
+  variables = VariableMetadataList(), 
+  ...
+) {
+  new("Network", links=LinkList(object, linkColorScheme), nodes=NodeList(object), linkColorScheme=linkColorScheme, variableMapping=variables)
+})
+
+#' @export 
+setMethod("Network", signature("missing", "missing", "missing"), function(
+  object, 
+  links, 
+  nodes,
+  linkColorScheme = 'none', 
+  variables = VariableMetadataList(), 
+  ...
+) {
+  new("Network")
+})

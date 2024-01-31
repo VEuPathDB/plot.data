@@ -84,7 +84,6 @@ test_that("NodeList methods work", {
 test_that("We cannot make nonsensical nodes", {
 
   expect_error(Node(id = FALSE))
-  expect_error(Node(id = 10))
   expect_error(Node(id = 'A', color = FALSE))
   expect_error(Node(id = 'A', weight = '10'))
 })
