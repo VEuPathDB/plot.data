@@ -1,5 +1,6 @@
 test_that("NodeId works", {
   expect_equal(class(NodeId('A'))[1], 'NodeId')
+  expect_equal(class(NodeId())[1], 'NodeId')
 })
 
 test_that("NodeIdList works", {
@@ -8,6 +9,11 @@ test_that("NodeIdList works", {
   expect_equal(class(NodeIdList(list(Node(id=NodeId('A')))))[1], 'NodeIdList')
   expect_equal(class(NodeIdList(Node(id=NodeId('A'))))[1], 'NodeIdList')
   expect_equal(class(NodeIdList(list(Node(id=NodeId('A')), Node(id=NodeId('B')))))[1], 'NodeIdList')
+  expect_equal(class(NodeIdList(c('A', 'B')))[1], 'NodeIdList')
+  expect_equal(class(NodeIdList())[1], 'NodeIdList')
+
+  edgeList <- data.frame(source = 'A', target = 'B')
+  expect_equal(class(NodeIdList(edgeList))[1], 'NodeIdList')
 
   expect_error(NodeIdList(S4Vectors::SimpleList(c(NodeId('A'), 'B'))))
   expect_error(NodeIdList(S4Vectors::SimpleList(c('A', 'B'))))
@@ -19,19 +25,27 @@ test_that("Node methods work", {
   nodeA <- Node(
     id = NodeId('A')
   )
+
+  expect_equal(class(nodeA)[1], 'Node')
   expect_equal(id(nodeA), 'A')
   expect_equal(color(nodeA), NULL)
   expect_equal(weight(nodeA), NULL)
 
-  nodeB <- Node(
-    id = NodeId('B'),
-    color = 'red',
-    weight = 10
-  )
+  # use a different constructor method
+  nodeB <- Node('B', color = 'red', weight = 10)
 
+  expect_equal(class(nodeB)[1], 'Node')
   expect_equal(id(nodeB), 'B')
   expect_equal(color(nodeB), 'red')
   expect_equal(weight(nodeB), 10)
+
+  # numeric id
+  nodeC <- Node(1, color = 'red', weight = 10)
+
+  expect_equal(class(nodeC)[1], 'Node')
+  expect_equal(id(nodeC), 1)
+  expect_equal(color(nodeC), 'red')
+  expect_equal(weight(nodeC), 10)
 })
 
 test_that("NodeList methods work", {
@@ -77,7 +91,37 @@ test_that("NodeList methods work", {
   expect_equal(getWeights(nodeList), c(10, 20, 30))
   expect_equal(getColors(nodeList), c('red', 'blue', 'green'))
 
+  # use a different constructor method
+  nodeList <- NodeList(c(nodeA, nodeB, nodeC))
+  expect_equal(length(nodeList), 3)
+  expect_equal(getNodeIds(nodeList), c('A', 'B', 'C'))
+  expect_equal(getWeights(nodeList), c(10, 20, 30))
+  expect_equal(getColors(nodeList), c('red', 'blue', 'green'))
 
+  # use a different constructor method
+  nodeList <- NodeList(list(nodeA, nodeB, nodeC))
+  expect_equal(length(nodeList), 3)
+  expect_equal(getNodeIds(nodeList), c('A', 'B', 'C'))
+  expect_equal(getWeights(nodeList), c(10, 20, 30))
+  expect_equal(getColors(nodeList), c('red', 'blue', 'green'))
+
+  # should there be one to take things like list('A', 'B')? or c('A', 'B')?
+  # these dont allow for weight and color specification id think...
+  nodeList <- NodeList(list('A', 'B'))
+  expect_equal(length(nodeList), 2)
+  expect_equal(getNodeIds(nodeList), c('A', 'B'))
+  expect_equal(getWeights(nodeList), c(NULL, NULL))
+  expect_equal(getColors(nodeList), c(NULL, NULL))
+
+  # use a different constructor method
+  nodeList <- NodeList(c('A', 'B'))
+  expect_equal(length(nodeList), 2)
+  expect_equal(getNodeIds(nodeList), c('A', 'B'))
+  expect_equal(getWeights(nodeList), c(NULL, NULL))
+  expect_equal(getColors(nodeList), c(NULL, NULL))
+
+  edgeList <- data.frame(source = 'A', target = 'B')
+  expect_equal(class(NodeList(edgeList))[1], 'NodeList')
 
 })
 
@@ -91,7 +135,7 @@ test_that("We cannot make nonsensical nodes", {
 
 test_that("We cannot make nonsensical NodeLists", {
 
- # Create some nodes
+  # Create some nodes
   nodeA <- Node(
     id = NodeId('A')
   ) 
@@ -110,4 +154,25 @@ test_that("We cannot make nonsensical NodeLists", {
   # If one node has a weight, all much have weights
   weight(nodeA) <- 100
   expect_error(NodeList(S4Vectors::SimpleList(c(nodeA, nodeB))))
+})
+
+test_that("toJSON methods for nodes work", {
+  nodeA <- Node('A')
+  expect_equal(toJSON(nodeA), '{"id":"A"}')
+  expect_equal(toJSON(nodeA, named = TRUE), '{"node":{"id":"A"}}')
+
+  # w weights and colors
+  nodeB <- Node('B', color = 'red', weight = 10)
+  expect_equal(toJSON(nodeB), '{"id":"B","color":"red","weight":10}')
+  expect_equal(toJSON(nodeB, named = TRUE), '{"node":{"id":"B","color":"red","weight":10}}')
+
+  #NodeList
+  nodeList <- NodeList(list(nodeA, nodeB))
+  expect_equal(toJSON(nodeList), '{"nodes":[{"id":"A"},{"id":"B","color":"red","weight":10}]}')
+  expect_equal(toJSON(nodeList, named = FALSE), '[{"id":"A"},{"id":"B","color":"red","weight":10}]')
+
+  #NodeIdList
+  nodeIdList <- NodeIdList(list(NodeId('A'), NodeId('B')))
+  expect_equal(toJSON(nodeIdList), '{"nodeIds":["A","B"]}')
+  expect_equal(toJSON(nodeIdList, named = FALSE), '["A","B"]')
 })
