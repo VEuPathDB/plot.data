@@ -39,7 +39,7 @@ setClass("NodeId",
 check_node_id_list <- function(object) {
   errors <- character()
 
-   # make sure all ids are unique
+  # make sure all ids are unique
   if (length(unique(unlist(lapply(object, id)))) != length(unlist(lapply(object, id)))) {
     errors <- c(errors, "Node ids must be unique")
   }
