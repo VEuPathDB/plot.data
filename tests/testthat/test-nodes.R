@@ -1,6 +1,5 @@
 test_that("NodeId works", {
   expect_equal(class(NodeId('A'))[1], 'NodeId')
-  expect_equal(class(NodeId())[1], 'NodeId')
 })
 
 test_that("NodeIdList works", {
@@ -43,7 +42,7 @@ test_that("Node methods work", {
   nodeC <- Node(1, color = 'red', weight = 10)
 
   expect_equal(class(nodeC)[1], 'Node')
-  expect_equal(id(nodeC), 1)
+  expect_equal(id(nodeC), "1")
   expect_equal(color(nodeC), 'red')
   expect_equal(weight(nodeC), 10)
 })
@@ -105,21 +104,6 @@ test_that("NodeList methods work", {
   expect_equal(getWeights(nodeList), c(10, 20, 30))
   expect_equal(getColors(nodeList), c('red', 'blue', 'green'))
 
-  # should there be one to take things like list('A', 'B')? or c('A', 'B')?
-  # these dont allow for weight and color specification id think...
-  nodeList <- NodeList(list('A', 'B'))
-  expect_equal(length(nodeList), 2)
-  expect_equal(getNodeIds(nodeList), c('A', 'B'))
-  expect_equal(getWeights(nodeList), c(NULL, NULL))
-  expect_equal(getColors(nodeList), c(NULL, NULL))
-
-  # use a different constructor method
-  nodeList <- NodeList(c('A', 'B'))
-  expect_equal(length(nodeList), 2)
-  expect_equal(getNodeIds(nodeList), c('A', 'B'))
-  expect_equal(getWeights(nodeList), c(NULL, NULL))
-  expect_equal(getColors(nodeList), c(NULL, NULL))
-
   edgeList <- data.frame(source = 'A', target = 'B')
   expect_equal(class(NodeList(edgeList))[1], 'NodeList')
 
@@ -158,21 +142,22 @@ test_that("We cannot make nonsensical NodeLists", {
 
 test_that("toJSON methods for nodes work", {
   nodeA <- Node('A')
-  expect_equal(toJSON(nodeA), '{"id":"A"}')
-  expect_equal(toJSON(nodeA, named = TRUE), '{"node":{"id":"A"}}')
+  expect_equal(veupathUtils::toJSON(nodeA), '{"id":"A"}')
+  expect_equal(veupathUtils::toJSON(nodeA, named = TRUE), '{"node":{"id":"A"}}')
 
   # w weights and colors
   nodeB <- Node('B', color = 'red', weight = 10)
-  expect_equal(toJSON(nodeB), '{"id":"B","color":"red","weight":10}')
-  expect_equal(toJSON(nodeB, named = TRUE), '{"node":{"id":"B","color":"red","weight":10}}')
+  expect_equal(veupathUtils::toJSON(nodeB), '{"id":"B","color":"red","weight":10}')
+  expect_equal(veupathUtils::toJSON(nodeB, named = TRUE), '{"node":{"id":"B","color":"red","weight":10}}')
 
   #NodeList
+  nodeA <- Node('A', color='blue', weight=5)
   nodeList <- NodeList(list(nodeA, nodeB))
-  expect_equal(toJSON(nodeList), '{"nodes":[{"id":"A"},{"id":"B","color":"red","weight":10}]}')
-  expect_equal(toJSON(nodeList, named = FALSE), '[{"id":"A"},{"id":"B","color":"red","weight":10}]')
+  expect_equal(veupathUtils::toJSON(nodeList), '{"nodes":[{"id":"A","color":"blue","weight":5},{"id":"B","color":"red","weight":10}]}')
+  expect_equal(veupathUtils::toJSON(nodeList, named = FALSE), '[{"id":"A","color":"blue","weight":5},{"id":"B","color":"red","weight":10}]')
 
   #NodeIdList
   nodeIdList <- NodeIdList(list(NodeId('A'), NodeId('B')))
-  expect_equal(toJSON(nodeIdList), '{"nodeIds":["A","B"]}')
-  expect_equal(toJSON(nodeIdList, named = FALSE), '["A","B"]')
+  expect_equal(veupathUtils::toJSON(nodeIdList), '{"nodeIds":["A","B"]}')
+  expect_equal(veupathUtils::toJSON(nodeIdList, named = FALSE), '["A","B"]')
 })

@@ -33,8 +33,8 @@ test_that("Links work", {
   # pass numbers for node ids
   link <- Link(source = 1, target = 2)
   expect_equal(class(link)[1], 'Link')
-  expect_equal(source(link), node(1))
-  expect_equal(target(link), node(2))
+  expect_equal(source(link), Node(1))
+  expect_equal(target(link), Node(2))
   expect_equal(weight(link), 1)
   expect_true(is.null(color(link)))
 
@@ -49,8 +49,8 @@ test_that("Links work", {
   # an empty one
   link <- Link()
   expect_equal(class(link)[1], 'Link')
-  expect_equal(source(link), NULL)
-  expect_equal(target(link), NULL)
+  expect_equal(class(source(link))[1], 'Node')
+  expect_equal(class(target(link))[1], 'Node')
   expect_equal(weight(link), 1)
   expect_true(is.null(color(link)))
 })
@@ -182,16 +182,16 @@ test_that("toJSON methods for links work", {
   nodeA <- Node('A')
   nodeB <- Node('B')
   link <- Link(source = nodeA, target = nodeB)
-  expect_equal(toJSON(link), '{"source":"A","target":"B"}')
-  expect_equal(toJSON(link, named = TRUE), '{"link":{"source":"A","target":"B"}}')
+  expect_equal(veupathUtils::toJSON(link), '{"source":"A","target":"B","weight":1,"isDirected":false}')
+  expect_equal(veupathUtils::toJSON(link, named = TRUE), '{"link":{"source":"A","target":"B","weight":1,"isDirected":false}}')
 
   # w colors and weights
   link <- Link(source = nodeA, target = nodeB, color = 'red', weight = 10)
-  expect_equal(toJSON(link), '{"source":"A","target":"B","color":"red","weight":10}')
-  expect_equal(toJSON(link, named = TRUE), '{"link":{"source":"A","target":"B","color":"red","weight":10}}')
+  expect_equal(veupathUtils::toJSON(link), '{"source":"A","target":"B","weight":10,"color":"red","isDirected":false}')
+  expect_equal(veupathUtils::toJSON(link, named = TRUE), '{"link":{"source":"A","target":"B","weight":10,"color":"red","isDirected":false}}')
 
   # LinkList
   linkList <- LinkList(list(link))
-  expect_equal(toJSON(linkList), '{"links":[{"source":"A","target":"B","color":"red","weight":10}]}')
-  expect_equal(toJSON(linkList, named = FALSE), '[{"source":"A","target":"B","color":"red","weight":10}]')
+  expect_equal(veupathUtils::toJSON(linkList), '{"links":[{"source":"A","target":"B","weight":10,"color":"red","isDirected":false}]}')
+  expect_equal(veupathUtils::toJSON(linkList, named = FALSE), '[{"source":"A","target":"B","weight":10,"color":"red","isDirected":false}]')
 })
