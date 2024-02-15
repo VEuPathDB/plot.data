@@ -94,6 +94,26 @@ test_that("k-partite networks cannot be created from nonsensical inputs", {
   ))
 })
 
+test_that("k-partite methods work", {
+  edgeList <- data.frame(
+    source = c('a', 'b', 'c'),
+    target = c('b', 'a', 'd')
+  )
+  net <- KPartiteNetwork(
+    object = edgeList, 
+    partitions = Partitions(list(
+      Partition(list(Node('a'), Node('c'))), 
+      Partition(list(Node('b'), Node('d')))
+    ))
+  )
+
+  # test getAllNodeIds
+  expect_equal(getAllNodeIds(net), NodeList(c(Node('a'), Node('b'), Node('c'), Node('d'))))
+
+  # test partitions
+  expect_equal(partitions(net), Partitions(list(Partition(list(Node('a'), Node('c'))), Partition(list(Node('b'), Node('d'))))))
+})
+
 test_that("toJSON works for k-partite networks", {
   # Create some nodes
   nodeA <- Node(
