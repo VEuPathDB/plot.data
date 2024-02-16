@@ -147,13 +147,16 @@ test_that("We can remove links by weight", {
 test_that("toJSON works for networks", {
   # Create some nodes
   nodeA <- Node(
-    id = NodeId('A')
+    id = NodeId('A'),
+    degree = 2
   )
   nodeB <- Node(
-    id = NodeId('B')
+    id = NodeId('B'),
+    degree = 2
   )
   nodeC <- Node(
-    id = NodeId('C')
+    id = NodeId('C'),
+    degree = 2
   )
   
   # Create some links
@@ -169,6 +172,7 @@ test_that("toJSON works for networks", {
   expect_equal(jsonList$network$data$links$target, c('B','C','A'))
   expect_equal(jsonList$network$data$links$weight, c(10,20,30))
   expect_equal(jsonList$network$data$nodes$id, c('A','B','C'))
+  expect_equal(jsonList$network$data$nodes$degree, c(2,2,2))
   expect_equal(length(jsonList$network$config$variables), 0)
 
 })
