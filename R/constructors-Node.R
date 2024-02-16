@@ -133,25 +133,42 @@ setMethod("Node", "missing", function(id, x = numeric(), y = numeric(), color = 
 #' 
 #' Generate a NodeList from an edgeList
 #' @param object Object containing data to be converted to a NodeList
+#' @param layout string indicating the layout algorithm to be used. Options are 'force', 
+#' 'circle' or 'nicely' which are implemented via igraph. Defaults to 'nicely'. 
 #' @return NodeList
 #' @export
 #' @examples
 #' NodeList(data.frame(source='a',target='b'))
-setGeneric("NodeList", function(object) standardGeneric("NodeList"))
+setGeneric("NodeList", function(object, ...) standardGeneric("NodeList"))
 
 #' @export
-setMethod("NodeList", "data.frame", function(object = data.frame(source=character(),target=character())) {
+setMethod("NodeList", "data.frame", function(object = data.frame(source=character(),target=character()), layout = c("nicely", "force", "circle")) {
   if (!inherits(isValidEdgeList(object), "logical")) {
     stop(paste("Invalid edgeList:", isValidEdgeList(object), collapse = '\n'))
   }
+  layout <- veupathUtils::matchArg(layout)
   
   allNodeIds <- c(object$source, object$target)
 
-  makeNodeWithDegree <- function(nodeId, allNodeIds) {
-    new("Node", id = NodeId(nodeId), degree = length(which(allNodeIds == nodeId)))
+  makeNodeWithDegreeAndLayout <- function(nodeId, layout) {
+    graph <- igraph::graph_from_data_frame(object, directed = FALSE)
+
+    if (layout == "force") {
+      coords <- igraph::layout_with_fr(graph)
+    } else if (layout == "circle") {
+      coords <- igraph::layout_in_circle(graph)
+    } else if (layout == "nicely") {
+      coords <- igraph::layout_nicely(graph)
+    } else {
+      stop("layout must be 'force', 'circle' or 'nicely'")
+    }
+    rownames(coords) <- names(igraph::V(graph))
+
+    degree <- igraph::degree(graph, v = nodeId, mode = "all")
+    new("Node", id = NodeId(nodeId), degree = degree, x = coords[nodeId, 1], y = coords[nodeId, 2])
   }
 
-  nodesList <- lapply(unique(allNodeIds), makeNodeWithDegree, allNodeIds)
+  nodesList <- lapply(unique(allNodeIds), makeNodeWithDegreeAndLayout, layout)
   new("NodeList", nodesList)
 })
 
