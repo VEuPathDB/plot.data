@@ -180,12 +180,12 @@ test_that("we can build a Network from an edgeList data.frame", {
   )
   net <- Network(object = edgeList)
   expect_equal(getNodes(net), NodeList(c(Node('a', degree=2), Node('b', degree=2), Node('c', degree=2))))
-  expect_equal(getLinks(net)[[1]]@source, Node('a'))
-  expect_equal(getLinks(net)[[1]]@target, Node('b'))
-  expect_equal(getLinks(net)[[2]]@source, Node('b'))
-  expect_equal(getLinks(net)[[2]]@target, Node('c'))
-  expect_equal(getLinks(net)[[3]]@source, Node('c'))
-  expect_equal(getLinks(net)[[3]]@target, Node('a'))
+  expect_equal(getLinks(net)[[1]]@source, NodeId('a'))
+  expect_equal(getLinks(net)[[1]]@target, NodeId('b'))
+  expect_equal(getLinks(net)[[2]]@source, NodeId('b'))
+  expect_equal(getLinks(net)[[2]]@target, NodeId('c'))
+  expect_equal(getLinks(net)[[3]]@source, NodeId('c'))
+  expect_equal(getLinks(net)[[3]]@target, NodeId('a'))
   expect_equal(getLinkColorScheme(net), 'none')
 
   #w a weight column

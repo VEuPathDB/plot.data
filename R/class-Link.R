@@ -17,8 +17,7 @@ check_link <- function(object) {
   return(if (length(errors) == 0) TRUE else errors) 
 }
 
-# TODO pretty sure source and target here should be NodeId rather than Node
-# TODO consider its the same for Partitions
+# TODO consider its the same for Partitions, should be NodeIdList ?
 #' Link
 #' 
 #' Represent one singular link. A link has a source, and a target. It may be directed or undirected.
@@ -31,16 +30,16 @@ check_link <- function(object) {
 #' @export
 setClass("Link", 
   representation(
-    source = "Node",
-    target = "Node",
+    source = "NodeId",
+    target = "NodeId",
     weight = "numeric",
     color = 'ANY',
     isDirected = "logical"
     # label = "character" # coming soon
   ),
   prototype = prototype(
-    source = Node(),
-    target = Node(),
+    source = NodeId(),
+    target = NodeId(),
     weight = 1,
     color = NULL,
     isDirected = FALSE
@@ -60,22 +59,22 @@ setGeneric("Link", function(source, target, weight = 1, color = NULL, isDirected
 
 #' @export
 setMethod("Link", c("Node", "Node"), function(source, target, weight = 1, color = NULL, isDirected = FALSE) {
-  new("Link", source = source, target = target, weight = weight, color = color, isDirected = isDirected)
+  new("Link", source = NodeId(id(source)), target = NodeId(id(target)), weight = weight, color = color, isDirected = isDirected)
 })
 
 #' @export
 setMethod("Link", c("character", "character"), function(source, target, weight = 1, color = NULL, isDirected = FALSE) {
-  Link(source = Node(source), target = Node(target), weight = weight, color = color, isDirected = isDirected)
+  Link(source = NodeId(source), target = NodeId(target), weight = weight, color = color, isDirected = isDirected)
 })
 
 #' @export
 setMethod("Link", c("numeric", "numeric"), function(source, target, weight = 1, color = NULL, isDirected = FALSE) {
-  Link(source = Node(source), target = Node(target), weight = weight, color = color, isDirected = isDirected)
+  Link(source = NodeId(source), target = NodeId(target), weight = weight, color = color, isDirected = isDirected)
 })
 
 #' @export
 setMethod("Link", c("NodeId", "NodeId"), function(source, target, weight = 1, color = NULL, isDirected = FALSE) {
-  Link(source = Node(source), target = Node(target), weight = weight, color = color, isDirected = isDirected)
+  new("Link", source = source, target = target, weight = weight, color = color, isDirected = isDirected)
 })
 
 #' @export

@@ -26,8 +26,8 @@ setMethod("getIsolatedNodes", "Network", function(net) {
   nodes <- getNodes(net)
   links <- getLinks(net)
 
-  nodesWithLinks <- NodeList(union(getSourceNodes(links), getTargetNodes(links)))
-  isolatedNodeIds <- setdiff(getNodeIds(nodes), getNodeIds(nodesWithLinks))
+  nodeIdsWithLinks <- NodeIdList(union(getSourceNodes(links), getTargetNodes(links)))
+  isolatedNodeIds <- setdiff(getNodeIds(nodes), getNodeIds(nodeIdsWithLinks))
   isolatedNodes <- NodeList(nodes[which(getNodeIds(nodes) %in% isolatedNodeIds)])
 
   return(isolatedNodes)

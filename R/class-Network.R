@@ -4,7 +4,7 @@ check_network <- function(object) {
   errors <- character()
 
   # Check that all nodes in links are in nodes
-  nodesInLinks <- NodeList(union(getSourceNodes(object@links), getTargetNodes(object@links))) # may become a method later if i find i use it elsewhere
+  nodesInLinks <- NodeIdList(union(getSourceNodes(object@links), getTargetNodes(object@links))) # may become a method later if i find i use it elsewhere
   if (!all(getNodeIds(nodesInLinks) %in% getNodeIds(object@nodes))) {
     errors <- c(errors, 'Found a node in a link that is not in the node list. All nodes in links must also be in nodes.')
   }

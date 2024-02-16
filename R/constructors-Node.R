@@ -6,8 +6,11 @@
 #' 
 #' @param value string a unique identifier for the node
 #' @export 
-NodeId <- function(value) {
-  new("NodeId", value = value)
+NodeId <- function(value = character()) {
+  if (length(value) == 0) {
+    value <- generate_node_id(1)
+  }
+  new("NodeId", value = as.character(value))
 }
 
 
