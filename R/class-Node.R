@@ -103,6 +103,7 @@ generate_node_id <- function(n = 5000) {
 #' @slot y numeric value indicating the y coordinate of the node. Optional.
 #' @slot color string or numeric that determines the color of the node. Optional.
 #' @slot weight numeric value associated with the node, such as timestamp or other node-associated data. Optional.
+#' @slot degree numeric value indicating the degree of the node
 #' 
 #' @name Node-class
 #' @rdname Node-class
@@ -113,7 +114,8 @@ setClass("Node",
     x = "numeric",
     y = "numeric",
     color = "ANY",
-    weight = "ANY"
+    weight = "ANY",
+    degree = "numeric"
   ),
   validity = check_node
 )
