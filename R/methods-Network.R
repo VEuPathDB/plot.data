@@ -11,6 +11,7 @@ setGeneric("getLinkColorScheme", function(object) standardGeneric("getLinkColorS
 setMethod("getLinkColorScheme", "Network", function(object) object@linkColorScheme)
 # No setters! Once created, a network should only be updated via network methods
 
+setMethod("getDegrees", "Network", function(object) getDegrees(getNodes(object)))
 
 ## General network methods
 

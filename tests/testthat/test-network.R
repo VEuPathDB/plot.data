@@ -187,6 +187,7 @@ test_that("we can build a Network from an edgeList data.frame", {
   expect_equal(getLinks(net)[[3]]@source, NodeId('c'))
   expect_equal(getLinks(net)[[3]]@target, NodeId('a'))
   expect_equal(getLinkColorScheme(net), 'none')
+  expect_equal(getDegrees(net), c(2, 2, 2))
 
   #w a weight column
   edgeList <- data.frame(
@@ -199,6 +200,7 @@ test_that("we can build a Network from an edgeList data.frame", {
   expect_equal(getLinks(net)[[2]]@weight, 2)
   expect_equal(getLinks(net)[[3]]@weight, 3)
   expect_equal(getLinkColorScheme(net), 'none')
+  expect_equal(getDegrees(net), c(2, 2, 2))
 
   #w a color scheme
   edgeList <- data.frame(
@@ -215,4 +217,5 @@ test_that("we can build a Network from an edgeList data.frame", {
   expect_equal(getLinks(net)[[2]]@color, 0)
   expect_equal(getLinks(net)[[3]]@color, 1)
   expect_equal(getLinkColorScheme(net), 'posneg')
+  expect_equal(getDegrees(net), c(2, 2, 2))
 })
