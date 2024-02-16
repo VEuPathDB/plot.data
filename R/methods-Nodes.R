@@ -68,8 +68,8 @@ setMethod(toJSONGeneric, "Node", function(object, named = c(FALSE, TRUE)) {
     tmp <- character()
 
     tmp <- paste0('"id":', jsonlite::toJSON(jsonlite::unbox(id(object))))
-    if (!!length(x(object))) tmp <- paste0(tmp, ',"x":', jsonlite::toJSON(jsonlite::unbox(x(object))))
-    if (!!length(y(object))) tmp <- paste0(tmp, ',"y":', jsonlite::toJSON(jsonlite::unbox(y(object))))
+    if (!!length(x(object)) && !is.na(x(object))) tmp <- paste0(tmp, ',"x":', jsonlite::toJSON(jsonlite::unbox(x(object))))
+    if (!!length(y(object)) && !is.na(y(object))) tmp <- paste0(tmp, ',"y":', jsonlite::toJSON(jsonlite::unbox(y(object))))
     if (!!length(color(object))) tmp <- paste0(tmp, ',"color":', jsonlite::toJSON(jsonlite::unbox(color(object))))
     if (!!length(weight(object))) tmp <- paste0(tmp, ',"weight":', jsonlite::toJSON(jsonlite::unbox(weight(object))))
     if (!!length(degree(object))) tmp <- paste0(tmp, ',"degree":', jsonlite::toJSON(jsonlite::unbox(degree(object))))
