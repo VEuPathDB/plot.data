@@ -48,8 +48,8 @@ setClass("Link",
 
 #' Link constructor
 #' 
-#' @param source The source node
-#' @param target The target node
+#' @param source The source node identifier
+#' @param target The target node identifier
 #' @param weight The weight of the link
 #' @param color The color of the link
 #' @param isDirected Whether the link is directed
