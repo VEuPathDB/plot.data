@@ -42,6 +42,14 @@ setMethod("getWeights", "NodeList", function(object) unlist(lapply(as.list(objec
 setMethod("getColors", "NodeList", function(object) unlist(lapply(as.list(object), color)))
 setGeneric("getDegrees", function(object) standardGeneric("getDegrees"))
 setMethod("getDegrees", "NodeList", function(object) unlist(lapply(as.list(object), degree)))
+setGeneric("getCoords", function(object) standardGeneric("getCoords"))
+setMethod("getCoords", "NodeList", function(object) {
+    coords <- data.frame(x = unlist(lapply(as.list(object), x)), y = unlist(lapply(as.list(object), y)))
+    if (nrow(coords) == 0 || all(is.na(coords))) {
+        return(NULL)
+    }
+    return(coords)
+})
 
 ## Methods for NodeIdList
 setMethod("getNodeIds", "NodeIdList", function(object) unlist(lapply(as.list(object), id)))

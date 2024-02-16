@@ -12,6 +12,7 @@ setMethod("getLinkColorScheme", "Network", function(object) object@linkColorSche
 # No setters! Once created, a network should only be updated via network methods
 
 setMethod("getDegrees", "Network", function(object) getDegrees(getNodes(object)))
+setMethod("getCoords", "Network", function(object) getCoords(getNodes(object)))
 
 ## General network methods
 
