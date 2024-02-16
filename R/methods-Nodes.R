@@ -23,8 +23,8 @@ setMethod("x<-", "Node", function(object, value) {object@x <- value; validObject
 setMethod("y<-", "Node", function(object, value) {object@y <- value; validObject(object); object})
 setMethod("color<-", "Node", function(object, value) {object@color <- value; validObject(object); object})
 setMethod("weight<-", "Node", function(object, value) {object@weight <- value; validObject(object); object})
-setMethod("degree", "Node", function(object) degree(object@id))
-setMethod("degree<-", "Node", function(object, value) {degree(object@id) <- value; validObject(object); object})
+setMethod("degree", "Node", function(object) object@degree)
+setMethod("degree<-", "Node", function(object, value) {object@degree <- value; validObject(object); object})
 
 ## Methods for NodeId
 setMethod("id", "NodeId", function(object) object@value)

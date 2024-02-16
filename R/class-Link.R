@@ -17,7 +17,8 @@ check_link <- function(object) {
   return(if (length(errors) == 0) TRUE else errors) 
 }
 
-
+# TODO pretty sure source and target here should be NodeId rather than Node
+# TODO consider its the same for Partitions
 #' Link
 #' 
 #' Represent one singular link. A link has a source, and a target. It may be directed or undirected.
