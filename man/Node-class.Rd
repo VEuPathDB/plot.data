@@ -3,7 +3,6 @@
 \docType{class}
 \name{Node-class}
 \alias{Node-class}
-\alias{Node}
 \title{Node}
 \description{
 A class for representing nodes in a network
@@ -20,5 +19,7 @@ A class for representing nodes in a network
 \item{\code{color}}{string or numeric that determines the color of the node. Optional.}
 
 \item{\code{weight}}{numeric value associated with the node, such as timestamp or other node-associated data. Optional.}
+
+\item{\code{degree}}{numeric value indicating the degree of the node}
 }}
 
