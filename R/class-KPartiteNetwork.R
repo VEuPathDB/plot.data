@@ -137,7 +137,7 @@ setMethod("KPartiteNetwork", signature("data.frame", "missing", "missing"), func
   variables = VariableMetadataList(), 
   ...
 ) {
-  new("KPartiteNetwork", links=LinkList(object), nodes=NodeList(object), partitions=partitions, linkColorScheme=linkColorScheme, variableMapping=variables)
+  new("KPartiteNetwork", links=LinkList(object), nodes=NodeList(object, layout='none'), partitions=partitions, linkColorScheme=linkColorScheme, variableMapping=variables)
 })
 
 #' @export

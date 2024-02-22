@@ -42,6 +42,14 @@ setMethod("getWeights", "NodeList", function(object) unlist(lapply(as.list(objec
 setMethod("getColors", "NodeList", function(object) unlist(lapply(as.list(object), color)))
 setGeneric("getDegrees", function(object) standardGeneric("getDegrees"))
 setMethod("getDegrees", "NodeList", function(object) unlist(lapply(as.list(object), degree)))
+setGeneric("getCoords", function(object) standardGeneric("getCoords"))
+setMethod("getCoords", "NodeList", function(object) {
+    coords <- data.frame(x = unlist(lapply(as.list(object), x)), y = unlist(lapply(as.list(object), y)))
+    if (nrow(coords) == 0 || all(is.na(coords))) {
+        return(NULL)
+    }
+    return(coords)
+})
 
 ## Methods for NodeIdList
 setMethod("getNodeIds", "NodeIdList", function(object) unlist(lapply(as.list(object), id)))
@@ -60,8 +68,8 @@ setMethod(toJSONGeneric, "Node", function(object, named = c(FALSE, TRUE)) {
     tmp <- character()
 
     tmp <- paste0('"id":', jsonlite::toJSON(jsonlite::unbox(id(object))))
-    if (!!length(x(object))) tmp <- paste0(tmp, ',"x":', jsonlite::toJSON(jsonlite::unbox(x(object))))
-    if (!!length(y(object))) tmp <- paste0(tmp, ',"y":', jsonlite::toJSON(jsonlite::unbox(y(object))))
+    if (!!length(x(object)) && !is.na(x(object))) tmp <- paste0(tmp, ',"x":', jsonlite::toJSON(jsonlite::unbox(x(object))))
+    if (!!length(y(object)) && !is.na(y(object))) tmp <- paste0(tmp, ',"y":', jsonlite::toJSON(jsonlite::unbox(y(object))))
     if (!!length(color(object))) tmp <- paste0(tmp, ',"color":', jsonlite::toJSON(jsonlite::unbox(color(object))))
     if (!!length(weight(object))) tmp <- paste0(tmp, ',"weight":', jsonlite::toJSON(jsonlite::unbox(weight(object))))
     if (!!length(degree(object)) && !is.na(degree(object))) tmp <- paste0(tmp, ',"degree":', jsonlite::toJSON(jsonlite::unbox(degree(object))))

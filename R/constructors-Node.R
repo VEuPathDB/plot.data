@@ -130,25 +130,44 @@ setMethod("Node", "missing", function(id, x = numeric(), y = numeric(), color = 
 #' 
 #' Generate a NodeList from an edgeList
 #' @param object Object containing data to be converted to a NodeList
+#' @param layout string indicating the layout algorithm to be used. Options are 'none', 'force', 
+#' 'circle' or 'nicely' which are implemented via igraph. Defaults to 'nicely'. 
 #' @return NodeList
 #' @export
 #' @examples
 #' NodeList(data.frame(source='a',target='b'))
-setGeneric("NodeList", function(object) standardGeneric("NodeList"))
+setGeneric("NodeList", function(object, ...) standardGeneric("NodeList"))
 
 #' @export
-setMethod("NodeList", "data.frame", function(object = data.frame(source=character(),target=character())) {
+setMethod("NodeList", "data.frame", function(object = data.frame(source=character(),target=character()), layout = c("nicely", "force", "circle", "none")) {
   if (!inherits(isValidEdgeList(object), "logical")) {
     stop(paste("Invalid edgeList:", isValidEdgeList(object), collapse = '\n'))
   }
+  layout <- veupathUtils::matchArg(layout)
   
-  allNodeIds <- c(object$source, object$target)
-
-  makeNodeWithDegree <- function(nodeId, allNodeIds) {
-    new("Node", id = NodeId(nodeId), degree = length(which(allNodeIds == nodeId)))
+  graph <- igraph::graph_from_data_frame(object, directed = FALSE)
+  if (layout != "none") {
+    if (layout == "force") {
+      coords <- igraph::layout_with_fr(graph)
+    } else if (layout == "circle") {
+      coords <- igraph::layout_in_circle(graph)
+    } else if (layout == "nicely") {
+      coords <- igraph::layout_nicely(graph)
+    } else {
+      stop("layout must be 'force', 'circle' or 'nicely'")
+    }
+    rownames(coords) <- names(igraph::V(graph))
   }
 
-  nodesList <- lapply(unique(allNodeIds), makeNodeWithDegree, allNodeIds)
+  # if we want to move this out of the constructor it needs to have graph and coords passed to it
+  makeNodeWithDegreeAndLayout <- function(nodeId) {
+    x <- ifelse(layout != "none", coords[nodeId, 1], numeric())
+    y <- ifelse(layout != "none", coords[nodeId, 2], numeric())
+    degree <- igraph::degree(graph, v = nodeId, mode = "all")
+    new("Node", id = NodeId(nodeId), degree = unname(degree), x = x, y = y)
+  }
+
+  nodesList <- lapply(names(igraph::V(graph)), makeNodeWithDegreeAndLayout)
   new("NodeList", nodesList)
 })
 

@@ -166,7 +166,9 @@ test_that("we can build a KPartiteNetwork from an edgeList data.frame", {
     ))
   )
 
-  expect_equal(getNodes(net), NodeList(c(Node('a', degree=2), Node('b', degree=2), Node('c', degree=1), Node('d', degree=1))))
+  expect_equal(getNodeIds(net), c('a', 'b', 'c', 'd'))
+  expect_equal(getDegrees(net), c(2, 2, 1, 1))
+  expect_equal(getCoords(net), NULL)
   expect_equal(getLinks(net), LinkList(c(Link(source = Node('a'), target = Node('b')), Link(source = Node('b'), target = Node('a')), Link(source = Node('c'), target = Node('d')))))
   expect_equal(partitions(net), Partitions(list(Partition(list(Node('a'), Node('c'))), Partition(list(Node('b'), Node('d'))))))
   expect_equal(getLinkColorScheme(net), 'none')

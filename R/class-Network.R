@@ -64,7 +64,10 @@ setClass("Network",
 #' @param links LinkList
 #' @param nodes NodeList
 #' @param object Object containing data to be converted to a Network
-#' @param linkColorScheme string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.
+#' @param linkColorScheme string defining the type of coloring scheme the links follow. 
+#' Options are 'none' (default) and 'posneg'.
+#' @param layout string defining the layout of the network. Options are 'force', 'circle', 
+#' and 'nicely' which are implemented in igraph. Default is 'nicely'.
 #' @param variables VariableMetadataList
 #' @return Network
 #' @export
@@ -100,10 +103,12 @@ setMethod("Network", signature("data.frame", "missing", "missing"), function(
   links, 
   nodes,
   linkColorScheme = 'none', 
+  layout = c("nicely", "force", "circle"),
   variables = VariableMetadataList(), 
   ...
 ) {
-  new("Network", links=LinkList(object, linkColorScheme), nodes=NodeList(object), linkColorScheme=linkColorScheme, variableMapping=variables)
+  layout <- veupathUtils::matchArg(layout)
+  new("Network", links=LinkList(object, linkColorScheme), nodes=NodeList(object, layout), linkColorScheme=linkColorScheme, variableMapping=variables)
 })
 
 #' @export 
