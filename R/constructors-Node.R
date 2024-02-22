@@ -100,30 +100,27 @@ setMethod("NodeIdList", "Node", function(object, uniquifyIds = c(TRUE, FALSE)) {
 #' @param y numeric value indicating the y coordinate of the node. Optional.
 #' @param color string or numeric that determines the color of the node. Optional.
 #' @param weight numeric value associated with the node, such as timestamp or other node-associated data. Optional.
-#' @export
+#' @param degree numeric value indicating the degree of the node. This only makes sense in the context of a network,
+#'    and should not be provided in other contexts like when working w an individual node.
 setGeneric("Node", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL, degree = NULL) standardGeneric("Node"), signature = c("id"))
 
-#' @export
 setMethod("Node", "numeric", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL, degree = NULL) {
-  degree <- ifelse(is.null(degree), 0, degree)
+  degree <- ifelse(is.null(degree), NA_real_, degree)
   new("Node", id = NodeId(as.character(id)), x = x, y = y, color = color, weight = weight, degree = degree)
 })
 
-#' @export
 setMethod("Node", "character", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL, degree = NULL) {
-  degree <- ifelse(is.null(degree), 0, degree)
+  degree <- ifelse(is.null(degree), NA_real_, degree)
   new("Node", id = NodeId(id), x = x, y = y, color = color, weight = weight, degree = degree)
 })
 
-#' @export
 setMethod("Node", "NodeId", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL, degree = NULL) {
-  degree <- ifelse(is.null(degree), 0, degree)
+  degree <- ifelse(is.null(degree), NA_real_, degree)
   new("Node", id = id, x = x, y = y, color = color, weight = weight, degree = degree)
 })
 
-#' @export 
 setMethod("Node", "missing", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL, degree = NULL) {
-  degree <- ifelse(is.null(degree), 0, degree)
+  degree <- ifelse(is.null(degree), NA_real_, degree)
   new("Node", id = NodeId(generate_node_id(1)), x = x, y = y, color = color, weight = weight, degree = degree)
 })
 

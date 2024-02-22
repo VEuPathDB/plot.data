@@ -3,7 +3,6 @@
 \docType{class}
 \name{LinkList-class}
 \alias{LinkList-class}
-\alias{LinkList}
 \title{Link List}
 \description{
 A class for representing links in a network
