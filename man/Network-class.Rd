@@ -3,7 +3,6 @@
 \docType{class}
 \name{Network-class}
 \alias{Network-class}
-\alias{Network}
 \title{Network}
 \description{
 A class for representing networks. A network is composed of nodes and links (edges, connections, etc.). A link is represented
@@ -17,9 +16,10 @@ in case some nodes have no links. A network can also have properties such as dir
 
 \item{\code{nodes}}{NodeList object defining the nodes in the network. Some nodes may not have any links.}
 
-\item{\code{linkColorScheme}}{string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.}
-
-\item{\code{variableMapping}}{veupathUtils::VariableMetadataList object defining the variable mappings in the network.
+\item{\code{linkColorScheme}}{string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.
+In the case of 'posneg', the links color slot will be set to 1 if the link is positive, and -1 if the link is negative.
 Use a method assignLinkColors() to assign colors to links and set this slot's value.}
+
+\item{\code{variableMapping}}{veupathUtils::VariableMetadataList object defining the variable mappings in the network.}
 }}
 

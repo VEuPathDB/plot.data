@@ -3,7 +3,6 @@
 \docType{class}
 \name{NodeList-class}
 \alias{NodeList-class}
-\alias{NodeList}
 \title{NodeList}
 \description{
 A class for representing a list of nodes.

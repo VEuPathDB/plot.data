@@ -11,6 +11,7 @@ setGeneric("getLinkColorScheme", function(object) standardGeneric("getLinkColorS
 setMethod("getLinkColorScheme", "Network", function(object) object@linkColorScheme)
 # No setters! Once created, a network should only be updated via network methods
 
+setMethod("getDegrees", "Network", function(object) getDegrees(getNodes(object)))
 
 ## General network methods
 
@@ -26,8 +27,8 @@ setMethod("getIsolatedNodes", "Network", function(net) {
   nodes <- getNodes(net)
   links <- getLinks(net)
 
-  nodesWithLinks <- NodeList(union(getSourceNodes(links), getTargetNodes(links)))
-  isolatedNodeIds <- setdiff(getNodeIds(nodes), getNodeIds(nodesWithLinks))
+  nodeIdsWithLinks <- NodeIdList(union(getSourceNodes(links), getTargetNodes(links)))
+  isolatedNodeIds <- setdiff(getNodeIds(nodes), getNodeIds(nodeIdsWithLinks))
   isolatedNodes <- NodeList(nodes[which(getNodeIds(nodes) %in% isolatedNodeIds)])
 
   return(isolatedNodes)
@@ -192,7 +193,7 @@ setMethod(toJSONGeneric, "Network", function(object, named = c(TRUE, FALSE)) {
   return(tmp)
 })
 
-#' Write json to tmp file
+#' Write network json to tmp file
 #' 
 #' This function returns the name of a json file which it has
 #' written an object out to.
@@ -200,9 +201,9 @@ setMethod(toJSONGeneric, "Network", function(object, named = c(TRUE, FALSE)) {
 #' @param verbose boolean that declares if logging is desired
 #' @return character name of a tmp file w ext *.json
 #' @export
-setGeneric("writeJSON", function(x, pattern = NULL, verbose = c(TRUE, FALSE)) standardGeneric("writeJSON"))
+setGeneric("writeNetworkJSON", function(x, pattern = NULL, verbose = c(TRUE, FALSE)) standardGeneric("writeNetworkJSON"))
 
-#' Write json to local tmp file
+#' Write network json to local tmp file
 #'
 #' This function returns the name of a json file which it has
 #' written a Network object out to.
@@ -212,7 +213,7 @@ setGeneric("writeJSON", function(x, pattern = NULL, verbose = c(TRUE, FALSE)) st
 #' @return character name of a tmp file w ext *.json
 #' @importFrom jsonlite toJSON
 #' @export
-setMethod("writeJSON", "Network", function(x, pattern=NULL, verbose = c(TRUE, FALSE)) {
+setMethod("writeNetworkJSON", "Network", function(x, pattern=NULL, verbose = c(TRUE, FALSE)) {
   net <- x
   verbose <- veupathUtils::matchArg(verbose)
 

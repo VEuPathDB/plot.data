@@ -6,8 +6,11 @@
 #' 
 #' @param value string a unique identifier for the node
 #' @export 
-NodeId <- function(value) {
-  new("NodeId", value = value)
+NodeId <- function(value = character()) {
+  if (length(value) == 0) {
+    value <- generate_node_id(1)
+  }
+  new("NodeId", value = as.character(value))
 }
 
 
@@ -97,27 +100,28 @@ setMethod("NodeIdList", "Node", function(object, uniquifyIds = c(TRUE, FALSE)) {
 #' @param y numeric value indicating the y coordinate of the node. Optional.
 #' @param color string or numeric that determines the color of the node. Optional.
 #' @param weight numeric value associated with the node, such as timestamp or other node-associated data. Optional.
-#' @export
-setGeneric("Node", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL) standardGeneric("Node"), signature = c("id"))
+#' @param degree numeric value indicating the degree of the node. This only makes sense in the context of a network,
+#'    and should not be provided in other contexts like when working w an individual node.
+setGeneric("Node", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL, degree = NULL) standardGeneric("Node"), signature = c("id"))
 
-#' @export
-setMethod("Node", "numeric", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL) {
-  new("Node", id = NodeId(as.character(id)), x = x, y = y, color = color, weight = weight)
+setMethod("Node", "numeric", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL, degree = NULL) {
+  degree <- ifelse(is.null(degree), NA_real_, degree)
+  new("Node", id = NodeId(as.character(id)), x = x, y = y, color = color, weight = weight, degree = degree)
 })
 
-#' @export
-setMethod("Node", "character", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL) {
-  new("Node", id = NodeId(id), x = x, y = y, color = color, weight = weight)
+setMethod("Node", "character", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL, degree = NULL) {
+  degree <- ifelse(is.null(degree), NA_real_, degree)
+  new("Node", id = NodeId(id), x = x, y = y, color = color, weight = weight, degree = degree)
 })
 
-#' @export
-setMethod("Node", "NodeId", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL) {
-  new("Node", id = id, x = x, y = y, color = color, weight = weight)
+setMethod("Node", "NodeId", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL, degree = NULL) {
+  degree <- ifelse(is.null(degree), NA_real_, degree)
+  new("Node", id = id, x = x, y = y, color = color, weight = weight, degree = degree)
 })
 
-#' @export 
-setMethod("Node", "missing", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL) {
-  new("Node", id = NodeId(generate_node_id(1)), x = x, y = y, color = color, weight = weight)
+setMethod("Node", "missing", function(id, x = numeric(), y = numeric(), color = NULL, weight = NULL, degree = NULL) {
+  degree <- ifelse(is.null(degree), NA_real_, degree)
+  new("Node", id = NodeId(generate_node_id(1)), x = x, y = y, color = color, weight = weight, degree = degree)
 })
 
 
@@ -138,8 +142,13 @@ setMethod("NodeList", "data.frame", function(object = data.frame(source=characte
     stop(paste("Invalid edgeList:", isValidEdgeList(object), collapse = '\n'))
   }
   
-  allNodeIds <- unique(c(object$source, object$target))
-  nodesList <- lapply(allNodeIds, Node)
+  allNodeIds <- c(object$source, object$target)
+
+  makeNodeWithDegree <- function(nodeId, allNodeIds) {
+    new("Node", id = NodeId(nodeId), degree = length(which(allNodeIds == nodeId)))
+  }
+
+  nodesList <- lapply(unique(allNodeIds), makeNodeWithDegree, allNodeIds)
   new("NodeList", nodesList)
 })
 

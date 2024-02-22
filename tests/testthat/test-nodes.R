@@ -107,6 +107,15 @@ test_that("NodeList methods work", {
   edgeList <- data.frame(source = 'A', target = 'B')
   expect_equal(class(NodeList(edgeList))[1], 'NodeList')
 
+  # multiple edges in edgeList, test degrees
+  edgeList <- data.frame(source = c('A', 'B'), target = c('B', 'C'))
+  expect_equal(class(NodeList(edgeList))[1], 'NodeList')
+  expect_equal(length(NodeList(edgeList)), 3)
+  expect_equal(getNodeIds(NodeList(edgeList)), c('A', 'B', 'C'))
+  expect_equal(getWeights(NodeList(edgeList)), c(NULL, NULL, NULL))
+  expect_equal(getColors(NodeList(edgeList)), c(NULL, NULL, NULL))
+  expect_equal(getDegrees(NodeList(edgeList)), c(1, 2, 1))
+
 })
 
 test_that("We cannot make nonsensical nodes", {

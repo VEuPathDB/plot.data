@@ -1,56 +1,49 @@
 test_that("Links work", {
   # Make a link
-  nodeA <- Node(
-    id = NodeId('A')
-  )
-  nodeB <- Node(
-    id = NodeId('B')
-  )
-
-  link <- Link(source = nodeA, target = nodeB)
+  link <- Link(source = NodeId('A'), target = NodeId('B'))
   expect_equal(class(link)[1], 'Link')
-  expect_equal(source(link), nodeA)
-  expect_equal(target(link), nodeB)
+  expect_equal(source(link), NodeId('A'))
+  expect_equal(target(link), NodeId('B'))
   expect_equal(weight(link), 1)
   expect_true(is.null(color(link)))
 
   # Make another link w colors and weights
-  link <- Link(source = nodeA, target = nodeB, color = 'red', weight = 10)
+  link <- Link(source = NodeId('A'), target = NodeId('B'), color = 'red', weight = 10)
   expect_equal(class(link)[1], 'Link')
-  expect_equal(source(link), nodeA)
-  expect_equal(target(link), nodeB)
+  expect_equal(source(link), NodeId('A'))
+  expect_equal(target(link), NodeId('B'))
   expect_equal(color(link), 'red')
   expect_equal(weight(link), 10)
 
   # pass characters for node ids
   link <- Link(source = 'A', target = 'B')
   expect_equal(class(link)[1], 'Link')
-  expect_equal(source(link), nodeA)
-  expect_equal(target(link), nodeB)
+  expect_equal(source(link), NodeId('A'))
+  expect_equal(target(link), NodeId('B'))
   expect_equal(weight(link), 1)
   expect_true(is.null(color(link)))
 
   # pass numbers for node ids
   link <- Link(source = 1, target = 2)
   expect_equal(class(link)[1], 'Link')
-  expect_equal(source(link), Node(1))
-  expect_equal(target(link), Node(2))
+  expect_equal(source(link), NodeId(1))
+  expect_equal(target(link), NodeId(2))
   expect_equal(weight(link), 1)
   expect_true(is.null(color(link)))
 
   # pass NodeId objects for node ids
   link <- Link(source = NodeId('A'), target = NodeId('B'))
   expect_equal(class(link)[1], 'Link')
-  expect_equal(source(link), nodeA)
-  expect_equal(target(link), nodeB)
+  expect_equal(source(link), NodeId('A'))
+  expect_equal(target(link), NodeId('B'))
   expect_equal(weight(link), 1)
   expect_true(is.null(color(link)))
 
   # an empty one
   link <- Link()
   expect_equal(class(link)[1], 'Link')
-  expect_equal(class(source(link))[1], 'Node')
-  expect_equal(class(target(link))[1], 'Node')
+  expect_equal(class(source(link))[1], 'NodeId')
+  expect_equal(class(target(link))[1], 'NodeId')
   expect_equal(weight(link), 1)
   expect_true(is.null(color(link)))
 })
@@ -65,15 +58,15 @@ test_that("Link methods work", {
   )
 
   link <- Link(source = nodeA, target = nodeB)
-  expect_equal(source(link), nodeA)
-  expect_equal(target(link), nodeB)
+  expect_equal(source(link), NodeId('A'))
+  expect_equal(target(link), NodeId('B'))
   expect_equal(weight(link), 1)
   expect_true(is.null(color(link)))
   expect_equal(isDirected(link), FALSE)
 
   link <- Link(source = nodeA, target = nodeB, color = 'red', weight = 10)
-  expect_equal(source(link), nodeA)
-  expect_equal(target(link), nodeB)
+  expect_equal(source(link), NodeId('A'))
+  expect_equal(target(link), NodeId('B'))
   expect_equal(color(link), 'red')
   expect_equal(weight(link), 10)
   expect_equal(isDirected(link), FALSE)
@@ -100,8 +93,8 @@ test_that("LinkList methods work", {
 
   linkList <- LinkList(S4Vectors::SimpleList(c(link1, link2, link3)))
   expect_equal(length(linkList), 3)
-  expect_equal(getSourceNodes(linkList), list(nodeA, nodeB, nodeC))
-  expect_equal(getTargetNodes(linkList), list(nodeB, nodeC, nodeA))
+  expect_equal(getSourceNodes(linkList), list(NodeId('A'), NodeId('B'), NodeId('C')))
+  expect_equal(getTargetNodes(linkList), list(NodeId('B'), NodeId('C'), NodeId('A')))
   expect_equal(getWeights(linkList), c(1, 1, 1))
   expect_equal(getColors(linkList), c(NULL, NULL, NULL))
 
@@ -113,16 +106,16 @@ test_that("LinkList methods work", {
 
   linkList <- LinkList(S4Vectors::SimpleList(c(link1, link2, link3)))
   expect_equal(length(linkList), 3)
-  expect_equal(getSourceNodes(linkList), list(nodeA, nodeB, nodeC))
-  expect_equal(getTargetNodes(linkList), list(nodeB, nodeC, nodeA))
+  expect_equal(getSourceNodes(linkList), list(NodeId('A'), NodeId('B'), NodeId('C')))
+  expect_equal(getTargetNodes(linkList), list(NodeId('B'), NodeId('C'), NodeId('A')))
   expect_equal(getWeights(linkList), c(2, 0.1, 3))
   expect_equal(getColors(linkList), c('red', 'blue', 'green'))
 
   # use a list to make LinkList
   linkList <- LinkList(list(link1, link2, link3))
   expect_equal(length(linkList), 3)
-  expect_equal(getSourceNodes(linkList), list(nodeA, nodeB, nodeC))
-  expect_equal(getTargetNodes(linkList), list(nodeB, nodeC, nodeA))
+  expect_equal(getSourceNodes(linkList), list(NodeId('A'), NodeId('B'), NodeId('C')))
+  expect_equal(getTargetNodes(linkList), list(NodeId('B'), NodeId('C'), NodeId('A')))
   expect_equal(getWeights(linkList), c(2, 0.1, 3))
   expect_equal(getColors(linkList), c('red', 'blue', 'green'))
 

@@ -3,7 +3,6 @@
 \docType{class}
 \name{Link-class}
 \alias{Link-class}
-\alias{Link}
 \title{Link}
 \description{
 Represent one singular link. A link has a source, and a target. It may be directed or undirected.

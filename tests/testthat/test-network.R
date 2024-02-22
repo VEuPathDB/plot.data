@@ -147,13 +147,16 @@ test_that("We can remove links by weight", {
 test_that("toJSON works for networks", {
   # Create some nodes
   nodeA <- Node(
-    id = NodeId('A')
+    id = NodeId('A'),
+    degree = 2
   )
   nodeB <- Node(
-    id = NodeId('B')
+    id = NodeId('B'),
+    degree = 2
   )
   nodeC <- Node(
-    id = NodeId('C')
+    id = NodeId('C'),
+    degree = 2
   )
   
   # Create some links
@@ -169,6 +172,7 @@ test_that("toJSON works for networks", {
   expect_equal(jsonList$network$data$links$target, c('B','C','A'))
   expect_equal(jsonList$network$data$links$weight, c(10,20,30))
   expect_equal(jsonList$network$data$nodes$id, c('A','B','C'))
+  expect_equal(jsonList$network$data$nodes$degree, c(2,2,2))
   expect_equal(length(jsonList$network$config$variables), 0)
 
 })
@@ -179,14 +183,15 @@ test_that("we can build a Network from an edgeList data.frame", {
     target = c('b', 'c', 'a')
   )
   net <- Network(object = edgeList)
-  expect_equal(getNodes(net), NodeList(c(Node('a'), Node('b'), Node('c'))))
-  expect_equal(getLinks(net)[[1]]@source, Node('a'))
-  expect_equal(getLinks(net)[[1]]@target, Node('b'))
-  expect_equal(getLinks(net)[[2]]@source, Node('b'))
-  expect_equal(getLinks(net)[[2]]@target, Node('c'))
-  expect_equal(getLinks(net)[[3]]@source, Node('c'))
-  expect_equal(getLinks(net)[[3]]@target, Node('a'))
+  expect_equal(getNodes(net), NodeList(c(Node('a', degree=2), Node('b', degree=2), Node('c', degree=2))))
+  expect_equal(getLinks(net)[[1]]@source, NodeId('a'))
+  expect_equal(getLinks(net)[[1]]@target, NodeId('b'))
+  expect_equal(getLinks(net)[[2]]@source, NodeId('b'))
+  expect_equal(getLinks(net)[[2]]@target, NodeId('c'))
+  expect_equal(getLinks(net)[[3]]@source, NodeId('c'))
+  expect_equal(getLinks(net)[[3]]@target, NodeId('a'))
   expect_equal(getLinkColorScheme(net), 'none')
+  expect_equal(getDegrees(net), c(2, 2, 2))
 
   #w a weight column
   edgeList <- data.frame(
@@ -195,10 +200,11 @@ test_that("we can build a Network from an edgeList data.frame", {
     weight = c(1,2,3)
   )
   net <- Network(object = edgeList)
-  expect_equal(getNodes(net), NodeList(c(Node('a'), Node('b'), Node('c'))))
+  expect_equal(getNodes(net), NodeList(c(Node('a', degree=2), Node('b', degree=2), Node('c', degree=2))))
   expect_equal(getLinks(net)[[2]]@weight, 2)
   expect_equal(getLinks(net)[[3]]@weight, 3)
   expect_equal(getLinkColorScheme(net), 'none')
+  expect_equal(getDegrees(net), c(2, 2, 2))
 
   #w a color scheme
   edgeList <- data.frame(
@@ -207,7 +213,7 @@ test_that("we can build a Network from an edgeList data.frame", {
     weight = c(-10,0,10)
   )
   net <- Network(object = edgeList, linkColorScheme = 'posneg')
-  expect_equal(getNodes(net), NodeList(c(Node('a'), Node('b'), Node('c'))))
+  expect_equal(getNodes(net), NodeList(c(Node('a', degree=2), Node('b', degree=2), Node('c', degree=2))))
   expect_equal(getLinks(net)[[1]]@weight, -10)
   expect_equal(getLinks(net)[[2]]@weight, 0)
   expect_equal(getLinks(net)[[3]]@weight, 10)
@@ -215,4 +221,5 @@ test_that("we can build a Network from an edgeList data.frame", {
   expect_equal(getLinks(net)[[2]]@color, 0)
   expect_equal(getLinks(net)[[3]]@color, 1)
   expect_equal(getLinkColorScheme(net), 'posneg')
+  expect_equal(getDegrees(net), c(2, 2, 2))
 })
