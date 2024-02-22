@@ -4,7 +4,7 @@ test_that("numBinsToBinWidth() returns a binWidth that will actually provide the
   binWidth <- numBinsToBinWidth(testDF$entity.int6, 8)
   viewport <- findViewport(testDF$entity.int6, 'NUMBER')
   x <- bin(testDF$entity.int6, binWidth, viewport)
-  expect_equal(data.table::uniqueN(x),5)
+  expect_equal(data.table::uniqueN(x),6)
 
   binWidth <- numBinsToBinWidth(testDF$entity.int6, 1)
   viewport <- findViewport(testDF$entity.int6, 'NUMBER')

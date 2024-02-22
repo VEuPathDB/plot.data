@@ -151,19 +151,19 @@ test_that("We cannot make nonsensical NodeLists", {
 
 test_that("toJSON methods for nodes work", {
   nodeA <- Node('A')
-  expect_equal(veupathUtils::toJSON(nodeA), '{"id":"A","degree":0}')
-  expect_equal(veupathUtils::toJSON(nodeA, named = TRUE), '{"node":{"id":"A","degree":0}}')
+  expect_equal(veupathUtils::toJSON(nodeA), '{"id":"A"}')
+  expect_equal(veupathUtils::toJSON(nodeA, named = TRUE), '{"node":{"id":"A"}}')
 
   # w weights and colors
   nodeB <- Node('B', color = 'red', weight = 10)
-  expect_equal(veupathUtils::toJSON(nodeB), '{"id":"B","color":"red","weight":10,"degree":0}')
-  expect_equal(veupathUtils::toJSON(nodeB, named = TRUE), '{"node":{"id":"B","color":"red","weight":10,"degree":0}}')
+  expect_equal(veupathUtils::toJSON(nodeB), '{"id":"B","color":"red","weight":10}')
+  expect_equal(veupathUtils::toJSON(nodeB, named = TRUE), '{"node":{"id":"B","color":"red","weight":10}}')
 
   #NodeList
   nodeA <- Node('A', color='blue', weight=5)
   nodeList <- NodeList(list(nodeA, nodeB))
-  expect_equal(veupathUtils::toJSON(nodeList), '{"nodes":[{"id":"A","color":"blue","weight":5,"degree":0},{"id":"B","color":"red","weight":10,"degree":0}]}')
-  expect_equal(veupathUtils::toJSON(nodeList, named = FALSE), '[{"id":"A","color":"blue","weight":5,"degree":0},{"id":"B","color":"red","weight":10,"degree":0}]')
+  expect_equal(veupathUtils::toJSON(nodeList), '{"nodes":[{"id":"A","color":"blue","weight":5},{"id":"B","color":"red","weight":10}]}')
+  expect_equal(veupathUtils::toJSON(nodeList, named = FALSE), '[{"id":"A","color":"blue","weight":5},{"id":"B","color":"red","weight":10}]')
 
   #NodeIdList
   nodeIdList <- NodeIdList(list(NodeId('A'), NodeId('B')))
