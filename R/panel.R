@@ -15,7 +15,7 @@ panelAllStats <- function(data, x, y, panel = NULL, columnReferenceValue = NA_ch
       tbl <- tableXY(data)
       tbl <- TwoByTwoTable('data'=tbl, 'columnReferenceValue'=columnReferenceValue, 'rowReferenceValue'=rowReferenceValue)
       statistics <- allStats(tbl)
-      dt <- veupathUtils::as.data.table(statistics)
+      dt <- veupathUtils::getDataTable(statistics)
     } else {
       buildTwoByTwo <- function(tbl) {
         TwoByTwoTable('data' = tbl, 'columnReferenceValue' = columnReferenceValue, 'rowReferenceValue' = rowReferenceValue)
@@ -25,7 +25,7 @@ panelAllStats <- function(data, x, y, panel = NULL, columnReferenceValue = NA_ch
       dt.list <- lapply(dt.list, tableXY)
       dt.list <- lapply(dt.list, buildTwoByTwo)
       dt.list <- lapply(dt.list, allStats)
-      dt.list <- lapply(dt.list, veupathUtils::as.data.table)
+      dt.list <- lapply(dt.list, veupathUtils::getDataTable)
       colNames <- names(dt.list[[1]])
       dt <- data.table::as.data.table(lapply(as.list(colNames), function(name) { lapply( dt.list, function(x) {x[[name]]} ) } ))
       data.table::setnames(dt, colNames)
@@ -38,7 +38,7 @@ panelAllStats <- function(data, x, y, panel = NULL, columnReferenceValue = NA_ch
       tbl <- tableXY(data)
       tbl <- ContingencyTable('data'=tbl, 'columnReferenceValue'=columnReferenceValue, 'rowReferenceValue'=rowReferenceValue)
       statistics <- allStats(tbl)
-      dt <- veupathUtils::as.data.table(statistics)
+      dt <- veupathUtils::getDataTable(statistics)
     } else {
       buildContingency <- function(tbl) {
         ContingencyTable('data' = tbl, 'columnReferenceValue' = columnReferenceValue, 'rowReferenceValue' = rowReferenceValue)
@@ -48,7 +48,7 @@ panelAllStats <- function(data, x, y, panel = NULL, columnReferenceValue = NA_ch
       dt.list <- lapply(dt.list, tableXY)
       dt.list <- lapply(dt.list, buildContingency)
       dt.list <- lapply(dt.list, allStats)
-      dt.list <- lapply(dt.list, veupathUtils::as.data.table)
+      dt.list <- lapply(dt.list, veupathUtils::getDataTable)
       colNames <- names(dt.list[[1]])
       dt <- data.table::as.data.table(lapply(as.list(colNames), function(name) { lapply( dt.list, function(x) {x[[name]]} ) } ))
       data.table::setnames(dt, colNames)
