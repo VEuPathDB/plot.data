@@ -1175,3 +1175,34 @@ test_that("histogram.dt does not produce corrupted bins when given TAC data from
   expect_equal(sum(is.na(as.numeric(unlist(dt$binStart)))), 0)
   expect_equal(sum(is.na(as.numeric(unlist(dt$binEnd)))), 0)
 })
+
+test_that("our bins are always left closed/ inclusive", {
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet2'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat4', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS'))
+  ))
+
+  df <- as.data.frame(testDF)
+  viewport <- list('xMin'=min(df$entity.contA), 'xMax'=max(df$entity.contA))
+  binReportValue <- 'binWidth'
+  
+  dt <- histogram.dt(df, variables, binWidth = .3, value='count', barmode = 'overlay', binReportValue, viewport)
+
+  expect_equal(all(unlist(lapply(dt$binLabel,substr,1,1)) == '['), TRUE)
+})
