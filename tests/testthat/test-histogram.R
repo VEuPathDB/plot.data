@@ -144,7 +144,7 @@ test_that("histogram.dt() returns requested numBins/ binWidth", {
   expect_equal(as.numeric(binSpec(dt)$value), 5) # ensure we get the correct number of bins
   expect_true(max(as.numeric(unlist(dt$binEnd)) - as.numeric(unlist(dt$binStart)) - binWidth) < 0.1) # Tolerance 0.1
   numericLabelsStart <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[")[[1]][2])))
-  numericLabelsEnd <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[")[[1]][3])))
+  numericLabelsEnd <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[|\\)")[[1]][3])))
   expect_true(max(numericLabelsEnd - numericLabelsStart) - binWidth < 0.1) # Label tolerance
 
   binReportValue <- 'numBins'
@@ -153,7 +153,7 @@ test_that("histogram.dt() returns requested numBins/ binWidth", {
   expect_equal(as.numeric(binSpec(dt)$value), 15) # ensure we get the correct number of bins
   expect_true(max(as.numeric(unlist(dt$binEnd)) - as.numeric(unlist(dt$binStart)) - binWidth) < 0.1) # Tolerance 0.1
   numericLabelsStart <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[")[[1]][2])))
-  numericLabelsEnd <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[")[[1]][3])))
+  numericLabelsEnd <- unlist(lapply(unlist(dt$binLabel), function(x) as.numeric(stringi::stri_split_regex(x, ",|]|\\(|\\[|\\)")[[1]][3])))
   expect_true(max(numericLabelsEnd - numericLabelsStart) - binWidth < 0.1) # Label tolerance
 })
 
