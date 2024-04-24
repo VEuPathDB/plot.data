@@ -23,6 +23,16 @@ check_network <- function(object) {
   return(if (length(errors) == 0) TRUE else errors)
 }
 
+# an abstract/ non-implementable class for other types of networks to subclass
+setClass("BaseNetwork",
+  slots = list(
+    nodes = "NodeList",
+    linkColorScheme = "character",
+    variableMapping = "VariableMetadataList"
+  ),
+  contains = "VIRTUAL"
+)
+
 #' Network
 #' 
 #' A class for representing networks. A network is composed of nodes and links (edges, connections, etc.). A link is represented
@@ -40,12 +50,10 @@ check_network <- function(object) {
 #' @rdname Network-class
 #' @include class-Link.R
 #' @export
-setClass("Network", 
-  representation(
+setClass("Network",
+  contains = "BaseNetwork",
+  slots = list(
     links = "LinkList",
-    nodes = "NodeList",
-    linkColorScheme = "character",
-    variableMapping = "VariableMetadataList"
   ),
   prototype = prototype(
     links = LinkList(),
