@@ -27,8 +27,7 @@ check_correlation_network <- function(object) {
 #' @slot correlationCoefThreshold numeric defining the correlation coefficient threshold for filtering links. Default is NA (no filtering).
 #' Any link with an absolute correlation coefficient below this threshold will be filtered out.
 #' @slot pValueThreshold numeric defining the p-value threshold for filtering links. Default is 0.05.
-#' Any link with an p-value above this threshold will be filtered out.
-#' 
+#' Any link with an p-value above this threshold will be filtered out. 
 #' @name CorrelationNetwork-class
 #' @rdname CorrelationNetwork-class
 #' @include class-Network.R

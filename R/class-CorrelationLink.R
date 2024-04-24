@@ -21,13 +21,18 @@ check_correlation_link <- function(object) {
 #' @include constructors-Node.R
 #' @include class-Link.R
 #' @export
-setClass("CorrelationLink", 
+setClass("CorrelationLink",
+  contains = "Link",
   slots = list(
     pValue = "numeric"
   ),
   prototype = prototype(
-    pValue = NULL,
-    weight = NULL, # change default of 1 from parent Link class
+    source = NodeId(),
+    target = NodeId(),
+    color = NULL,
+    isDirected = FALSE,
+    pValue = NA_real_,
+    weight = NA_real_ # change default of 1 from parent Link class
   ),
   validity = check_correlation_link
 )
@@ -221,19 +226,19 @@ function(
   new("CorrelationLinkList", linkList)
 })
 
-#' @rdname
+#' @rdname CorrelationLinkList
 #' @aliases CorrelationLinkList,missing-method
 setMethod("CorrelationLinkList", "missing", function(object) {
   new("CorrelationLinkList")
 })
 
-#' @rdname
+#' @rdname CorrelationLinkList
 #' @aliases CorrelationLinkList,SimpleList-method 
 setMethod("CorrelationLinkList", "SimpleList", function(object) {
   new("CorrelationLinkList", object)
 })
 
-#' @rdname
+#' @rdname CorrelationLinkList
 #' @aliases CorrelationLinkList,list-method
 setMethod("CorrelationLinkList", "list", function(object) {
   new("CorrelationLinkList", object)

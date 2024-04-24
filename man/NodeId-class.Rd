@@ -7,3 +7,9 @@
 \description{
 A class for representing node ids
 }
+\section{Slots}{
+
+\describe{
+\item{\code{value}}{character value representing the node id}
+}}
+

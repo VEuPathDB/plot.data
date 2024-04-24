@@ -16,7 +16,7 @@ setMethod("pValue<-", "CorrelationLink", function(object, value) {object@pValue 
 #' 
 #' This function filters CorrelationLinkList by pValue and correlationCoef
 #' @param object CorrelationLinkList or CorrelationNetwork
-#' @param correlationCoefThrehold threshold to filter edges by correlation coefficient. Default is NULL.
+#' @param correlationCoefThreshold threshold to filter edges by correlation coefficient. Default is NULL.
 #' Any links with absolute correlation coefficients below this threshold will be removed.
 #' @param pValueThreshold threshold to filter edges by p-value. Default is 0.05.
 #' Any links with p-values above this threshold will be removed.
@@ -27,7 +27,7 @@ setMethod("pValue<-", "CorrelationLink", function(object, value) {object@pValue 
 setGeneric("pruneCorrelationLinks", 
 function(
     object, 
-    correlationCoefThrehold = NULL,
+    correlationCoefThreshold = NULL,
     pValueThreshold = 0.05, 
     verbose = c(TRUE, FALSE)
 ) {

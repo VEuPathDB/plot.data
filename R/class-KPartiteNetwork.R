@@ -66,8 +66,7 @@ check_kpartite_network <- function(object) {
 #' @slot nodes NodeList object defining the nodes in the network. Some nodes may not have any links.
 #' @slot linkColorScheme string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.
 #' Use a method assignLinkColors() to assign colors to links and set this slot's value.
-#' @slot partitions list of node ids that belong to each partition
-#' 
+#' @slot partitions list of node ids that belong to each partition 
 #' @name KPartiteNetwork-class
 #' @rdname KPartiteNetwork-class
 #' @include class-Network.R

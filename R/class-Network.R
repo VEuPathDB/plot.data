@@ -44,8 +44,7 @@ setClass("BaseNetwork",
 #' @slot linkColorScheme string defining the type of coloring scheme the links follow. Options are 'none' (default) and 'posneg'.
 #' In the case of 'posneg', the links color slot will be set to 1 if the link is positive, and -1 if the link is negative.
 #' Use a method assignLinkColors() to assign colors to links and set this slot's value.
-#' @slot variableMapping veupathUtils::VariableMetadataList object defining the variable mappings in the network.
-#' 
+#' @slot variableMapping veupathUtils::VariableMetadataList object defining the variable mappings in the network. 
 #' @name Network-class
 #' @rdname Network-class
 #' @include class-Link.R
@@ -53,7 +52,7 @@ setClass("BaseNetwork",
 setClass("Network",
   contains = "BaseNetwork",
   slots = list(
-    links = "LinkList",
+    links = "LinkList"
   ),
   prototype = prototype(
     links = LinkList(),

@@ -2,12 +2,17 @@
 % Please edit documentation in R/methods-Network.R
 \name{writeNetworkJSON}
 \alias{writeNetworkJSON}
+\alias{writeNetworkJSON,Network-method}
 \title{Write network json to tmp file}
 \usage{
 writeNetworkJSON(x, pattern = NULL, verbose = c(TRUE, FALSE))
+
+\S4method{writeNetworkJSON}{Network}(x, pattern = NULL, verbose = c(TRUE, FALSE))
 }
 \arguments{
 \item{x}{an object to convert to json and write to a tmp file}
+
+\item{pattern}{optional tmp file prefix}
 
 \item{verbose}{boolean that declares if logging is desired}
 }
