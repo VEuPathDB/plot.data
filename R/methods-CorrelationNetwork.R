@@ -57,8 +57,8 @@ setMethod("pruneCorrelationLinks", "CorrelationNetwork", function(object, correl
     verbose = verbose
   )
 
-  object@correlationCoefThreshold <- correlationCoefThreshold
-  object@pValueThreshold <- pValueThreshold
+  object@correlationCoefThreshold <- ifelse(is.null(correlationCoefThreshold), NA_real_, correlationCoefThreshold) 
+  object@pValueThreshold <- ifelse(is.null(pValueThreshold), NA_real_, pValueThreshold) 
 
   validObject(object)
   return(object)

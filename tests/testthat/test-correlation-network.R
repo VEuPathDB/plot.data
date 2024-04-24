@@ -19,7 +19,7 @@ test_that("correlation networks can be created", {
     net <- CorrelationNetwork(links = CorrelationLinkList(c(link1, link2, link3)), nodes = NodeList(c(nodeA, nodeB, nodeC)))
 
     expect_equal(getNodes(net), NodeList(c(nodeA, nodeB, nodeC)))
-    expect_equal(getLinks(net), LinkList(c(link1, link2))) ## link 3 is pruned for high pValue
+    expect_equal(getLinks(net), CorrelationLinkList(c(link1, link2))) ## link 3 is pruned for high pValue
     expect_equal(getLinkColorScheme(net), 'posneg')
     
     # Create a network
@@ -30,7 +30,7 @@ test_that("correlation networks can be created", {
     )
 
     expect_equal(getNodes(net), NodeList(c(nodeA, nodeB, nodeC)))
-    expect_equal(getLinks(net), LinkList(c(link1, link2, link3))) ## link 3 should be back
+    expect_equal(getLinks(net), CorrelationLinkList(c(link1, link2, link3))) ## link 3 should be back
     expect_equal(getLinkColorScheme(net), 'posneg')
 })
 
@@ -88,11 +88,11 @@ test_that("correlation networks can be pruned by threshold", {
         pValueThreshold = NULL
     )
 
-    net <- pruneCorrelationNetwork(net, pValueThreshold = .05)
+    net <- pruneCorrelationLinks(net, pValueThreshold = .05)
 
     # links should be modified and nothing else
     expect_equal(getNodes(net), NodeList(c(nodeA, nodeB, nodeC)))
-    expect_equal(getLinks(net), LinkList(c(link1, link2))) ## link 3 is pruned for high pValue
+    expect_equal(getLinks(net), CorrelationLinkList(c(link1, link2))) ## link 3 is pruned for high pValue
     expect_equal(getLinkColorScheme(net), 'posneg')
 })
 
@@ -104,7 +104,7 @@ test_that("we can build a Network from an edgeList data.frame", {
         correlationCoef = c(.8,.3,-.8),
         pValue = c(.01,.001,.1)
     )
-    net <- Network(object = edgeList, linkColorScheme = 'none', pValueThreshold = NULL)
+    net <- CorrelationNetwork(object = edgeList, linkColorScheme = 'none', pValueThreshold = NULL)
     expect_equal(getNodeIds(net), c('a', 'b', 'c'))
     expect_equal(getDegrees(net), c(2, 2, 2))
     expect_equal(!is.null(getCoords(net)), TRUE)
@@ -120,7 +120,7 @@ test_that("we can build a Network from an edgeList data.frame", {
         correlationCoef = c(.8,.3,-.8),
         pValue = c(.01,.001,.1)
     )
-    net <- Network(object = edgeList, linkColorScheme = 'posneg', pValueThreshold = NULL)
+    net <- CorrelationNetwork(object = edgeList, linkColorScheme = 'posneg', pValueThreshold = NULL)
     expect_equal(getNodeIds(net), c('a', 'b', 'c'))
     expect_equal(getDegrees(net), c(2, 2, 2))
     expect_equal(!is.null(getCoords(net)), TRUE)
@@ -156,7 +156,7 @@ test_that("we can build a Network from an edgeList data.frame", {
         correlationCoef = c(.8,.3,-.8),
         pValue = c(.01,.001,.1)
     )
-    net <- Network(object = edgeList, correlationCoefThreshold = .5)
+    net <- CorrelationNetwork(object = edgeList, correlationCoefThreshold = .5)
     expect_equal(getNodeIds(net), c('a', 'b', 'c'))
     expect_equal(getDegrees(net), c(2, 2, 2))
     expect_equal(!is.null(getCoords(net)), TRUE)
