@@ -199,21 +199,16 @@ setMethod(toJSONGeneric, "Network", function(object, named = c(TRUE, FALSE)) {
 #' This function returns the name of a json file which it has
 #' written an object out to.
 #' @param x an object to convert to json and write to a tmp file
-#' @param verbose boolean that declares if logging is desired
-#' @return character name of a tmp file w ext *.json
-#' @export
-setGeneric("writeNetworkJSON", function(x, pattern = NULL, verbose = c(TRUE, FALSE)) standardGeneric("writeNetworkJSON"))
-
-#' Write network json to local tmp file
-#'
-#' This function returns the name of a json file which it has
-#' written a Network object out to.
-#' @param x a data.table to convert to json and write to a tmp file
 #' @param pattern optional tmp file prefix
 #' @param verbose boolean that declares if logging is desired
 #' @return character name of a tmp file w ext *.json
 #' @importFrom jsonlite toJSON
 #' @export
+#' @rdname writeNetworkJSON
+setGeneric("writeNetworkJSON", function(x, pattern = NULL, verbose = c(TRUE, FALSE)) standardGeneric("writeNetworkJSON"), signature = c("x"))
+
+#' @rdname writeNetworkJSON
+#' @aliases writeNetworkJSON,Network-method
 setMethod("writeNetworkJSON", "Network", function(x, pattern=NULL, verbose = c(TRUE, FALSE)) {
   net <- x
   verbose <- veupathUtils::matchArg(verbose)
