@@ -44,32 +44,6 @@ pruneLinksBelowWeight <- function(net, threshold, verbose = c(TRUE, FALSE)) {
   return(pruneLinksByPredicate(net = net, predicate = linkBelowPValueThreshold, threshold = pValueThreshold, verbose = verbose))
 }
 
-toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
-
-#' Convert CorrelationNetwork object to JSON
-#' 
-#' Converts a CorrelationNetwork object to JSON
-#' @param object A Network object
-#' @param named boolean that declares if names should be included
-#' @export
-setMethod(toJSONGeneric, "CorrelationNetwork", function(object, named = c(TRUE, FALSE)) {
-  
-  named <- veupathUtils::matchArg(named)    
-  tmp <- character()
-
-  nodes_json <- veupathUtils::toJSON(object@nodes, named = FALSE)
-  links_json <- veupathUtils::toJSON(object@links, named = FALSE)
-
-  ## TODO add thresholds to response, consider refactoring to use parent class toJSON somehow?
-  tmp <- paste0('"nodes":', nodes_json, ',"links":', links_json)
-  tmp <- paste0('"data":{', tmp, '}')
-  tmp <- paste0('{', tmp, ',"config":{"variables":{', veupathUtils::toJSON(object@variableMapping, named = FALSE), '}}}')
-  
-  if (named) tmp <- paste0('{"network":', tmp, '}')
-
-  return(tmp)
-})
-
 #' @rdname pruneCorrelationLinks
 #' @aliases pruneCorrelationLinks,CorrelationNetwork-method
 setMethod("pruneCorrelationLinks", "CorrelationNetwork", function(object, correlationCoefThreshold, pValueThreshold, verbose = c(TRUE, FALSE)) {

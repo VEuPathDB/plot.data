@@ -11,7 +11,6 @@ setMethod("correlationCoef<-", "CorrelationLink", function(object, value) {objec
 setMethod("pValue", "CorrelationLink", function(object) object@pValue)
 setMethod("pValue<-", "CorrelationLink", function(object, value) {object@pValue <- value; validObject(object); object})
 
-# a method to filter CorrelationLinkList by pValue and correlationCoef
 #' Filter Correlation Links
 #' 
 #' This function filters CorrelationLinkList by pValue and correlationCoef
@@ -48,6 +47,8 @@ function(
     if (!is.null(correlationCoefThreshold)) {
         correlationCoefs <- sapply(object, correlationCoef)
         newLinks <- object[abs(correlationCoefs) >= correlationCoefThreshold]
+    } else {
+        newLinks <- object
     }
 
     if (!is.null(pValueThreshold)) {

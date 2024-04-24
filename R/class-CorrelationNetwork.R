@@ -99,15 +99,16 @@ setMethod("CorrelationNetwork", signature("missing", "CorrelationLinkList", "Nod
   ...
 ) {
   links <- pruneCorrelationLinks(links, correlationCoefThreshold, pValueThreshold)
+  # TODO filter nodes based on those remaining in links?
   
   new("CorrelationNetwork", 
     links=links, 
     nodes=nodes, 
     linkColorScheme=linkColorScheme, 
     variableMapping=variables,
-    correlationCoefThreshold=correlationCoefThreshold,
-    pValueThreshold=pValueThreshold
-    )
+    correlationCoefThreshold=ifelse(is.null(correlationCoefThreshold), NA_real_, correlationCoefThreshold),
+    pValueThreshold=ifelse(is.null(pValueThreshold), NA_real_, pValueThreshold)
+  )
 })
 
 #' @rdname CorrelationNetwork
@@ -131,8 +132,8 @@ setMethod("CorrelationNetwork", signature("data.frame", "missing", "missing"), f
     nodes=NodeList(object, layout), 
     linkColorScheme=linkColorScheme, 
     variableMapping=variables,
-    correlationCoefThreshold=correlationCoefThreshold,
-    pValueThreshold=pValueThreshold
+    correlationCoefThreshold=ifelse(is.null(correlationCoefThreshold), NA_real_, correlationCoefThreshold),
+    pValueThreshold=ifelse(is.null(pValueThreshold), NA_real_, pValueThreshold)
   )
 })
 

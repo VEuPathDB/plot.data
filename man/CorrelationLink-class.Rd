@@ -6,6 +6,7 @@
 \title{CorrelationLink}
 \description{
 Represent one singular link in a correltion network. A link has a source,
-a target, a correlation coefficient (weight), and a p-value. It is undirected.
+a target, a correlation coefficient, and a p-value. Its weight is the
+absolute value of the correlation coefficient. It is undirected.
 It may have a color, timestamp, or label (coming soon!)
 }

@@ -12,7 +12,8 @@ check_correlation_link <- function(object) {
 #' CorrelationLink
 #' 
 #' Represent one singular link in a correltion network. A link has a source,
-#' a target, a correlation coefficient (weight), and a p-value. It is undirected.
+#' a target, a correlation coefficient, and a p-value. Its weight is the
+#' absolute value of the correlation coefficient. It is undirected.
 #' It may have a color, timestamp, or label (coming soon!)
 #' 
 #' @name CorrelationLink-class
@@ -24,6 +25,7 @@ check_correlation_link <- function(object) {
 setClass("CorrelationLink",
   contains = "Link",
   slots = list(
+    correlationCoef = "numeric",
     pValue = "numeric"
   ),
   prototype = prototype(
@@ -31,6 +33,7 @@ setClass("CorrelationLink",
     target = NodeId(),
     color = NULL,
     isDirected = FALSE,
+    correlationCoef = NA_real_,
     pValue = NA_real_,
     weight = NA_real_ # change default of 1 from parent Link class
   ),
@@ -59,25 +62,51 @@ signature = c("source", "target"))
 #' @rdname CorrelationLink
 #' @aliases CorrelationLink,Node,Node-method
 setMethod("CorrelationLink", c("Node", "Node"), function(source, target, correlationCoef, pValue, color = NULL) {
-  new("CorrelationLink", source = NodeId(id(source)), target = NodeId(id(target)), weight = correlationCoef, pValue = pValue, color = color)
+  new("CorrelationLink", 
+    source = NodeId(id(source)), 
+    target = NodeId(id(target)), 
+    correlationCoef = correlationCoef, 
+    pValue = pValue, 
+    color = color,
+    weight = abs(correlationCoef)
+  )
 })
 
 #' @rdname CorrelationLink
 #' @aliases CorrelationLink,character,character-method
 setMethod("CorrelationLink", c("character", "character"), function(source, target, correlationCoef, pValue, color = NULL) {
-  CorrelationLink(source = NodeId(source), target = NodeId(target), weight = correlationCoef, pValue = pValue, color = color)
+  CorrelationLink(
+    source = NodeId(source), 
+    target = NodeId(target), 
+    correlationCoef = correlationCoef, 
+    pValue = pValue, 
+    color = color
+  )
 })
 
 #' @rdname CorrelationLink
 #' @aliases CorrelationLink,numeric,numeric-method
 setMethod("CorrelationLink", c("numeric", "numeric"), function(source, target, correlationCoef, pValue, color = NULL) {
-  CorrelationLink(source = NodeId(source), target = NodeId(target), weight = correlationCoef, pValue = pValue, color = color)
+  CorrelationLink(
+    source = NodeId(source), 
+    target = NodeId(target), 
+    correlationCoef = correlationCoef, 
+    pValue = pValue, 
+    color = color
+  )
 })
 
 #' @rdname CorrelationLink
 #' @aliases CorrelationLink,NodeId,NodeId-method
 setMethod("CorrelationLink", c("NodeId", "NodeId"), function(source, target, correlationCoef, pValue, color = NULL) {
-  new("CorrelationLink", source = source, target = target, weight = correlationCoef, pValue = pValue, color = color)
+  new("CorrelationLink", 
+    source = source, 
+    target = target, 
+    correlationCoef = correlationCoef, 
+    pValue = pValue, 
+    color = color,
+    weight = abs(correlationCoef)
+  )
 })
 
 #' @rdname CorrelationLink

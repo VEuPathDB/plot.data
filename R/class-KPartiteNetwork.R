@@ -70,7 +70,7 @@ check_kpartite_network <- function(object) {
 #' @name KPartiteNetwork-class
 #' @rdname KPartiteNetwork-class
 #' @include class-Network.R
-#' @export 
+#' @export
 KPartiteNetwork <- setClass("KPartiteNetwork", 
   contains = "Network",
   slots = c(
