@@ -2,11 +2,25 @@
 check_correlation_network <- function(object) {
 
   errors <- character()
-
-  #TODO
-  # Check we have thresholds defined
+  trueOrPrevErrors <- check_network(object)
+  if (inherits(trueOrPrevErrors, "character")) {
+    errors <- c(errors, trueOrPrevErrors)
+  }
 
   # Check all links meet thresholding requirements
+  if (!is.na(object@correlationCoefThreshold)) {
+    correlationCoefs <- sapply(object@links, correlationCoef)
+    if (any(abs(correlationCoefs) < object@correlationCoefThreshold)) {
+      errors <- c(errors, "Some links have correlation coefficients below the threshold.")
+    }
+  }
+
+  if (!is.na(object@pValueThreshold)) {
+    pValues <- sapply(object@links, pValue)
+    if (any(pValues > object@pValueThreshold)) {
+      errors <- c(errors, "Some links have p-values above the threshold.")
+    }
+  }
 
   return(if (length(errors) == 0) TRUE else errors)
 }
@@ -128,7 +142,7 @@ setMethod("CorrelationNetwork", signature("data.frame", "missing", "missing"), f
 
   # any additional validation and filtering are handled by the CorrelationLinkList constructor
   new("CorrelationNetwork", 
-    links=CorrelationLinkList(object, linkColorScheme), 
+    links=CorrelationLinkList(object, linkColorScheme, correlationCoefThreshold, pValueThreshold), 
     nodes=NodeList(object, layout), 
     linkColorScheme=linkColorScheme, 
     variableMapping=variables,

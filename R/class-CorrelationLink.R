@@ -5,6 +5,21 @@ check_correlation_link <- function(object) {
   errors <- character()
 
   # check correlation coef (weight) and pvalue make some sense
+  if (object@correlationCoef < -1 || object@correlationCoef > 1) {
+    msg <- "Correlation coefficient must be between -1 and 1."
+    errors <- c(errors, msg)
+  }
+
+  if (object@pValue < 0 || object@pValue > 1) {
+    msg <- "P-value must be between 0 and 1."
+    errors <- c(errors, msg)
+  }
+
+  # check that weight is the abs value of the correlation coefficient
+  if (abs(object@correlationCoef) != object@weight) {
+    msg <- "Weight must be the absolute value of the correlation coefficient."
+    errors <- c(errors, msg)
+  }
 
   return(if (length(errors) == 0) TRUE else errors) 
 }
@@ -120,7 +135,6 @@ check_correlation_link_list <- function(object) {
 
   errors <- character()
   
-  # TODO update these checks for correlation specific stuffs
   if (any(unlist(lapply(object, function(x) {!is.null(color(x))})))) {
     # If one link has a color, all must have colors
     if (!all(unlist(lapply(object, function(x) {!is.null(color(x))})))) {
@@ -132,7 +146,6 @@ check_correlation_link_list <- function(object) {
       errors <- c(errors, "Link colors must be all the same class")
     }
   }
-
 
   # If one link has a weight, all must have weights
   if (any(unlist(lapply(object, function(x) {!is.null(weight(x))})))) {

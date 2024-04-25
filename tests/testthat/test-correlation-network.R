@@ -55,13 +55,18 @@ test_that("we cannot make inappropriate correlation networks", {
     expect_error(CorrelationLink(source = nodeC, target = nodeA, correlationCoef = 1.1, pValue = .1))
 
     # Create a network with a node in links that isn't in nodes
-    expect_error(CorrelationNetwork(links = LinkList(c(link1, link2)), nodes = NodeList(c(nodeB, nodeC))))
+    expect_error(CorrelationNetwork(links = CorrelationLinkList(c(link1, link2)), nodes = NodeList(c(nodeB, nodeC))))
 
     # Create a network with an invalid linkColorScheme
-    expect_error(CorrelationNetwork(links = LinkList(c(link1, link2)), nodes = NodeList(c(nodeA, nodeB)), linkColorScheme = 'nope'))
+    expect_error(CorrelationNetwork(links = CorrelationLinkList(c(link1, link2)), nodes = NodeList(c(nodeA, nodeB)), linkColorScheme = 'nope'))
 
     # Create a network with duplicate nodes
-    expect_error(CorrelationNetwork(links = LinkList(c(link1, link2)), nodes = NodeList(c(nodeA, nodeB, nodeB))))
+    expect_error(CorrelationNetwork(links = CorrelationLinkList(c(link1, link2)), nodes = NodeList(c(nodeA, nodeB, nodeB))))
+
+    # Create a network where links dont meet threshold
+    net <- CorrelationNetwork(links = CorrelationLinkList(c(link1, link2)), nodes = NodeList(c(nodeA, nodeB, nodeC)))
+    net@pValueThreshold <- .001
+    expect_error(validObject(net))
 
 })
 
@@ -140,7 +145,7 @@ test_that("we can build a Network from an edgeList data.frame", {
         correlationCoef = c(.8,.3,-.8),
         pValue = c(.01,.001,.1)
     )
-    net <- Network(object = edgeList)
+    net <- CorrelationNetwork(object = edgeList)
     expect_equal(getNodeIds(net), c('a', 'b', 'c'))
     expect_equal(getDegrees(net), c(2, 2, 2))
     expect_equal(!is.null(getCoords(net)), TRUE)
@@ -156,7 +161,7 @@ test_that("we can build a Network from an edgeList data.frame", {
         correlationCoef = c(.8,.3,-.8),
         pValue = c(.01,.001,.1)
     )
-    net <- CorrelationNetwork(object = edgeList, correlationCoefThreshold = .5)
+    net <- CorrelationNetwork(object = edgeList, correlationCoefThreshold = .5, pValueThreshold = NULL)
     expect_equal(getNodeIds(net), c('a', 'b', 'c'))
     expect_equal(getDegrees(net), c(2, 2, 2))
     expect_equal(!is.null(getCoords(net)), TRUE)

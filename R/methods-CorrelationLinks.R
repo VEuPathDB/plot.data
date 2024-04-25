@@ -11,6 +11,18 @@ setMethod("correlationCoef<-", "CorrelationLink", function(object, value) {objec
 setMethod("pValue", "CorrelationLink", function(object) object@pValue)
 setMethod("pValue<-", "CorrelationLink", function(object, value) {object@pValue <- value; validObject(object); object})
 
+# Additional methods
+#' @include methods-Links.R
+setMethod("getSourceNodes", "CorrelationLinkList", function(object) lapply(object, function(x) source(x)))
+setMethod("getTargetNodes", "CorrelationLinkList", function(object) lapply(object, function(x) target(x)))
+setMethod("getWeights", "CorrelationLinkList", function(object) unlist(lapply(object, function(x) weight(x))))
+setMethod("getColors", "CorrelationLinkList", function(object) unlist(lapply(object, function(x) color(x))))
+
+setGeneric("getCorrelationCoefs", function(object) standardGeneric("getCorrelationCoefs"))
+setMethod("getCorrelationCoefs", "CorrelationLinkList", function(object) unlist(lapply(object, function(x) correlationCoef(x))))
+setGeneric("getPValues", function(object) standardGeneric("getPValues"))
+setMethod("getPValues", "CorrelationLinkList", function(object) unlist(lapply(object, function(x) pValue(x))))
+
 #' Filter Correlation Links
 #' 
 #' This function filters CorrelationLinkList by pValue and correlationCoef
