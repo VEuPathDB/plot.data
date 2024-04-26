@@ -22,7 +22,8 @@ check_node_id <- function(object) {
 #' A Node Id
 #' 
 #' A class for representing node ids
-#' 
+#'
+#' @slot value character value representing the node id 
 #' @name NodeId-class
 #' @rdname NodeId-class
 #' @export

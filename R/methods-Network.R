@@ -3,16 +3,16 @@
 #' @include methods-Nodes.R
 # Fancy accessors
 setGeneric("getNodes", function(object) standardGeneric("getNodes"))
-setMethod("getNodes", "Network", function(object) object@nodes)
-setMethod("getNodeIds", "Network", function(object) getNodeIds(object@nodes))
+setMethod("getNodes", "BaseNetwork", function(object) object@nodes)
+setMethod("getNodeIds", "BaseNetwork", function(object) getNodeIds(object@nodes))
 setGeneric("getLinks", function(object) standardGeneric("getLinks"))
-setMethod("getLinks", "Network", function(object) object@links)
+setMethod("getLinks", "BaseNetwork", function(object) object@links)
 setGeneric("getLinkColorScheme", function(object) standardGeneric("getLinkColorScheme"))
-setMethod("getLinkColorScheme", "Network", function(object) object@linkColorScheme)
+setMethod("getLinkColorScheme", "BaseNetwork", function(object) object@linkColorScheme)
 # No setters! Once created, a network should only be updated via network methods
 
-setMethod("getDegrees", "Network", function(object) getDegrees(getNodes(object)))
-setMethod("getCoords", "Network", function(object) getCoords(getNodes(object)))
+setMethod("getDegrees", "BaseNetwork", function(object) getDegrees(getNodes(object)))
+setMethod("getCoords", "BaseNetwork", function(object) getCoords(getNodes(object)))
 
 ## General network methods
 
@@ -24,7 +24,7 @@ setMethod("getCoords", "Network", function(object) getCoords(getNodes(object)))
 setGeneric("getIsolatedNodes", function(net) standardGeneric("getIsolatedNodes"))
 
 #' @export
-setMethod("getIsolatedNodes", "Network", function(net) {
+setMethod("getIsolatedNodes", "BaseNetwork", function(net) {
   nodes <- getNodes(net)
   links <- getLinks(net)
 
@@ -45,7 +45,7 @@ setMethod("getIsolatedNodes", "Network", function(net) {
 setGeneric("pruneIsolatedNodes", function(net, verbose = c(TRUE, FALSE)) standardGeneric("pruneIsolatedNodes"))
 
 #' @export
-setMethod("pruneIsolatedNodes", "Network", function(net, verbose = c(TRUE, FALSE)) {
+setMethod("pruneIsolatedNodes", "BaseNetwork", function(net, verbose = c(TRUE, FALSE)) {
   verbose <- veupathUtils::matchArg(verbose)
   nodes <- getNodes(net)
   isolatedNodeIds <- getNodeIds(getIsolatedNodes(net))
@@ -74,7 +74,7 @@ getLinkUniqueString <- function(link) {
 setGeneric("getDuplicateLinks", function(net) standardGeneric("getDuplicateLinks"))
 
 #' @export
-setMethod("getDuplicateLinks", "Network", function(net) {
+setMethod("getDuplicateLinks", "BaseNetwork", function(net) {
   links <- getLinks(net)
 
   # check for links that have the same source and target node as another link
@@ -93,7 +93,7 @@ setMethod("getDuplicateLinks", "Network", function(net) {
 setGeneric("pruneDuplicateLinks", function(net, verbose = c(TRUE, FALSE)) standardGeneric("pruneDuplicateLinks"))
 
 #' @export
-setMethod("pruneDuplicateLinks", "Network", function(net, verbose = c(TRUE, FALSE)) {
+setMethod("pruneDuplicateLinks", "BaseNetwork", function(net, verbose = c(TRUE, FALSE)) {
   verbose <- veupathUtils::matchArg(verbose)
   links <- getLinks(net)
 
@@ -122,7 +122,7 @@ setMethod("pruneDuplicateLinks", "Network", function(net, verbose = c(TRUE, FALS
 setGeneric("pruneLinksByPredicate", function(net, predicate, verbose = c(TRUE, FALSE), ...) standardGeneric("pruneLinksByPredicate"))
 
 #' @export
-setMethod("pruneLinksByPredicate", "Network", function(net, predicate, verbose = c(TRUE, FALSE), ...) {
+setMethod("pruneLinksByPredicate", "BaseNetwork", function(net, predicate, verbose = c(TRUE, FALSE), ...) {
   verbose <- veupathUtils::matchArg(verbose)
   links <- getLinks(net)
   net@links <- links[which(!sapply(links, predicate, ...))]
@@ -177,7 +177,7 @@ toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 #' @param object A Network object
 #' @param named boolean that declares if names should be included
 #' @export
-setMethod(toJSONGeneric, "Network", function(object, named = c(TRUE, FALSE)) {
+setMethod(toJSONGeneric, "BaseNetwork", function(object, named = c(TRUE, FALSE)) {
   
   named <- veupathUtils::matchArg(named)    
   tmp <- character()
@@ -199,22 +199,17 @@ setMethod(toJSONGeneric, "Network", function(object, named = c(TRUE, FALSE)) {
 #' This function returns the name of a json file which it has
 #' written an object out to.
 #' @param x an object to convert to json and write to a tmp file
-#' @param verbose boolean that declares if logging is desired
-#' @return character name of a tmp file w ext *.json
-#' @export
-setGeneric("writeNetworkJSON", function(x, pattern = NULL, verbose = c(TRUE, FALSE)) standardGeneric("writeNetworkJSON"))
-
-#' Write network json to local tmp file
-#'
-#' This function returns the name of a json file which it has
-#' written a Network object out to.
-#' @param x a data.table to convert to json and write to a tmp file
 #' @param pattern optional tmp file prefix
 #' @param verbose boolean that declares if logging is desired
 #' @return character name of a tmp file w ext *.json
 #' @importFrom jsonlite toJSON
 #' @export
-setMethod("writeNetworkJSON", "Network", function(x, pattern=NULL, verbose = c(TRUE, FALSE)) {
+#' @rdname writeNetworkJSON
+setGeneric("writeNetworkJSON", function(x, pattern = NULL, verbose = c(TRUE, FALSE)) standardGeneric("writeNetworkJSON"), signature = c("x"))
+
+#' @rdname writeNetworkJSON
+#' @aliases writeNetworkJSON,Network-method
+setMethod("writeNetworkJSON", "BaseNetwork", function(x, pattern=NULL, verbose = c(TRUE, FALSE)) {
   net <- x
   verbose <- veupathUtils::matchArg(verbose)
 
