@@ -63,3 +63,34 @@ setMethod("pruneCorrelationLinks", "CorrelationNetwork", function(object, correl
   validObject(object)
   return(object)
 })
+
+toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
+
+#' Convert CorrelationNetwork object to JSON
+#' 
+#' Converts a CorrelationNetwork object to JSON
+#' @param object A CorrelationNetwork object
+#' @param named boolean that declares if names should be included
+#' @export
+setMethod(toJSONGeneric, "CorrelationNetwork", function(object, named = c(TRUE, FALSE)) {
+  
+  named <- veupathUtils::matchArg(named)    
+  tmp <- character()
+
+  nodes_json <- veupathUtils::toJSON(object@nodes, named = FALSE)
+  links_json <- veupathUtils::toJSON(object@links, named = FALSE)
+
+  tmp <- paste0('"nodes":', nodes_json, ',"links":', links_json)
+  tmp <- paste0('"data":{', tmp, '}')
+  tmp <- paste0(
+    '{', tmp, 
+    ',"config":{',
+      '"variables":{', veupathUtils::toJSON(object@variableMapping, named = FALSE), '}',
+      ',"correlationCoefThreshold":', jsonlite::toJSON(jsonlite::unbox(object@correlationCoefThreshold)),
+      ',"pValueThreshold":', jsonlite::toJSON(jsonlite::unbox(object@pValueThreshold)),
+    '}}')
+  
+  if (named) tmp <- paste0('{"network":', tmp, '}')
+
+  return(tmp)
+})
