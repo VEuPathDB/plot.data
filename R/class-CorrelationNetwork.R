@@ -81,6 +81,7 @@ setClass("CorrelationNetwork",
 #' @param layout string defining the layout of the network. Options are 'force', 'circle', 
 #' and 'nicely' which are implemented in igraph. Default is 'nicely'.
 #' @param variables VariableMetadataList
+#' @param ... additional arguments for different flavors of the CorrelationNetwork constructor
 #' @return CorrelationNetwork
 #' @export
 #' @examples
@@ -110,12 +111,12 @@ setMethod("CorrelationNetwork", signature("missing", "CorrelationLinkList", "Nod
   pValueThreshold = 0.05,
   linkColorScheme = 'posneg', 
   variables = VariableMetadataList(),
-  ...
+  pruneIsolatedNodes = c(TRUE, FALSE)
 ) {
+  pruneIsolatedNodes <- veupathUtils::matchArg(pruneIsolatedNodes)
+
   links <- pruneCorrelationLinks(links, correlationCoefThreshold, pValueThreshold)
-  # TODO filter nodes based on those remaining in links?
-  
-  new("CorrelationNetwork", 
+  net <- new("CorrelationNetwork", 
     links=links, 
     nodes=nodes, 
     linkColorScheme=linkColorScheme, 
@@ -123,6 +124,12 @@ setMethod("CorrelationNetwork", signature("missing", "CorrelationLinkList", "Nod
     correlationCoefThreshold=ifelse(is.null(correlationCoefThreshold), NA_real_, correlationCoefThreshold),
     pValueThreshold=ifelse(is.null(pValueThreshold), NA_real_, pValueThreshold)
   )
+
+  if (pruneIsolatedNodes) {
+    net <- pruneIsolatedNodes(net)
+  }
+
+  return(net)
 })
 
 #' @rdname CorrelationNetwork
@@ -136,12 +143,13 @@ setMethod("CorrelationNetwork", signature("data.frame", "missing", "missing"), f
   linkColorScheme = 'posneg', 
   layout = c("nicely", "force", "circle"),
   variables = VariableMetadataList(), 
-  ...
+  pruneIsolatedNodes = c(TRUE, FALSE)
 ) {
   layout <- veupathUtils::matchArg(layout)
+  pruneIsolatedNodes <- veupathUtils::matchArg(pruneIsolatedNodes)
 
   # any additional validation and filtering are handled by the CorrelationLinkList constructor
-  new("CorrelationNetwork", 
+  net <- new("CorrelationNetwork", 
     links=CorrelationLinkList(object, linkColorScheme, correlationCoefThreshold, pValueThreshold), 
     nodes=NodeList(object, layout), 
     linkColorScheme=linkColorScheme, 
@@ -149,11 +157,17 @@ setMethod("CorrelationNetwork", signature("data.frame", "missing", "missing"), f
     correlationCoefThreshold=ifelse(is.null(correlationCoefThreshold), NA_real_, correlationCoefThreshold),
     pValueThreshold=ifelse(is.null(pValueThreshold), NA_real_, pValueThreshold)
   )
+
+  if (pruneIsolatedNodes) {
+    net <- pruneIsolatedNodes(net)
+  }
+
+  return(net)
 })
 
 #' @rdname CorrelationNetwork
 #' @aliases CorrelationNetwork,missing,missing,missing
-setMethod("Network", signature("missing", "missing", "missing"), function(
+setMethod("CorrelationNetwork", signature("missing", "missing", "missing"), function(
   object, 
   links, 
   nodes,
