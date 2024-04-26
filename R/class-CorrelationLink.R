@@ -183,7 +183,7 @@ setClass("CorrelationLinkList",
 #' @param linkColorScheme Either 'none' or 'posneg'. If 'posneg', the link color will be based on the sign of the correlation coefficient.
 #' @param correlationCoefThreshold numeric value used to filter links based on correlationCoef. Default is NULL (i.e. no filtering).
 #' Any links with an absolute correlationCoef below this threshold will be removed.
-#' @param pValueThreshold numeric value used to filter links based on pValue. Default is 0.05.
+#' @param pValueThreshold numeric value used to filter links based on pValue. Default is NULL (i.e. no filtering).
 #' Any links with an pValue above this threshold will be removed.
 #' @return CorrelationLinkList
 #' @export
@@ -195,7 +195,7 @@ function(
   object, 
   linkColorScheme = c('none', 'posneg'),
   correlationCoefThreshold = NULL,
-  pValueThreshold = 0.05  
+  pValueThreshold = NULL 
 ) standardGeneric("CorrelationLinkList"), signature = c("object"))
 
 #' @rdname CorrelationLinkList
@@ -210,7 +210,7 @@ function(
   ), 
   linkColorScheme = c('none', 'posneg'),
   correlationCoefThreshold = NULL,
-  pValueThreshold = 0.05
+  pValueThreshold = NULL
 ) {
   linkColorScheme <- veupathUtils::matchArg(linkColorScheme)
   

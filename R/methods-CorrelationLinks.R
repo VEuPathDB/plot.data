@@ -29,7 +29,7 @@ setMethod("getPValues", "CorrelationLinkList", function(object) unlist(lapply(ob
 #' @param object CorrelationLinkList or CorrelationNetwork
 #' @param correlationCoefThreshold threshold to filter edges by correlation coefficient. Default is NULL.
 #' Any links with absolute correlation coefficients below this threshold will be removed.
-#' @param pValueThreshold threshold to filter edges by p-value. Default is 0.05.
+#' @param pValueThreshold threshold to filter edges by p-value. Default is NULL.
 #' Any links with p-values above this threshold will be removed.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return CorrelationLinkList or CorrelationNetwork
@@ -39,7 +39,7 @@ setGeneric("pruneCorrelationLinks",
 function(
     object, 
     correlationCoefThreshold = NULL,
-    pValueThreshold = 0.05, 
+    pValueThreshold = NULL, 
     verbose = c(TRUE, FALSE)
 ) {
     standardGeneric("pruneCorrelationLinks")
@@ -51,7 +51,7 @@ setMethod("pruneCorrelationLinks", "CorrelationLinkList",
 function(
     object, 
     correlationCoefThreshold = NULL,
-    pValueThreshold = 0.05,
+    pValueThreshold = NULL,
     verbose = c(TRUE, FALSE)
 ) {
     verbose <- veupathUtils::matchArg(verbose)

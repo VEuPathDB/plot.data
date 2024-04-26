@@ -40,7 +40,7 @@ check_correlation_network <- function(object) {
 #' @slot variableMapping veupathUtils::VariableMetadataList object defining the variable mappings in the network.
 #' @slot correlationCoefThreshold numeric defining the correlation coefficient threshold for filtering links. Default is NA (no filtering).
 #' Any link with an absolute correlation coefficient below this threshold will be filtered out.
-#' @slot pValueThreshold numeric defining the p-value threshold for filtering links. Default is 0.05.
+#' @slot pValueThreshold numeric defining the p-value threshold for filtering links. Default is NA (no filtering).
 #' Any link with an p-value above this threshold will be filtered out. 
 #' @name CorrelationNetwork-class
 #' @rdname CorrelationNetwork-class
@@ -58,7 +58,7 @@ setClass("CorrelationNetwork",
     nodes = NodeList(),
     linkColorScheme = 'posneg', #change default from base Network's 'none'
     correlationCoefThreshold = NA_real_,
-    pValueThreshold = 0.05,
+    pValueThreshold = NA_real_,
     variableMapping = VariableMetadataList()
   ),
   validity = check_correlation_network
@@ -74,7 +74,7 @@ setClass("CorrelationNetwork",
 #' @param object Object containing data to be converted to a Network
 #' @param correlationCoefThreshold numeric defining the correlation coefficient threshold for filtering links. Default is NULL (no filtering).
 #' Any link with an absolute correlation coefficient below this threshold will be filtered out.
-#' @param pValueThreshold numeric defining the p-value threshold for filtering links. Default is 0.05.
+#' @param pValueThreshold numeric defining the p-value threshold for filtering links. Default is NULL (no filtering).
 #' Any link with an p-value above this threshold will be filtered out.
 #' @param linkColorScheme string defining the type of coloring scheme the links follow. 
 #' Options are 'none' and 'posneg' (default).
@@ -93,7 +93,7 @@ setGeneric("CorrelationNetwork",
     links,
     nodes,
     correlationCoefThreshold = NULL,
-    pValueThreshold = 0.05,
+    pValueThreshold = NULL,
     linkColorScheme = 'posneg',
     variables = VariableMetadataList(),
     ...
@@ -108,7 +108,7 @@ setMethod("CorrelationNetwork", signature("missing", "CorrelationLinkList", "Nod
   links,
   nodes,
   correlationCoefThreshold = NULL,
-  pValueThreshold = 0.05,
+  pValueThreshold = NULL,
   linkColorScheme = 'posneg', 
   variables = VariableMetadataList(),
   pruneIsolatedNodes = c(TRUE, FALSE)
@@ -139,7 +139,7 @@ setMethod("CorrelationNetwork", signature("data.frame", "missing", "missing"), f
   links, 
   nodes,
   correlationCoefThreshold = NULL,
-  pValueThreshold = 0.05,
+  pValueThreshold = NULL,
   linkColorScheme = 'posneg', 
   layout = c("nicely", "force", "circle"),
   variables = VariableMetadataList(), 
@@ -172,7 +172,7 @@ setMethod("CorrelationNetwork", signature("missing", "missing", "missing"), func
   links, 
   nodes,
   correlationCoefThreshold = NULL,
-  pValueThreshold = 0.05,
+  pValueThreshold = NULL,
   linkColorScheme = 'none', 
   variables = VariableMetadataList(), 
   ...

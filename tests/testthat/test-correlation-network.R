@@ -16,7 +16,11 @@ test_that("correlation networks can be created", {
     link3 <- CorrelationLink(source = nodeC, target = nodeA, correlationCoef = -.8, pValue = .1)
 
     # Create a network
-    net <- CorrelationNetwork(links = CorrelationLinkList(c(link1, link2, link3)), nodes = NodeList(c(nodeA, nodeB, nodeC)))
+    net <- CorrelationNetwork(
+        links = CorrelationLinkList(c(link1, link2, link3)), 
+        nodes = NodeList(c(nodeA, nodeB, nodeC)),
+        pValueThreshold = .05
+    )
 
     expect_equal(getNodes(net), NodeList(c(nodeA, nodeB, nodeC)))
     expect_equal(getLinks(net), CorrelationLinkList(c(link1, link2))) ## link 3 is pruned for high pValue
@@ -25,8 +29,7 @@ test_that("correlation networks can be created", {
     # Create a network
     net <- CorrelationNetwork(
         links = CorrelationLinkList(c(link1, link2, link3)), 
-        nodes = NodeList(c(nodeA, nodeB, nodeC)),
-        pValueThreshold = NULL
+        nodes = NodeList(c(nodeA, nodeB, nodeC))
     )
 
     expect_equal(getNodes(net), NodeList(c(nodeA, nodeB, nodeC)))
@@ -89,8 +92,7 @@ test_that("correlation networks can be pruned by threshold", {
     # Create a network
     net <- CorrelationNetwork(
         links = CorrelationLinkList(c(link1, link2, link3)), 
-        nodes = NodeList(c(nodeA, nodeB, nodeC)),
-        pValueThreshold = NULL
+        nodes = NodeList(c(nodeA, nodeB, nodeC))
     )
 
     net <- pruneCorrelationLinks(net, pValueThreshold = .05)
@@ -124,8 +126,7 @@ test_that("toJSON works for networks", {
     # Create a network
     net <- CorrelationNetwork(
         links = CorrelationLinkList(c(link1, link2, link3)), 
-        nodes = NodeList(c(nodeA, nodeB, nodeC)), 
-        pValueThreshold = NULL
+        nodes = NodeList(c(nodeA, nodeB, nodeC))
     )
 
     # Convert to JSON
@@ -142,7 +143,8 @@ test_that("toJSON works for networks", {
 
     net <- CorrelationNetwork(
         links = CorrelationLinkList(c(link1, link2, link3)), 
-        nodes = NodeList(c(nodeA, nodeB, nodeC))
+        nodes = NodeList(c(nodeA, nodeB, nodeC)),
+        pValueThreshold = .05
     )
 
     json <- veupathUtils::toJSON(net)
@@ -165,7 +167,7 @@ test_that("we can build a Network from an edgeList data.frame", {
         correlationCoef = c(.8,.3,-.8),
         pValue = c(.01,.001,.1)
     )
-    net <- CorrelationNetwork(object = edgeList, linkColorScheme = 'none', pValueThreshold = NULL)
+    net <- CorrelationNetwork(object = edgeList, linkColorScheme = 'none')
     expect_equal(getNodeIds(net), c('a', 'b', 'c'))
     expect_equal(getDegrees(net), c(2, 2, 2))
     expect_equal(!is.null(getCoords(net)), TRUE)
@@ -181,7 +183,7 @@ test_that("we can build a Network from an edgeList data.frame", {
         correlationCoef = c(.8,.3,-.8),
         pValue = c(.01,.001,.1)
     )
-    net <- CorrelationNetwork(object = edgeList, linkColorScheme = 'posneg', pValueThreshold = NULL)
+    net <- CorrelationNetwork(object = edgeList, linkColorScheme = 'posneg')
     expect_equal(getNodeIds(net), c('a', 'b', 'c'))
     expect_equal(getDegrees(net), c(2, 2, 2))
     expect_equal(!is.null(getCoords(net)), TRUE)
@@ -201,7 +203,7 @@ test_that("we can build a Network from an edgeList data.frame", {
         correlationCoef = c(.8,.3,-.8),
         pValue = c(.01,.001,.1)
     )
-    net <- CorrelationNetwork(object = edgeList)
+    net <- CorrelationNetwork(object = edgeList, pValueThreshold = .05)
     expect_equal(getNodeIds(net), c('a', 'b', 'c'))
     expect_equal(getDegrees(net), c(2, 2, 2))
     expect_equal(!is.null(getCoords(net)), TRUE)
@@ -217,12 +219,12 @@ test_that("we can build a Network from an edgeList data.frame", {
         correlationCoef = c(.8,.3,-.8),
         pValue = c(.01,.001,.1)
     )
-    net <- CorrelationNetwork(object = edgeList, correlationCoefThreshold = .5, pValueThreshold = NULL)
+    net <- CorrelationNetwork(object = edgeList, correlationCoefThreshold = .5)
     expect_equal(getNodeIds(net), c('a', 'b', 'c'))
     expect_equal(getDegrees(net), c(2, 2, 2))
     expect_equal(!is.null(getCoords(net)), TRUE)
     expect_equal(getLinkColorScheme(net), 'posneg')
     expect_equal(length(getLinks(net)), 2)
     expect_equal(getLinks(net)[[1]]@weight, .8)
-    expect_equal(getLinks(net)[[2]]@weight, .8) #second link is actually third link!!
+    expect_equal(getLinks(net)[[2]]@weight, .8) #second link is actually third link bc of correlationCoefThreshold!!
 })
