@@ -101,6 +101,62 @@ test_that("correlation networks can be pruned by threshold", {
     expect_equal(getLinkColorScheme(net), 'posneg')
 })
 
+test_that("toJSON works for networks", {
+    # Create some nodes
+    nodeA <- Node(
+        id = NodeId('A'),
+        degree = 2
+    )
+    nodeB <- Node(
+        id = NodeId('B'),
+        degree = 2
+    )
+    nodeC <- Node(
+        id = NodeId('C'),
+        degree = 2
+    )
+
+    # Create some edges
+    link1 <- CorrelationLink(source = nodeA, target = nodeB, correlationCoef = .8, pValue = .01)
+    link2 <- CorrelationLink(source = nodeB, target = nodeC, correlationCoef = .3, pValue = .001)
+    link3 <- CorrelationLink(source = nodeC, target = nodeA, correlationCoef = -.8, pValue = .1)
+
+    # Create a network
+    net <- CorrelationNetwork(
+        links = CorrelationLinkList(c(link1, link2, link3)), 
+        nodes = NodeList(c(nodeA, nodeB, nodeC)), 
+        pValueThreshold = NULL
+    )
+
+    # Convert to JSON
+    json <- veupathUtils::toJSON(net)
+    jsonList <- jsonlite::fromJSON(json)
+    expect_equal(jsonList$network$data$links$source, c('A','B','C'))
+    expect_equal(jsonList$network$data$links$target, c('B','C','A'))
+    expect_equal(jsonList$network$data$links$weight, c(.8,.3,.8))
+    expect_equal(jsonList$network$data$nodes$id, c('A','B','C'))
+    expect_equal(jsonList$network$data$nodes$degree, c(2,2,2))
+    expect_equal(length(jsonList$network$config$variables), 0)
+    expect_equal(jsonList$network$config$correlationCoefThreshold, "NA")
+    expect_equal(jsonList$network$config$pValueThreshold, "NA")
+
+    net <- CorrelationNetwork(
+        links = CorrelationLinkList(c(link1, link2, link3)), 
+        nodes = NodeList(c(nodeA, nodeB, nodeC))
+    )
+
+    json <- veupathUtils::toJSON(net)
+    jsonList <- jsonlite::fromJSON(json)
+    expect_equal(jsonList$network$data$links$source, c('A','B'))
+    expect_equal(jsonList$network$data$links$target, c('B','C'))
+    expect_equal(jsonList$network$data$links$weight, c(.8,.3))
+    expect_equal(jsonList$network$data$nodes$id, c('A','B','C'))
+    expect_equal(jsonList$network$data$nodes$degree, c(2,2,2))
+    expect_equal(length(jsonList$network$config$variables), 0)
+    expect_equal(jsonList$network$config$correlationCoefThreshold, "NA")
+    expect_equal(jsonList$network$config$pValueThreshold, 0.05)
+})
+
 test_that("we can build a Network from an edgeList data.frame", {
     #w a weight column
     edgeList <- data.frame(

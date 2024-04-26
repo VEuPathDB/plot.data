@@ -26,7 +26,7 @@ check_correlation_link <- function(object) {
 
 #' CorrelationLink
 #' 
-#' Represent one singular link in a correltion network. A link has a source,
+#' Represent one singular link in a correlation network. A link has a source,
 #' a target, a correlation coefficient, and a p-value. Its weight is the
 #' absolute value of the correlation coefficient. It is undirected.
 #' It may have a color, timestamp, or label (coming soon!)
@@ -237,11 +237,11 @@ function(
     new("CorrelationLinkList")
   }
 
-  makeLink <- function(x, linkColorScheme) {
-    source <- unname(x['source'])
-    target <- unname(x['target'])
-    correlationCoef <- as.numeric(unname(x['correlationCoef']))
-    pValue <- as.numeric(unname(x['pValue']))
+  makeLink <- function(rowInEdgeList, linkColorScheme) {
+    source <- unname(rowInEdgeList['source'])
+    target <- unname(rowInEdgeList['target'])
+    correlationCoef <- as.numeric(unname(rowInEdgeList['correlationCoef']))
+    pValue <- as.numeric(unname(rowInEdgeList['pValue']))
 
     if (linkColorScheme == 'posneg') {
       if (correlationCoef < 0) {

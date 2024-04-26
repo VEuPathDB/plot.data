@@ -75,3 +75,15 @@ function(
     validObject(newLinks)
     return(newLinks)
 })
+
+toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
+
+#' @export
+setMethod(toJSONGeneric, signature("CorrelationLinkList"), function(object, named = c(TRUE, FALSE)) {
+    named <- veupathUtils::matchArg(named) 
+    tmp <- veupathUtils::S4SimpleListToJSON(object, FALSE)
+
+    if (named) tmp <- paste0('{"links":', tmp, "}")
+
+    return(tmp)
+})
