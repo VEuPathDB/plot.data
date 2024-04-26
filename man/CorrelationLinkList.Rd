@@ -12,7 +12,7 @@ CorrelationLinkList(
   object,
   linkColorScheme = c("none", "posneg"),
   correlationCoefThreshold = NULL,
-  pValueThreshold = 0.05
+  pValueThreshold = NULL
 )
 
 \S4method{CorrelationLinkList}{data.frame}(
@@ -20,7 +20,7 @@ CorrelationLinkList(
     numeric(), pValue = numeric()),
   linkColorScheme = c("none", "posneg"),
   correlationCoefThreshold = NULL,
-  pValueThreshold = 0.05
+  pValueThreshold = NULL
 )
 
 \S4method{CorrelationLinkList}{missing}(object)
@@ -38,7 +38,7 @@ with columns source, target, correlationCoef, pValue.}
 \item{correlationCoefThreshold}{numeric value used to filter links based on correlationCoef. Default is NULL (i.e. no filtering).
 Any links with an absolute correlationCoef below this threshold will be removed.}
 
-\item{pValueThreshold}{numeric value used to filter links based on pValue. Default is 0.05.
+\item{pValueThreshold}{numeric value used to filter links based on pValue. Default is NULL (i.e. no filtering).
 Any links with an pValue above this threshold will be removed.}
 }
 \value{

@@ -26,7 +26,7 @@ Use a method assignLinkColors() to assign colors to links and set this slot's va
 \item{\code{correlationCoefThreshold}}{numeric defining the correlation coefficient threshold for filtering links. Default is NA (no filtering).
 Any link with an absolute correlation coefficient below this threshold will be filtered out.}
 
-\item{\code{pValueThreshold}}{numeric defining the p-value threshold for filtering links. Default is 0.05.
+\item{\code{pValueThreshold}}{numeric defining the p-value threshold for filtering links. Default is NA (no filtering).
 Any link with an p-value above this threshold will be filtered out.}
 }}
 

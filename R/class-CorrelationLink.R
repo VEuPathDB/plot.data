@@ -130,30 +130,27 @@ setMethod("CorrelationLink", c("missing", "missing"), function(source, target, c
   new("CorrelationLink")
 })
 
-# TODO refactor these checks into a helper fxn that any flavor of LinkList can use
 check_correlation_link_list <- function(object) {
 
   errors <- character()
-  
-  if (any(unlist(lapply(object, function(x) {!is.null(color(x))})))) {
-    # If one link has a color, all must have colors
-    if (!all(unlist(lapply(object, function(x) {!is.null(color(x))})))) {
-      errors <- c(errors, "If one link has a color, all links must have a color")
-    }
-    
-    # Link colors must be all the same class
-    if (length(unique(unlist(lapply(object, function(x) {class(color(x))})))) > 1) {
-      errors <- c(errors, "Link colors must be all the same class")
+  trueOrPrevErrors <- check_link_list(object)
+  if (inherits(trueOrPrevErrors, "character")) {
+    errors <- c(errors, trueOrPrevErrors)
+  }
+
+  # If one link has a correlationCoef, all must have a correlationCoef
+  if (any(unlist(lapply(object, function(x) {!is.null(correlationCoef(x))})))) {
+    if (!all(unlist(lapply(object, function(x) {!is.null(correlationCoef(x))})))) {
+      errors <- c(errors, "If one link has a correlationCoef, all links must have a correlationCoef.")
     }
   }
 
-  # If one link has a weight, all must have weights
-  if (any(unlist(lapply(object, function(x) {!is.null(weight(x))})))) {
-    if (!all(unlist(lapply(object, function(x) {!is.null(weight(x))})))) {
-      errors <- c(errors, "If one link has a weight, all links must have a weight")
+  # If one link has a pValue, all must have a pValue
+  if (any(unlist(lapply(object, function(x) {!is.null(pValue(x))})))) {
+    if (!all(unlist(lapply(object, function(x) {!is.null(pValue(x))})))) {
+      errors <- c(errors, "If one link has a pValue, all links must have a pValue.")
     }
   }
-
 
   return(if (length(errors) == 0) TRUE else errors) 
 

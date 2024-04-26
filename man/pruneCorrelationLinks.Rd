@@ -10,21 +10,21 @@
 pruneCorrelationLinks(
   object,
   correlationCoefThreshold = NULL,
-  pValueThreshold = 0.05,
+  pValueThreshold = NULL,
   verbose = c(TRUE, FALSE)
 )
 
 \S4method{pruneCorrelationLinks}{CorrelationLinkList}(
   object,
   correlationCoefThreshold = NULL,
-  pValueThreshold = 0.05,
+  pValueThreshold = NULL,
   verbose = c(TRUE, FALSE)
 )
 
 \S4method{pruneCorrelationLinks}{CorrelationNetwork}(
   object,
   correlationCoefThreshold = NULL,
-  pValueThreshold = 0.05,
+  pValueThreshold = NULL,
   verbose = c(TRUE, FALSE)
 )
 }
@@ -34,7 +34,7 @@ pruneCorrelationLinks(
 \item{correlationCoefThreshold}{threshold to filter edges by correlation coefficient. Default is NULL.
 Any links with absolute correlation coefficients below this threshold will be removed.}
 
-\item{pValueThreshold}{threshold to filter edges by p-value. Default is 0.05.
+\item{pValueThreshold}{threshold to filter edges by p-value. Default is NULL.
 Any links with p-values above this threshold will be removed.}
 
 \item{verbose}{boolean indicating if timed logging is desired}

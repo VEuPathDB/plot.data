@@ -6,7 +6,7 @@
 \usage{
 pruneLinksByCorrelationCoef(
   net,
-  correlationCoefThreshold,
+  correlationCoefThreshold = NULL,
   verbose = c(TRUE, FALSE)
 )
 }
@@ -19,5 +19,5 @@ pruneLinksByCorrelationCoef(
 }
 \description{
 Removes links that have an absolute correlation coefficient below a
-threshold. This is a convenience function that calls pruneLinksByPredicate.
+threshold. This is a convenience function that calls pruneCorrelationLinks.
 }
