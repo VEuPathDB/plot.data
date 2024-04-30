@@ -3,6 +3,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
                          value = character(),
                          useGradientColorscale = FALSE,
                          overlayValues = veupathUtils::BinList(),
+                         correlationMethod = character(),
                          sampleSizes = logical(),
                          completeCases = logical(),
                          evilMode = character(),
@@ -30,18 +31,31 @@ newScatterPD <- function(.dt = data.table::data.table(),
   group <- veupathUtils::findColNamesFromPlotRef(variables, 'overlay')
   panel <- findPanelColName(veupathUtils::findVariableSpecFromPlotRef(variables, 'facet1'), 
                             veupathUtils::findVariableSpecFromPlotRef(variables, 'facet2'))
+  
+  dtForCorr <- data.table::copy(.pd)
+  attributes(dtForCorr)$class <- c('data.table', 'data.frame')
 
   if (useGradientColorscale) {
+    #series data w gradient
     .pd$overlayMissingData <- is.na(.pd[[group]])
     series <- collapseByGroup(.pd, group = 'overlayMissingData', panel)
     .pd$overlayMissingData <- NULL
     series$overlayMissingData <- NULL
     data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale'))
+
+    # corr results w gradient
+    dtForCorr[[group]] <- NULL
+    corrResult <- groupCorrelation(dtForCorr, x, y, NULL, panel, correlationMethod = correlationMethod)
   } else {
+    #series data w/o gradient
     series <- collapseByGroup(.pd, group, panel)
     data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
+
+    # corr results w/o gradient
+    corrResult <- groupCorrelation(dtForCorr, x, y, group, panel, correlationMethod = correlationMethod)
   }
- 
+  veupathUtils::logWithTime('Calculated correlation results per group.', verbose)
+
   if (xType == 'DATE') {
     series$seriesX <- lapply(series$seriesX, format, '%Y-%m-%d')
   } else {
@@ -103,6 +117,14 @@ newScatterPD <- function(.dt = data.table::data.table(),
   } else {
     .pd <- series
   }
+
+  if (!is.null(key(.pd))) {
+    .pd <- merge(.pd, corrResult)
+  } else {
+    .pd <- cbind(.pd, corrResult)
+  }
+
+  attr$correlationMethod <- correlationMethod
   attr$names <- names(.pd)
   if (useGradientColorscale) attr$useGradientColorscale <- useGradientColorscale
 
@@ -160,6 +182,7 @@ validateScatterPD <- function(.scatter, verbose) {
 #' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous 
 #' overlay variable.
 #' @param overlayValues veupathUtils::BinList providing overlay values of interest
+#' @param correlationMethod character indicating which correlation method to use. One of 'pearson', 'spearman' or 'sparcc'.
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -207,6 +230,7 @@ scattergl.dt <- function(data,
                                    'density', 
                                    'raw'),
                          overlayValues = NULL,
+                         correlationMethod = c('pearson', 'sparcc', 'spearman'),
                          sampleSizes = c(TRUE, FALSE),
                          completeCases = c(TRUE, FALSE),
                          evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -216,6 +240,7 @@ scattergl.dt <- function(data,
   
   if (!inherits(variables, 'VariableMetadataList')) stop("The `variables` argument must be a VariableMetadataList object.")
   value <- veupathUtils::matchArg(value)
+  correlationMethod <- veupathUtils::matchArg(correlationMethod)
   sampleSizes <- veupathUtils::matchArg(sampleSizes)
   completeCases <- veupathUtils::matchArg(completeCases)
   evilMode <- veupathUtils::matchArg(evilMode)
@@ -269,6 +294,7 @@ scattergl.dt <- function(data,
                             value = value,
                             useGradientColorscale = useGradientColorscale,
                             overlayValues = overlayValues,
+                            correlationMethod = correlationMethod,
                             sampleSizes = sampleSizes,
                             completeCases = completeCases,
                             inferredVarAxis = 'y',
@@ -277,6 +303,7 @@ scattergl.dt <- function(data,
 
   .scatter <- validateScatterPD(.scatter, verbose)
   veupathUtils::logWithTime(paste('New scatter plot object created with parameters value =', value,
+                                                                                ', correlationMethod =', correlationMethod,
                                                                                 ', sampleSizes = ', sampleSizes,
                                                                                 ', completeCases = ', completeCases,
                                                                                 ', evilMode =', evilMode,
@@ -318,6 +345,7 @@ scattergl.dt <- function(data,
 #' 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw 
 #' data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
 #' @param overlayValues veupathUtils::BinList providing overlay values of interest
+#' @param correlationMethod character indicating which correlation method to use. One of 'pearson', 'spearman' or 'sparcc'.
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -365,6 +393,7 @@ scattergl <- function(data,
                                 'density', 
                                 'raw'),
                       overlayValues = NULL,
+                      correlationMethod = c('pearson', 'sparcc', 'spearman'),
                       sampleSizes = c(TRUE, FALSE),
                       completeCases = c(TRUE, FALSE),
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -376,6 +405,7 @@ scattergl <- function(data,
                            variables,
                            value = value,
                            overlayValues = overlayValues,
+                           correlationMethod = correlationMethod,
                            sampleSizes = sampleSizes,
                            completeCases = completeCases,
                            evilMode = evilMode,

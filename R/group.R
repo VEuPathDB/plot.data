@@ -168,6 +168,38 @@ groupDensity <- function(data, x = NULL, y, group = NULL, panel = NULL, geo = NU
   return(dt)
 }
 
+## NOTE: if this is done right, we shouldnt have to collapse the result ever
+## it should be that each group gets a single value for each of dataX, dataY, correlationCoef, pValue
+## the only way that wouldnt be true was if we had more than two cols in .SD, which shouldnt be the case
+groupCorrelation <- function(
+  data, 
+  x, 
+  y, 
+  group = NULL, 
+  panel = NULL, 
+  geo = NULL,
+  correlationMethod = c('pearson', 'spearman', 'sparcc')
+) {
+  veupathUtils::matchArg(correlationMethod)
+
+  byCols <- colnames(data)[colnames(data) %in% c(group, geo, panel)]
+  if (all(is.null(c(group,geo,panel)))) {
+    dt <- data[, {corrResult <- correlationOrEmpty(.SD, method = correlationMethod);
+                  list(correlationCoef = corrResult[[3]],
+                       pValue = corrResult[[4]])}]
+  } else {
+    dt <- data[, {corrResult <- correlationOrEmpty(.SD, method = correlationMethod);
+                  list(correlationCoef = corrResult[[3]],
+                       pValue = corrResult[[4]])},
+                  keyby=eval(byCols)]
+  }
+
+  indexCols <- c(panel, geo, group)
+  setkeyv(dt, indexCols)
+  
+  return(dt)
+}
+
 #' @importFrom purrr reduce
 groupSmoothedMean <- function(data, x, y, group = NULL, panel = NULL, geo = NULL, collapse = TRUE) {
 
