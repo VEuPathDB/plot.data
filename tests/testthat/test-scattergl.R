@@ -114,7 +114,7 @@ test_that("scattergl.dt() returns a valid plot.data scatter object", {
   expect_is(dt, 'plot.data')
   expect_is(dt, 'scatterplot')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('variables', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable'))
+  expect_equal(names(namedAttrList),c('variables', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','correlationMethod'))
   completeCases <- completeCasesTable(dt)
   expect_equal(names(completeCases), c('variableDetails','completeCases'))
   expect_equal(nrow(completeCases), 4)
@@ -127,7 +127,7 @@ test_that("scattergl.dt() returns a valid plot.data scatter object", {
   expect_is(dt, 'plot.data')
   expect_is(dt, 'scatterplot')
   namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('variables'))
+  expect_equal(names(namedAttrList),c('variables','correlationMethod'))
 
 })
 
@@ -264,23 +264,23 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY'))
+  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'correlationCoef', 'pValue'))
   expect_equal(as.character(range(df$entity.dateA)), range(dt$seriesX))
 
   dt <- scattergl.dt(df, variables, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
+  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'correlationCoef', 'pValue'))
 
   dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
+  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'correlationCoef', 'pValue'))
 
   dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
+  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2', 'correlationCoef', 'pValue'))
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -315,29 +315,29 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'seriesX', 'seriesY'))
+  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'correlationCoef', 'pValue'))
   numericSeriesX <- lapply(dt$seriesX, as.numeric)
   expect_equal(range(df$entity.contA), range(numericSeriesX))
 
   dt <- scattergl.dt(df, variables, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
+  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'correlationCoef', 'pValue'))
 
   dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
+  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'correlationCoef', 'pValue'))
 
   dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
+  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2', 'correlationCoef', 'pValue'))
   
   dt <- scattergl.dt(df, variables, 'density')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat3', 'entity.cat4', 'densityX', 'densityY'))
+  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'densityX', 'densityY', 'correlationCoef', 'pValue'))
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -365,27 +365,27 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),3)
-  expect_equal(names(dt),c('entity.cat3', 'seriesX', 'seriesY'))
+  expect_equal(names(dt),c('entity.cat3', 'seriesX', 'seriesY', 'correlationCoef', 'pValue'))
 
   dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),3)
-  expect_equal(names(dt),c('entity.cat3', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
+  expect_equal(names(dt),c('entity.cat3', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'correlationCoef', 'pValue'))
   
   dt <- scattergl.dt(df, variables, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),3)
-  expect_equal(names(dt),c('entity.cat3', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
+  expect_equal(names(dt),c('entity.cat3', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'correlationCoef', 'pValue'))
  
   dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),3)
-  expect_equal(names(dt),c('entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
+  expect_equal(names(dt),c('entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2', 'correlationCoef', 'pValue'))
  
   dt <- scattergl.dt(df, variables, 'density')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),3)
-  expect_equal(names(dt),c('entity.cat3', 'densityX', 'densityY'))
+  expect_equal(names(dt),c('entity.cat3', 'densityX', 'densityY', 'correlationCoef', 'pValue'))
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -413,27 +413,27 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.cat4', 'seriesX', 'seriesY'))
+  expect_equal(names(dt),c('entity.cat4', 'seriesX', 'seriesY', 'correlationCoef', 'pValue'))
 
   dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.cat4', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
+  expect_equal(names(dt),c('entity.cat4', 'seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'correlationCoef', 'pValue'))
   
   dt <- scattergl.dt(df, variables, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.cat4', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
+  expect_equal(names(dt),c('entity.cat4', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'correlationCoef', 'pValue'))
   
   dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.cat4', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
+  expect_equal(names(dt),c('entity.cat4', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2', 'correlationCoef', 'pValue'))
 
   dt <- scattergl.dt(df, variables, 'density')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),4)
-  expect_equal(names(dt),c('entity.cat4', 'densityX', 'densityY'))
+  expect_equal(names(dt),c('entity.cat4', 'densityX', 'densityY', 'correlationCoef', 'pValue'))
   
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -454,27 +454,27 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('seriesX', 'seriesY'))
+  expect_equal(names(dt),c('seriesX', 'seriesY', 'correlationCoef', 'pValue'))
 
   dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
+  expect_equal(names(dt),c('seriesX', 'seriesY', 'smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'correlationCoef', 'pValue'))
   
   dt <- scattergl.dt(df, variables, 'smoothedMean')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError'))
+  expect_equal(names(dt),c('smoothedMeanX', 'smoothedMeanY', 'smoothedMeanSE', 'smoothedMeanError', 'correlationCoef', 'pValue'))
     
   dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
+  expect_equal(names(dt),c('seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2', 'correlationCoef', 'pValue'))
 
   dt <- scattergl.dt(df, variables, 'density')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt),1)
-  expect_equal(names(dt),c('densityX', 'densityY'))
+  expect_equal(names(dt),c('densityX', 'densityY', 'correlationCoef', 'pValue'))
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -501,7 +501,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   
   dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(nrow(dt), 1)
-  expect_equal(names(dt), c('seriesX', 'seriesY', 'seriesGradientColorscale'))
+  expect_equal(names(dt), c('seriesX', 'seriesY', 'seriesGradientColorscale', 'correlationCoef', 'pValue'))
   expect_true(identical(dt$seriesGradientColorscale[[1]], as.character(df$entity.contC)))
   
   variables <- new("VariableMetadataList", SimpleList(
@@ -544,7 +544,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   
   dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(nrow(dt), 12)
-  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'seriesGradientColorscale'))
+  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'seriesGradientColorscale', 'correlationCoef', 'pValue'))
   expect_equal(length(dt$seriesGradientColorscale[[1]]), length(dt$seriesX[[1]]))
 
   variables <- new("VariableMetadataList", SimpleList(
@@ -579,7 +579,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   
   dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(nrow(dt), 4)
-  expect_equal(names(dt), c('entity.cat4', 'seriesX', 'seriesY', 'seriesGradientColorscale'))
+  expect_equal(names(dt), c('entity.cat4', 'seriesX', 'seriesY', 'seriesGradientColorscale', 'correlationCoef', 'pValue'))
   expect_equal(length(dt$seriesGradientColorscale[[1]]), length(dt$seriesX[[1]]))
 
   ## Collection vars
@@ -615,7 +615,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('entity.cat3', 'entity.collection', 'seriesX', 'seriesY'))
+  expect_equal(names(dt), c('entity.collection', 'entity.cat3', 'seriesX', 'seriesY', 'correlationCoef', 'pValue'))
   expect_equal(unique(dt$entity.collection), c('contA','contB','contC'))
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'facet1')@variableId, 'collection')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
@@ -652,7 +652,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY'))
+  expect_equal(names(dt), c('panel', 'seriesX', 'seriesY', 'correlationCoef', 'pValue'))
   expect_equal(dt$panel[1], 'cat3_a.||.contA')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'facet2')@variableId, 'collection')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
@@ -692,7 +692,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('entity.collection', 'entity.cat3', 'seriesX', 'seriesY'))
+  expect_equal(names(dt), c('entity.cat3', 'entity.collection', 'seriesX', 'seriesY', 'correlationCoef', 'pValue'))
   expect_equal(unique(dt$entity.collection), c('contA','contB','contC'))
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'overlay')@variableId, 'collection')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues')
@@ -734,7 +734,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
   expect_equal(nrow(dt), 3)
-  expect_equal(names(dt), c('entity.collection', 'entity.cat3', 'seriesX', 'seriesY'))
+  expect_equal(names(dt), c('entity.cat3', 'entity.collection', 'seriesX', 'seriesY', 'correlationCoef', 'pValue'))
   expect_equal(unique(dt$entity.collection), c('contB'))
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'overlay')@variableId, 'collection')
   expect_equal(veupathUtils::findVariableSpecFromPlotRef(attr(dt, 'variables'), 'yAxis')@variableId, 'collectionVarValues') 
@@ -772,7 +772,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
 
   dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('entity.cat3', 'entity.factor3','seriesX','seriesY'))
+  expect_equal(names(dt), c('entity.factor3', 'entity.cat3','seriesX','seriesY', 'correlationCoef', 'pValue'))
   expect_equal(class(dt$entity.factor3), 'character')
 
   variables <- new("VariableMetadataList", SimpleList(
@@ -807,7 +807,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
 
   dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(nrow(dt), 18)
-  expect_equal(names(dt), c('panel','seriesX','seriesY'))
+  expect_equal(names(dt), c('panel','seriesX','seriesY', 'correlationCoef', 'pValue'))
   expect_equal(class(dt$panel), 'character')
 
   variables <- new("VariableMetadataList", SimpleList(
@@ -842,7 +842,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
 
   dt <- scattergl.dt(df, variables, 'raw')
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('panel','seriesX','seriesY'))
+  expect_equal(names(dt), c('panel','seriesX','seriesY', 'correlationCoef', 'pValue'))
   expect_equal(class(dt$panel), 'character')
 })
 
@@ -886,11 +886,11 @@ test_that("scattergl() returns appropriately formatted json", {
 
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
-  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE','smoothedMeanError'))
+  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE','smoothedMeanError','correlationCoef','pValue'))
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 12)
   expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars','correlationMethod'))
   expect_equal(names(jsonList$scatterplot$config$variables),c("variableClass","variableSpec","plotReference","dataType","dataShape","isCollection","imputeZero","hasStudyDependentVocabulary"))
   expect_equal(jsonList$scatterplot$config$variables$variableSpec$variableId, c("contB","contA","cat3","cat4"))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','size'))
@@ -937,11 +937,11 @@ test_that("scattergl() returns appropriately formatted json", {
   
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
-  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY','seriesGradientColorscale'))
+  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY','seriesGradientColorscale','correlationCoef','pValue'))
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 4)
   expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars','correlationMethod'))
   expect_equal(names(jsonList$scatterplot$config$variables$variableSpec),c('variableId','entityId'))
   expect_equal(jsonList$scatterplot$config$variables$variableSpec$variableId[jsonList$scatterplot$config$variables$plotReference == 'overlay'], 'contC')
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
@@ -988,11 +988,11 @@ test_that("scattergl() returns appropriately formatted json", {
 
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
-  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE','smoothedMeanError'))
+  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE','smoothedMeanError','correlationCoef','pValue'))
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 24)
   expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
-  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars','correlationMethod'))
   expect_equal(names(jsonList$scatterplot$config$variables),c("variableClass","variableSpec","plotReference","dataType","dataShape","isCollection","imputeZero","hasStudyDependentVocabulary"))
   expect_equal(jsonList$scatterplot$config$variables$variableSpec$variableId, c("contB","contA","int6","cat4"))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails','facetVariableDetails','size'))
@@ -1043,9 +1043,9 @@ test_that("scattergl() returns appropriately formatted json", {
   
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
-  expect_equal(names(jsonList$scatterplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY'))
+  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','correlationCoef','pValue'))
   expect_equal(names(jsonList$scatterplot$data$overlayVariableDetails),c('variableId','entityId','value'))
-  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars','correlationMethod'))
   expect_equal(jsonList$scatterplot$config$completeCasesAllVars, nrow(df))
   expect_equal(jsonList$scatterplot$config$completeCasesAxesVars, nrow(df))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails','size'))
@@ -1094,9 +1094,9 @@ test_that("scattergl() returns appropriately formatted json", {
   
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
-  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY'))
+  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY','correlationCoef','pValue'))
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value','displayLabel'))
-  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars','correlationMethod'))
   expect_equal(jsonList$scatterplot$config$completeCasesAllVars, nrow(df))
   expect_equal(jsonList$scatterplot$config$completeCasesAxesVars, nrow(df))
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
@@ -1112,9 +1112,9 @@ test_that("scattergl() returns appropriately formatted json", {
   
   expect_equal(names(jsonList),c('scatterplot'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
-  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY'))
+  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY','correlationCoef','pValue'))
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value','displayLabel'))
-  expect_equal(names(jsonList$scatterplot$config),c('variables'))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','correlationMethod'))
   
 
 
@@ -1157,9 +1157,9 @@ test_that("scattergl() returns appropriately formatted json", {
   
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
-  expect_equal(names(jsonList$scatterplot$data),c('overlayVariableDetails','facetVariableDetails','seriesX','seriesY'))
+  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','correlationCoef','pValue'))
   expect_equal(names(jsonList$scatterplot$data$overlayVariableDetails),c('variableId','entityId','value','displayLabel'))
-  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars','correlationMethod'))
   expect_equal(jsonList$scatterplot$config$completeCasesAllVars, nrow(df))
   expect_equal(jsonList$scatterplot$config$completeCasesAxesVars, nrow(df))
   expect_equal(names(jsonList$sampleSizeTable),c('overlayVariableDetails', 'facetVariableDetails','size'))
@@ -1338,7 +1338,7 @@ test_that("scattergl.dt() returns correct information about missing data", {
 
   dt <- scattergl.dt(df, variables, 'raw', evilMode = 'strataVariables')
   expect_equal(nrow(dt), 2)
-  expect_equal(names(dt), c('seriesX', 'seriesY', 'seriesGradientColorscale'))
+  expect_equal(names(dt), c('seriesX', 'seriesY', 'seriesGradientColorscale', 'correlationCoef', 'pValue'))
   expect_equal(lapply(dt$seriesGradientColorscale, length), lapply(dt$seriesX, length))
   expect_true(all(is.na(dt$seriesGradientColorscale[[2]])))
 
@@ -1374,7 +1374,7 @@ test_that("scattergl.dt() returns correct information about missing data", {
   ))
 
   dt <- scattergl.dt(df, variables, 'raw', evilMode = 'strataVariables')
-  expect_equal(names(dt), c('entity.cat4', 'seriesX', 'seriesY', 'seriesGradientColorscale'))
+  expect_equal(names(dt), c('entity.cat4', 'seriesX', 'seriesY', 'seriesGradientColorscale', 'correlationCoef', 'pValue'))
   expect_equal(lapply(dt$seriesGradientColorscale, length), lapply(dt$seriesX, length))
   expect_true(all(is.na(dt$seriesGradientColorscale[[2]])))
 
@@ -1384,12 +1384,12 @@ test_that("scattergl.dt() returns correct information about missing data", {
   
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
-  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY','seriesGradientColorscale'))
+  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','seriesX','seriesY','seriesGradientColorscale','correlationCoef','pValue'))
   expect_equal(names(jsonList$scatterplot$data$facetVariableDetails[[1]]),c('variableId','entityId','value'))
   expect_equal(length(jsonList$scatterplot$data$facetVariableDetails), 10)
   expect_equal(jsonList$scatterplot$data$facetVariableDetails[[1]]$variableId, 'cat4')
   expect_true(all(is.na(jsonList$scatterplot$data$seriesGradientColorscale[[2]]))) # should be null in the json file, but fromJSON converts to NA
-  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars','correlationMethod'))
   expect_equal(names(jsonList$scatterplot$config$variables$variableSpec),c('variableId','entityId'))
   expect_equal(jsonList$scatterplot$config$variables$variableSpec$variableId[jsonList$scatterplot$config$variables$plotReference == 'overlay'], 'contC')
   expect_equal(names(jsonList$sampleSizeTable),c('facetVariableDetails','size'))
