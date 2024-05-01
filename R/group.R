@@ -182,15 +182,19 @@ groupCorrelation <- function(
 ) {
   veupathUtils::matchArg(correlationMethod)
 
+  if (length(dt) > 2) {
+    stop('Correlation can only be computed for two variables.')
+  }
+
   byCols <- colnames(data)[colnames(data) %in% c(group, geo, panel)]
   if (all(is.null(c(group,geo,panel)))) {
     dt <- data[, {corrResult <- correlationOrEmpty(.SD, method = correlationMethod);
-                  list(correlationCoef = corrResult[[3]],
-                       pValue = corrResult[[4]])}]
+                  list(correlationCoef = corrResult$correlationCoef,
+                       pValue = corrResult$pValue)}]
   } else {
     dt <- data[, {corrResult <- correlationOrEmpty(.SD, method = correlationMethod);
-                  list(correlationCoef = corrResult[[3]],
-                       pValue = corrResult[[4]])},
+                  list(correlationCoef = corrResult$correlationCoef,
+                       pValue = corrResult$pValue)},
                   keyby=eval(byCols)]
   }
 

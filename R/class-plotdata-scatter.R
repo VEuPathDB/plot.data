@@ -32,8 +32,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   panel <- findPanelColName(veupathUtils::findVariableSpecFromPlotRef(variables, 'facet1'), 
                             veupathUtils::findVariableSpecFromPlotRef(variables, 'facet2'))
   
-  dtForCorr <- data.table::copy(.pd)
-  attributes(dtForCorr)$class <- c('data.table', 'data.frame')
+  dtForCorr <- data.table::as.data.table(.pd)
 
   if (useGradientColorscale) {
     #series data w gradient
@@ -43,16 +42,20 @@ newScatterPD <- function(.dt = data.table::data.table(),
     series$overlayMissingData <- NULL
     data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale'))
 
-    # corr results w gradient
+    # corr results w gradient, same as w/o groups so set group to NULL
     dtForCorr[[group]] <- NULL
-    corrResult <- groupCorrelation(dtForCorr, x, y, NULL, panel, correlationMethod = correlationMethod)
+    if (correlationMethod != 'none') {
+      corrResult <- groupCorrelation(dtForCorr, x, y, NULL, panel, correlationMethod = correlationMethod)
+    }
   } else {
     #series data w/o gradient
     series <- collapseByGroup(.pd, group, panel)
     data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
 
     # corr results w/o gradient
-    corrResult <- groupCorrelation(dtForCorr, x, y, group, panel, correlationMethod = correlationMethod)
+    if (correlationMethod != 'none') {
+      corrResult <- groupCorrelation(dtForCorr, x, y, group, panel, correlationMethod = correlationMethod)
+    }
   }
   veupathUtils::logWithTime('Calculated correlation results per group.', verbose)
 
@@ -118,13 +121,16 @@ newScatterPD <- function(.dt = data.table::data.table(),
     .pd <- series
   }
 
-  if (!is.null(key(.pd))) {
-    .pd <- merge(.pd, corrResult)
-  } else {
-    .pd <- cbind(.pd, corrResult)
+  if (correlationMethod != 'none') {
+    if (!is.null(key(.pd))) {
+      .pd <- merge(.pd, corrResult)
+    } else {
+      .pd <- cbind(.pd, corrResult)
+    }
+
+    attr$correlationMethod <- jsonlite::unbox(correlationMethod)
   }
 
-  attr$correlationMethod <- correlationMethod
   attr$names <- names(.pd)
   if (useGradientColorscale) attr$useGradientColorscale <- useGradientColorscale
 
@@ -182,7 +188,8 @@ validateScatterPD <- function(.scatter, verbose) {
 #' to include raw data with smoothed mean. Note only 'raw' is compatible with a continuous 
 #' overlay variable.
 #' @param overlayValues veupathUtils::BinList providing overlay values of interest
-#' @param correlationMethod character indicating which correlation method to use. One of 'pearson', 'spearman' or 'sparcc'.
+#' @param correlationMethod character indicating which correlation method to use. One of 'pearson', 
+#' 'spearman', 'sparcc' or 'none'. Default is 'none'.
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -230,7 +237,7 @@ scattergl.dt <- function(data,
                                    'density', 
                                    'raw'),
                          overlayValues = NULL,
-                         correlationMethod = c('pearson', 'sparcc', 'spearman'),
+                         correlationMethod = c('none','pearson', 'sparcc', 'spearman'),
                          sampleSizes = c(TRUE, FALSE),
                          completeCases = c(TRUE, FALSE),
                          evilMode = c('noVariables', 'allVariables', 'strataVariables'),
@@ -345,7 +352,8 @@ scattergl.dt <- function(data,
 #' 'density' estimates (no raw data returned), alternatively 'smoothedMeanWithRaw' to include raw 
 #' data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.
 #' @param overlayValues veupathUtils::BinList providing overlay values of interest
-#' @param correlationMethod character indicating which correlation method to use. One of 'pearson', 'spearman' or 'sparcc'.
+#' @param correlationMethod character indicating which correlation method to use. One of 'pearson', 
+#' 'spearman','sparcc' or 'none'. Default is 'none'.
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
@@ -393,7 +401,7 @@ scattergl <- function(data,
                                 'density', 
                                 'raw'),
                       overlayValues = NULL,
-                      correlationMethod = c('pearson', 'sparcc', 'spearman'),
+                      correlationMethod = c('none','pearson', 'sparcc', 'spearman'),
                       sampleSizes = c(TRUE, FALSE),
                       completeCases = c(TRUE, FALSE),
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
