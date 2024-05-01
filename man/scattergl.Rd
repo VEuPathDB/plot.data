@@ -10,6 +10,7 @@ scattergl(
   value = c("smoothedMean", "smoothedMeanWithRaw", "bestFitLineWithRaw", "density",
     "raw"),
   overlayValues = NULL,
+  correlationMethod = c("none", "pearson", "sparcc", "spearman"),
   sampleSizes = c(TRUE, FALSE),
   completeCases = c(TRUE, FALSE),
   evilMode = c("noVariables", "allVariables", "strataVariables"),
@@ -28,6 +29,9 @@ and its position in the plot. Recognized plotRef values are 'xAxisVariable', 'yA
 data with smoothed mean. Note only 'raw' is compatible with a continuous overlay variable.}
 
 \item{overlayValues}{veupathUtils::BinList providing overlay values of interest}
+
+\item{correlationMethod}{character indicating which correlation method to use. One of 'pearson', 
+'spearman','sparcc' or 'none'. Default is 'none'.}
 
 \item{sampleSizes}{boolean indicating if sample sizes should be computed}
 

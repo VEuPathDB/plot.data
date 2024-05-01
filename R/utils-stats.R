@@ -1,3 +1,24 @@
+## this wraps veupathUtils::correlation, except wont err for an empty dt
+## it also returns the dt of correlation coeficients and p-values rather
+## than the ComputeResult object
+correlationOrEmpty <- function(dt, method = c('pearson', 'spearman', 'sparcc')) {
+  method <- veupathUtils::matchArg(method)
+
+  emptyResult <- data.table::data.table(dataX = NA_character_, dataY = NA_character_, correlationCoef = NA_real_, pValue = NA_real_)
+  if (is.null(dt)) return(emptyResult)
+  if (nrow(dt) == 0) return(emptyResult)
+  
+  result <- try(suppressWarnings(veupathUtils::correlation(dt, NULL, method = method, format = 'data.table', verbose = FALSE)), silent = TRUE)
+
+  if (any(veupathUtils::is.error(result)) || nrow(result) == 0) {
+    emptyResult$dataX <- names(dt)[1]
+    emptyResult$dataY <- names(dt)[2]
+    return(emptyResult)
+  } else {
+    return(result)
+  }
+}
+
 formatPValue <- function(pvalue) {
   if (pvalue < 0.0001) return("<0.0001")
   return(as.character(signif(pvalue, 2)))
