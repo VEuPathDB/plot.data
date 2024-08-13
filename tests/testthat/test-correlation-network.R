@@ -228,3 +228,29 @@ test_that("we can build a Network from an edgeList data.frame", {
     expect_equal(getLinks(net)[[1]]@weight, .8)
     expect_equal(getLinks(net)[[2]]@weight, .8) #second link is actually third link bc of correlationCoefThreshold!!
 })
+
+test_that("empty edgeLists produce empty CorrelationNetworks rather than err", {
+  edgeList <- data.table::data.table(source='a',target='b',correlationCoef=NA,pValue=NA)
+  net <- CorrelationNetwork(object = edgeList)
+  expect_s4_class(net, "CorrelationNetwork")
+  expect_equal(length(net@links),0)
+  expect_equal(length(net@nodes),0)
+
+  edgeList <- edgeList[complete.cases(edgeList),]
+  net <- CorrelationNetwork(object = edgeList)
+  expect_s4_class(net, "CorrelationNetwork")
+  expect_equal(length(net@links),0)
+  expect_equal(length(net@nodes),0)
+
+  edgeList <- data.table::data.table(source='a',target='b',correlationCoef=.1,pValue=.008)
+  net <- CorrelationNetwork(object = edgeList, correlationCoefThreshold = .5)
+  expect_s4_class(net, "CorrelationNetwork")
+  expect_equal(length(net@links),0)
+  expect_equal(length(net@nodes),0)
+
+  edgeList <- data.table::data.table(source='a',target='b',correlationCoef=.9,pValue=.8)
+  net <- CorrelationNetwork(object = edgeList, pValueThreshold = .05)
+  expect_s4_class(net, "CorrelationNetwork")
+  expect_equal(length(net@links),0)
+  expect_equal(length(net@nodes),0)
+})

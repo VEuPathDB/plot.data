@@ -229,9 +229,14 @@ function(
   if (!is.null(pValueThreshold)) {
     object <- object[object$pValue <= pValueThreshold, ]
   }
+ 
+  # if we dont have a source, target, correlationCoef and pValue then 
+  # we arent a real CorrelationLink and should be removed. best case,
+  # those entries are technically valid but non-significant.
+  object <- object[complete.cases(object),]
 
   if (nrow(object) == 0) {
-    new("CorrelationLinkList")
+    return(new("CorrelationLinkList"))
   }
 
   makeLink <- function(rowInEdgeList, linkColorScheme) {
@@ -262,7 +267,7 @@ function(
   }
 
   linkList <- apply(object, 1, makeLink, linkColorScheme)
-  new("CorrelationLinkList", linkList)
+  return(new("CorrelationLinkList", linkList))
 })
 
 #' @rdname CorrelationLinkList

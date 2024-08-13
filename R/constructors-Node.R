@@ -27,11 +27,7 @@ setMethod("NodeIdList", "list", function(object, uniquifyIds = c(TRUE, FALSE)) {
   nodeIds <- object
 
   if (length(nodeIds) == 0) {
-    stop("nodeIds must not be empty")
-  }
-
-  if (!is.list(nodeIds)) {
-    stop("nodeIds must be a list")
+    return(new("NodeIdList"))
   }
 
   if (all(unlist(lapply(nodeIds, inherits, 'Node')))) {
@@ -78,7 +74,7 @@ setMethod("NodeIdList", "data.frame", function(object, uniquifyIds = c(TRUE, FAL
     stop(paste("Invalid edgeList:", isValidEdgeList(object), collapse = '\n'))
   }
 
-  return(NodeIdList(c(object$source, object$target), uniquifyIds = uniquifyIds))
+  return(NodeIdList(as.character(c(object$source, object$target)), uniquifyIds = uniquifyIds))
 })
 
 #' @export 

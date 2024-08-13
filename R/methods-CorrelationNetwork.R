@@ -54,6 +54,8 @@ function(
   object@correlationCoefThreshold <- ifelse(is.null(correlationCoefThreshold), NA_real_, correlationCoefThreshold) 
   object@pValueThreshold <- ifelse(is.null(pValueThreshold), NA_real_, pValueThreshold) 
 
+  if (length(object@links) == 0) return(new("CorrelationNetwork"))
+
   validObject(object)
   return(object)
 })

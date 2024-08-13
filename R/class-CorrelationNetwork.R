@@ -116,6 +116,8 @@ setMethod("CorrelationNetwork", signature("missing", "CorrelationLinkList", "Nod
   pruneIsolatedNodes <- veupathUtils::matchArg(pruneIsolatedNodes)
 
   links <- pruneCorrelationLinks(links, correlationCoefThreshold, pValueThreshold)
+  if (length(links) == 0) return(new("CorrelationNetwork"))
+
   net <- new("CorrelationNetwork", 
     links=links, 
     nodes=nodes, 
@@ -148,9 +150,12 @@ setMethod("CorrelationNetwork", signature("data.frame", "missing", "missing"), f
   layout <- veupathUtils::matchArg(layout)
   pruneIsolatedNodes <- veupathUtils::matchArg(pruneIsolatedNodes)
 
-  # any additional validation and filtering are handled by the CorrelationLinkList constructor
+  links <- CorrelationLinkList(object, linkColorScheme, correlationCoefThreshold, pValueThreshold)
+  if (length(links) == 0) return(new("CorrelationNetwork"))
+
+  # any validation and filtering are handled by the CorrelationLinkList constructor
   net <- new("CorrelationNetwork", 
-    links=CorrelationLinkList(object, linkColorScheme, correlationCoefThreshold, pValueThreshold), 
+    links=links, 
     nodes=NodeList(object, layout), 
     linkColorScheme=linkColorScheme, 
     variableMapping=variables,
