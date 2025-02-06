@@ -871,7 +871,50 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('panel','seriesX','seriesY'))
   expect_equal(class(dt$panel), 'character')
+
+
+  # With ids
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'sampleId', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'id'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
+  df <- as.data.frame(testDF)
+  idColumn <- "entity.sampleId"
+  df[idColumn] <- paste0('sample', 1:nrow(testDF))
+
+  dt <- scattergl.dt(df, variables, 'raw', idColumn = idColumn, returnPointIds = TRUE)
+  expect_equal(nrow(dt), 3)
+  expect_equal(names(dt), c('entity.cat3','seriesX','seriesY', idColumn))
+  expect_equal(class(dt$pointId), 'character')
 })
+
+
+
 
 test_that("scattergl() returns appropriately formatted json", {
   

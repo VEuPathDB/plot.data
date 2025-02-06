@@ -13,7 +13,9 @@ newPlotdata <- function(.dt = data.table(),
                          #make sure lat, lon, geoAgg vars are valid plot References
                          variables = NULL,    
                          useGradientColorscale = FALSE,    
-                         overlayValues = veupathUtils::BinList(),            
+                         overlayValues = veupathUtils::BinList(),
+                         idColumn = character(),
+                         returnPointIds = logical(),
                          sampleSizes = logical(),
                          completeCases = logical(),
                          inferredVarAxis = c('y', 'x'),
@@ -45,6 +47,19 @@ newPlotdata <- function(.dt = data.table(),
   lat <- veupathUtils::findColNamesFromPlotRef(variables, 'latitude')
   lon <- veupathUtils::findColNamesFromPlotRef(variables, 'longitude')
 
+  # If we ask for the point ids, ensure the column is present. Otherwise set to null. 
+  print(returnPointIds)
+  print(idColumn)
+  if (!is.null(returnPointIds) && length(idColumn) > 0) {
+    if (returnPointIds && !is.null(idColumn) && idColumn %in% names(.dt)) {
+      idCol <- idColumn
+    } else {
+      idCol <- NULL
+    }
+  } else {
+    idCol <- NULL
+  }
+
   isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
   collectionVarMetadata <- veupathUtils::findCollectionVariableMetadata(variables)
   isOverlayCollection <- ifelse(is.null(collectionVarMetadata), FALSE, ifelse(collectionVarMetadata@plotReference@value == 'overlay', TRUE, FALSE)) 
@@ -68,7 +83,7 @@ newPlotdata <- function(.dt = data.table(),
   ## Calculate complete cases table if desired
   if (completeCases) {
     #lat and lon must be used w a geohash, so they dont need to be part of completeCases*
-    varCols <- c(x, y, z, group, facet1, facet2, geo)
+    varCols <- c(x, y, z, group, facet1, facet2, geo, idCol)
     completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
     completeCasesTable <- data.table::transpose(completeCasesTable, keep.names = 'variableDetails')
     data.table::setnames(completeCasesTable, 'V1', 'completeCases')
@@ -88,8 +103,9 @@ newPlotdata <- function(.dt = data.table(),
     panel <- c(facet1, facet2)
   }
 
-  myCols <- c(x, y, z, lat, lon, group, panel, geo)
+  myCols <- c(x, y, z, lat, lon, group, panel, geo, idCol)
   .dt <- .dt[, myCols, with=FALSE]
+  print(names(.dt))
   veupathUtils::logWithTime('Identified facet intersections.', verbose)
 
   # Reshape data and remap variables if collectionVar is specified
@@ -204,6 +220,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(lon)) { .dt[[lon]] <- updateType(.dt[[lon]], 'NUMBER')}
   if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
   if (!is.null(panel)) { .dt[[panel]] <- updateType(.dt[[panel]], 'STRING') }
+  if (!is.null(idCol)) { .dt[[idCol]] <- updateType(.dt[[idCol]], 'STRING') }
   veupathUtils::logWithTime('Base data types updated for all columns as necessary.', verbose)
 
   if (!is.null(group)) {
