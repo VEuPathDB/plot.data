@@ -894,13 +894,6 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
       plotReference = new("PlotReference", value = 'overlay'),
       dataType = new("DataType", value = 'STRING'),
       dataShape = new("DataShape", value = 'CATEGORICAL')
-    ),
-    new("VariableMetadata",
-      variableClass = new("VariableClass", value = 'native'),
-      variableSpec = new("VariableSpec", variableId = 'sampleId', entityId = 'entity'),
-      plotReference = new("PlotReference", value = 'id'),
-      dataType = new("DataType", value = 'STRING'),
-      dataShape = new("DataShape", value = 'CATEGORICAL')
     )
   ))
   df <- as.data.frame(testDF)
@@ -910,7 +903,7 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   dt <- scattergl.dt(df, variables, 'raw', idColumn = idColumn, returnPointIds = TRUE)
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt), c('entity.cat3','seriesX','seriesY', idColumn))
-  expect_equal(class(dt$pointId), 'character')
+  expect_equal(class(dt[[idColumn]][[1]]), 'character')
 })
 
 
