@@ -16,6 +16,8 @@ scattergl.dt(
   evilMode = c("noVariables", "allVariables", "strataVariables"),
   collectionVariablePlotRef = NULL,
   computedVariableMetadata = NULL,
+  idColumn = NULL,
+  returnPointIds = c(FALSE, TRUE),
   verbose = c(TRUE, FALSE)
 )
 }
@@ -41,6 +43,11 @@ overlay variable.}
 \item{completeCases}{boolean indicating if complete cases should be computed}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
+
+\item{idColumn}{character indicating the column name of the id variable in data}
+
+\item{returnPointIds}{boolean indicating if any point ids should be returned with the scatterplot data.
+This value will only be used when idColumn is present.}
 
 \item{verbose}{boolean indicating if timed logging is desired}
 }

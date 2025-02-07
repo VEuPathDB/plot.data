@@ -64,7 +64,6 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
     # corr results w/o gradient
     if (correlationMethod != 'none') {
-      print(names(dtForCorr))
       corrResult <- groupCorrelation(dtForCorr, x, y, group, panel, correlationMethod = correlationMethod)
     }
   }
@@ -384,6 +383,8 @@ scattergl.dt <- function(data,
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
+#' @param idColumn character indicating the column name of the id variable in data
+#' @param returnPointIds boolean indicating if any point ids should be returned with the scatterplot data.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @examples
@@ -432,6 +433,8 @@ scattergl <- function(data,
                       sampleSizes = c(TRUE, FALSE),
                       completeCases = c(TRUE, FALSE),
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
+                      idColumn = NULL,
+                      returnPointIds = c(FALSE, TRUE),
                       verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
@@ -444,6 +447,8 @@ scattergl <- function(data,
                            sampleSizes = sampleSizes,
                            completeCases = completeCases,
                            evilMode = evilMode,
+                           idColumn = idColumn,
+                           returnPointIds = returnPointIds,
                            verbose = verbose)
                            
   outFileName <- writeJSON(.scatter, evilMode, 'scattergl', verbose)

@@ -14,6 +14,8 @@ scattergl(
   sampleSizes = c(TRUE, FALSE),
   completeCases = c(TRUE, FALSE),
   evilMode = c("noVariables", "allVariables", "strataVariables"),
+  idColumn = NULL,
+  returnPointIds = c(FALSE, TRUE),
   verbose = c(TRUE, FALSE)
 )
 }
@@ -38,6 +40,10 @@ data with smoothed mean. Note only 'raw' is compatible with a continuous overlay
 \item{completeCases}{boolean indicating if complete cases should be computed}
 
 \item{evilMode}{String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables')}
+
+\item{idColumn}{character indicating the column name of the id variable in data}
+
+\item{returnPointIds}{boolean indicating if any point ids should be returned with the scatterplot data.}
 
 \item{verbose}{boolean indicating if timed logging is desired}
 }
