@@ -281,6 +281,8 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   ))
 
   df <- as.data.frame(testDF)
+  idColumn <- "entity.sampleId"
+  df[idColumn] <- paste0('sample', 1:nrow(testDF))
 
   dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
@@ -941,6 +943,10 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt), c('entity.factor3', 'entity.cat3', 'seriesX','seriesY', idColumn, 'bestFitLineX', 'bestFitLineY', 'r2'))
   expect_equal(class(dt[[idColumn]][[1]]), 'character')
 
+  dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw', idColumn = idColumn, returnPointIds = FALSE)
+  expect_equal(nrow(dt), 9)
+  expect_equal(names(dt), c('entity.factor3', 'entity.cat3', 'seriesX','seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
+  expect_equal(class(dt[[idColumn]][[1]]), 'NULL')
 })
 
 
@@ -979,6 +985,8 @@ test_that("scattergl() returns appropriately formatted json", {
   ))
 
   df <- as.data.frame(testDF)
+  idColumn <- "entity.sampleId"
+  df[idColumn] <- paste0('sample', 1:nrow(testDF))
 
   dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   outJson <- getJSON(dt, FALSE)
@@ -1364,9 +1372,19 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','contC'))
 
-
-
-
+  dt <- scattergl.dt(df, variables, 'raw', idColumn = idColumn, returnPointIds = FALSE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  
+  expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
+  expect_equal(names(jsonList$scatterplot),c('data','config'))
+  expect_equal(names(jsonList$scatterplot$data),c('seriesX','seriesY','seriesGradientColorscale'))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$scatterplot$config$variables$variableSpec$variableId[jsonList$scatterplot$config$variables$plotReference == 'overlay'], 'contC')
+  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','contC'))
 
 })
 

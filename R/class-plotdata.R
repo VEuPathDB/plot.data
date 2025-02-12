@@ -48,7 +48,7 @@ newPlotdata <- function(.dt = data.table(),
   lon <- veupathUtils::findColNamesFromPlotRef(variables, 'longitude')
 
   # If we ask for the point ids, ensure the column is present. Otherwise set to null. 
-  if (!is.null(returnPointIds) && length(idColumn) > 0) {
+  if (!is.null(returnPointIds) && returnPointIds && length(idColumn) > 0) {
     if (idColumn %in% names(.dt) && nrow(.dt) == uniqueN(.dt[[idColumn]])) {
       idCol <- idColumn
     } else {
