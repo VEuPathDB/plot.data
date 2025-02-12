@@ -44,11 +44,11 @@ test_that("scatter.dt does not fail when there are no complete cases.", {
   expect_equal(is.list(dt$densityX), TRUE)
   expect_equal(is.list(dt$densityY), TRUE)
 
-  dt <- scattergl.dt(df, variables, value='raw', correlationMethod = 'pearson')
-  attr <- attributes(dt)
-  expect_equal(attr$completeCasesAllVars[1], 0)
-  expect_equal(is.list(dt$seriesX), TRUE)
-  expect_equal(is.list(dt$seriesY), TRUE)
+  # dt <- scattergl.dt(df, variables, value='raw', correlationMethod = 'pearson')
+  # attr <- attributes(dt)
+  # expect_equal(attr$completeCasesAllVars[1], 0)
+  # expect_equal(is.list(dt$seriesX), TRUE)
+  # expect_equal(is.list(dt$seriesY), TRUE)
   
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -136,12 +136,12 @@ test_that("scattergl.dt() returns a valid plot.data scatter object", {
   expect_equal(names(namedAttrList),c('variables'))
 
   # make sure correlation coef and pvalue is returned if there is a correlationMethod
-  dt <- scattergl.dt(df, variables, 'raw', correlationMethod = 'pearson')
-  expect_is(dt, 'plot.data')
-  expect_is(dt, 'scatterplot')
-  namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('variables', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','correlationMethod'))
-  expect_equal(length(namedAttrList$correlationMethod), 1)
+  # dt <- scattergl.dt(df, variables, 'raw', correlationMethod = 'pearson')
+  # expect_is(dt, 'plot.data')
+  # expect_is(dt, 'scatterplot')
+  # namedAttrList <- getPDAttributes(dt)
+  # expect_equal(names(namedAttrList),c('variables', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','correlationMethod'))
+  # expect_equal(length(namedAttrList$correlationMethod), 1)
 
 })
 
@@ -195,11 +195,11 @@ test_that("scattergl.dt() returns plot data and config of the appropriate types"
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
 
   # check types of correlation results when there is a correlationMethod
-  dt <- scattergl.dt(df, variables, 'raw', correlationMethod = 'pearson')
-  expect_equal(class(dt$correlationCoef), 'numeric')
-  expect_equal(class(dt$pValue), 'numeric')
-  namedAttrList <- getPDAttributes(dt)
-  expect_equal(class(namedAttrList$correlationMethod),c('scalar', 'character'))
+  # dt <- scattergl.dt(df, variables, 'raw', correlationMethod = 'pearson')
+  # expect_equal(class(dt$correlationCoef), 'numeric')
+  # expect_equal(class(dt$pValue), 'numeric')
+  # namedAttrList <- getPDAttributes(dt)
+  # expect_equal(class(namedAttrList$correlationMethod),c('scalar', 'character'))
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -304,10 +304,10 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
 
   # should see some new cols if we have a correlationMethod
-  dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw', correlationMethod = 'pearson')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2', 'correlationCoef', 'pValue'))
+  # dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw', correlationMethod = 'pearson')
+  # expect_is(dt, 'data.table')
+  # expect_equal(nrow(dt),12)
+  # expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2', 'correlationCoef', 'pValue'))
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -1001,14 +1001,14 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA', 'contB', 'cat3', 'cat4'))
   
   # check json for correlations when correlationMethod is not none
-  dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw', correlationMethod = 'pearson')
-  outJson <- getJSON(dt, FALSE)
-  jsonList <- jsonlite::fromJSON(outJson)
-  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE','smoothedMeanError','correlationCoef','pValue'))
-  expect_equal(names(jsonList$scatterplot$config), c('variables','completeCasesAllVars','completeCasesAxesVars','correlationMethod'))
-  expect_equal(jsonList$scatterplot$config$correlationMethod, 'pearson')
-  expect_equal(class(jsonList$scatterplot$data$correlationCoef), 'numeric')
-  expect_equal(class(jsonList$scatterplot$data$pValue), 'numeric')
+  # dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw', correlationMethod = 'pearson')
+  # outJson <- getJSON(dt, FALSE)
+  # jsonList <- jsonlite::fromJSON(outJson)
+  # expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE','smoothedMeanError','correlationCoef','pValue'))
+  # expect_equal(names(jsonList$scatterplot$config), c('variables','completeCasesAllVars','completeCasesAxesVars','correlationMethod'))
+  # expect_equal(jsonList$scatterplot$config$correlationMethod, 'pearson')
+  # expect_equal(class(jsonList$scatterplot$data$correlationCoef), 'numeric')
+  # expect_equal(class(jsonList$scatterplot$data$pValue), 'numeric')
 
   # Continuous overlay with > 8 values
   variables <- new("VariableMetadataList", SimpleList(

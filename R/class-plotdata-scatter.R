@@ -55,8 +55,6 @@ newScatterPD <- function(.dt = data.table::data.table(),
     # corr results w gradient, same as w/o groups so set group to NULL
     dtForCorr[[group]] <- NULL
     if (correlationMethod != 'none') {
-      dtForCorr[[idCol]] <- NULL
-      print(head(dtForCorr))
       corrResult <- groupCorrelation(dtForCorr, x, y, NULL, panel, correlationMethod = correlationMethod)
     }
   } else {
@@ -66,8 +64,6 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
     # corr results w/o gradient
     if (correlationMethod != 'none') {
-      print(head(dtForCorr))
-      dtForCorr[[idCol]] <- NULL
       corrResult <- groupCorrelation(dtForCorr, x, y, group, panel, correlationMethod = correlationMethod)
     }
   }
