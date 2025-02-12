@@ -48,10 +48,8 @@ newPlotdata <- function(.dt = data.table(),
   lon <- veupathUtils::findColNamesFromPlotRef(variables, 'longitude')
 
   # If we ask for the point ids, ensure the column is present. Otherwise set to null. 
-  print(returnPointIds)
-  print(idColumn)
   if (!is.null(returnPointIds) && length(idColumn) > 0) {
-    if (returnPointIds && !is.null(idColumn) && idColumn %in% names(.dt)) {
+    if (idColumn %in% names(.dt) && nrow(.dt) == uniqueN(.dt[[idColumn]])) {
       idCol <- idColumn
     } else {
       idCol <- NULL
@@ -83,7 +81,7 @@ newPlotdata <- function(.dt = data.table(),
   ## Calculate complete cases table if desired
   if (completeCases) {
     #lat and lon must be used w a geohash, so they dont need to be part of completeCases*
-    varCols <- c(x, y, z, group, facet1, facet2, geo, idCol)
+    varCols <- c(x, y, z, group, facet1, facet2, geo)
     completeCasesTable <- data.table::setDT(lapply(.dt[, ..varCols], function(a) {sum(complete.cases(a))}))
     completeCasesTable <- data.table::transpose(completeCasesTable, keep.names = 'variableDetails')
     data.table::setnames(completeCasesTable, 'V1', 'completeCases')
@@ -105,7 +103,6 @@ newPlotdata <- function(.dt = data.table(),
 
   myCols <- c(x, y, z, lat, lon, group, panel, geo, idCol)
   .dt <- .dt[, myCols, with=FALSE]
-  print(names(.dt))
   veupathUtils::logWithTime('Identified facet intersections.', verbose)
 
   # Reshape data and remap variables if collectionVar is specified

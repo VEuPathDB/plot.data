@@ -50,11 +50,13 @@ newScatterPD <- function(.dt = data.table::data.table(),
     series <- collapseByGroup(.pd, group = 'overlayMissingData', panel)
     .pd$overlayMissingData <- NULL
     series$overlayMissingData <- NULL
-    data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale'))
+    data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale', idCol))
 
     # corr results w gradient, same as w/o groups so set group to NULL
     dtForCorr[[group]] <- NULL
     if (correlationMethod != 'none') {
+      dtForCorr[[idCol]] <- NULL
+      print(head(dtForCorr))
       corrResult <- groupCorrelation(dtForCorr, x, y, NULL, panel, correlationMethod = correlationMethod)
     }
   } else {
@@ -64,6 +66,8 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
     # corr results w/o gradient
     if (correlationMethod != 'none') {
+      print(head(dtForCorr))
+      dtForCorr[[idCol]] <- NULL
       corrResult <- groupCorrelation(dtForCorr, x, y, group, panel, correlationMethod = correlationMethod)
     }
   }
@@ -123,6 +127,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
   } else if (value == 'density') {
     
+    # Note, density is not implemented in production code.
     density <- groupDensity(.pd, NULL, x, group, panel)
     .pd <- density
     veupathUtils::logWithTime('Kernel density estimate calculated from raw data.', verbose)

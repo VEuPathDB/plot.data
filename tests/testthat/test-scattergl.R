@@ -904,6 +904,43 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt), 3)
   expect_equal(names(dt), c('entity.cat3','seriesX','seriesY', idColumn))
   expect_equal(class(dt[[idColumn]][[1]]), 'character')
+
+  # With id columns and facets and best fit lines
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'factor3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
+
+  dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw', idColumn = idColumn, returnPointIds = TRUE)
+  expect_equal(nrow(dt), 9)
+  expect_equal(names(dt), c('entity.factor3', 'entity.cat3', 'seriesX','seriesY', idColumn, 'bestFitLineX', 'bestFitLineY', 'r2'))
+  expect_equal(class(dt[[idColumn]][[1]]), 'character')
+
 })
 
 
@@ -1284,6 +1321,53 @@ test_that("scattergl() returns appropriately formatted json", {
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(typeof(jsonList$scatterplot$data$seriesX), 'list')
   expect_equal(typeof(jsonList$scatterplot$data$seriesY), 'list')
+
+
+  ## With ids
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contC', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    )
+  ))
+  df <- as.data.frame(testDF)
+  idColumn <- "entity.sampleId"
+  df[idColumn] <- paste0('sample', 1:nrow(testDF))
+
+  dt <- scattergl.dt(df, variables, 'raw', idColumn = idColumn, returnPointIds = TRUE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  
+  expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
+  expect_equal(names(jsonList$scatterplot),c('data','config'))
+  expect_equal(names(jsonList$scatterplot$data),c('seriesX','seriesY','seriesGradientColorscale', idColumn))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$scatterplot$config$variables$variableSpec$variableId[jsonList$scatterplot$config$variables$plotReference == 'overlay'], 'contC')
+  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','contC'))
+
+
+
+
+
 })
 
 

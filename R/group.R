@@ -181,7 +181,6 @@ groupCorrelation <- function(
   correlationMethod = c('pearson', 'spearman', 'sparcc')
 ) {
   veupathUtils::matchArg(correlationMethod)
-  print(names(dt))
 
   if (length(dt) > 2) {
     stop('Correlation can only be computed for two variables.')
