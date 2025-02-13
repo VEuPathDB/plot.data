@@ -947,6 +947,10 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('entity.factor3', 'entity.cat3', 'seriesX','seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
   expect_equal(class(dt[[idColumn]][[1]]), 'NULL')
+
+  ## Should err if the id column is provided but doesn't exist
+  expect_error(scattergl.dt(df, variables, 'bestFitLineWithRaw', idColumn = 'fake', returnPointIds = TRUE))
+  expect_error(scattergl.dt(df, variables, 'bestFitLineWithRaw', returnPointIds = TRUE))
 })
 
 

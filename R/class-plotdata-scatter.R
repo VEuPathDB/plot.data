@@ -36,8 +36,12 @@ newScatterPD <- function(.dt = data.table::data.table(),
   panel <- findPanelColName(veupathUtils::findVariableSpecFromPlotRef(variables, 'facet1'), 
                             veupathUtils::findVariableSpecFromPlotRef(variables, 'facet2'))
   # If we ask for the point ids, ensure the column is present. Otherwise set to null. 
-  if (returnPointIds && !is.null(idColumn) && idColumn %in% names(.dt)) {
-    idCol <- idColumn
+  if (returnPointIds) {
+    if (!is.null(idColumn) && idColumn %in% names(.dt)) {
+      idCol <- idColumn
+    } else {
+      stop("idColumn not found or not supplied. Supply proper idColumn if returnPointIds is TRUE.")
+    }
   } else {
     idCol <- NULL
   }
@@ -295,11 +299,10 @@ scattergl.dt <- function(data,
     }
   }
 
-  # If returnPointIds is TRUE, require that the idColumn is present in the data. Otherwise reset returnPointIds
-  if (returnPointIds && !is.null(idColumn)) {
-    if (!(idColumn %in% names(data))) {
-      warning("No id variable found. Continuing without point ids.")
-      returnPointIds <- FALSE
+  # If returnPointIds is TRUE, require that the idColumn is present in the data.
+  if (returnPointIds) {
+    if (is.null(idColumn) || !(idColumn %in% names(data))) {
+      stop("idColumn not found or not supplied. Supply proper idColumn if returnPointIds is TRUE.")
     }
   }
 
