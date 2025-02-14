@@ -13,7 +13,9 @@ newPlotdata <- function(.dt = data.table(),
                          #make sure lat, lon, geoAgg vars are valid plot References
                          variables = NULL,    
                          useGradientColorscale = FALSE,    
-                         overlayValues = veupathUtils::BinList(),            
+                         overlayValues = veupathUtils::BinList(),
+                         idColumn = character(),
+                         returnPointIds = logical(),
                          sampleSizes = logical(),
                          completeCases = logical(),
                          inferredVarAxis = c('y', 'x'),
@@ -44,6 +46,17 @@ newPlotdata <- function(.dt = data.table(),
   #think the only thing we need to do w these at this point is make sure theyre included in the .pd 
   lat <- veupathUtils::findColNamesFromPlotRef(variables, 'latitude')
   lon <- veupathUtils::findColNamesFromPlotRef(variables, 'longitude')
+
+  # If we ask for the point ids, ensure the column is present. Otherwise set to null. 
+  if (!is.null(returnPointIds) && returnPointIds && length(idColumn) > 0) {
+    if (idColumn %in% names(.dt) && nrow(.dt) == uniqueN(.dt[[idColumn]])) {
+      idCol <- idColumn
+    } else {
+      idCol <- NULL
+    }
+  } else {
+    idCol <- NULL
+  }
 
   isEvil <- ifelse(evilMode %in% c('allVariables', 'strataVariables'), TRUE, FALSE)
   collectionVarMetadata <- veupathUtils::findCollectionVariableMetadata(variables)
@@ -88,7 +101,7 @@ newPlotdata <- function(.dt = data.table(),
     panel <- c(facet1, facet2)
   }
 
-  myCols <- c(x, y, z, lat, lon, group, panel, geo)
+  myCols <- c(x, y, z, lat, lon, group, panel, geo, idCol)
   .dt <- .dt[, myCols, with=FALSE]
   veupathUtils::logWithTime('Identified facet intersections.', verbose)
 
@@ -204,6 +217,7 @@ newPlotdata <- function(.dt = data.table(),
   if (!is.null(lon)) { .dt[[lon]] <- updateType(.dt[[lon]], 'NUMBER')}
   if (!is.null(group)) { .dt[[group]] <- updateType(.dt[[group]], groupType) }
   if (!is.null(panel)) { .dt[[panel]] <- updateType(.dt[[panel]], 'STRING') }
+  if (!is.null(idCol)) { .dt[[idCol]] <- updateType(.dt[[idCol]], 'STRING') }
   veupathUtils::logWithTime('Base data types updated for all columns as necessary.', verbose)
 
   if (!is.null(group)) {

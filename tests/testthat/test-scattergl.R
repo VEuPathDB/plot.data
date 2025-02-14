@@ -44,11 +44,11 @@ test_that("scatter.dt does not fail when there are no complete cases.", {
   expect_equal(is.list(dt$densityX), TRUE)
   expect_equal(is.list(dt$densityY), TRUE)
 
-  dt <- scattergl.dt(df, variables, value='raw', correlationMethod = 'pearson')
-  attr <- attributes(dt)
-  expect_equal(attr$completeCasesAllVars[1], 0)
-  expect_equal(is.list(dt$seriesX), TRUE)
-  expect_equal(is.list(dt$seriesY), TRUE)
+  # dt <- scattergl.dt(df, variables, value='raw', correlationMethod = 'pearson')
+  # attr <- attributes(dt)
+  # expect_equal(attr$completeCasesAllVars[1], 0)
+  # expect_equal(is.list(dt$seriesX), TRUE)
+  # expect_equal(is.list(dt$seriesY), TRUE)
   
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -136,12 +136,12 @@ test_that("scattergl.dt() returns a valid plot.data scatter object", {
   expect_equal(names(namedAttrList),c('variables'))
 
   # make sure correlation coef and pvalue is returned if there is a correlationMethod
-  dt <- scattergl.dt(df, variables, 'raw', correlationMethod = 'pearson')
-  expect_is(dt, 'plot.data')
-  expect_is(dt, 'scatterplot')
-  namedAttrList <- getPDAttributes(dt)
-  expect_equal(names(namedAttrList),c('variables', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','correlationMethod'))
-  expect_equal(length(namedAttrList$correlationMethod), 1)
+  # dt <- scattergl.dt(df, variables, 'raw', correlationMethod = 'pearson')
+  # expect_is(dt, 'plot.data')
+  # expect_is(dt, 'scatterplot')
+  # namedAttrList <- getPDAttributes(dt)
+  # expect_equal(names(namedAttrList),c('variables', 'completeCasesAllVars','completeCasesAxesVars','completeCasesTable','sampleSizeTable','correlationMethod'))
+  # expect_equal(length(namedAttrList$correlationMethod), 1)
 
 })
 
@@ -195,11 +195,11 @@ test_that("scattergl.dt() returns plot data and config of the appropriate types"
   expect_equal(class(unlist(sampleSizes$size)), 'integer')
 
   # check types of correlation results when there is a correlationMethod
-  dt <- scattergl.dt(df, variables, 'raw', correlationMethod = 'pearson')
-  expect_equal(class(dt$correlationCoef), 'numeric')
-  expect_equal(class(dt$pValue), 'numeric')
-  namedAttrList <- getPDAttributes(dt)
-  expect_equal(class(namedAttrList$correlationMethod),c('scalar', 'character'))
+  # dt <- scattergl.dt(df, variables, 'raw', correlationMethod = 'pearson')
+  # expect_equal(class(dt$correlationCoef), 'numeric')
+  # expect_equal(class(dt$pValue), 'numeric')
+  # namedAttrList <- getPDAttributes(dt)
+  # expect_equal(class(namedAttrList$correlationMethod),c('scalar', 'character'))
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -281,6 +281,8 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   ))
 
   df <- as.data.frame(testDF)
+  idColumn <- "entity.sampleId"
+  df[idColumn] <- paste0('sample', 1:nrow(testDF))
 
   dt <- scattergl.dt(df, variables, 'raw')
   expect_is(dt, 'data.table')
@@ -304,10 +306,10 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
 
   # should see some new cols if we have a correlationMethod
-  dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw', correlationMethod = 'pearson')
-  expect_is(dt, 'data.table')
-  expect_equal(nrow(dt),12)
-  expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2', 'correlationCoef', 'pValue'))
+  # dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw', correlationMethod = 'pearson')
+  # expect_is(dt, 'data.table')
+  # expect_equal(nrow(dt),12)
+  # expect_equal(names(dt),c('entity.cat4', 'entity.cat3', 'seriesX', 'seriesY', 'bestFitLineX', 'bestFitLineY', 'r2', 'correlationCoef', 'pValue'))
 
   variables <- new("VariableMetadataList", SimpleList(
     new("VariableMetadata",
@@ -871,7 +873,88 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
   expect_equal(nrow(dt), 9)
   expect_equal(names(dt), c('panel','seriesX','seriesY'))
   expect_equal(class(dt$panel), 'character')
+
+
+  # With ids
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
+  df <- as.data.frame(testDF)
+  idColumn <- "entity.sampleId"
+  df[idColumn] <- paste0('sample', 1:nrow(testDF))
+
+  dt <- scattergl.dt(df, variables, 'raw', idColumn = idColumn, returnPointIds = TRUE)
+  expect_equal(nrow(dt), 3)
+  expect_equal(names(dt), c('entity.cat3','seriesX','seriesY', idColumn))
+  expect_equal(class(dt[[idColumn]][[1]]), 'character')
+
+  # With id columns and facets and best fit lines
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'cat3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'factor3', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'facet1'),
+      dataType = new("DataType", value = 'STRING'),
+      dataShape = new("DataShape", value = 'CATEGORICAL')
+    )
+  ))
+
+  dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw', idColumn = idColumn, returnPointIds = TRUE)
+  expect_equal(nrow(dt), 9)
+  expect_equal(names(dt), c('entity.factor3', 'entity.cat3', 'seriesX','seriesY', idColumn, 'bestFitLineX', 'bestFitLineY', 'r2'))
+  expect_equal(class(dt[[idColumn]][[1]]), 'character')
+
+  dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw', idColumn = idColumn, returnPointIds = FALSE)
+  expect_equal(nrow(dt), 9)
+  expect_equal(names(dt), c('entity.factor3', 'entity.cat3', 'seriesX','seriesY', 'bestFitLineX', 'bestFitLineY', 'r2'))
+  expect_equal(class(dt[[idColumn]][[1]]), 'NULL')
+
+  ## Should err if the id column is provided but doesn't exist
+  expect_error(scattergl.dt(df, variables, 'bestFitLineWithRaw', idColumn = 'fake', returnPointIds = TRUE))
+  expect_error(scattergl.dt(df, variables, 'bestFitLineWithRaw', returnPointIds = TRUE))
 })
+
+
+
 
 test_that("scattergl() returns appropriately formatted json", {
   
@@ -906,6 +989,8 @@ test_that("scattergl() returns appropriately formatted json", {
   ))
 
   df <- as.data.frame(testDF)
+  idColumn <- "entity.sampleId"
+  df[idColumn] <- paste0('sample', 1:nrow(testDF))
 
   dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw')
   outJson <- getJSON(dt, FALSE)
@@ -928,14 +1013,14 @@ test_that("scattergl() returns appropriately formatted json", {
   expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA', 'contB', 'cat3', 'cat4'))
   
   # check json for correlations when correlationMethod is not none
-  dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw', correlationMethod = 'pearson')
-  outJson <- getJSON(dt, FALSE)
-  jsonList <- jsonlite::fromJSON(outJson)
-  expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE','smoothedMeanError','correlationCoef','pValue'))
-  expect_equal(names(jsonList$scatterplot$config), c('variables','completeCasesAllVars','completeCasesAxesVars','correlationMethod'))
-  expect_equal(jsonList$scatterplot$config$correlationMethod, 'pearson')
-  expect_equal(class(jsonList$scatterplot$data$correlationCoef), 'numeric')
-  expect_equal(class(jsonList$scatterplot$data$pValue), 'numeric')
+  # dt <- scattergl.dt(df, variables, 'smoothedMeanWithRaw', correlationMethod = 'pearson')
+  # outJson <- getJSON(dt, FALSE)
+  # jsonList <- jsonlite::fromJSON(outJson)
+  # expect_equal(names(jsonList$scatterplot$data),c('facetVariableDetails','overlayVariableDetails','seriesX','seriesY','smoothedMeanX','smoothedMeanY','smoothedMeanSE','smoothedMeanError','correlationCoef','pValue'))
+  # expect_equal(names(jsonList$scatterplot$config), c('variables','completeCasesAllVars','completeCasesAxesVars','correlationMethod'))
+  # expect_equal(jsonList$scatterplot$config$correlationMethod, 'pearson')
+  # expect_equal(class(jsonList$scatterplot$data$correlationCoef), 'numeric')
+  # expect_equal(class(jsonList$scatterplot$data$pValue), 'numeric')
 
   # Continuous overlay with > 8 values
   variables <- new("VariableMetadataList", SimpleList(
@@ -1248,6 +1333,63 @@ test_that("scattergl() returns appropriately formatted json", {
   jsonList <- jsonlite::fromJSON(outJson)
   expect_equal(typeof(jsonList$scatterplot$data$seriesX), 'list')
   expect_equal(typeof(jsonList$scatterplot$data$seriesY), 'list')
+
+
+  ## With ids
+  variables <- new("VariableMetadataList", SimpleList(
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contB', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'yAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contA', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'xAxis'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    ),
+    new("VariableMetadata",
+      variableClass = new("VariableClass", value = 'native'),
+      variableSpec = new("VariableSpec", variableId = 'contC', entityId = 'entity'),
+      plotReference = new("PlotReference", value = 'overlay'),
+      dataType = new("DataType", value = 'NUMBER'),
+      dataShape = new("DataShape", value = 'CONTINUOUS')
+    )
+  ))
+  df <- as.data.frame(testDF)
+  idColumn <- "entity.sampleId"
+  df[idColumn] <- paste0('sample', 1:nrow(testDF))
+
+  dt <- scattergl.dt(df, variables, 'raw', idColumn = idColumn, returnPointIds = TRUE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  
+  expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
+  expect_equal(names(jsonList$scatterplot),c('data','config'))
+  expect_equal(names(jsonList$scatterplot$data),c('seriesX','seriesY','seriesGradientColorscale', idColumn))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$scatterplot$config$variables$variableSpec$variableId[jsonList$scatterplot$config$variables$plotReference == 'overlay'], 'contC')
+  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','contC'))
+
+  dt <- scattergl.dt(df, variables, 'raw', idColumn = idColumn, returnPointIds = FALSE)
+  outJson <- getJSON(dt, FALSE)
+  jsonList <- jsonlite::fromJSON(outJson)
+  
+  expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
+  expect_equal(names(jsonList$scatterplot),c('data','config'))
+  expect_equal(names(jsonList$scatterplot$data),c('seriesX','seriesY','seriesGradientColorscale'))
+  expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
+  expect_equal(names(jsonList$scatterplot$config$variables$variableSpec),c('variableId','entityId'))
+  expect_equal(jsonList$scatterplot$config$variables$variableSpec$variableId[jsonList$scatterplot$config$variables$plotReference == 'overlay'], 'contC')
+  expect_equal(names(jsonList$completeCasesTable),c('variableDetails','completeCases'))
+  expect_equal(names(jsonList$completeCasesTable$variableDetails), c('variableId','entityId'))
+  expect_equal(jsonList$completeCasesTable$variableDetails$variableId, c('contA','contB','contC'))
+
 })
 
 

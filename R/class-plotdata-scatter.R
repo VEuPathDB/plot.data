@@ -3,6 +3,8 @@ newScatterPD <- function(.dt = data.table::data.table(),
                          value = character(),
                          useGradientColorscale = FALSE,
                          overlayValues = veupathUtils::BinList(),
+                         idColumn = character(),
+                         returnPointIds = logical(),
                          correlationMethod = character(),
                          sampleSizes = logical(),
                          completeCases = logical(),
@@ -15,6 +17,8 @@ newScatterPD <- function(.dt = data.table::data.table(),
                      variables = variables,
                      useGradientColorscale = useGradientColorscale,
                      overlayValues = overlayValues,
+                     idColumn = idColumn,
+                     returnPointIds = returnPointIds,
                      sampleSizes = sampleSizes,
                      completeCases = completeCases,
                      evilMode = evilMode,
@@ -31,6 +35,16 @@ newScatterPD <- function(.dt = data.table::data.table(),
   group <- veupathUtils::findColNamesFromPlotRef(variables, 'overlay')
   panel <- findPanelColName(veupathUtils::findVariableSpecFromPlotRef(variables, 'facet1'), 
                             veupathUtils::findVariableSpecFromPlotRef(variables, 'facet2'))
+  # If we ask for the point ids, ensure the column is present. Otherwise set to null. 
+  if (returnPointIds) {
+    if (!is.null(idColumn) && idColumn %in% names(.dt)) {
+      idCol <- idColumn
+    } else {
+      stop("idColumn not found or not supplied. Supply proper idColumn if returnPointIds is TRUE.")
+    }
+  } else {
+    idCol <- NULL
+  }
   
   dtForCorr <- data.table::as.data.table(.pd)
 
@@ -40,7 +54,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
     series <- collapseByGroup(.pd, group = 'overlayMissingData', panel)
     .pd$overlayMissingData <- NULL
     series$overlayMissingData <- NULL
-    data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale'))
+    data.table::setnames(series, c(panel, 'seriesX', 'seriesY', 'seriesGradientColorscale', idCol))
 
     # corr results w gradient, same as w/o groups so set group to NULL
     dtForCorr[[group]] <- NULL
@@ -50,7 +64,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   } else {
     #series data w/o gradient
     series <- collapseByGroup(.pd, group, panel)
-    data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY'))
+    data.table::setnames(series, c(group, panel, 'seriesX', 'seriesY', idCol))
 
     # corr results w/o gradient
     if (correlationMethod != 'none') {
@@ -113,6 +127,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
 
   } else if (value == 'density') {
     
+    # Note, density is not implemented in production code.
     density <- groupDensity(.pd, NULL, x, group, panel)
     .pd <- density
     veupathUtils::logWithTime('Kernel density estimate calculated from raw data.', verbose)
@@ -193,6 +208,9 @@ validateScatterPD <- function(.scatter, verbose) {
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
+#' @param idColumn character indicating the column name of the id variable in data
+#' @param returnPointIds boolean indicating if any point ids should be returned with the scatterplot data.
+#' This value will only be used when idColumn is present.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return data.table plot-ready data
 #' @examples
@@ -243,6 +261,8 @@ scattergl.dt <- function(data,
                          evilMode = c('noVariables', 'allVariables', 'strataVariables'),
                          collectionVariablePlotRef = NULL,
                          computedVariableMetadata = NULL,
+                         idColumn = NULL,
+                         returnPointIds = c(FALSE, TRUE),
                          verbose = c(TRUE, FALSE)) {
   
   if (!inherits(variables, 'VariableMetadataList')) stop("The `variables` argument must be a VariableMetadataList object.")
@@ -252,6 +272,7 @@ scattergl.dt <- function(data,
   completeCases <- veupathUtils::matchArg(completeCases)
   evilMode <- veupathUtils::matchArg(evilMode)
   verbose <- veupathUtils::matchArg(verbose)
+  returnPointIds <- veupathUtils::matchArg(returnPointIds)
 
   if (!'data.table' %in% class(data)) {
     data.table::setDT(data)
@@ -276,7 +297,14 @@ scattergl.dt <- function(data,
     if (!yVM@dataType@value %in% c('NUMBER', 'INTEGER') & value != 'raw') {
       stop('Trend lines can only be provided for numeric dependent axes.')
     }
-  } 
+  }
+
+  # If returnPointIds is TRUE, require that the idColumn is present in the data.
+  if (returnPointIds) {
+    if (is.null(idColumn) || !(idColumn %in% names(data))) {
+      stop("idColumn not found or not supplied. Supply proper idColumn if returnPointIds is TRUE.")
+    }
+  }
 
   groupVM <- veupathUtils::findVariableMetadataFromPlotRef(variables, 'overlay')
   # Decide if we should use a gradient colorscale
@@ -302,6 +330,8 @@ scattergl.dt <- function(data,
                             useGradientColorscale = useGradientColorscale,
                             overlayValues = overlayValues,
                             correlationMethod = correlationMethod,
+                            idColumn = idColumn,
+                            returnPointIds = returnPointIds,
                             sampleSizes = sampleSizes,
                             completeCases = completeCases,
                             inferredVarAxis = 'y',
@@ -357,6 +387,8 @@ scattergl.dt <- function(data,
 #' @param sampleSizes boolean indicating if sample sizes should be computed
 #' @param completeCases boolean indicating if complete cases should be computed
 #' @param evilMode String indicating how evil this plot is ('strataVariables', 'allVariables', 'noVariables') 
+#' @param idColumn character indicating the column name of the id variable in data
+#' @param returnPointIds boolean indicating if any point ids should be returned with the scatterplot data.
 #' @param verbose boolean indicating if timed logging is desired
 #' @return character name of json file containing plot-ready data
 #' @examples
@@ -405,6 +437,8 @@ scattergl <- function(data,
                       sampleSizes = c(TRUE, FALSE),
                       completeCases = c(TRUE, FALSE),
                       evilMode = c('noVariables', 'allVariables', 'strataVariables'),
+                      idColumn = NULL,
+                      returnPointIds = c(FALSE, TRUE),
                       verbose = c(TRUE, FALSE)) {
 
   verbose <- veupathUtils::matchArg(verbose)
@@ -417,6 +451,8 @@ scattergl <- function(data,
                            sampleSizes = sampleSizes,
                            completeCases = completeCases,
                            evilMode = evilMode,
+                           idColumn = idColumn,
+                           returnPointIds = returnPointIds,
                            verbose = verbose)
                            
   outFileName <- writeJSON(.scatter, evilMode, 'scattergl', verbose)
