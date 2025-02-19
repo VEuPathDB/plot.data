@@ -904,8 +904,8 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
 
   dt <- scattergl.dt(df, variables, 'raw', idColumn = idColumn, returnPointIds = TRUE)
   expect_equal(nrow(dt), 3)
-  expect_equal(names(dt), c('entity.cat3','seriesX','seriesY', idColumn))
-  expect_equal(class(dt[[idColumn]][[1]]), 'character')
+  expect_equal(names(dt), c('entity.cat3','seriesX','seriesY', 'pointIds'))
+  expect_equal(class(dt[['pointIds']][[1]]), 'character')
 
   # With id columns and facets and best fit lines
   variables <- new("VariableMetadataList", SimpleList(
@@ -940,8 +940,8 @@ test_that("scattergl.dt() returns an appropriately sized data.table", {
 
   dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw', idColumn = idColumn, returnPointIds = TRUE)
   expect_equal(nrow(dt), 9)
-  expect_equal(names(dt), c('entity.factor3', 'entity.cat3', 'seriesX','seriesY', idColumn, 'bestFitLineX', 'bestFitLineY', 'r2'))
-  expect_equal(class(dt[[idColumn]][[1]]), 'character')
+  expect_equal(names(dt), c('entity.factor3', 'entity.cat3', 'seriesX','seriesY', 'pointIds', 'bestFitLineX', 'bestFitLineY', 'r2'))
+  expect_equal(class(dt[['pointIds']][[1]]), 'character')
 
   dt <- scattergl.dt(df, variables, 'bestFitLineWithRaw', idColumn = idColumn, returnPointIds = FALSE)
   expect_equal(nrow(dt), 9)
@@ -1368,7 +1368,7 @@ test_that("scattergl() returns appropriately formatted json", {
   
   expect_equal(names(jsonList),c('scatterplot','sampleSizeTable', 'completeCasesTable'))
   expect_equal(names(jsonList$scatterplot),c('data','config'))
-  expect_equal(names(jsonList$scatterplot$data),c('seriesX','seriesY','seriesGradientColorscale', idColumn))
+  expect_equal(names(jsonList$scatterplot$data),c('seriesX','seriesY','seriesGradientColorscale', 'pointIds'))
   expect_equal(names(jsonList$scatterplot$config),c('variables','completeCasesAllVars','completeCasesAxesVars'))
   expect_equal(names(jsonList$scatterplot$config$variables$variableSpec),c('variableId','entityId'))
   expect_equal(jsonList$scatterplot$config$variables$variableSpec$variableId[jsonList$scatterplot$config$variables$plotReference == 'overlay'], 'contC')
