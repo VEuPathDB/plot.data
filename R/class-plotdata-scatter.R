@@ -38,7 +38,7 @@ newScatterPD <- function(.dt = data.table::data.table(),
   # If we ask for the point ids, ensure the column is present. Otherwise set to null. 
   if (returnPointIds) {
     if (!is.null(idColumn) && idColumn %in% names(.dt)) {
-      idCol <- idColumn
+      idCol <- 'pointIds' # Will become the name of the id column in the output.
     } else {
       stop("idColumn not found or not supplied. Supply proper idColumn if returnPointIds is TRUE.")
     }
