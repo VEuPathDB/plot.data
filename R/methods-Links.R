@@ -40,11 +40,10 @@ setMethod("getColors", "LinkList", function(object) unlist(lapply(object, functi
 toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 
 #' Convert Link object to JSON
-#' 
+#'
 #' Converts a Link object to JSON
 #' @param object A Link object
 #' @param named boolean that declares if names should be included
-#' @export
 setMethod(toJSONGeneric, "Link", function(object, named = c(FALSE, TRUE)) {
     named <- veupathUtils::matchArg(named)
     tmp <- character()
@@ -63,7 +62,6 @@ setMethod(toJSONGeneric, "Link", function(object, named = c(FALSE, TRUE)) {
     return(tmp)
 })
 
-#' @export
 setMethod(toJSONGeneric, signature("LinkList"), function(object, named = c(TRUE, FALSE)) {
     named <- veupathUtils::matchArg(named) 
     tmp <- veupathUtils::S4SimpleListToJSON(object, FALSE)

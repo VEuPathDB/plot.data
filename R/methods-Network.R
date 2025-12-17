@@ -172,11 +172,10 @@ pruneLinksBelowWeight <- function(net, threshold, verbose = c(TRUE, FALSE)) {
 toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 
 #' Convert Network object to JSON
-#' 
+#'
 #' Converts a Network object to JSON
 #' @param object A Network object
 #' @param named boolean that declares if names should be included
-#' @export
 setMethod(toJSONGeneric, "BaseNetwork", function(object, named = c(TRUE, FALSE)) {
   
   named <- veupathUtils::matchArg(named)    
@@ -202,7 +201,6 @@ setMethod(toJSONGeneric, "BaseNetwork", function(object, named = c(TRUE, FALSE))
 #' @param pattern optional tmp file prefix
 #' @param verbose boolean that declares if logging is desired
 #' @return character name of a tmp file w ext *.json
-#' @importFrom jsonlite toJSON
 #' @export
 #' @rdname writeNetworkJSON
 setGeneric("writeNetworkJSON", function(x, pattern = NULL, verbose = c(TRUE, FALSE)) standardGeneric("writeNetworkJSON"), signature = c("x"))
