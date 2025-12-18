@@ -27,7 +27,7 @@ Imports:
     veupathUtils,
     zoo
 Remotes:
-    VEuPathDB/veupathUtils@add-bioc-to-remotes
+    VEuPathDB/veupathUtils
 URL: https://github.com/VEuPathDB/plot.data
 BugReports: https://github.com/VEuPathDB/plot.data/issues
 Description: plot.data is an R package for creating client-ready data for various plots and visualizations. Data can be returned as either a data.table or a json file. The json file also includes some additional information helpful for rendering various plot widgets (ex: recommended range and step for a bin width slider to accompany a histogram). The `data.table`s are organized so that each row represents data for one group per panel. Optionally compute various statistics (ex: smoothed conditional mean, kernel density estimates, odds ratio, relative risk, etc).
