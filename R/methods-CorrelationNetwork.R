@@ -63,11 +63,10 @@ function(
 toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 
 #' Convert CorrelationNetwork object to JSON
-#' 
+#'
 #' Converts a CorrelationNetwork object to JSON
 #' @param object A CorrelationNetwork object
 #' @param named boolean that declares if names should be included
-#' @export
 setMethod(toJSONGeneric, "CorrelationNetwork", function(object, named = c(TRUE, FALSE)) {
   
   named <- veupathUtils::matchArg(named)    

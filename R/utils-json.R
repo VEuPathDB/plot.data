@@ -257,7 +257,6 @@ getJSON <- function(.pd, evilMode) {
 #' @param .pd a data.table to convert to json and write to a tmp file
 #' @param pattern optional tmp file prefix
 #' @return character name of a tmp file w ext *.json
-#' @importFrom jsonlite toJSON
 #' @importFrom jsonlite prettify
 #' @export
 writeJSON <- function(.pd, evilMode, pattern = NULL, verbose = c(TRUE, FALSE)) {

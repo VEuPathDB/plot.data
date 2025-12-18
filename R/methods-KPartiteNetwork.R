@@ -13,11 +13,10 @@ setMethod("getAllNodeIds", "Partitions", function(object) unlist(lapply(as.list(
 toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 
 #' Convert Partitions object to JSON
-#' 
+#'
 #' Converts a Partitions object to JSON
 #' @param object A Partitions object
 #' @param named boolean that declares if names should be included
-#' @export
 setMethod(toJSONGeneric, "Partitions", function(object, named = c(TRUE, FALSE)) {
     named <- veupathUtils::matchArg(named)
     tmp <- veupathUtils::S4SimpleListToJSON(object, TRUE)
@@ -28,11 +27,10 @@ setMethod(toJSONGeneric, "Partitions", function(object, named = c(TRUE, FALSE)) 
 })
 
 #' Convert KPartiteNetwork object to JSON
-#' 
+#'
 #' Converts a KPartiteNetwork object to JSON
 #' @param object A KPartiteNetwork object
 #' @param named boolean that declares if names should be included
-#' @export 
 setMethod(toJSONGeneric, "KPartiteNetwork", function(object, named = c(TRUE, FALSE)) {
     named <- veupathUtils::matchArg(named)
     tmp <- character()
