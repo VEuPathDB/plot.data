@@ -58,11 +58,10 @@ setMethod("getNodeIds", "NodeIdList", function(object) unlist(lapply(as.list(obj
 toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 
 #' Convert Node object to JSON
-#' 
+#'
 #' Converts a Node object to JSON
 #' @param object A Node object
 #' @param named boolean that declares if names should be included
-#' @export
 setMethod(toJSONGeneric, "Node", function(object, named = c(FALSE, TRUE)) {
     named <- veupathUtils::matchArg(named)
     tmp <- character()
@@ -82,7 +81,6 @@ setMethod(toJSONGeneric, "Node", function(object, named = c(FALSE, TRUE)) {
     return(tmp)
 })
 
-#' @export
 setMethod(toJSONGeneric, signature("NodeList"), function(object, named = c(TRUE, FALSE)) {
     named <- veupathUtils::matchArg(named) 
     tmp <- veupathUtils::S4SimpleListToJSON(object, FALSE)
@@ -92,7 +90,6 @@ setMethod(toJSONGeneric, signature("NodeList"), function(object, named = c(TRUE,
     return(tmp)
 })
 
-#' @export
 setMethod(toJSONGeneric, signature("NodeId"), function(object, named = c(FALSE, TRUE)) {
     named <- veupathUtils::matchArg(named)
     tmp <- character()
@@ -104,7 +101,6 @@ setMethod(toJSONGeneric, signature("NodeId"), function(object, named = c(FALSE, 
     return(tmp)
 })
 
-#' @export
 setMethod(toJSONGeneric, signature("NodeIdList"), function(object, named = c(TRUE, FALSE)) {
     named <- veupathUtils::matchArg(named) 
     tmp <- veupathUtils::S4SimpleListToJSON(object, FALSE)

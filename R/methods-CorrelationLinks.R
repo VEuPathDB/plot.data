@@ -78,7 +78,6 @@ function(
 
 toJSONGeneric <- getGeneric("toJSON", package = "veupathUtils")
 
-#' @export
 setMethod(toJSONGeneric, signature("CorrelationLinkList"), function(object, named = c(TRUE, FALSE)) {
     named <- veupathUtils::matchArg(named) 
     tmp <- veupathUtils::S4SimpleListToJSON(object, FALSE)
